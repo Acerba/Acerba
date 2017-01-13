@@ -1,0 +1,181 @@
+namespace ace {
+    
+    namespace LIBS {
+        enum SDL
+        enum stb_image
+        enum stb_truetype
+        enum Box2D
+        enum Doxygen
+    }
+    
+    class Module {
+        + Init()
+        + Quit()
+    }
+    
+    class Timer {
+    
+    }
+    
+    namespace GROUP1 {
+    
+        '"Component" system'
+        class System {
+            + Init()
+            + Quit()
+            + Update()
+            + Enable(Component&)
+            + Disable(Component&)
+        }
+        
+        class EntityManager {
+        
+        }
+        
+        class Entity {
+            
+        }
+        
+        Entity --* EntityManager
+    
+        
+        class Transform {
+            + Vector3 position
+            + Quaternion rotation
+            + Vector3 scale
+        }
+        
+        class Scene {
+        
+        }
+    
+    }
+    
+    class Audio {
+    
+    }
+    
+    namespace input {
+    
+        class Mouse {
+        
+        }
+        
+        class Touch {
+        
+        }
+        
+        class Accelerometer {
+        
+        }
+        
+        namespace LATER {
+        
+            class Gamepad {
+            
+            }
+            
+            class Keyboard {
+            
+            }
+        
+        }
+    
+    }
+    
+    namespace math {
+    
+        class Vector2 {
+            + float x
+            + float y
+        }
+        
+        class Vector3 {
+            + float x
+            + float y
+            + float z
+        }
+        
+        class Quaternion {
+            + Vector3
+            + float s
+        }
+        
+        class Rect {
+            + float x
+            + float y
+            + float w
+            + float h
+        }
+        
+        class Matrix4 {
+        
+        }
+    }
+    
+    namespace graphics {
+    
+        class Window {
+        
+        }
+        
+        class Renderer {
+            + {static} void SetVertexBuffer(Buffer&)
+        }
+        
+        class Sprite {
+            + Texture texture
+            + Color color
+            + Rect uv
+        }
+        
+        class Camera {
+            + Vector3 position
+        }
+        
+        class Image  {
+            + UInt8* pixels
+            + float w, h 
+        }
+        
+        class Texture {
+        
+        }
+        
+        class Animation {
+        
+        }
+        
+        class Shader {
+        
+        }
+        
+        class Material {
+        
+        }
+        
+        class Font {
+        
+        }
+        
+        class Buffer {
+        
+        }
+        
+        class Mesh {
+        
+        }
+    }
+    
+    namespace physics {
+    
+        class Collision {
+        
+        }
+        
+        class Rigidbody {
+        
+        }
+        
+    }
+}
