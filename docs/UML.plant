@@ -17,6 +17,11 @@ namespace ace {
     
     }
     
+    class File {
+        + Read()
+        + Write()
+    }
+    
     namespace GROUP1 {
     
         '"Component" system'
@@ -178,4 +183,4 @@ namespace ace {
         }
         
     }
-}
+}	
