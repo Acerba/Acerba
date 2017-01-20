@@ -6,7 +6,7 @@ namespace ace
 {
 	enum class MouseButton
 	{
-		Left,
+		Left = 1,
 		Middle,
 		Right,
 	};
