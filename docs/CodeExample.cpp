@@ -19,6 +19,9 @@ void MeshAddBuffer(Mesh& mesh, ...)
 }
 
 // C++ 11
+
+// Doxygen comment Example.
+/// Clear Enum
 enum class Clear
 {
 	Color	= 0x1, // 0x2, 0x4, 0x8, 0x10, 0x20, 0x40,
