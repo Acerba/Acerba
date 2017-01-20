@@ -4,6 +4,9 @@ project(ACERBA CXX)
 
 add_subdirectory(${ACERBA_SOURCE_DIR}/3rdparty)
 
+find_package(OpenGL)
+
+
 
 file(GLOB ACERBA_SRC ${ACERBA_SOURCE_DIR}/src/Ace/*.cpp ${ACERBA_SOURCE_DIR}/include/Ace/*)
 
@@ -15,7 +18,7 @@ include_directories(${ACERBA_SOURCE_DIR}/include ${ACERBA_SOURCE_DIR}/3rdparty/S
 
 # Check library names.
 # -> Use List variable for all used libraries?
-target_link_libraries(acerba PUBLIC SDL2 SDL2Main)
+target_link_libraries(acerba PUBLIC SDL2 SDL2Main ${OPENGL_gl_LIBRARY})
 
 
 # Example Program
