@@ -5,7 +5,7 @@ project(ACERBA CXX)
 add_subdirectory(${ACERBA_SOURCE_DIR}/3rdparty)
 
 
-file(GLOB ACERBA_SRC ${ACERBA_SOURCE_DIR}/src/*.cpp ${ACERBA_SOURCE_DIR}/include/*)
+file(GLOB ACERBA_SRC ${ACERBA_SOURCE_DIR}/src/Ace/*.cpp ${ACERBA_SOURCE_DIR}/include/Ace/*)
 
 add_library(acerba STATIC ${ACERBA_SRC})
 
