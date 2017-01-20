@@ -11,7 +11,7 @@ add_library(acerba STATIC ${ACERBA_SRC})
 
 
 # -> Add all include directories. (List variable?)
-include_directories(${ACERBA_SOURCE_DIR}/include)
+include_directories(${ACERBA_SOURCE_DIR}/include ${ACERBA_SOURCE_DIR}/3rdparty/SDL2/include)
 
 # Check library names.
 # -> Use List variable for all used libraries?
