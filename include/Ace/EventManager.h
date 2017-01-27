@@ -6,27 +6,8 @@
 
 namespace ace
 {
-
     template <typename ParamT>
-    class EventBase
-    {
-    public:
-
-        //Event lives with the parenting object
-        EventBase()
-        {
-            EventManager<ParamT>::Add(*this);
-        }
-
-        //Event dies along with parenting object
-        ~EventBase()
-        {
-            EventManager<ParamT>::Remove(*this);
-        }
-
-        //Override this method for custom logic
-        virtual void OnEvent(ParamT) = 0;
-    };
+    class EventBase;
 
     template <typename ParamT>
     class EventManager
@@ -82,5 +63,27 @@ namespace ace
         }
 
     };
+
+
+        template <typename ParamT>
+        class EventBase
+        {
+        public:
+
+            //Event lives with the parenting object
+            EventBase()
+            {
+                EventManager<ParamT>::Add(*this);
+            }
+
+            //Event dies along with parenting object
+            ~EventBase()
+            {
+                EventManager<ParamT>::Remove(*this);
+            }
+
+            //Override this method for custom logic
+            virtual void OnEvent(ParamT) = 0;
+        };
 
 }

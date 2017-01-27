@@ -74,14 +74,13 @@ namespace ace
 	void GraphicsDevice::Draw(UInt32 elements)
 	{
 		const char* vertex = " 					\n\
-			#version 300 es						\n\
 												\n\
-			in vec3 position;					\n\
-		in vec2 uv;								\n\
-		in vec4 color;							\n\
+		attribute vec3 position;				\n\
+		attribute vec2 uv;						\n\
+		attribute vec4 color;					\n\
 												\n\
-		out vec4 o_c;							\n\
-		out vec2 o_uv;							\n\
+		varying vec4 o_c;						\n\
+		varying vec2 o_uv;						\n\
 												\n\
 		void main()								\n\
 		{										\n\
@@ -93,17 +92,13 @@ namespace ace
 
 
 		const char* fragment = "	\n\
-			#version 300 es			\n\
 									\n\
-			in lowp vec4 o_c;		\n\
-		in lowp vec2 o_uv;			\n\
-									\n\
-		// Ouput data				\n\
-		out lowp vec4 color;		\n\
+		varying lowp vec4 o_c;		\n\
+		varying lowp vec2 o_uv;		\n\
 									\n\
 		void main()					\n\
 		{							\n\
-			color = o_c;			\n\
+			gl_FragColor = o_c;		\n\
 		}							\n\
 			";
 
@@ -113,10 +108,38 @@ namespace ace
 		glShaderSource(v, 1, &vertex, NULL);
 		glCompileShader(v);
 
+		GLint result = GL_FALSE;
+		GLint errorMsgLength = 0;
+
+		glGetShaderiv(v, GL_COMPILE_STATUS, &result);
+		glGetShaderiv(v, GL_INFO_LOG_LENGTH, &errorMsgLength);
+		if (errorMsgLength > 0)
+		{
+			char* errorMsg = new char[errorMsgLength + 1];
+			glGetShaderInfoLog(v, errorMsgLength, NULL, errorMsg);
+			Logger::Log(Logger::Priority::Info, "%s", errorMsg);
+
+			delete[] errorMsg;
+		}
+
 		UInt32 f = glCreateShader(GL_FRAGMENT_SHADER);
 
 		glShaderSource(f, 1, &fragment, NULL);
 		glCompileShader(f);
+
+		result = GL_FALSE;
+		errorMsgLength = 0;
+
+		glGetShaderiv(v, GL_COMPILE_STATUS, &result);
+		glGetShaderiv(v, GL_INFO_LOG_LENGTH, &errorMsgLength);
+		if (errorMsgLength > 0)
+		{
+			char* errorMsg = new char[errorMsgLength + 1];
+			glGetShaderInfoLog(v, errorMsgLength, NULL, errorMsg);
+			Logger::Log(Logger::Priority::Info, "%s", errorMsg);
+
+			delete[] errorMsg;
+		}
 
 		glAttachShader(p, v);
 		glAttachShader(p, f);
@@ -129,8 +152,8 @@ namespace ace
 		glLinkProgram(p);
 
 
-		GLint result = GL_FALSE;
-		int errorMsgLength;
+		result = GL_FALSE;
+		errorMsgLength = 0;
 
 		glGetProgramiv(p, GL_LINK_STATUS, &result);
 		glGetProgramiv(p, GL_INFO_LOG_LENGTH, &errorMsgLength);
@@ -148,7 +171,7 @@ namespace ace
 
 		SetVertexBuffer(g_buffer);
 		glUseProgram(p);
-		
+
 		glDrawArrays(GL_TRIANGLES, 0, elements);
 	}
 }

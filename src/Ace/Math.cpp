@@ -1,14 +1,14 @@
 #include <Ace\Math.h>
 #include <math.h>
 
-
 namespace ace
 {
 	namespace math
 	{
 		float Abs(float a)
 		{
-			return abs(a);
+			return a > 0 ? a : -a;
+			//return abs(a);
 		}
 
 		float Pow(float a, float b)
@@ -50,7 +50,7 @@ namespace ace
 		{
 			return atan(a);
 		}
-		
+
 		float Ceil(float a)
 		{
 			return ceil(a);

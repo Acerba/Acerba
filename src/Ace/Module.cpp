@@ -21,6 +21,15 @@ namespace ace
     public:
 
         //TODO:
+        void Init()
+        {
+            #if ACE_WIN
+                std::cout << "Acerba initialized" << std::endl;
+            #endif
+
+            SDL_Init(SDL_INIT_EVERYTHING);
+        }
+
         void Init(int argc, char**)
         {
 
@@ -28,21 +37,20 @@ namespace ace
 
         void Quit()
         {
-
+            std::cout << "Acerba shut down" << std::endl;
+            SDL_Quit();
         }
 
         ///Initialize Acerba engine
         Module()
         {
-            std::cout << "Acerba initialized" << std::endl;
-            SDL_Init(SDL_INIT_EVERYTHING);
+            Init();
         }
 
         ///Shutdown Acerba engine
         ~Module()
         {
-            std::cout << "Acerba shut down" << std::endl;
-            SDL_Quit();
+
         }
 
     } module;
@@ -50,7 +58,7 @@ namespace ace
 
     void Init()
     {
-        
+        module.Init();
     }
 
     void Init(int argc, char** argv)

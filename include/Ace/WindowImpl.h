@@ -24,13 +24,19 @@ namespace ace
 
 			// "Post" Init
 
+			#if ACE_WIN
+
 			if (gl3wInit())
 			{
+
 			}
 
 			if (!gl3wIsSupported(3, 0))
 			{
+
 			}
+
+			#endif
 
 		}
 
