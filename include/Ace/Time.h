@@ -7,6 +7,8 @@ namespace ace
 	class Time
 	{
 
+	public:
+
 		static UInt32 GetTicks();
 		static void Delay(UInt32 ms);
 		static UInt64 GetPerformanceCounter();

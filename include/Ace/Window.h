@@ -1,24 +1,32 @@
 #pragma once
 
 #include <Ace/IntTypes.h>
+#include <Ace/Color.h>
 #include <memory>
 
 namespace ace
 {
 	class Window
 	{
+
+	public:
 		struct WindowImpl;
+
+	private:
+
+		std::shared_ptr<WindowImpl> m_windowImpl;
 
 	public:
 
 		Window(const char* title, UInt16 w, UInt16 h);
 		~Window();
 
-	private:
+		inline WindowImpl* operator*()
+		{
+			return m_windowImpl.get();
+		}
 
-		std::shared_ptr<WindowImpl> m_windowImpl;
-
+		void Present();
+		void Clear(const Color32& color);
 	};
-
-	void Log(const char* msg);
 }

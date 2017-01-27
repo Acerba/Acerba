@@ -1,37 +1,38 @@
+#include <iostream>
+#include <vector>
+
 #include <Ace/Module.h>
 
-#include <Ace/Event.h>
-#include <Ace/EventManager.h>
+#include <Ace/Window.h>
+#include <Ace/Time.h>
 
-#include <iostream>
+#include <Ace/GraphicsDevice.h>
 
-namespace ace
-{
 
-    class MyEvent : public EventBase<int>
-    {
-    public:
-        void OnEvent(int param)
-        {
-            std::cout << param << " kjbdkjngdshfkjhhfdjhhgfdkjhhgd" << std::endl;
-        }
-    };
-}
+ace::Vertex triangle[3] = {
+	{ { 0, 0.5f, 0 }, { 0, 0 }, 0xFF0000FFU },
+	{ { -0.5f, 0, 0 }, { 1, 0 }, 0x0000FFFFU },
+	{ { 0.5f, 0, 0 }, { 0, 1 }, 0x00FF00FFU },
+};
 
 int main(int, char**)
 {
-    ace::Init();
+	ace::Init();
 
+	ace::Window window("My Window", 480, 360);
+	ace::GraphicsDevice::Viewport(480, 360);
 
-    //ace::Event::Update();
-    {
-        ace::MyEvent eventti;
+	window.Clear(0xBADAFFFFU);
 
-        eventti.OnEvent(400);
+	ace::Buffer buffer = ace::GraphicsDevice::CreateBuffer(ace::BufferType::Vertex);
+	ace::GraphicsDevice::BufferData(buffer, 3, triangle);
 
-    }
-    ace::EventManager<int>::Broadcast(300);
+	ace::GraphicsDevice::SetVertexBuffer(buffer);
+	ace::GraphicsDevice::Draw(3);
 
+	window.Present();
 
-    return 0;
+	ace::Time::Delay(1000);
+
+	return 0;
 }
