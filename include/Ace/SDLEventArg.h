@@ -6,7 +6,7 @@
 
 namespace ace
 {
-	struct Event::SDLEvent
+	struct Event::SDLEventArg
 	{
 		SDL_Event event;
 	};

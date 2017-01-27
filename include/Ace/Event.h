@@ -4,13 +4,15 @@
 
 #include <math.h>
 
+#include <Ace/EventManager.h>
+
 namespace ace
 {
 	class Event
 	{
 	public:
 
-		struct SDLEvent;
+		struct SDLEventArg;
 
 	private:
 
@@ -25,4 +27,7 @@ namespace ace
 		static void Update();
 
 	};
+
+
+    
 }

@@ -8,7 +8,7 @@ namespace ace
 
     public:
 
-        enum class PRIORITY
+        enum class Priority
         {
             Debug,
             Info,
@@ -16,7 +16,7 @@ namespace ace
             Error
         };
 
-        static void Log(const PRIORITY priority, const char* message ...);
+        static void Log(const Priority priority, const char* message ...);
 
     };
 

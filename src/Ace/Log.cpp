@@ -13,7 +13,7 @@ namespace ace
         SDL_LOG_PRIORITY_ERROR
     };
 
-    void Logger::Log(PRIORITY priority, const char* message ...)
+    void Logger::Log(Priority priority, const char* message ...)
     {
         va_list args;
         va_start(args, message);
