@@ -19,7 +19,7 @@ include_directories(${ACERBA_SOURCE_DIR}/include ${ACERBA_SOURCE_DIR}/3rdparty/S
 # Check library names.
 # -> Use List variable for all used libraries?
 target_link_libraries(acerba PUBLIC SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY})
-target_link_libraries(acerba PUBLIC ${ACERBA_SOURCE_DIR}/libs/libEGL.lib ${ACERBA_SOURCE_DIR}/libs/libGLESV2.lib)
+#target_link_libraries(acerba PUBLIC ${ACERBA_SOURCE_DIR}/libs/libEGL.lib ${ACERBA_SOURCE_DIR}/libs/libGLESV2.lib)
 
 
 # Example Program
