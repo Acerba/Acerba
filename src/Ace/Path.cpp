@@ -4,6 +4,7 @@
 
 namespace ace
 {
+	///Sdt::string konstruktor
 	Path::Path(std::string p)
 	{
 		char *base_path = SDL_GetBasePath();
@@ -11,8 +12,24 @@ namespace ace
 		{
 			m_data_path = base_path + p;
 			SDL_free(base_path);
+		}
+		else
+		{
+			m_data_path = p;
+		}
+	}
 
-			printf(m_data_path.c_str());
+	///Const char konstruktor
+	Path::Path(const char* c)
+	{
+		//This changes const char to std::string
+		std::string p(c);
+
+		char *base_path = SDL_GetBasePath();
+		if (base_path)
+		{
+			m_data_path = base_path + p;
+			SDL_free(base_path);
 		}
 		else
 		{
@@ -25,12 +42,8 @@ namespace ace
 
 	}
 
-	//const char* Path::GetPath()
-	//{
-	//	return m_data_path;
-	//}
-
-	std::string Path::GetPath()
+	///Returns path in string
+	std::string Path::GetPath() const
 	{
 		return m_data_path;
 	}
