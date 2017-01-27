@@ -1,8 +1,12 @@
 #pragma once
 
+#include <Ace/IntTypes.h>
+
 #include <Ace/Quaternion.h>
 #include <Ace/Vector2.h>
 #include <Ace/Vector3.h>
+
+#include <Ace/Color.h>
 
 namespace ace
 {
