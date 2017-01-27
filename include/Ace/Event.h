@@ -8,6 +8,10 @@ namespace ace
 {
 	class Event
 	{
+	public:
+
+		struct SDLEvent;
+
 	private:
 
 		static Event& GetEvent();
