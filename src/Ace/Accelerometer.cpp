@@ -1,55 +1,66 @@
 #include <SDL_joystick.h>
-#include <SDL.h>
 #include <Ace/Accelerometer.h>
-#include <iostream>
+
+#include <Ace/Log.h>
+
+#include <SDL.h>
+
 namespace ace
 {
-	Accelerometer::Accelerometer()
+	struct Accelerometer::AccelerometerImpl
 	{
-		SDL_Joystick *Accelerometer;
-		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-		Accelerometer = SDL_JoystickOpen(0);
+		SDL_Joystick* sdlJoystick;
+
+		AccelerometerImpl()
+		{
+			UInt32 accelerometer = SDL_NumJoysticks() - 1; // Last joystick SHOULD be Accelerometer.
+
+			// Logic for searching Accelerometer if needed.
+			//for(int i = 0; i < SDL_NumJoysticks(); i++)
+			//{
+			//	const char* name = SDL_JoystickNameForIndex(i);
+			//
+			//	if(strstr(name, "Accelerometer") != nullptr)
+			//	{
+			//		accelerometer = i;
+			//		break;
+			//	}
+			//}
+
+			sdlJoystick = SDL_JoystickOpen(accelerometer);
+		}
+
+		~AccelerometerImpl()
+		{
+			if(sdlJoystick && SDL_JoystickGetAttached(sdlJoystick))
+			{
+				SDL_JoystickClose(sdlJoystick);
+			}
+		}
+	};
+
+	Accelerometer* Accelerometer::GetAccelerometer()
+	{
+		static Accelerometer s_accelerometer;
+		return &s_accelerometer;
 	}
 
-	void Accelerometer::CheckAcclrm(SDL_Joystick *Accelerometer)
+	Accelerometer::Accelerometer() : m_accelerometerImpl(new Accelerometer::AccelerometerImpl())
 	{
-		if (SDL_NumJoysticks() > 0)
+
+	}
+
+	Accelerometer::~Accelerometer()
+	{
+		if(m_accelerometerImpl)
 		{
-			if (Accelerometer)
-			{
-				printf("Opened Joystick 0\n");
-				printf("Name: %s\n", SDL_JoystickNameForIndex(0));
-				printf("Number of Axes: %d\n", SDL_JoystickNumAxes(Accelerometer));
-				printf("Number of Buttons: %d\n", SDL_JoystickNumButtons(Accelerometer));
-			}
-			else
-			{
-				printf("Couldn't open Joystick 0\n");
-			}
-		}
-		if (SDL_JoystickGetAttached(Accelerometer))
-		{
-			SDL_JoystickClose(Accelerometer);
+			delete m_accelerometerImpl;
 		}
 	}
-	Sint32 Accelerometer::GetAxis(Sint32 axis)
+
+	float Accelerometer::GetAxis(Int32 axis)
 	{
-		//axis = 0 for x_axis, axis = 1 for y_axis
-		SDL_Joystick *Accelerometer;
-
-		if (axis == 0) //x_axis
-		{
-			return SDL_JoystickGetAxis(Accelerometer, 0);
-		}
-
-		if (axis == 1) //y_axis
-		{
-			return SDL_JoystickGetAxis(Accelerometer, 1);
-		}
-		
-		else
-		{
-			printf("GetAxis() axis must be 0 or 1!\n");
-		}
+		SDL_JoystickUpdate();
+		return SDL_JoystickGetAxis(GetAccelerometer()->m_accelerometerImpl->sdlJoystick, axis) / 32767.0f;
 	}
 }

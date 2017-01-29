@@ -1,12 +1,29 @@
 #pragma once
 
+#include <Ace/Macros.h>
+#include <Ace/IntTypes.h>
+
 namespace ace
 {
 	class Accelerometer
 	{
+		// Sigleton
+		static Accelerometer* GetAccelerometer();
+
+		// Wrapper for SDL_Joystick.
+		struct AccelerometerImpl;
+		AccelerometerImpl* m_accelerometerImpl;
+
+		ACE_DISABLE_COPY(Accelerometer)
+
 		Accelerometer();
 		~Accelerometer();
-		static void CheckAcclrm(SDL_Joystick *Accelmeter);
-		static Sint32 GetAxis(Sint32 axis);
+
+	public:
+
+		// No SDL_Joystick on headers.
+		//static void CheckAcclrm(SDL_Joystick *Accelmeter);
+
+		static float GetAxis(Int32 axis);
 	};
 }

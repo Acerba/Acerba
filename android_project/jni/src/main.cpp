@@ -3,6 +3,8 @@
 #include <Ace/Event.h>
 #include <Ace/GraphicsDevice.h>
 
+#include <Ace/Accelerometer.h>
+
 #include <Ace/Log.h>
 
 #include <SDL.h>
@@ -31,6 +33,8 @@ int main(int argc, char** args)
 		window.Clear({0xBADAFFFFU});
 
 		ace::GraphicsDevice::SetVertexBuffer(buffer);
+
+		ace::Logger::Log(ace::Logger::Priority::Info, "Accelerometer: %f, %f", ace::Accelerometer::GetAxis(0), ace::Accelerometer::GetAxis(1));
 
 		ace::GraphicsDevice::Draw(3);
 

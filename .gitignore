@@ -1,2 +1,6 @@
 build/
 android_project/jni/acerba/
+android_project/obj/
+android_project/bin/
+android_project/libs/
+android_project/gen/
