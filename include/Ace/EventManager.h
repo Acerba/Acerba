@@ -49,8 +49,8 @@ namespace ace
             //Remove-erase
             m.m_events.erase(std::remove_if(
                 m.m_events.begin(), m.m_events.end(),
-                [&evnt](EventBase<ParamT>* e){return e == &evnt; })
-                );
+                [&evnt](EventBase<ParamT>* e){return e == &evnt; }
+            ), m.m_events.end());
         }
 
         //Broadcast to all events listening to ParamT
@@ -65,25 +65,25 @@ namespace ace
     };
 
 
-        template <typename ParamT>
-        class EventBase
+    template <typename ParamT>
+    class EventBase
+    {
+    public:
+
+        //Event lives with the parenting object
+        EventBase()
         {
-        public:
+            EventManager<ParamT>::Add(*this);
+        }
 
-            //Event lives with the parenting object
-            EventBase()
-            {
-                EventManager<ParamT>::Add(*this);
-            }
+        //Event dies along with parenting object
+        ~EventBase()
+        {
+            EventManager<ParamT>::Remove(*this);
+        }
 
-            //Event dies along with parenting object
-            ~EventBase()
-            {
-                EventManager<ParamT>::Remove(*this);
-            }
-
-            //Override this method for custom logic
-            virtual void OnEvent(ParamT) = 0;
-        };
+        //Override this method for custom logic
+        virtual void OnEvent(ParamT) = 0;
+    };
 
 }

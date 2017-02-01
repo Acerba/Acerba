@@ -1,23 +1,35 @@
 #pragma once
 #include <Ace/IntTypes.h>
 
-///Macro for |, |=, &, &= operators for enums
+///Enable bitwise operators for an enum
 #define ACE_ENUM_OPERATORS(enumName) \
-enumName operator|(enumName lhs, enumName rhs) \
+inline enumName operator|(enumName lhs, enumName rhs) \
 { \
-    return static_cast<enumName>(static_cast<ace::UInt16>(lhs) | static_cast<ace::UInt16>(rhs)); \
+    return static_cast<enumName>(static_cast<ace::UInt64>(lhs) | static_cast<ace::UInt64>(rhs)); \
 } \
-enumName operator|=(enumName lhs, enumName rhs) \
+inline enumName operator|=(enumName lhs, enumName rhs) \
 { \
     return lhs = lhs | rhs; \
 } \
-enumName operator&(enumName lhs, enumName rhs) \
+inline enumName operator&(enumName lhs, enumName rhs) \
 { \
-    return static_cast<enumName>(static_cast<ace::UInt16>(lhs) & static_cast<ace::UInt16>(rhs)); \
+    return static_cast<enumName>(static_cast<ace::UInt64>(lhs) & static_cast<ace::UInt64>(rhs)); \
 } \
-enumName operator&=(enumName lhs, enumName rhs) \
+inline enumName operator&=(enumName lhs, enumName rhs) \
 { \
     return lhs = lhs & rhs; \
+} \
+inline enumName operator^(enumName lhs, enumName rhs) \
+{ \
+    return static_cast<enumName>(static_cast<ace::UInt64>(lhs) ^ static_cast<ace::UInt64>(rhs)); \
+} \
+inline enumName operator^=(enumName lhs, enumName rhs) \
+{ \
+    return lhs = lhs ^ rhs; \
+} \
+inline enumName operator~(enumName rhs) \
+{ \
+    return static_cast<enumName>( ~ static_cast<ace::UInt64>(rhs)); \
 }
 
 

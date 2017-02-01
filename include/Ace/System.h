@@ -30,7 +30,7 @@ namespace ace
 
         //Disable && Enable: remove / add to handles, m_comps stays the same
 
-        System():
+        System() :
             m_components(),
             m_handles()
         {
@@ -72,7 +72,7 @@ namespace ace
                 std::remove_if(
                 m_handles.begin(), m_handles.end(),
                 [&handle](ComponentHandle<CompType>& ch){return ch.GetHandleID() == handle.GetHandleID(); }
-            ));
+            ), m_handles.end());
 
             return size > m_handles.size();
         }
@@ -110,14 +110,14 @@ namespace ace
                 std::remove_if(
                 m_components.begin(), m_components.end(),
                 [&handle](Component<CompType>& c){return c.GetID() == handle.GetCompID(); }
-            ));
+            ), m_components.end());
 
             //Remove-erase handle whose ID == ID of the param handle
             m_handles.erase(
                 std::remove_if(
                 m_handles.begin(), m_handles.end(),
                 [&handle](ComponentHandle<CompType>& ch){return ch.GetHandleID() == handle.GetHandleID(); }
-            ));
+            ), m_handles.end());
 
             return
                 sizeC > m_components.size() &&
@@ -126,7 +126,7 @@ namespace ace
         //////////////////////////////
 
 
-        
+
 
 
     };
