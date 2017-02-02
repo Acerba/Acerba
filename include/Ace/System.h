@@ -7,36 +7,69 @@
 #include <memory>
 #include <vector>
 
+//TODO: will we make a custom assert?
+#include <cassert>
+
 namespace ace
 {
 
 
 
-
-
-
-    template <typename CompType>
-    class System
+    class SystemBase
     {
 
-        //Components - Hidden from user
-        std::vector<Component<CompType>> m_components;
 
-        //Handles - Used by the user
-        //Entity has also handles, should use shared_ptr
-        //User has access to these, shouldn't use shared_ptr
-        std::vector<ComponentHandle<CompType>> m_handles;
-        //std::vector<std::shared_ptr<ComponentHandle<CompType>>> m_handles;
 
-        //Disable && Enable: remove / add to handles, m_comps stays the same
+        static UInt32 m_enabledComponentsCount;
 
-        System() :
-            m_components(),
-            m_handles()
+        const UInt32 m_ID;
+
+    protected:
+
+
+        SystemBase(const UInt32 id) :
+            m_ID(id)
+
         {
 
         }
 
+        virtual ~SystemBase();
+
+    public:
+
+        virtual void Update() = 0;
+
+    };
+
+
+
+
+    template <typename CompType>
+    class System : protected SystemBase
+    {
+        std::vector<Component<CompType>> m_components;
+        std::vector<ComponentHandle<CompType>> m_handles;
+
+
+        // SystemID == ComponentID
+        System() :
+            SystemBase(typeid(*this))
+        {
+
+        }
+
+        virtual ~System();
+
+        template <typename T, typename ... Args>
+        ComponentHandle<T>& _addComponentToEntity(const UInt32 entityID, Args&& ... args)
+        {
+            m_components.emplace_back(entityID, std::forward<Args>(args)...);
+            m_handles.emplace_back(&m_components.back());
+            return m_handles.back();
+        }
+
+        
     public:
 
         /// \brief Get a system reference of type CompType
@@ -48,33 +81,55 @@ namespace ace
         //////////////////////////////
 
 
-        /// \brief Adds a component of type CompType and returns a handle to it
-        /// \param args Variadic arguments needed to construct the desired component
-        template <typename ... Args>
-        ComponentHandle<CompType>& AddComponent(Args ... args)
-        {
-            m_components.emplace_back(std::forward<Args>(args)...); //Create component
-            m_handles.emplace_back(m_components.back()->GetID());   //Create handle with component ID
-            return m_handles.back();                                //Return reference to handle
-        }
-        //////////////////////////////
+        //   /// \brief Adds a component of type CompType and returns a handle to it
+        //   /// \param args Variadic arguments needed to construct the desired component
+        //   template <typename ... Args>
+        //   ComponentHandle<CompType>& AddComponent(Args&& ... args)
+        //   {
+        //       m_components.emplace_back(std::forward<Args>(args)...); //Create component
+        //       m_handles.emplace_back(m_components.back()->GetID());   //Create handle with component ID
+        //       return m_handles.back();                                //Return reference to handle
+        //   }
+        //   //////////////////////////////
 
 
         /// \brief Disable an existing component from use (Does not remove it)
         /// \param handle Handle of the component to disable
         /// \return Boolean True if the component was disabled
-        bool DisableComponent(ComponentHandle<CompType>& handle)
+        bool DisableComponent(ComponentHandle<CompType>* handle)
         {
-            const size_t size = m_handles.size();
+            bool decrease = false;
+            for (size_t i = 0u; i < m_enabledComponentsCount; ++i)
+            {
+                if (&m_components[i] == handle->operator()())
+                {
+                    //TODO: is this necessary
+                    if (i == m_enabledComponentsCount - 1u)
+                    {
+                        decrease = true;
+                        break;
+                    }
 
-            //Remove-erase handle whose ID == ID of the param handle
-            m_handles.erase(
-                std::remove_if(
-                m_handles.begin(), m_handles.end(),
-                [&handle](ComponentHandle<CompType>& ch){return ch.GetHandleID() == handle.GetHandleID(); }
-            ), m_handles.end());
+                    auto itr = m_components.begin() + i;
+                    std::rotate(it, it + 1, m_components.end());
+                    decrease = true;
+                }
+            }
 
-            return size > m_handles.size();
+            
+            if (decrease)
+                m_enabledComponentsCount == 0u ? assert(false) : --m_enabledComponentsCount;
+
+            //  const size_t size = m_handles.size();
+            //
+            //  //Remove-erase handle whose ID == ID of the param handle
+            //  m_handles.erase(
+            //      std::remove_if(
+            //      m_handles.begin(), m_handles.end(),
+            //      [&handle](ComponentHandle<CompType>& ch){return ch.GetHandleID() == handle.GetHandleID(); }
+            //  ), m_handles.end());
+            //
+            //  return size > m_handles.size();
         }
         //////////////////////////////
 

@@ -2,40 +2,82 @@
 
 #include <Ace/IntTypes.h>
 
+#include <typeinfo>
 
-namespace
-{
-    static ace::UInt32 componentIDCounter = 0u;
-    static ace::UInt32 componentIDCounterRemoved = 0u;
-}
+
 
 namespace ace
 {
 
-    template <typename T>
-    class Component
+    
+
+    class ComponentBase
     {
 
-        UInt32 m_ID;
-
+        UInt32 m_entityID;
 
     public:
 
-        UInt32 GetID() const
+        UInt32 GetOwner() const
         {
-            return m_ID;
+            return m_entityID;
         }
 
+        void SetOwner(const UInt32 entityID)
+        {
+            m_entityID = entityID;
+        }
 
-        Component() :
-            m_ID(++componentIDCounter)
+        ComponentBase(const UInt32 entityId) :
+            m_entityID(entityId)
         {
 
         }
 
-        ~Component()
+        virtual ~ComponentBase();
+
+    };
+
+
+    template <typename T>
+    class Component : public ComponentBase
+    {
+
+    public:
+
+        Component(const UInt32 entityID) :
+            ComponentBase(entityID)
         {
-            ++componentIDCounterRemoved;
+
+        }
+
+        virtual ~Component();
+
+    };
+
+
+    template <typename T>
+    class ComponentHandle
+    {
+
+        Component<T>* m_component;
+
+    public:
+
+        Component<T>* operator()()
+        {
+            return m_component;
+        }
+
+        ComponentHandle(Component<T>* compPtr) :
+            m_component(compPtr)
+        {
+
+        }
+
+        ~ComponentHandle()
+        {
+
         }
 
     };
