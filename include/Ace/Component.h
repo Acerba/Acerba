@@ -1,84 +1,107 @@
 #pragma once
 
-#include <Ace/IntTypes.h>
-
-#include <typeinfo>
-
-
+#include <Ace/EntityManager.h>
+//#include <Ace/ComponentPool.h>
 
 namespace ace
 {
 
-    
-
-    class ComponentBase
+    struct EntityManager::ComponentBaseHandle
     {
+        EntityManager::ComponentID componentID;
+        EntityManager::EntityHandle* const entity;
 
-        UInt32 m_entityID;
+        UInt32 index;
 
-    public:
+        EntityManager::ComponentBaseHandle* next;
 
-        UInt32 GetOwner() const
-        {
-            return m_entityID;
-        }
-
-        void SetOwner(const UInt32 entityID)
-        {
-            m_entityID = entityID;
-        }
-
-        ComponentBase(const UInt32 entityId) :
-            m_entityID(entityId)
+        ComponentBaseHandle(EntityManager::ComponentID id, EntityManager::EntityHandle* _entity, const UInt32 _index) :
+            componentID(id),
+            entity(_entity),
+            index(_index),
+            next(nullptr)
         {
 
         }
 
-        virtual ~ComponentBase();
+        virtual ~ComponentBaseHandle()
+        {
 
+        }
+
+        virtual EntityManager::ComponentBaseHandle* Clone(EntityManager::EntityHandle* other) = 0;
+        virtual void Delete() = 0;
+        virtual void* Get() = 0;
+        virtual const void* Get() const = 0;
     };
 
 
-    template <typename T>
-    class Component : public ComponentBase
+    template <typename CompType>
+    struct EntityManager::ComponentHandle final : public EntityManager::ComponentBaseHandle
     {
+    private:
+        template <typename CompType>
+        struct Cloner
+        {
+            static CompType Clone(void* comp)
+            {
+                return *static_cast<CompType*>(comp);
+            }
+        };
+        template <typename CompType>
+        struct Cloner<CompType*>
+        {
+            static CompType Clone(void* comp)
+            {
+                return **static_cast<CompType*>(comp);
+            }
+        };
 
     public:
-
-        Component(const UInt32 entityID) :
-            ComponentBase(entityID)
+        ComponentHandle(EntityManager::EntityHandle* handle, const UInt32 index) :
+            ComponentBaseHandle(EntityManager::ComponentID::GetID<CompType>(), handle, index)
         {
 
         }
 
-        virtual ~Component();
-
-    };
-
-
-    template <typename T>
-    class ComponentHandle
-    {
-
-        Component<T>* m_component;
-
-    public:
-
-        Component<T>* operator()()
-        {
-            return m_component;
-        }
-
-        ComponentHandle(Component<T>* compPtr) :
-            m_component(compPtr)
+        virtual ~ComponentHandle()
         {
 
         }
 
-        ~ComponentHandle()
-        {
 
+        virtual EntityManager::ComponentBaseHandle* Clone(EntityManager::EntityHandle* other)
+        {
+            EntityManager::ComponentHandle<CompType>* cloned = new EntityManager::ComponentHandle<CompType>(entity, EntityManager::ComponentPool<CompType>::GetIndex());
+            EntityManager::ComponentPool<CompType>::Push(cloned, Cloner<CompType>::Clone(Get()));
+            return cloned;
         }
+
+        virtual void Delete()
+        {
+            ComponentPool<CompType>::Pop(this);
+        }
+
+
+        virtual void* Get()
+        {
+            return &ComponentPool<CompType>::GetPool().m_components[index];
+        }
+        virtual const void* Get() const
+        {
+            return &ComponentPool<CompType>::GetPool().m_components[index];
+        }
+
+
+        inline operator CompType*()
+        {
+            return &ComponentPool<CompType>::GetPool().m_components[index];
+        }
+        inline operator const CompType*() const
+        {
+            return &ComponentPool<CompType>::GetPool().m_components[index];
+        }
+
 
     };
 
