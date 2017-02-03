@@ -13,6 +13,21 @@ namespace ace
 		m_pixels.reset(pixels);
 	}
 
+	///Makes a "image" from a color (r,g,b,a)
+	///Image PixelFormat: Gray, Gray Alpha, RGB, RGBA
+	Image::Image(const ace::Color& p_color)
+	{ 
+		UInt8* pixels = new UInt8[4];
+
+		pixels[0] = p_color.r;
+		pixels[1] = p_color.g;
+		pixels[2] = p_color.b;
+		pixels[3] = p_color.a;
+
+		comp = 4;
+		m_pixels.reset(pixels);
+	}
+
 	Image::~Image()
 	{
 
