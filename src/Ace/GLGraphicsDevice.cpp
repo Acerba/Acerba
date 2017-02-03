@@ -23,6 +23,23 @@ namespace ace
 	void GraphicsDevice::Present(Window& window)
 	{
 		SDL_GL_SwapWindow((*window)->sdlWindow);
+
+		// check OpenGL error
+		GLenum err;
+		while ((err = glGetError()) != GL_NO_ERROR)
+		{
+			std::string error;
+
+			switch (err) {
+			case GL_INVALID_OPERATION:      error = "INVALID_OPERATION";      break;
+			case GL_INVALID_ENUM:           error = "INVALID_ENUM";           break;
+			case GL_INVALID_VALUE:          error = "INVALID_VALUE";          break;
+			case GL_OUT_OF_MEMORY:          error = "OUT_OF_MEMORY";          break;
+			case GL_INVALID_FRAMEBUFFER_OPERATION:  error = "INVALID_FRAMEBUFFER_OPERATION";  break;
+			}
+
+			Logger::Log(Logger::Priority::Warning, "%s", error.c_str());
+		}
 	}
 
 	void GraphicsDevice::Viewport(UInt32 w, UInt32 h)
@@ -74,26 +91,24 @@ namespace ace
 	{
 		Shader shader;
 
-		shader.impl = std::make_shared<Shader::ShaderImpl>(Shader::ShaderImpl());
-
-		shader.impl->shaderID = glCreateShader(GLShaderTypes[static_cast<UInt32>(type)]);
+		shader.impl.reset(new Shader::ShaderImpl(GLShaderTypes[static_cast<UInt32>(type)]));
 		shader.type = type;
 		
 		glShaderSource(shader.impl->shaderID, 1, &source, NULL);
 		glCompileShader(shader.impl->shaderID);
-
+		
 		GLint result = GL_FALSE;
 		GLint errorMsgLength = 0;
-
+		
 		glGetShaderiv(shader.impl->shaderID, GL_COMPILE_STATUS, &result);
 		glGetShaderiv(shader.impl->shaderID, GL_INFO_LOG_LENGTH, &errorMsgLength);
-
+		
 		if (errorMsgLength > 0)
 		{
 			char* errorMsg = new char[errorMsgLength + 1];
 			glGetShaderInfoLog(shader.impl->shaderID, errorMsgLength, NULL, errorMsg);
 			Logger::Log(Logger::Priority::Error, "%s", errorMsg);
-
+		
 			delete[] errorMsg;
 			shader.impl = nullptr;
 		}
@@ -104,10 +119,17 @@ namespace ace
 	Material GraphicsDevice::CreateMaterial(const Shader& vertex, const Shader& fragment)
 	{
 		Material material;
-		material.impl = std::make_shared<Material::MaterialImpl>(Material::MaterialImpl());
+		material.impl.reset(new Material::MaterialImpl());
 
-		glAttachShader(material.impl->materialID, vertex.impl->shaderID);
-		glAttachShader(material.impl->materialID, fragment.impl->shaderID);
+		if (vertex.impl)
+		{
+			glAttachShader(material.impl->materialID, vertex.impl->shaderID);
+		}
+
+		if (fragment.impl)
+		{
+			glAttachShader(material.impl->materialID, fragment.impl->shaderID);
+		}
 
 		for (int i = 0; i < (int)VertexAttributes::COUNT; ++i)
 		{
@@ -115,6 +137,16 @@ namespace ace
 		}
 
 		glLinkProgram(material.impl->materialID);
+	
+		if (vertex.impl)
+		{
+			glDetachShader(material.impl->materialID, vertex.impl->shaderID);
+		}
+		
+		if (fragment.impl)
+		{
+			glDetachShader(material.impl->materialID, fragment.impl->shaderID);
+		}
 		
 		GLint result = GL_FALSE;
 		GLint errorMsgLength = 0;
@@ -127,14 +159,13 @@ namespace ace
 			char* errorMsg = new char[errorMsgLength + 1];
 			glGetProgramInfoLog(material.impl->materialID, errorMsgLength, NULL, errorMsg);
 
-			Logger::Log(Logger::Priority::Info, "%s", errorMsg);
+			Logger::Log(Logger::Priority::Warning, "%s", errorMsg);
 			delete[] errorMsg;
 
 			material.impl = nullptr;
 
 			// TODO: Set default error material.
-		}
-		
+		}		
 		return material;
 	}
 

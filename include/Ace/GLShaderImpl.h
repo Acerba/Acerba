@@ -10,7 +10,7 @@ namespace ace
 	{
 		UInt32 shaderID;
 
-		ShaderImpl()
+		ShaderImpl(UInt32 type) : shaderID(glCreateShader(type))
 		{
 			
 		}
