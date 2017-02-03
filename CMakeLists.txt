@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 2.8)
 project(ACERBA CXX)
 
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+
 add_subdirectory(${ACERBA_SOURCE_DIR}/3rdparty)
 
 find_package(OpenGL)
