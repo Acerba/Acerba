@@ -6,6 +6,8 @@
 //#include <EGL/egl.h>
 //#include <GLES2/gl2.h>
 
+#include <Ace/Platform.h>
+
 #if ACE_WIN
 
     #include <gl/gl3w.h>

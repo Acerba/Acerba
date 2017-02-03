@@ -15,7 +15,10 @@ namespace ace
 
 		UInt32 Size() const;
 		bool Read(UInt8* buffer, UInt32 size) const;
+
 		std::shared_ptr<UInt8> ReadAll() const;
+		std::shared_ptr<char> ReadAllText() const;
+
 		bool Write(UInt8* buffer, UInt32 size, const char* text);
 
 	private:

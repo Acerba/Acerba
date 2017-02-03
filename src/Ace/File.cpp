@@ -63,6 +63,15 @@ namespace ace
 		return std::shared_ptr<UInt8>(buffer);
 	}
 
+	std::shared_ptr<char> File::ReadAllText() const
+	{
+		UInt64 size = SDL_RWsize(m_fileImpl->rwops);
+		char* buffer = new char[size + 1];
+		SDL_RWread(m_fileImpl->rwops, buffer, size, 1);
+		buffer[size] = '\0';
+		return std::shared_ptr<char>(buffer);
+	}
+
 	///Writing to end of a file
 	bool File::Write(UInt8* buffer, UInt32 size, const char* text)
 	{

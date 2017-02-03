@@ -6,10 +6,13 @@
 
 #include <Ace/GL.h>
 #include <Ace/GLBufferImpl.h>
+#include <Ace/GLShaderImpl.h>
+#include <Ace/GLMaterialImpl.h>
 
 namespace ace
 {
 	static const UInt32 GLBufferTargets[] = {GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER};
+	static const UInt32 GLShaderTypes[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 
 	void GraphicsDevice::Clear(const Color32& color)
 	{
@@ -35,7 +38,7 @@ namespace ace
 		return buffer;
 	}
 
-	void GraphicsDevice::BufferData(Buffer& buffer, UInt32 count, Vertex* data)
+	void GraphicsDevice::BufferData(Buffer& buffer, UInt32 count, const Vertex* data)
 	{
 		UInt32 target = GLBufferTargets[static_cast<UInt32>(buffer.type)];
 
@@ -53,12 +56,8 @@ namespace ace
 		//glBindBuffer(target, 0);
 	}
 
-	Buffer g_buffer;
-
 	void GraphicsDevice::SetVertexBuffer(const Buffer& buffer)
 	{
-		g_buffer = buffer;
-
 		UInt32 target = GLBufferTargets[static_cast<UInt32>(buffer.type)];
 		glBindBuffer(target, buffer.impl->bufferID);
 
@@ -71,107 +70,77 @@ namespace ace
 		//glEnableVertexAttribArray(2);
 	}
 
-	void GraphicsDevice::Draw(UInt32 elements)
+	Shader GraphicsDevice::CreateShader(const char* source, ShaderType type)
 	{
-		const char* vertex = " 					\n\
-												\n\
-		attribute vec3 position;				\n\
-		attribute vec2 uv;						\n\
-		attribute vec4 color;					\n\
-												\n\
-		varying vec4 o_c;						\n\
-		varying vec2 o_uv;						\n\
-												\n\
-		void main()								\n\
-		{										\n\
-			o_c = color;						\n\
-			o_uv = uv;							\n\
-												\n\
-			gl_Position = vec4(position.xyz, 1);\n\
-		}";
+		Shader shader;
 
+		shader.impl = std::make_shared<Shader::ShaderImpl>(Shader::ShaderImpl());
 
-		const char* fragment = "	\n\
-									\n\
-		varying lowp vec4 o_c;		\n\
-		varying lowp vec2 o_uv;		\n\
-									\n\
-		void main()					\n\
-		{							\n\
-			gl_FragColor = o_c;		\n\
-		}							\n\
-			";
-
-		UInt32 p = glCreateProgram();
-		UInt32 v = glCreateShader(GL_VERTEX_SHADER);
-
-		glShaderSource(v, 1, &vertex, NULL);
-		glCompileShader(v);
+		shader.impl->shaderID = glCreateShader(GLShaderTypes[static_cast<UInt32>(type)]);
+		shader.type = type;
+		
+		glShaderSource(shader.impl->shaderID, 1, &source, NULL);
+		glCompileShader(shader.impl->shaderID);
 
 		GLint result = GL_FALSE;
 		GLint errorMsgLength = 0;
 
-		glGetShaderiv(v, GL_COMPILE_STATUS, &result);
-		glGetShaderiv(v, GL_INFO_LOG_LENGTH, &errorMsgLength);
+		glGetShaderiv(shader.impl->shaderID, GL_COMPILE_STATUS, &result);
+		glGetShaderiv(shader.impl->shaderID, GL_INFO_LOG_LENGTH, &errorMsgLength);
+
 		if (errorMsgLength > 0)
 		{
 			char* errorMsg = new char[errorMsgLength + 1];
-			glGetShaderInfoLog(v, errorMsgLength, NULL, errorMsg);
-			Logger::Log(Logger::Priority::Info, "%s", errorMsg);
+			glGetShaderInfoLog(shader.impl->shaderID, errorMsgLength, NULL, errorMsg);
+			Logger::Log(Logger::Priority::Error, "%s", errorMsg);
 
 			delete[] errorMsg;
+			shader.impl = nullptr;
 		}
 
-		UInt32 f = glCreateShader(GL_FRAGMENT_SHADER);
+		return shader;
+	}
 
-		glShaderSource(f, 1, &fragment, NULL);
-		glCompileShader(f);
+	Material GraphicsDevice::CreateMaterial(const Shader& vertex, const Shader& fragment)
+	{
+		Material material;
+		material.impl = std::make_shared<Material::MaterialImpl>(Material::MaterialImpl());
 
-		result = GL_FALSE;
-		errorMsgLength = 0;
-
-		glGetShaderiv(v, GL_COMPILE_STATUS, &result);
-		glGetShaderiv(v, GL_INFO_LOG_LENGTH, &errorMsgLength);
-		if (errorMsgLength > 0)
-		{
-			char* errorMsg = new char[errorMsgLength + 1];
-			glGetShaderInfoLog(v, errorMsgLength, NULL, errorMsg);
-			Logger::Log(Logger::Priority::Info, "%s", errorMsg);
-
-			delete[] errorMsg;
-		}
-
-		glAttachShader(p, v);
-		glAttachShader(p, f);
+		glAttachShader(material.impl->materialID, vertex.impl->shaderID);
+		glAttachShader(material.impl->materialID, fragment.impl->shaderID);
 
 		for (int i = 0; i < (int)VertexAttributes::COUNT; ++i)
 		{
-			glBindAttribLocation(p, i, vertexAttributeNames[i]);
+			glBindAttribLocation(material.impl->materialID, i, vertexAttributeNames[i]);
 		}
 
-		glLinkProgram(p);
+		glLinkProgram(material.impl->materialID);
+		
+		GLint result = GL_FALSE;
+		GLint errorMsgLength = 0;
 
-
-		result = GL_FALSE;
-		errorMsgLength = 0;
-
-		glGetProgramiv(p, GL_LINK_STATUS, &result);
-		glGetProgramiv(p, GL_INFO_LOG_LENGTH, &errorMsgLength);
+		glGetProgramiv(material.impl->materialID, GL_LINK_STATUS, &result);
+		glGetProgramiv(material.impl->materialID, GL_INFO_LOG_LENGTH, &errorMsgLength);
 
 		if (errorMsgLength > 0)
 		{
 			char* errorMsg = new char[errorMsgLength + 1];
-			glGetProgramInfoLog(p, errorMsgLength, NULL, errorMsg);
+			glGetProgramInfoLog(material.impl->materialID, errorMsgLength, NULL, errorMsg);
 
 			Logger::Log(Logger::Priority::Info, "%s", errorMsg);
 			delete[] errorMsg;
 
+			material.impl = nullptr;
+
 			// TODO: Set default error material.
 		}
+		
+		return material;
+	}
 
-		SetVertexBuffer(g_buffer);
-		glUseProgram(p);
-
+	void GraphicsDevice::Draw(Material& material, UInt32 elements)
+	{
+		glUseProgram(material.impl->materialID);
 		glDrawArrays(GL_TRIANGLES, 0, elements);
 	}
 }
