@@ -4,6 +4,19 @@ namespace ace
 {
     namespace math
     {
+		const float PI = 3.14f;
+
+		inline float Rad(float deg)
+		{
+			return deg / 180.0f * PI;
+		}
+
+		inline float Deg(float rad)
+		{
+			return rad / PI * 180.0f;
+		}
+
+
 		float Abs(float);
 	    float Pow(float base, float exp);
 		float Sqrt(float);

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <ace/Math.h>
+
+
 
 namespace ace
 {
@@ -14,6 +17,11 @@ namespace ace
 			float y;
 
 			Vector2(float x = 0, float y = 0) : x(x), y(y) {}
+
+			float Lenght()
+			{
+				return Sqrt(x*x + y*y);
+			}
 
 			Vector2 operator+(const Vector2& vec1) const
 			{
