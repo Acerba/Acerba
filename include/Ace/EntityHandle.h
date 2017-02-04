@@ -32,6 +32,11 @@ namespace ace
 
         inline void PopHandle(EntityManager::ComponentBaseHandle* handle)
         {
+            //TODO: clean this place up
+
+            //WIP not working
+            __debugbreak();
+
             //m_first == handle probably probably not required
             if (m_first == m_last && m_first == handle)
             {
@@ -39,10 +44,15 @@ namespace ace
             }
             else
             {
+                //TODO: doesn't work properly
+
                 EntityManager::ComponentBaseHandle* prev = m_first;
-                while (prev->next != handle)
+                if (prev != handle)
                 {
-                    prev = prev->next;
+                    while (prev->next != handle)
+                    {
+                        prev = prev->next;
+                    }
                 }
                 handle == m_last ? m_last = prev : prev->next = handle->next;
             }
@@ -76,13 +86,7 @@ namespace ace
 
             while (otherCurrent)
             {
-
-                __debugbreak();
-
-                //WIP
-
-                //target should call this clone and pass other as param
-                //target->PushHandle(target->  Clone(other));
+                target->PushHandle(otherCurrent->Clone(target, other));
                 otherCurrent = otherCurrent->next;
             }
         }

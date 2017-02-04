@@ -29,7 +29,7 @@ namespace ace
 
         }
 
-        virtual EntityManager::ComponentBaseHandle* Clone(EntityManager::EntityHandle* other) = 0;
+        virtual EntityManager::ComponentBaseHandle* Clone(EntityManager::EntityHandle* target, EntityManager::EntityHandle* other) = 0;
         virtual void Delete() = 0;
         virtual void* Get() = 0;
         virtual const void* Get() const = 0;
@@ -70,9 +70,9 @@ namespace ace
         }
 
 
-        virtual EntityManager::ComponentBaseHandle* Clone(EntityManager::EntityHandle* other)
+        virtual EntityManager::ComponentBaseHandle* Clone(EntityManager::EntityHandle* target, EntityManager::EntityHandle* other)
         {
-            EntityManager::ComponentHandle<CompType>* cloned = new EntityManager::ComponentHandle<CompType>(entity, EntityManager::ComponentPool<CompType>::GetIndex());
+            EntityManager::ComponentHandle<CompType>* cloned = new EntityManager::ComponentHandle<CompType>(target, EntityManager::ComponentPool<CompType>::GetIndex());
             EntityManager::ComponentPool<CompType>::Push(cloned, Cloner<CompType>::Clone(Get()));
             return cloned;
         }

@@ -39,7 +39,8 @@ namespace ace
 
         inline static void Clone(Entity& target, const Entity& other)
         {
-            target.m_handle->Clone(target.m_handle, other.m_handle);
+
+            EntityManager::EntityHandle::Clone(target.m_handle, other.m_handle);
         }
 
         template <typename CompType>
