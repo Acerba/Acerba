@@ -9,11 +9,17 @@
 
 #include <SDL.h>
 
+#include <AL/al.h>
+#include <AL/alc.h>
+
 const ace::Vertex triangle[3] = {
 	{ { -0.5f, 0.0f, 0.0f }, { 0.0f, 0.0f }, 0xFF0000FFU },
 	{ { 0.5f, 0.0f, 0.0f }, { 0.0f, 0.0f }, 0x00FF00FFU },
 	{ { 0.0f, 0.5f, 0.0f }, { 0.0f, 0.0f }, 0x0000FFFFU },
 };
+
+#include <OALWrapper/OAL_Funcs.h>
+
 
 int main(int, char**)
 {
@@ -57,8 +63,18 @@ int main(int, char**)
 		", ace::ShaderType::Fragment);
 
 	ace::Material material(vertex, fragment);
-
-
+	
+		ace::Logger::Log(ace::Logger::Priority::Info,"Initializing OpenAL.\n");
+		cOAL_Init_Params oal_parms;
+		if (OAL_Init(oal_parms) == false)
+		{
+			ace::Logger::Log(ace::Logger::Priority::Info,"Audio initializing failed!\n");
+		}
+		else
+		{
+			ace::Logger::Log(ace::Logger::Priority::Info,"Audio initializing succeeded!\n");
+		}
+	
 	while(true)
 	{
 		window.Clear(0xBADAFFFFU);
@@ -69,8 +85,6 @@ int main(int, char**)
 		window.Present();
 
 	}
-
-
-
+	
 	return 0;
 }

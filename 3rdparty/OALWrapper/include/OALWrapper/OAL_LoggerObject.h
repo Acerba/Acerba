@@ -48,22 +48,22 @@ public:
 	
 	static void Write(const std::string& asMessage);
 
-	inline static void SetLogEnabled ( bool abEnable ) { mbLogEnabled = abEnable; }
-	inline static void SetLogOutput ( eOAL_LogOutput aOutput ) { mLogOutput = aOutput; }
-	inline static void SetLogVerbose ( eOAL_LogVerbose aLevel ) { mLogVerboseLevel = aLevel; }
+	inline static void SetLogEnabled ( bool abEnable ) { }
+	inline static void SetLogOutput ( eOAL_LogOutput aOutput ) {  }
+	inline static void SetLogVerbose ( eOAL_LogVerbose aLevel ) { }
 	static void SetLogFilename ( const std::string& asLogFilename );
 
 
-	inline static bool IsLogEnabled () { return mbLogEnabled; }
-	inline static eOAL_LogOutput GetLogOutput ( ) { return mLogOutput; }
-	inline static eOAL_LogVerbose GetLogVerboseLevel () { return mLogVerboseLevel; }
-	inline static std::wstring GetLogFilename ( ) { return msLogFile; }
+	inline static bool IsLogEnabled () { return true; }
+	//inline static eOAL_LogOutput GetLogOutput ( ) { return mLogOutput; }
+	inline static eOAL_LogVerbose GetLogVerboseLevel () { return eOAL_LogVerbose_None; }
+	inline static std::wstring GetLogFilename ( ) { return std::wstring(); }
 
 protected:
-	static bool					mbLogEnabled;
-	static eOAL_LogOutput		mLogOutput;
-	static eOAL_LogVerbose		mLogVerboseLevel;
-	static std::wstring				msLogFile;
+	//static bool					mbLogEnabled;
+	//static eOAL_LogOutput		mLogOutput;
+	//static eOAL_LogVerbose		mLogVerboseLevel;
+	//static std::wstring				msLogFile;
 
 };
 

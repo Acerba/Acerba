@@ -16,7 +16,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(Acerba_PATH)/include $(LOCAL_EXPORT_C_INCLUD
 
 LOCAL_SRC_FILES := $(SDL_PATH)/src/main/android/SDL_android_main.c\
 					main.cpp
-LOCAL_SHARED_LIBRARIES := Acerba SDL2 SDL2main
+LOCAL_SHARED_LIBRARIES := Acerba SDL2 SDL2main OALWrapper
 LOCAL_CFLAGS += -fpermissive
 LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -latomic
 
