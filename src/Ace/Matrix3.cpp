@@ -129,7 +129,7 @@ namespace ace
 			return Matrix3(r1, r2, r3);
 		}
 
-		Matrix3 Matrix3::RotationY(float a)
+		Matrix3 Matrix3::RotationZ(float a)
 		{
 			Vector3 r1(Cos(a), -Sin(a), 0);
 			Vector3 r2(Sin(a),  Cos(a), 0);
@@ -138,7 +138,7 @@ namespace ace
 			return Matrix3(r1, r2, r3);
 		}
 
-		Matrix3 Matrix3::RotationZ(float a)
+		Matrix3 Matrix3::RotationY(float a)
 		{
 			Vector3 r1(Cos(a) , 0, Sin(a));
 			Vector3 r2(   0   , 1,   0   );

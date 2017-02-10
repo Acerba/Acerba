@@ -156,7 +156,7 @@ namespace ace
 			return Matrix4(r1, r2, r3, r4);
 		}
 
-		Matrix4 Matrix4::RotationY(float a)
+		Matrix4 Matrix4::RotationZ(float a)
 		{
 			Vector4 r1(Cos(a), -Sin(a),0, 0);
 			Vector4 r2(Sin(a), Cos(a), 0, 0);
@@ -166,7 +166,7 @@ namespace ace
 			return Matrix4(r1, r2, r3, r4);
 		}
 
-		Matrix4 Matrix4::RotationZ(float a)
+		Matrix4 Matrix4::RotationY(float a)
 		{
 			Vector4 r1(Cos(a) , 0, Sin(a), 0);
 			Vector4 r2(   0   , 1,   0   , 0);
