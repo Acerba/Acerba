@@ -3,9 +3,11 @@
 #include <Ace/Audio.h>
 #include <Ace/IntTypes.h>
 #include <Ace/File.h>
-
+#include <OALWrapper/OAL_Funcs.h>
+#include <OALWrapper/OAL_Sample.h>
 namespace ace
 {
+	
 	void Audio::Init()
 	{
 		printf("Initializing OpenAL.\n");
@@ -25,11 +27,19 @@ namespace ace
 	void Audio::OpenAudio()
 	{
 		std::string fileName;
-		cOAL_Sample *pSample = NULL;
-		pSample = OAL_Sample_Load(fileName);
+		ace::File *file = new File(fileName.c_str(), "rb");
+		if (!file)
+		{
+			printf("Audio file not found!\n");
+		}
+		UInt32 pos = file->Size();
+		void* buffer = malloc(pos);
+		pSample = OAL_Sample_LoadFromBuffer(buffer, pos);
+		free(buffer);
+		
 	}
 
-	void Audio::PlayAudio(cOAL_Sample* pSample)
+	void Audio::PlayAudio()
 	{
 		if (pSample)
 		{
