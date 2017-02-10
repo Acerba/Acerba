@@ -11,7 +11,7 @@ namespace ace
 {
 	///Loads image from file
 	///Image PixelFormat: Gray, Gray Alpha, RGB, RGBA
-	Image::Image(const ace::File& p_file, PixelFormat format)
+	Image::Image(const ace::File& p_file, PixelFormat format) : format(format)
 	{
 		auto buffer = p_file.ReadAll();
 		int comp;
@@ -54,8 +54,8 @@ namespace ace
 	}
 
 	///Saves a file into given path
-	void Image::Write(const Path& path) const
+	void Image::WritePNG(const Path& path) const
 	{
-		stbi_write_png(path.GetPath().c_str(), w, h, static_cast<int>(format), m_pixels.get(), static_cast<int>(format));
+		stbi_write_png(path.GetPath().c_str(), w, h, static_cast<int>(format), m_pixels.get(), w*static_cast<int>(format));
 	}
 }

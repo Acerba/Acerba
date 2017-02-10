@@ -29,7 +29,7 @@ namespace ace
 	
 		UInt8* Pixels();
 
-		void Write(const Path& path) const;
+		void WritePNG(const Path& path) const;
 	private:
 		std::shared_ptr<UInt8> m_pixels;
 
