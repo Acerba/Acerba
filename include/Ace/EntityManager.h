@@ -110,8 +110,14 @@ namespace ace
         static EntityManager& DefaultManager();
         static EntityHandle* Entity(EntityManager& manager = DefaultManager());
 
-        //foreach' && other utilities
 
+        /**
+        @brief Executes 'function' for all components of 'PrimaryComponent' type, where they share a common owner entity with 'SecondaryType'.
+        @param[in, out] function Function to execute.
+        Pointer to the parent entity is passed in as the first argument.
+        Pointer to the 'PrimaryComponent' is passed in as the second argument.
+        Pointer to the 'SecondaryComponent' is passed in as the third argument.
+        */
         template <typename PrimaryComponent, typename SecondaryComponent, typename Function>
         inline static void ForEach(Function function)
         {
@@ -122,13 +128,50 @@ namespace ace
 
             for (size_t i = 0u; i < primaryPool.m_components.size(); ++i)
             {
-                if (primaryPool.m_handles[i]->entity->Count() > 2 && (secondary = primaryPool.m_handles[i]->entity->Get<SecondaryComponent>()) != nullptr)
+                if (primaryPool.m_handles[i]->entity->Count() > 1u && (secondary = primaryPool.m_handles[i]->entity->Get<SecondaryComponent>()) != nullptr)
                 {
                     function(primaryPool.m_handles[i]->entity, primaryPool.m_components[i], secondaryPool.m_components[secondary->index]);
                 }
             }
         }
 
+
+        /**
+        @brief Executes 'function' for all components of 'CompType'.
+        @param[in, out] function Function to execute.
+        Pointer of the components owner entity is passed in as the first argument to the function.
+        Pointer of the component is passed in as the second argument to the function.
+        */
+        template <typename CompType, typename Function>
+        inline static void ForEach(Function function)
+        {
+            ComponentPool<CompType>& pool = ComponentPool<CompType>::GetPool();
+            for (size_t i = 0u; i < pool.m_components.size(); ++i)
+            {
+                function(pool.m_handles[i]->entity, pool.m_components[i]);
+            }
+        }
+
+
+        /**
+        @brief Executes 'function' for all entities managed by 'manager'.
+        @param[in, out] function Function to execute for all entities. Entity pointer is passed in as an argument to the function.
+        @param[in, out] manager Default manager if not specified.
+        */
+        template <typename Function>
+        inline static void ForEach(Function function, EntityManager& manager = DefaultManager())
+        {
+            for (size_t i = 0u; i < manager.m_entities.size(); ++i)
+            {
+                function(manager.m_entities[i]);
+            }
+        }
+
+        /**
+        @brief Retrieves all components of type 'CompType' managed by this manager.
+        @param[in, out] size Sets the size to the amount of components.
+        @return Returns component data.
+        */
         template <typename CompType>
         inline static CompType* GetComponents(UInt32& size)
         {
@@ -136,23 +179,52 @@ namespace ace
             return ComponentPool<CompType>::GetPool().components.data();
         }
 
-        //anything bad in const manager?
-        inline static EntityHandle* GetEntity(const UInt32 index, const EntityManager& manager = DefaultManager())
+
+        /**
+        @brief Retrieves pointer to the index'th entity handled by the 'manager'
+        @param[in] index Index of target entity.
+        @see EntityCount()
+        @param[in, out] manager Manager of the target entity. Default manager if not specified.
+        @return Returns pointer to the entity. Nullptr if invalid index.
+        */
+        inline static EntityHandle* GetEntity(const UInt32 index, EntityManager& manager = DefaultManager())
         {
             return index >= manager.m_entities.size() ? nullptr : manager.m_entities[index];
         }
 
 
+        /**
+        @brief Retrieves amount of entities managed by the 'manager'.
+        @param[in, out] manager EntityManager. Default manager if not specified.
+        @return Returns amount of entities.
+        */
         inline UInt32 EntityCount(const EntityManager& manager = DefaultManager())
         {
             return manager.m_entities.size();
         }
 
+
+        /**
+        @brief Destroys an entity pointed to by 'entity' that is handled by 'manager'.
+        @detail Destroys the target entity, all components tied to it and invalidates the pointer.
+        No effect if the pointer is invalid or is not managed by 'manager'.
+        @param[in, out] entity Pointer to an entity that is managed by 'manager'.
+        @param[in, out] manager EntityManager. Default manager if not specified.
+        */
         static void DestroyEntity(EntityHandle* entity, EntityManager& manager = DefaultManager());
 
+
+        /**
+        @brief Constructor for users managers.
+        */
         EntityManager();
         ~EntityManager();
 
+
+        /**
+        @brief Creates and ties an entity to this manager.
+        @return Returns pointer to the created entity.
+        */
         EntityHandle* CreateEntity();
 
     };

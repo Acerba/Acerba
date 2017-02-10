@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Ace/EntityManager.h>
-//#include <Ace/ComponentPool.h>
 
 namespace ace
 {
@@ -58,6 +57,8 @@ namespace ace
         };
 
     public:
+
+
         ComponentHandle(EntityManager::EntityHandle* handle, const UInt32 index) :
             ComponentBaseHandle(EntityManager::ComponentID::GetID<CompType>(), handle, index)
         {
@@ -70,6 +71,12 @@ namespace ace
         }
 
 
+        /**
+        @brief Clones a component.
+        @param[in, out] target Target owner entity of the new component.
+        @param[in, out] other Owner entity of the original component.
+        @return Returns component pointer owned by 'target'
+        */
         virtual EntityManager::ComponentBaseHandle* Clone(EntityManager::EntityHandle* target, EntityManager::EntityHandle* other)
         {
             EntityManager::ComponentHandle<CompType>* cloned = new EntityManager::ComponentHandle<CompType>(target, EntityManager::ComponentPool<CompType>::GetIndex());
@@ -77,12 +84,21 @@ namespace ace
             return cloned;
         }
 
+
+        /**
+        @brief Destroys this component.
+        */
         virtual void Delete()
         {
             ComponentPool<CompType>::Pop(this);
         }
 
 
+        /**
+        @brief Retrieves void pointer of component.
+        @see CompType*()
+        @return Returns component pointer as void pointer.
+        */
         virtual void* Get()
         {
             return &ComponentPool<CompType>::GetPool().m_components[index];
@@ -93,6 +109,10 @@ namespace ace
         }
 
 
+        /**
+        @brief Casts the component pointer to its own type.
+        @return Returns the component pointer in its own type.
+        */
         inline operator CompType*()
         {
             return &ComponentPool<CompType>::GetPool().m_components[index];

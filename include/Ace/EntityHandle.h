@@ -48,7 +48,7 @@ namespace ace
                 {
                     prev = prev->next;
                 }
-                
+
                 if (handle == m_last)
                 {
                     prev->next = nullptr;
@@ -94,21 +94,6 @@ namespace ace
             }
         }
 
-        // inline static void Clone(EntityHandle* target, EntityHandle* other)
-        // {
-        //     EntityManager::ComponentBaseHandle* otherCurrent = other->m_first;
-        //     EntityManager::ComponentBaseHandle* targetCurrent = target->m_first;
-        //
-        //     while (otherCurrent)
-        //     {
-        //
-        //         targetCurrent = otherCurrent->Clone(other);
-        //         target->PushHandle(targetCurrent);
-        //         targetCurrent = targetCurrent->next;
-        //         otherCurrent = otherCurrent->next;
-        //     }
-        // }
-
         inline void Destroy()
         {
             EntityManager::ComponentBaseHandle* current = m_first;
@@ -135,7 +120,7 @@ namespace ace
 
             while (current)
             {
-                if (current->componentID.m_ID == ID)
+                if (current->componentID == ID)
                 {
                     return true;
                 }

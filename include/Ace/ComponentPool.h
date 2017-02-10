@@ -48,24 +48,24 @@ namespace ace
 
     public:
 
-        virtual const void* Data() const 
+        virtual const void* Data() const
         {
             return m_components.data();
         }
-        virtual void* Get(const UInt32 index) 
+        virtual void* Get(const UInt32 index)
         {
             return &m_components.at(index);
         }
-        virtual const void* Get(const UInt32 index) const 
+        virtual const void* Get(const UInt32 index) const
         {
             return &m_components.at(index);
         }
-        virtual void Reserve(const UInt32 size) 
+        virtual void Reserve(const UInt32 size)
         {
             m_components.reserve(size);
             m_handles.reserve(size);
         }
-        virtual UInt32 Size() const 
+        virtual UInt32 Size() const
         {
             return m_components.size();
         }
@@ -100,16 +100,15 @@ namespace ace
             pool.m_components.erase(pool.m_components.begin() + index);
 
             for (const auto& itr : pool.m_handles)
-            {
-                --itr->index;
-            }
+                if (itr->index > index)
+                    --itr->index;
 
             delete handle;
         }
 
 
 
-    protected:
+    private:
 
         template <typename T>
         struct Deleter
@@ -129,19 +128,17 @@ namespace ace
         {
             static void Delete(std::vector<CompType>& components)
             {
-                for (const auto& itr : components)
-                {
+                for (auto& itr : components)
                     if (itr)
                     {
                         delete itr;
                         itr = nullptr;
                     }
-                }
             }
 
             static void Delete(std::vector<CompType>& components, const UInt32 index)
             {
-                if (components.at(index))
+                if (components[index])
                 {
                     delete components[index];
                     components[index] = nullptr;
@@ -149,8 +146,12 @@ namespace ace
             }
         };
 
+    protected:
+
         ComponentPool() :
-            BasePool(EntityManager::ComponentID(EntityManager::ComponentID::GetID<CompType>()))
+            BasePool(EntityManager::ComponentID(EntityManager::ComponentID::GetID<CompType>())),
+            m_components(),
+            m_handles()
         {
             RegisterPool(this);
         }
@@ -158,13 +159,11 @@ namespace ace
         ~ComponentPool()
         {
             for (auto& itr : m_handles)
-            {
                 if (itr)
                 {
                     delete itr;
                     itr = nullptr;
                 }
-            }
             Deleter<CompType>::Delete(m_components);
         }
 

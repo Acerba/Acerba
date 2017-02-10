@@ -37,19 +37,10 @@ namespace ace
         entity->Destroy();
         delete entity;
         entity = nullptr;
-
-        //for (size_t i = 0u; i < manager.m_entities.size(); ++i)
-        //{
-        //    if (manager.m_entities[i] == entity)
-        //    {
-        //        index = i;
-        //        break;
-        //    }
-        //}
-
     }
 
-    EntityManager::EntityManager()
+    EntityManager::EntityManager():
+        m_entities()
     {
 
     }
@@ -68,12 +59,8 @@ namespace ace
 
     EntityManager::EntityHandle* EntityManager::CreateEntity()
     {
-        EntityHandle* handle = new EntityHandle(this);
-        m_entities.emplace_back(handle);
-        return handle;
-
-        //m_entities.emplace_back(new EntityHandle(this));
-        //return m_entities.back();
+        m_entities.emplace_back(new EntityHandle(this));
+        return m_entities.back();
     }
 
 }
