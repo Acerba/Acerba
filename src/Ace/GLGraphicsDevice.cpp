@@ -8,6 +8,7 @@
 #include <Ace/GLBufferImpl.h>
 #include <Ace/GLShaderImpl.h>
 #include <Ace/GLMaterialImpl.h>
+#include <Ace/GLTextureImpl.h>
 
 namespace ace
 {
@@ -50,7 +51,7 @@ namespace ace
 	Buffer GraphicsDevice::CreateBuffer(BufferType type)
 	{
 		Buffer buffer;
-		buffer.impl = std::make_shared<Buffer::BufferImpl>(Buffer::BufferImpl());
+		buffer.impl.reset(new Buffer::BufferImpl());
 		buffer.type = type;
 		return buffer;
 	}
@@ -58,6 +59,7 @@ namespace ace
 	void GraphicsDevice::BufferData(Buffer& buffer, UInt32 count, const Vertex* data)
 	{
 		UInt32 target = GLBufferTargets[static_cast<UInt32>(buffer.type)];
+		buffer.size = count;
 
 		glBindBuffer(target, buffer.impl->bufferID);
 		glBufferData(target, count * sizeof(Vertex), data, GL_STATIC_DRAW);
@@ -73,10 +75,25 @@ namespace ace
 		//glBindBuffer(target, 0);
 	}
 
+	void GraphicsDevice::SetBuffer(const Buffer& buffer, BufferType type)
+	{
+		if (buffer.impl == nullptr)
+		{
+			return;
+		}
+
+		UInt32 target = GLBufferTargets[static_cast<UInt32>(type)];
+		glBindBuffer(target, buffer.impl->bufferID);
+	}
+
+	void GraphicsDevice::SetBuffer(const Buffer& buffer)
+	{
+		SetBuffer(buffer, buffer.type);
+	}
+
 	void GraphicsDevice::SetVertexBuffer(const Buffer& buffer)
 	{
-		UInt32 target = GLBufferTargets[static_cast<UInt32>(buffer.type)];
-		glBindBuffer(target, buffer.impl->bufferID);
+		SetBuffer(buffer, BufferType::Vertex);
 
 		//glVertexAttribPointer(0, 3, GL_FLOAT, false, vertexAttributeSizes[0], nullptr);
 		//glVertexAttribPointer(1, 2, GL_FLOAT, false, vertexAttributeSizes[0] + vertexAttributeSizes[1], nullptr);
@@ -85,6 +102,47 @@ namespace ace
 		//glEnableVertexAttribArray(0);
 		//glEnableVertexAttribArray(1);
 		//glEnableVertexAttribArray(2);
+	}
+
+	void GraphicsDevice::SetIndexBuffer(const Buffer& buffer)
+	{
+		SetBuffer(buffer, BufferType::Index);
+	}
+
+	Texture GraphicsDevice::CreateTexture()
+	{
+		Texture texture;
+		texture.impl.reset(new Texture::TextureImpl());
+
+		return texture;
+	}
+
+	void GraphicsDevice::UpdateTexture(Texture& texture, const UInt8* pixels, UInt32 w, UInt32 h, PixelFormat format)
+	{
+		glBindTexture(GL_TEXTURE_2D, texture.impl->textureID);
+
+		// TODO: Format & Filters
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+
+	void GraphicsDevice::SetTexture(Material& material, const Texture& texture)
+	{
+		const UInt32 ID = 0;
+
+		glUseProgram(material.impl->materialID);
+		glActiveTexture(GL_TEXTURE0 + ID);
+		glBindTexture(GL_TEXTURE_2D, texture.impl->textureID);
+
+		UInt32 i = glGetUniformLocation(material.impl->materialID, "Texture");
+		glUniform1i(i, ID);
+
 	}
 
 	Shader GraphicsDevice::CreateShader(const char* source, ShaderType type)
@@ -169,9 +227,25 @@ namespace ace
 		return material;
 	}
 
-	void GraphicsDevice::Draw(Material& material, UInt32 elements)
+	void GraphicsDevice::Draw(Material& material, UInt32 elements, UInt32 indicies)
 	{
 		glUseProgram(material.impl->materialID);
-		glDrawArrays(GL_TRIANGLES, 0, elements);
+
+		if (indicies == 0)
+		{
+			glDrawArrays(GL_TRIANGLES, 0, elements);
+		}
+		else
+		{
+			glDrawElements(GL_TRIANGLES, indicies, GL_UNSIGNED_INT, 0);
+		}
+	}
+
+	void GraphicsDevice::Draw(Material& material, const Mesh& mesh)
+	{
+		SetBuffer(mesh.vertexBuffer);
+		SetBuffer(mesh.indexBuffer);
+
+		Draw(material, mesh.GetElements(), mesh.GetIndicies());
 	}
 }

@@ -28,6 +28,7 @@ namespace ace
 		PixelFormat format;
 	
 		UInt8* Pixels();
+		const UInt8* Pixels() const;
 
 		void WritePNG(const Path& path) const;
 	private:

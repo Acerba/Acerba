@@ -53,6 +53,11 @@ namespace ace
 		return m_pixels.get();
 	}
 
+	const UInt8* Image::Pixels() const
+	{
+		return m_pixels.get();
+	}
+
 	///Saves a file into given path
 	void Image::WritePNG(const Path& path) const
 	{

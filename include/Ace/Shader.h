@@ -41,6 +41,6 @@ namespace ace
 			@brief Create Shader from text.
 			@return True if shader is valid.
 		*/
-		bool Init(const char* src, ShaderType type);
+		bool Create(const char* src, ShaderType type);
 	};
 }

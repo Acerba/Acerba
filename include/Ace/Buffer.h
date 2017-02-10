@@ -38,6 +38,8 @@ namespace ace
 		Streaming
 	};
 
+	// TODO: Dynamic Buffer? -> Stores buffer data inside a vector.
+
 	struct Buffer
 	{
 		struct BufferImpl;
@@ -45,5 +47,10 @@ namespace ace
 
 		BufferType type;
 		UInt32 size;
+
+		Buffer() : impl(nullptr), size(0)
+		{
+
+		}
 	};
 }
