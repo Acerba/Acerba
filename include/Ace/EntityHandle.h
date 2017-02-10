@@ -32,29 +32,32 @@ namespace ace
 
         inline void PopHandle(EntityManager::ComponentBaseHandle* handle)
         {
-            //TODO: clean this place up
-
-            //WIP not working
-            __debugbreak();
-
-            //m_first == handle probably probably not required
             if (m_first == m_last && m_first == handle)
             {
                 m_first = m_last = nullptr;
             }
+            else if (m_first == handle)
+            {
+                m_first = handle->next;
+            }
             else
             {
-                //TODO: doesn't work properly
-
                 EntityManager::ComponentBaseHandle* prev = m_first;
-                if (prev != handle)
+
+                while (prev->next != handle && prev)
                 {
-                    while (prev->next != handle)
-                    {
-                        prev = prev->next;
-                    }
+                    prev = prev->next;
                 }
-                handle == m_last ? m_last = prev : prev->next = handle->next;
+                
+                if (handle == m_last)
+                {
+                    prev->next = nullptr;
+                    m_last = prev;
+                }
+                else
+                {
+                    prev->next = handle->next;
+                }
             }
             --m_componentCount;
         }
