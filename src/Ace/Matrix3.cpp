@@ -1,4 +1,4 @@
-#include <Ace\Matrix3.h>
+#include <Ace/Matrix3.h>
 
 
 namespace ace
@@ -122,6 +122,7 @@ namespace ace
 
 		Matrix3 Matrix3::RotationX(float a)
 		{
+			a = Rad(a);
 			Vector3 r1(1,   0   ,   0    );
 			Vector3 r2(0, Cos(a), -Sin(a));
 			Vector3 r3(0, Sin(a),  Cos(a));
@@ -131,6 +132,7 @@ namespace ace
 
 		Matrix3 Matrix3::RotationZ(float a)
 		{
+			a = Rad(a);
 			Vector3 r1(Cos(a), -Sin(a), 0);
 			Vector3 r2(Sin(a),  Cos(a), 0);
 			Vector3 r3(  0   ,    0   , 1);
@@ -140,6 +142,7 @@ namespace ace
 
 		Matrix3 Matrix3::RotationY(float a)
 		{
+			a = Rad(a);
 			Vector3 r1(Cos(a) , 0, Sin(a));
 			Vector3 r2(   0   , 1,   0   );
 			Vector3 r3(-Sin(a), 0, Cos(a));

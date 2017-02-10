@@ -1,6 +1,10 @@
 #pragma once
 
+#include <Ace/Math.h>
 #include <Ace/Vector3.h>
+#include <Ace/Matrix2.h>
+#include <Ace/Matrix3.h>
+#include <Ace/Matrix4.h>
 
 namespace ace
 {
@@ -20,32 +24,36 @@ namespace ace
 
             }
 
-            Quaternion operator+(const Quaternion& q1) const
-            {
-                return{ vector + q1.vector, scalar + q1.scalar };
-            }
+			static Quaternion Euler(float xDegree, float yDegree, float zDegree)
+			{
+				float x = Rad(xDegree / 2.0f);
+				float y = Rad(yDegree / 2.0f);
+				float z = Rad(zDegree / 2.0f);
 
-            Quaternion& operator+=(const Quaternion& q1)
-            {
-                vector += q1.vector;
-                scalar += q1.scalar;
+				return
+					Quaternion(Vector3(Sin(x), 0, 0), Cos(x))*
+					Quaternion(Vector3(0, Sin(y), 0), Cos(y))*
+					Quaternion(Vector3(0, 0, Sin(z)), Cos(z));
+			}
+		
+			
+			Quaternion operator*(const Quaternion& q1) const;
+			
+			Quaternion& operator*=(const Quaternion& q1);
+			
+			Quaternion operator+(const Quaternion& q1) const;
+          
+			Quaternion& operator+=(const Quaternion& q1);
+           
+			Quaternion operator-(const Quaternion& q1) const;
+           
+			Quaternion& operator-=(const Quaternion& q1);
+           
+			Matrix2 ToMatrix2() const;
 
-                return *this;
-            }
+			Matrix3 ToMatrix3() const;
 
-            Quaternion operator-(const Quaternion& q1) const
-            {
-                return{ vector - q1.vector, scalar - q1.scalar };
-            }
-
-            Quaternion& operator-=(const Quaternion& q1)
-            {
-                vector -= q1.vector;
-                scalar -= q1.scalar;
-
-                return *this;
-            }
-
+			Matrix4 ToMatrix4() const;
         };
     }
 }
