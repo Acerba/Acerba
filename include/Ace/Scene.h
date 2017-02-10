@@ -1,15 +1,23 @@
 #pragma once
 
+#include <Ace/Macros.h>
+
 namespace ace
 {
-
+    class Entity;
 
     class Scene
     {
+        
+        Entity* m_root;
 
-        //TODO: stuff
+        ACE_DISABLE_COPY(Scene)
+
+    public:
+
+        Scene();
+        ~Scene();
+
 
     };
-
-
 }
