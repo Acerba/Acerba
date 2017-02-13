@@ -12,6 +12,8 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#include <Ace/Audio.h>
+
 const ace::Vertex triangle[3] = {
 	{ { -0.5f, 0.0f, 0.0f }, { 0.0f, 0.0f }, 0xFF0000FFU },
 	{ { 0.5f, 0.0f, 0.0f }, { 0.0f, 0.0f }, 0x00FF00FFU },
@@ -24,7 +26,8 @@ const ace::Vertex triangle[3] = {
 int main(int, char**)
 {
 	ace::Init();
-
+	ace::Audio::Init();
+	
 	ace::Logger::Log(ace::Logger::Priority::Info, "Hello!");
 	ace::Window window("Main", 480, 320);
 
@@ -33,7 +36,7 @@ int main(int, char**)
 
 	ace::Shader vertex, fragment;
 
-	vertex.Init("									\n\
+	vertex.Create("									\n\
 		#version 100								\n\
 		attribute vec3 a_position;					\n\
 		attribute vec2 a_uv;						\n\
@@ -51,7 +54,7 @@ int main(int, char**)
 		}											\n\
 		", ace::ShaderType::Vertex);
 
-	fragment.Init("									\n\
+	fragment.Create("									\n\
 		#version 100								\n\
 		varying lowp vec4 o_c;						\n\
 		varying lowp vec2 o_uv;						\n\
@@ -64,23 +67,19 @@ int main(int, char**)
 
 	ace::Material material(vertex, fragment);
 	
-		ace::Logger::Log(ace::Logger::Priority::Info,"Initializing OpenAL.\n");
-		cOAL_Init_Params oal_parms;
-		if (OAL_Init(oal_parms) == false)
-		{
-			ace::Logger::Log(ace::Logger::Priority::Info,"Audio initializing failed!\n");
-		}
-		else
-		{
-			ace::Logger::Log(ace::Logger::Priority::Info,"Audio initializing succeeded!\n");
-		}
+	
+	ace::AudioSample sample({"audio.ogg"});
+	ace::Audio::PlayAudio(sample);
+
 	
 	while(true)
 	{
+		ace::Audio::Update(sample);
+		
 		window.Clear(0xBADAFFFFU);
 
 		ace::GraphicsDevice::SetVertexBuffer(buffer);
-		ace::GraphicsDevice::Draw(material, 3);
+		ace::GraphicsDevice::Draw(material, 3, 0);
 
 		window.Present();
 
