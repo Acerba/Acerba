@@ -15,6 +15,8 @@ project(SDL2 C)
 # !!! FIXME:  properly resolved.
 #cmake_policy(SET CMP0042 OLD)
 
+BuildNDK()
+
 include(CheckFunctionExists)
 include(CheckLibraryExists)
 include(CheckIncludeFiles)

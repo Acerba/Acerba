@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 
+if(ANDROID)
+
+	BuildIgnore()
+
+endif()
+
 project(gl3w)
 
 include_directories(include)
