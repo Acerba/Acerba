@@ -28,6 +28,7 @@ namespace ace
 			};
 
 			Matrix2();
+			Matrix2(float identity);
 			Matrix2(Vector2 v1, Vector2 v2);
 
 			float Determinant() const;
@@ -41,7 +42,7 @@ namespace ace
 
 
 
-
+			static Matrix2 Identity();
 			static Matrix2 Scale(float x, float y);
 			static Matrix2 Rotation(float a);
 			

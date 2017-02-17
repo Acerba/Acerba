@@ -33,6 +33,18 @@ namespace ace
 				return Sqrt(x*x + y*y + z*z);
 			}
 
+			Vector3 Normalize()
+			{
+				Vector3 v = *this;
+
+				for (int i = 0; i < 3; ++i)
+				{
+					v.array[i] / v.Lenght();
+				}
+				return v;
+			}
+
+
 			Vector3 operator+(const Vector3& vec1) const
 			{
 				return{ x + vec1.x, y + vec1.y, z + vec1.z};

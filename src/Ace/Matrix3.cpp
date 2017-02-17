@@ -15,6 +15,10 @@ namespace ace
 			rows[2] = v3;
 		}
 		
+		Matrix3::Matrix3(float identity) : rows()
+		{
+			data[0][0] = data[1][1] = data[2][2] = identity;
+		}
 
 		float Matrix3::Determinant() const
 		{
@@ -101,6 +105,11 @@ namespace ace
 			return mat;
 		}
 
+		Matrix3 Matrix3::Identity()
+		{
+			return Matrix3(1);
+		}
+
 
 		Matrix3 Matrix3::Scale(float x, float y, float z)
 		{
@@ -149,9 +158,5 @@ namespace ace
 
 			return Matrix3(r1, r2, r3);
 		}
-
-		
-
-
 	}
 }

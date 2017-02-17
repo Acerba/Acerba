@@ -28,6 +28,7 @@ namespace ace
 			};
 
 			Matrix3();
+			Matrix3(float identity);
 			Matrix3(Vector3 v1, Vector3 v2, Vector3 v3);
 
 			float Determinant() const;
@@ -38,15 +39,16 @@ namespace ace
 			Matrix3 operator*(const Matrix3& m) const;
 			Vector3 operator*(const Vector3& o) const;
 			Matrix3 operator*(float scalar) const;
-			
-		    
 
 
+
+			static Matrix3 Identity();
 			static Matrix3 Scale(float x, float y, float z);
 			static Matrix3 Translation(const Vector3& t);
 			static Matrix3 RotationX(float a);
 			static Matrix3 RotationY(float a);
 			static Matrix3 RotationZ(float a);
+			
 
 
 			Vector3& operator[](UInt8 index)

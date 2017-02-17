@@ -1,7 +1,9 @@
 #pragma once
 
-#include <Ace\Vector4.h>
-#include <Ace\IntTypes.h>
+#include <Ace/Vector4.h>
+#include <Ace/Vector3.h>
+#include <Ace/IntTypes.h>
+
 
 namespace ace
 {
@@ -27,6 +29,7 @@ namespace ace
 			};
 
 			Matrix4();
+			Matrix4(float identity);
 			Matrix4(Vector4 v1, Vector4 v2, Vector4 v3, Vector4 v4);
 
 			float Determinant() const;
@@ -38,11 +41,14 @@ namespace ace
 			Vector4 operator*(const Vector4& o) const;
 			Matrix4 operator*(float scalar) const;
 
+			static Matrix4 Identity();
 			static Matrix4 Scale(float x, float y, float z);
 			static Matrix4 Translation(const Vector4& t);
 			static Matrix4 RotationX(float a);
 			static Matrix4 RotationY(float a);
 			static Matrix4 RotationZ(float a);
+			static Matrix4 Ortho(float left, float right, float bottom, float top, float znear, float zfar);
+			static Matrix4 LookAt(Vector3 const & eye, Vector3 const & center, Vector3 const & up);
 
 
 			Vector4& operator[](UInt8 index)

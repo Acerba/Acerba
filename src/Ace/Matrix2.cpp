@@ -13,6 +13,10 @@ namespace ace
 			rows[1] = v2;
 		}
 
+		Matrix2::Matrix2(float identity) : rows()
+		{
+			data[0][0] = data[1][1] = identity;
+		}
 
 		float Matrix2::Determinant() const
 		{
@@ -84,6 +88,10 @@ namespace ace
 			return mat;
 		}
 
+		Matrix2 Matrix2::Identity()
+		{
+			return Matrix2(1);
+		}
 
 		Matrix2 Matrix2::Scale(float x, float y)
 		{

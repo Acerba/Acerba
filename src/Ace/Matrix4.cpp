@@ -15,6 +15,11 @@ namespace ace
 			rows[3] = v4;
 		}
 
+		Matrix4::Matrix4(float identity) : rows()
+		{
+			data[0][0] = data[1][1] = data[2][2] = data[3][3] = identity;
+		}
+
 		float Matrix4::Determinant() const
 		{
 			Matrix4 m = *this;
@@ -126,6 +131,11 @@ namespace ace
 			return mat;
 		}
 
+		Matrix4 Matrix4::Identity()
+		{
+			return Matrix4(1);
+		}
+
 		Matrix4 Matrix4::Scale(float x, float y, float z)
 		{
 			Vector4 r1(x, 0, 0, 0);
@@ -179,7 +189,51 @@ namespace ace
 			return Matrix4(r1, r2, r3, r4);
 		}
 
+		Matrix4 Matrix4::Ortho(float left, float right, float bottom, float top, float znear, float zfar)
+		{
+			Matrix4 ortho(1);
 
+			ortho[0].x = -2.0 / (right - left);
+			ortho[0].y = 0;
+			ortho[0].z = 0;
+			ortho[0].w = -(right + left) / (right - left);
 
+			ortho[1].x = 0;
+			ortho[1].y = 2.0 / (top - bottom);
+			ortho[1].z = 0;
+			ortho[1].w = -(top + bottom) / (top - bottom);
+
+			ortho[2].x = 0;
+			ortho[2].y = 0;
+			ortho[2].z = 2.0 / (zfar - znear);
+			ortho[2].w = -(zfar + znear) / (zfar - znear);
+
+			ortho[3].x = -1.0;
+			ortho[3].y = +1.0;
+			ortho[3].z = 0;
+			ortho[3].w = 1;
+		}
+
+		Matrix4 Matrix4::LookAt(Vector3 const & eye, Vector3 const & center, Vector3 const & up)
+		{
+			const Vector3 f = (center - eye).Normalize();
+			const Vector3 s = f.Cross(up).Normalize();
+			const Vector3 u = s.Cross(f);
+
+			Matrix4 m = Matrix4::Identity();
+			m(0, 0) = s.x;
+			m(1, 0) = s.y;
+			m(2, 0) = s.z;
+			m(0, 1) = u.x;
+			m(1, 1) = u.y;
+			m(2, 1) = u.z;
+			m(0, 2) = -f.x;
+			m(1, 2) = -f.y;
+			m(2, 2) = -f.z;
+			m(3, 0) = -s.Dot(eye);
+			m(3, 1) = -u.Dot(eye);
+			m(3, 2) = f.Dot(eye);
+			return m;
+		}
 	}
 }
