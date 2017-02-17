@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Ace/Vector3.h>
+#include <Ace/Vector2.h>
 #include <Ace/IntTypes.h>
 
 
@@ -44,7 +45,7 @@ namespace ace
 
 			static Matrix3 Identity();
 			static Matrix3 Scale(float x, float y, float z);
-			static Matrix3 Translation(const Vector3& t);
+			static Matrix3 Translation(const Vector2& t);
 			static Matrix3 RotationX(float a);
 			static Matrix3 RotationY(float a);
 			static Matrix3 RotationZ(float a);

@@ -146,12 +146,12 @@ namespace ace
 			return Matrix4(r1, r2, r3, r4);
 		}
 
-		Matrix4 Matrix4::Translation(const Vector4& t)
+		Matrix4 Matrix4::Translation(const Vector3& t)
 		{
-			Vector4 r1(1, 0, 0 ,t.x);
-			Vector4 r2(0, 1, 0 ,t.y);
-			Vector4 r3(0, 0, 1, t.z);
-			Vector4 r4(0, 0, 0,  1);
+			Vector4 r1(1, 0, 0, 0);
+			Vector4 r2(0, 1, 0, 0);
+			Vector4 r3(0, 0, 1, 0);
+			Vector4 r4(t.x, t.y, t.z, 1);
 
 			return Matrix4(r1, r2, r3, r4);
 		}

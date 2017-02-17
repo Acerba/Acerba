@@ -43,7 +43,7 @@ namespace ace
 		static void Draw(Material& material, const Mesh& mesh);
 
 		static Buffer CreateBuffer(BufferType type);
-		static void BufferData(Buffer& buffer, UInt32 count, const Vertex* data);
+		static void BufferData(Buffer& buffer, UInt32 count, const Vertex* data, BufferUsage usage = BufferUsage::Static, UInt32 instances = 1);
 
 		static void SetBuffer(const Buffer&, BufferType type);
 		static void SetBuffer(const Buffer&);
@@ -56,5 +56,7 @@ namespace ace
 		static Texture CreateTexture();
 		static void UpdateTexture(Texture&, const UInt8* pixels, UInt32 w, UInt32 h, PixelFormat format);
 		static void SetTexture(Material&, const Texture&);
+
+		static void Uniform(Material& material, const char* name, const void* data, UniformType uniform, UInt32 elements = 1);
 	};
 }

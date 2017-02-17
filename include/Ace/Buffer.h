@@ -15,12 +15,12 @@ namespace ace
 		COUNT,
 	};
 
-	static const UInt32 vertexAttributeSizes[] = { sizeof(Vector3), sizeof(Vector2), sizeof(Color32) };
+	static const UInt32 vertexAttributeSizes[] = { sizeof(Vector4), sizeof(Vector2), sizeof(Color32) };
 	static const char* vertexAttributeNames[] = {"a_position", "a_uv", "a_color"};
 
 	struct Vertex
 	{
-		Vector3 position;
+		Vector4 position;
 		Vector2 uv;
 		Color32 color;
 	};

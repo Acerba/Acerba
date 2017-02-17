@@ -120,11 +120,11 @@ namespace ace
 			return Matrix3(r1, r2, r3);
 		}
 
-		Matrix3 Matrix3::Translation(const Vector3& t)
+		Matrix3 Matrix3::Translation(const Vector2& t)
 		{
-			Vector3 r1(1, 0, t.x);
-			Vector3 r2(0, 1, t.y);
-			Vector3 r3(0, 0, 1);
+			Vector3 r1(1, 0, 0);
+			Vector3 r2(0, 1, 0);
+			Vector3 r3(t.x, t.y, 1);
 
 			return Matrix3(r1, r2, r3);
 		}

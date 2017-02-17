@@ -43,7 +43,7 @@ namespace ace
 
 			static Matrix4 Identity();
 			static Matrix4 Scale(float x, float y, float z);
-			static Matrix4 Translation(const Vector4& t);
+			static Matrix4 Translation(const Vector3& t);
 			static Matrix4 RotationX(float a);
 			static Matrix4 RotationY(float a);
 			static Matrix4 RotationZ(float a);

@@ -1,7 +1,8 @@
 #pragma once
 
 #include <Ace/IntTypes.h>
-#include <Ace/Color.h>
+#include <Ace/Types.h>
+
 #include <memory>
 
 namespace ace
@@ -28,5 +29,10 @@ namespace ace
 
 		void Present();
 		void Clear(const Color32& color);
+
+		Vector2 GetSize() const;
+		void SetSize(const Vector2&);
+
+		operator bool() const;
 	};
 }

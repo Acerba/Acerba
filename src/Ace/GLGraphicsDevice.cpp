@@ -13,10 +13,11 @@
 namespace ace
 {
 	static const UInt32 GLBufferTargets[] = {GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER};
+	static const UInt32 GLBufferUsage[] = { GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_STREAM_DRAW};
 	static const UInt32 GLShaderTypes[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 
 	void GraphicsDevice::Clear(const Color32& color)
-	{
+	{ 
 		glClearColor(color.r, color.g, color.b, color.a);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
@@ -56,23 +57,34 @@ namespace ace
 		return buffer;
 	}
 
-	void GraphicsDevice::BufferData(Buffer& buffer, UInt32 count, const Vertex* data)
+	void GraphicsDevice::BufferData(Buffer& buffer, UInt32 count, const Vertex* data, BufferUsage usage, UInt32 instances)
 	{
 		UInt32 target = GLBufferTargets[static_cast<UInt32>(buffer.type)];
-		buffer.size = count;
+		buffer.size = count * instances;
 
 		glBindBuffer(target, buffer.impl->bufferID);
-		glBufferData(target, count * sizeof(Vertex), data, GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vertex), (void*)0);
-		glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(Vertex), (void*)vertexAttributeSizes[0]);
-		glVertexAttribPointer(2, 4, GL_FLOAT, false, sizeof(Vertex), (void*)(vertexAttributeSizes[0] + vertexAttributeSizes[1]));
+		if (instances > 0)
+		{
+			Vertex* instance = new Vertex[count * instances];
 
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
+			for (int j = 0; j < instances; ++j)
+			{
+				for (int i = 0; i < count; ++i)
+				{
+					instance[i + j * count] = data[i];
+					instance[i + j * count].position.w = j;
+				}
+			}
 
-		//glBindBuffer(target, 0);
+			glBufferData(target, count * sizeof(Vertex) * instances, instance, GLBufferUsage[static_cast<UInt32>(usage)]);
+			delete[] instance;
+		}
+		else
+		{
+			glBufferData(target, count * sizeof(Vertex), data, GLBufferUsage[static_cast<UInt32>(usage)]);
+
+		}
 	}
 
 	void GraphicsDevice::SetBuffer(const Buffer& buffer, BufferType type)
@@ -84,6 +96,17 @@ namespace ace
 
 		UInt32 target = GLBufferTargets[static_cast<UInt32>(type)];
 		glBindBuffer(target, buffer.impl->bufferID);
+
+		if (type == BufferType::Vertex)
+		{
+			glVertexAttribPointer(0, 4, GL_FLOAT, false, sizeof(Vertex), (void*)0);
+			glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(Vertex), (void*)vertexAttributeSizes[0]);
+			glVertexAttribPointer(2, 4, GL_FLOAT, false, sizeof(Vertex), (void*)(vertexAttributeSizes[0] + vertexAttributeSizes[1]));
+
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
+		}
 	}
 
 	void GraphicsDevice::SetBuffer(const Buffer& buffer)
@@ -98,10 +121,7 @@ namespace ace
 		//glVertexAttribPointer(0, 3, GL_FLOAT, false, vertexAttributeSizes[0], nullptr);
 		//glVertexAttribPointer(1, 2, GL_FLOAT, false, vertexAttributeSizes[0] + vertexAttributeSizes[1], nullptr);
 		//glVertexAttribPointer(2, 4, GL_FLOAT, false, vertexAttributeSizes[0] + vertexAttributeSizes[1] + vertexAttributeSizes[2], nullptr);
-		//
-		//glEnableVertexAttribArray(0);
-		//glEnableVertexAttribArray(1);
-		//glEnableVertexAttribArray(2);
+
 	}
 
 	void GraphicsDevice::SetIndexBuffer(const Buffer& buffer)
@@ -227,6 +247,46 @@ namespace ace
 		return material;
 	}
 
+	void GraphicsDevice::Uniform(Material& material, const char* name, const void* data, UniformType uniform, UInt32 elements)
+	{
+		glUseProgram(material.impl->materialID);
+		UInt32 location = glGetUniformLocation(material.impl->materialID, name);
+
+		switch (uniform)
+		{
+		case ace::UniformType::Int32:
+			glUniform1iv(location, elements, static_cast<const Int32*>(data));
+			break;
+		case ace::UniformType::UInt32:
+			glUniform1uiv(location, elements, static_cast<const UInt32*>(data));
+			break;
+		case ace::UniformType::Float:
+			glUniform1fv(location, elements, static_cast<const float*>(data));
+			break;
+		case ace::UniformType::Vec2:
+			glUniform2fv(location, elements, static_cast<const float*>(data));
+			break;
+		case ace::UniformType::Vec3:
+			glUniform3fv(location, elements, static_cast<const float*>(data));
+			break;
+		case ace::UniformType::Vec4:
+			glUniform4fv(location, elements, static_cast<const float*>(data));
+			break;
+		case ace::UniformType::Mat2:
+			glUniformMatrix2fv(location, elements, false, static_cast<const math::Matrix2*>(data)->array);
+			break;
+		case ace::UniformType::Mat3:
+			glUniformMatrix3fv(location, elements, false, static_cast<const math::Matrix3*>(data)->array);
+			break;
+		case ace::UniformType::Mat4:
+			glUniformMatrix4fv(location, elements, false, static_cast<const math::Matrix4*>(data)->array);
+			break;
+		}
+		
+		glUseProgram(0);
+
+	}
+
 	void GraphicsDevice::Draw(Material& material, UInt32 elements, UInt32 indicies)
 	{
 		glUseProgram(material.impl->materialID);
@@ -243,6 +303,9 @@ namespace ace
 
 	void GraphicsDevice::Draw(Material& material, const Mesh& mesh)
 	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		SetBuffer(mesh.vertexBuffer);
 		SetBuffer(mesh.indexBuffer);
 
