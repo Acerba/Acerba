@@ -15,7 +15,7 @@ namespace ace
         This means that assigning an entity to another will cause them to share the components present at the moment of assigning.
         */
         Entity(const Entity&) = delete;
-        Entity(Entity&&) = delete;
+        Entity(Entity&&);
 
     public:
 
@@ -74,6 +74,26 @@ namespace ace
         inline UInt32 ComponenCount() const
         {
             return m_handle->Count();
+        }
+
+
+
+        void AddChild(Entity& parent)
+        {
+            m_handle->AddChild(parent.m_handle);
+        }
+        UInt32 ChildCount() const
+        {
+            return m_handle->ChildCount();
+        }
+        //Check for validity with bool() after this
+        Entity GetChild()
+        {
+            return Entity(m_handle->GetChild());
+        }
+        static void RemoveChild(Entity& target)
+        {
+            EntityManager::EntityHandle::RemoveChild(target.m_handle);
         }
 
 

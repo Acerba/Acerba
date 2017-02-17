@@ -13,242 +13,184 @@ namespace ace
     {
     private:
 
-
-        /*   struct ChildNode
-           {
-           EntityHandle* child;
-           ChildNode* next;
-
-           ChildNode(EntityHandle* _child = nullptr, ChildNode* _next = nullptr) :
-           child(_child),
-           next(_next)
-           {
-
-           }
-
-           } m_node;*/
-
-
         struct ChildList
         {
-            ChildList* next;
-            EntityHandle* child;
-            EntityHandle* parent;
-            EntityHandle* const self;
+            EntityHandle* thisChild;
+            ChildList* nextChild;
 
-
-            ChildList(
-                EntityHandle * const _self,
-                EntityHandle* _parent = nullptr,
-                EntityHandle* _child = nullptr,
-                ChildList* _next = nullptr
-                ) :
-                next(_next),
-                child(_child),
-                parent(_parent),
-                self(_self)
+            ChildList(EntityHandle* _this) :
+                thisChild(_this),
+                nextChild(nullptr)
             {
 
             }
 
-            //ACE_DISABLE_COPY(ChildList)
+            ~ChildList()
+            {
+                if (nextChild)
+                {
+                    delete nextChild;
+                    nextChild = nullptr;
+                }
+            }
 
-        } m_list;
+            static void AddChild(EntityHandle* parent, EntityHandle* newChild)
+            {
+                ChildList* next = &parent->m_children;
 
+                if (!next->thisChild)
+                {
+                    next->thisChild = newChild;
+                    return;
+                }
 
+                while (next->nextChild)
+                {
+                    next = next->nextChild;
+                }
+                next->nextChild = new ChildList(newChild);
+            }
+
+        };
+
+        ChildList m_children;
         EntityHandle* m_parent;
+        EntityHandle* m_next;
         Transform* m_transform;
 
-        //
-        //
-        //
-        //  e1
-        //  |
-        //  e2-e4-e5
-        //  |     |
-        //  e3    e6
-        //        |
-        //        e7-e11-e12
-        //           |    |
-        //        e8-e9  e13-e14
-        //
-        //
-        //  e1.AddChild() creates e10
-        //  
-        //  _removeSingleParent(e6, e11) removes e11, parents e8 and e9 to e6, links e9 to e7
-        //
-        //  e1
-        //  |
-        //  e2-e4-e5-e10
-        //  |     |
-        //  e3    e6
-        //        |
-        //        e8-e9-e7-e12
-        //                  |
-        //                 e13-e14
+    public:
 
 
-        //  _removSingleParent(e6, e11) without children
-        //  
-        //        e6
-        //        |
-        //        e7-e11-e12
-        //
-        //        e6
-        //        |
-        //        e7-e12
-        //        
-
-
-        static void _removeSingleParent(EntityHandle* newParent, EntityHandle* oldParent)
-        {
-            //newparent must be parent of oldparent -> only one level of change is allowed at a time
-            if (newParent == oldParent ||
-                newParent->m_list.child != oldParent ||
-                oldParent->m_list.child == nullptr)
-                return;
-
-            //Remove oldParent from the list of nexts under newParent
-            ChildList* next = &newParent->m_list.child->m_list;
-            while (next && next->next != &oldParent->m_list)
-            {
-                next = next->next;
-            }//next->next is now oldparent, overwrite it
-            next->next = oldParent->m_list.next;
-
-
-            //Reparent all children of oldparent to newParent
-            ChildList* child = &oldParent->m_list;
-            if (child->child)
-            {
-                //Newparent will point to first child of oldparent
-                newParent->m_list.child = child->child;
-
-                child = &child->child->m_list;
-                while (child->next)
-                {
-                    child->parent = newParent;
-                    child = child->next;
-                }//now child points to last in next
-                child->parent = newParent;
-                child->next = oldParent->m_list.next; //Last moved child now points to first on same level
-            }
-        }
-
-
-        //Adds child directly below to this
         void AddChild(EntityHandle* childToAdd)
         {
-            ChildList* temp = &m_list;
-
-            while (temp->next)
-            {
-                temp = temp->next;
-            }
-
-            temp->next = new ChildList(childToAdd, this);
-        }
-
-
-        // e1
-        // |
-        // e2-e5
-        // |  |
-        // e3 e6-e8
-        // |  |  |
-        // e4 e7 e9
-
-        //
-
-        // e1
-        // |
-        // e3
-
-        //Remove all children under this
-        void RemoveAllChildren()
-        {
-            //No children to remove
-            if (!m_list.child)
+            if (!childToAdd)
                 return;
-            
-            ChildList* child = &m_list.child->m_list;
-            ChildList* next = next->next;
-            while (child)
-            {
-                child->self->_removeSelfAndAllChildren();
-                child = next;
-                if (next)
-                    next = next->next;
-            }
+            ChildList::AddChild(this, childToAdd);
+            childToAdd->m_parent = this;
         }
 
-        //Remove self and all children from below this
-        //Remember to call this from one level higher
-        void _removeSelfAndAllChildren()
-        {
-            //Remove all children
-            ChildList* self = &m_list;
-            if (self->child)
-                self->child->_removeSelfAndAllChildren();
 
-            //Remove all nexts
-            ChildList* temp = nullptr;
-            while (self)
+        UInt32 ChildCount() const
+        {
+            UInt32 count = 0u;
+
+            //Recurse children
+            ChildList* next = m_children.nextChild;
+            if (m_children.thisChild)
+                count += 1u + m_children.thisChild->ChildCount();
+            while (next)
             {
-                if (self->next)
+                if (next->thisChild)
                 {
-                    temp = self->next->next;
-                    self->next->self->_removeSelfAndAllChildren();
+                    count += 1u + next->thisChild->ChildCount();
+                    next = next->nextChild;
                 }
-                self = temp;
             }
 
-            //Remove self
-            RemoveSelf(this);
+            //Recurse next
+            EntityHandle* nextH = m_next;
+            while (nextH)
+            {
+                count += 1u + nextH->ChildCount();
+                nextH = nextH->m_next;
+            }
+
+            return count;
+        }
+
+        EntityHandle* GetChild(UInt32 index = 0u)
+        {
+            if (!m_children.thisChild)
+                return nullptr;
+            if (index == 0u)
+                return m_children.thisChild;
+
+            ChildList* next = m_children.nextChild;
+            while (next || --index == 0u)
+            {
+                next = next->nextChild;
+            }
+            return next->thisChild;
+        }
+
+
+        //Removes a single child from anywhere below this
+        static void RemoveChild(EntityHandle* toRemove)
+        {
+            if (!toRemove)
+                return;
+
+            ChildList* prev = &toRemove->m_parent->m_children;
+            ChildList* next = nullptr;
+
+            //Target is first child
+            if (prev->thisChild == toRemove)
+            {
+                next = prev->nextChild;
+                toRemove->m_parent->m_children.thisChild = next ? next->thisChild : nullptr;
+                toRemove->m_parent->m_children.nextChild = next;
+            }
+            //Target is older child
+            else
+            {
+                next = prev->nextChild;
+                while (true)
+                {
+                    //Failed to remove
+                    if (!next)
+                    {
+                        return;
+                    }
+                    if (next->thisChild == toRemove)
+                    {
+                        prev->nextChild->nextChild = next->nextChild ? next->nextChild->nextChild : nullptr;
+                        break;
+                    }
+                    prev = next;
+                    next = next->nextChild;
+                }
+            }
+            //Remove target and all its children
+            _removeChild(toRemove);
+        }
+
+    private:
+
+        //Removes target and all children
+        static void _removeChild(EntityHandle* target)
+        {
+            if (!target)
+                return;
+
+            ChildList* nextL = &target->m_children;
+            ChildList* tempL = nullptr;
+
+            //Recurse children
+            while (nextL)
+            {
+                tempL = nextL->nextChild;
+                _removeChild(nextL->thisChild);
+                nextL = tempL;
+            }
+
+            EntityHandle* nextH = target->m_next;
+            EntityHandle* tempH = nullptr;
+
+            //Recurse next
+            while (nextH)
+            {
+                tempH = nextH->m_next;
+                _removeChild(tempH);
+                nextH = tempH;
+            }
+            _removeSelf(target);
         }
 
         //wont probably work
-        static void RemoveSelf(EntityHandle* handle)
+        static void _removeSelf(EntityHandle* target)
         {
-            EntityManager::DestroyEntity(handle, *handle->manager);
+            EntityManager::DestroyEntity(target, *target->manager);
         }
-
-        //Removes a single child from anywhere below this
-        bool RemoveChild(EntityHandle* childToRemove)
-        {
-            ChildList* temp = &m_list;
-
-            //I am to be removed
-            if (temp->self == childToRemove)
-            {
-                _removeSingleParent(temp->parent, temp->self);
-                return true;
-            }
-
-
-            //If there are children
-            if (temp->child)
-            {
-                if (RemoveChild(childToRemove))
-                    return true;
-            }
-
-            //No children, go to next
-            while (temp || temp->self != childToRemove)
-            {
-                temp = temp->next;
-            }
-
-            //Removal target found
-            if (temp)
-            {
-                _removeSingleParent(temp->parent, temp->self);
-                return true;
-            }
-
-            return false;
-        }
-
 
 
         UInt32 m_componentCount;
@@ -310,11 +252,14 @@ namespace ace
 
 
         EntityHandle(EntityManager* manager) :
-            m_first(nullptr),
-            m_last(nullptr),
-            m_list(this),
             manager(manager),
-            m_componentCount(0u)
+            m_componentCount(0u),
+            m_first(nullptr),
+            m_children(nullptr),
+            m_last(nullptr),
+            m_next(nullptr),
+            m_parent(nullptr),
+            m_transform(nullptr)
         {
 
         }
@@ -386,7 +331,7 @@ namespace ace
         }
 
         template <typename CompType>
-        void Remove(ComponentBaseHandle* handle = nullptr)
+        void RemoveComponent(ComponentBaseHandle* handle = nullptr)
         {
             if (!handle)
                 handle = Get<CompType>();
