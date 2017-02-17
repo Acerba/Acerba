@@ -28,22 +28,27 @@ namespace ace
 
 		///BakeTextBox image (text image file)
 		///char text_to_print, int image_width, int image_heigth, float font_size (32.0F)
-		Image BakeTextBox(char *text_to_print, int w, int h, float lineHeight);
+		Image BakeTextBox(const char *text_to_print, int w, int h, float lineHeight = 32.0f);
+		Image BakeTextBox(const char *text_to_print, float lineHeight = 32.0f);
+
 
 		void SaveAllFonts(int x, int y, const int w, const int h);
 
 	private:
 		std::vector<Glyph>ASCII;
+		std::vector<Glyph>::iterator it = ASCII.begin();
 
 		struct FontInfo;
 		std::shared_ptr<FontInfo> m_info;
 		std::shared_ptr<UInt8> m_buffer;
+
 	};
 }
 
 
 /*
 		TODO:
-		Tapa jolla käyttäjä saa kirjoitettua?? * pikainen tapa on parempi uupuu vielä
-		Saa ääkköset talteen
+		-Tapa jolla käyttäjä saa kirjoitettua?? * pikainen tapa on, 
+			mutta parempi uupuu vielä
+
 */
