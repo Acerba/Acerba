@@ -212,6 +212,8 @@ namespace ace
 			ortho[3].y = +1.0;
 			ortho[3].z = 0;
 			ortho[3].w = 1;
+
+			return ortho;
 		}
 
 		Matrix4 Matrix4::LookAt(Vector3 const & eye, Vector3 const & center, Vector3 const & up)

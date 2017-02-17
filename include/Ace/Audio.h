@@ -34,11 +34,7 @@ namespace ace
 
 		}
 
-		AudioClip(const File& file, float volume = 1.0f, bool loop = false, UInt32 priority = 10) : volume(volume), loop(loop), priority(priority)
-		{
-
-		}
-	
+		AudioClip(const File& file, float volume = 1.0f, bool loop = false, UInt32 priority = 10);
 
 		inline AudioClipImpl* operator->() const
 		{
