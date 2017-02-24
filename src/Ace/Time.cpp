@@ -32,7 +32,7 @@ namespace ace
 		s_last = s_now;
 		s_now = GetPerformanceCounter();
 
-		return((s_now - s_last) * 1000 / SDL_GetPerformanceFrequency());
+		return static_cast<float>(((s_now - s_last) * 1000 / GetPerformanceFrequency())) / 1000.0f;
 	}
 
 	bool Time::WaitTime::IsDone()

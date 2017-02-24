@@ -25,6 +25,8 @@ namespace ace
 			{
 				wait = Time::GetTicks() + time;
 			}
+
+			
 			bool IsDone();
 		};
 	};
