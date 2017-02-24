@@ -1,6 +1,7 @@
 #include <SDL_keyboard.h>
 #include <SDL_keycode.h>
 #include <SDL_scancode.h>
+#include <SDL_events.h>
 #include <Ace/Keyboard.h>
 #include <Ace/IntTypes.h>
 #include <iostream>
@@ -9,92 +10,87 @@ namespace ace
 	KeyCode Keyboard::GetKey()
 	{
 		const UInt8 *state = SDL_GetKeyboardState(NULL);
-		switch (*state)
+
+		if (state[SDL_SCANCODE_W])
 		{
-		case SDL_SCANCODE_W:
-			printf("W was pressed!\n");
 			return KeyCode::W;
-			break;
-		case SDL_SCANCODE_A:
-			printf("A was pressed!\n");
+		}
+		if (state[SDL_SCANCODE_A])
+		{
 			return KeyCode::A;
-			break;
-		case SDL_SCANCODE_S:
-			printf("S was pressed!\n");
+		}
+		if (state[SDL_SCANCODE_S])
+		{
 			return KeyCode::S;
-			break;
-		case SDL_SCANCODE_D:
-			printf("D was pressed!\n");
+		}
+		if (state[SDL_SCANCODE_D])
+		{
 			return KeyCode::D;
-			break;
-		case SDL_SCANCODE_1:
-			printf("1 was pressed!\n");
+		}
+		if (state[SDL_SCANCODE_1])
+		{
 			return KeyCode::ONE;
-			break;
-		case SDL_SCANCODE_2:
-			printf("2 was pressed!\n");
+		}
+		if (state[SDL_SCANCODE_2])
+		{
 			return KeyCode::TWO;
-			break;
-		case SDL_SCANCODE_3:
-			printf("3 was pressed!\n");
+		}
+		if (state[SDL_SCANCODE_3])
+		{
 			return KeyCode::THREE;
-			break;
-		case SDL_SCANCODE_4:
-			printf("4 was pressed!\n");
+		}
+		if (state[SDL_SCANCODE_4])
+		{
 			return KeyCode::FOUR;
-			break;
-		case SDL_SCANCODE_F1:
-			printf("F1 was pressed!\n");
+		}
+		if (state[SDL_SCANCODE_F1])
+		{
 			return KeyCode::F1;
-			break;
-		case SDL_SCANCODE_F2:
-			printf("F2 was pressed!\n");
+		}
+		if (state[SDL_SCANCODE_F2])
+		{
 			return KeyCode::F2;
-			break;
-		case SDL_SCANCODE_F3:
-			printf("F3 was pressed!\n");
+		}
+		if (state[SDL_SCANCODE_F3])
+		{
 			return KeyCode::F3;
-			break;
-		case SDL_SCANCODE_F4:
-			printf("F4 was pressed!\n");
+		}
+		if (state[SDL_SCANCODE_F4])
+		{
 			return KeyCode::F4;
-			break;
 		}
 	}
-
 	KeyMod Keyboard::GetMod()
 	{
-		SDL_Keymod *mod;
-		switch (*mod)
+		SDL_Keymod *mod = new SDL_Keymod;
+		*mod = SDL_GetModState();
+		if (*mod & KMOD_SHIFT)
 		{
-		case KMOD_SHIFT:
-			printf("SHIFT was pressed!\n");
 			return KeyMod::SHIFT;
-			break;
-		case KMOD_CTRL:
-			printf("CTRL was pressed!\n");
+		}
+		if (*mod & KMOD_CTRL)
+		{
 			return KeyMod::CTRL;
-			break;
-		case KMOD_ALT:
-			printf("ALT was pressed!\n");
+		}
+		if (*mod & KMOD_ALT)
+		{
 			return KeyMod::ALT;
-			break;
-		case KMOD_GUI:
-			printf("WINKEY was pressed!\n");
+		}
+		if (*mod & KMOD_GUI)
+		{
 			return KeyMod::WIN;
-			break;
-		case KMOD_CAPS:
-			printf("CAPSLOCK was pressed!\n");
-			return KeyMod::CAPS;
-			break;
-		case KMOD_MODE:
-			printf("ALTGR was pressed!\n");
+		}
+		if (*mod & KMOD_MODE)
+		{
 			return KeyMod::ALTGR;
-			break;
-		case KMOD_NUM:
-			printf("NUMLOCK was pressed!\n");
+		}
+		if (*mod & KMOD_CAPS)
+		{
+			return KeyMod::CAPS;
+		}
+		if (*mod & KMOD_NUM)
+		{
 			return KeyMod::NUMLOCK;
-			break;
 		}
 	}
 }
