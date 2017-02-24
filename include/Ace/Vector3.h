@@ -28,7 +28,7 @@ namespace ace
 
 			Vector3(float x = 0, float y = 0, float z = 0) : x(x), y(y), z(z) {}
 
-			float Lenght()
+			float Length()
 			{
 				return Sqrt(x*x + y*y + z*z);
 			}
@@ -37,9 +37,11 @@ namespace ace
 			{
 				Vector3 v = *this;
 
-				for (int i = 0; i < 3; ++i)
+                const float l = v.Length();
+
+				for (size_t i = 0u; i < 3u; ++i)
 				{
-					v.array[i] / v.Lenght();
+					v.array[i] /= l;
 				}
 				return v;
 			}

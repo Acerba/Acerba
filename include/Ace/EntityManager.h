@@ -10,6 +10,8 @@ namespace ace
 
     class EntityManager
     {
+        friend class SpriteManagerImpl;
+
     public:
 
         class ComponentID
@@ -130,7 +132,7 @@ namespace ace
             {
                 if (primaryPool.m_handles[i]->entity->Count() > 1u && (secondary = primaryPool.m_handles[i]->entity->Get<SecondaryComponent>()) != nullptr)
                 {
-                    function(primaryPool.m_handles[i]->entity, primaryPool.m_components[i], secondaryPool.m_components[secondary->index]);
+                    function(primaryPool.m_handles[i]->entity, &primaryPool.m_components[i], &secondaryPool.m_components[secondary->index]);
                 }
             }
         }

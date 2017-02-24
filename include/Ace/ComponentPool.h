@@ -42,6 +42,7 @@ namespace ace
 
         friend class EntityManager;
         friend struct EntityManager::ComponentHandle<CompType>;
+        friend class SpriteManagerImpl;
 
         std::vector<CompType> m_components;
         std::vector<EntityManager::ComponentHandle<CompType>*> m_handles;
@@ -76,6 +77,7 @@ namespace ace
             static ComponentPool pool;
             return pool;
         }
+
 
         static UInt32 GetIndex()
         {

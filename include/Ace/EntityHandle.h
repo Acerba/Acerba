@@ -56,9 +56,10 @@ namespace ace
         ChildList m_children;
         EntityHandle* m_parent;
         EntityHandle* m_next;
-        Transform* m_transform;
 
     public:
+
+        Transform* m_transform;
 
         /**
         @brief Marks target as a child of this and this as a parent of target.
@@ -200,7 +201,6 @@ namespace ace
             _removeSelf(target);
         }
 
-        //wont probably work
         static void _removeSelf(EntityHandle* target)
         {
             EntityManager::DestroyEntity(target, *target->manager);
