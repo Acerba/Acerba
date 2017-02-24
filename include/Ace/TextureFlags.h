@@ -9,15 +9,19 @@ namespace ace
 	enum class WrapModes
 	{
 		Repeat,
-		MirroredRepeat,
-		ClampToEdge,
-		ClampToBorder
+		Clamp,
 	};
 
 	struct TextureFlags
 	{
-		FilteringModes filteringModes;
+		FilteringModes minFiltering;
+		FilteringModes magFiltering;
 		WrapModes wrapModes;
 		bool mipmaps;
+
+		TextureFlags() : minFiltering(FilteringModes::Nearest), magFiltering(FilteringModes::Nearest), wrapModes(WrapModes::Repeat), mipmaps(false)
+		{
+
+		}
 	};
 }

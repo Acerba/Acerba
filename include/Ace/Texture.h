@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Ace/Image.h>
+#include <Ace/TextureFlags.h>
 
 #include <memory>
 
@@ -10,6 +11,8 @@ namespace ace
 	{
 		struct TextureImpl;
 		std::shared_ptr<TextureImpl> impl;
+
+		TextureFlags flags;
 
 		Texture();
 		Texture(const Image& image);

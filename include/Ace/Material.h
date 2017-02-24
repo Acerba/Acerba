@@ -2,6 +2,7 @@
 
 #include <Ace/Shader.h>
 #include <Ace/Types.h>
+#include <Ace/MaterialFlags.h>
 
 #include <memory>
 #include <vector>
@@ -25,6 +26,8 @@ namespace ace
 	{
 		struct MaterialImpl;
 		std::shared_ptr<MaterialImpl> impl;
+
+		MaterialFlags flags;
 
 		/**
 			@brief Defautl Constructor

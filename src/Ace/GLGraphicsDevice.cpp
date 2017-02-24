@@ -13,13 +13,62 @@
 namespace ace
 {
 	static const UInt32 GLBufferTargets[] = {GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER};
-	static const UInt32 GLBufferUsage[] = { GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_STREAM_DRAW};
+	static const UInt32 GLBufferUsage[] = {GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_STREAM_DRAW};
 	static const UInt32 GLShaderTypes[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 
-	void GraphicsDevice::Clear(const Color32& color)
+	static const UInt32 GLEnables[] = {
+		0,
+		GL_BLEND,
+		GL_DEPTH_TEST,
+		GL_STENCIL_TEST,
+		GL_SCISSOR_TEST,
+	};
+
+	template <typename Type>
+	inline UInt32 GetIndex(Type clear, UInt32 offset)
+	{
+		Int32 index = static_cast<Int32>(clear)-offset;
+		return index > 0 ? index : 0;
+	}
+
+	inline void GLEnable(bool status, UInt32 index)
+	{
+		if (index == 0)
+		{
+			return;
+		}
+
+		if (status)
+		{
+			glEnable(GLEnables[index]);
+		}
+		else
+		{
+			glDisable(GLEnables[index]);
+		}
+	}
+
+	void GraphicsDevice::Enable(bool status, Features features)
+	{
+		GLEnable(status, GetIndex(features & Features::Blend, 0));
+		GLEnable(status, GetIndex(features & Features::Depth, 0));
+		GLEnable(status, GetIndex(features & Features::Stencil, 1));
+		GLEnable(status, GetIndex(features & Features::Scissor, 4));
+	}
+
+
+	void GraphicsDevice::Clear(const Color32& color, ClearFlags clear)
 	{ 
+		static const UInt32 GLClears[] = {
+			0,
+			GL_COLOR_BUFFER_BIT,
+			GL_DEPTH_BUFFER_BIT,
+			GL_STENCIL_BUFFER_BIT,
+		};
+				
 		glClearColor(color.r, color.g, color.b, color.a);
-		glClear(GL_COLOR_BUFFER_BIT);
+		const UInt32 flags = (0x4 & 0x4) - 1;
+		glClear(GLClears[GetIndex(clear & ClearFlags::Color, 0)] | GLClears[GetIndex(clear & ClearFlags::Depth, 0)] | GLClears[GetIndex(clear & ClearFlags::Stencil, 1)]);
 	}
 
 	void GraphicsDevice::Present(Window& window)
@@ -47,6 +96,11 @@ namespace ace
 	void GraphicsDevice::Viewport(UInt32 w, UInt32 h)
 	{
 		glViewport(0, 0, w, h);
+	}
+
+	void GraphicsDevice::Scissor(Int32 x, Int32 y, UInt32 width, UInt32 height)
+	{
+		glScissor(x, y, width, height);
 	}
 
 	Buffer GraphicsDevice::CreateBuffer(BufferType type)
@@ -85,6 +139,18 @@ namespace ace
 			glBufferData(target, count * sizeof(Vertex), data, GLBufferUsage[static_cast<UInt32>(usage)]);
 
 		}
+
+		glBindBuffer(target, 0);
+
+	}
+
+	void GraphicsDevice::BufferSubData(Buffer& buffer, UInt32 count, UInt32 offset, const Vertex* data)
+	{
+		UInt32 target = GLBufferTargets[static_cast<UInt32>(buffer.type)];
+
+		glBindBuffer(target, buffer.impl->bufferID);
+		glBufferSubData(target, offset, count * sizeof(Vertex), data);
+		glBindBuffer(target, 0);
 	}
 
 	void GraphicsDevice::SetBuffer(const Buffer& buffer, BufferType type)
@@ -117,11 +183,6 @@ namespace ace
 	void GraphicsDevice::SetVertexBuffer(const Buffer& buffer)
 	{
 		SetBuffer(buffer, BufferType::Vertex);
-
-		//glVertexAttribPointer(0, 3, GL_FLOAT, false, vertexAttributeSizes[0], nullptr);
-		//glVertexAttribPointer(1, 2, GL_FLOAT, false, vertexAttributeSizes[0] + vertexAttributeSizes[1], nullptr);
-		//glVertexAttribPointer(2, 4, GL_FLOAT, false, vertexAttributeSizes[0] + vertexAttributeSizes[1] + vertexAttributeSizes[2], nullptr);
-
 	}
 
 	void GraphicsDevice::SetIndexBuffer(const Buffer& buffer)
@@ -145,9 +206,8 @@ namespace ace
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
+		SetTextureFlags(texture);
+		
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
@@ -155,14 +215,9 @@ namespace ace
 	void GraphicsDevice::SetTexture(Material& material, const Texture& texture)
 	{
 		const UInt32 ID = 0;
-
 		glUseProgram(material.impl->materialID);
 		glActiveTexture(GL_TEXTURE0 + ID);
 		glBindTexture(GL_TEXTURE_2D, texture.impl->textureID);
-
-		UInt32 i = glGetUniformLocation(material.impl->materialID, "Texture");
-		glUniform1i(i, ID);
-
 	}
 
 	Shader GraphicsDevice::CreateShader(const char* source, ShaderType type)
@@ -291,6 +346,8 @@ namespace ace
 	{
 		glUseProgram(material.impl->materialID);
 
+		SetMaterialFlags(material);
+
 		if (indicies == 0)
 		{
 			glDrawArrays(GL_TRIANGLES, 0, elements);
@@ -303,12 +360,116 @@ namespace ace
 
 	void GraphicsDevice::Draw(Material& material, const Mesh& mesh)
 	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		Enable(true, Features::Blend | Features::Depth);
 
 		SetBuffer(mesh.vertexBuffer);
 		SetBuffer(mesh.indexBuffer);
 
 		Draw(material, mesh.GetElements(), mesh.GetIndicies());
+	}
+
+	void GraphicsDevice::SetMaterialFlags(Material& material)
+	{
+		static const UInt32 GLBlendModes[] = {
+			GL_ZERO, 
+			GL_ONE,
+			GL_SRC_COLOR,
+			GL_ONE_MINUS_SRC_COLOR,
+			GL_DST_COLOR,
+			GL_ONE_MINUS_DST_COLOR,
+			GL_SRC_ALPHA,
+			GL_ONE_MINUS_SRC_ALPHA,
+			GL_DST_ALPHA,
+			GL_ONE_MINUS_DST_ALPHA,
+		};
+
+		static const UInt32 GLTestFlags[] = {
+			GL_ALWAYS,
+			GL_NEVER,
+			GL_LESS,
+			GL_EQUAL,
+			GL_LEQUAL,
+			GL_GREATER,
+			GL_NOTEQUAL,
+			GL_GEQUAL,
+		};
+
+		static const UInt32 GLCullingModes[] = {
+			GL_BACK,
+			GL_FRONT,
+			GL_FRONT_AND_BACK
+		};
+
+		glBlendFunc(GLBlendModes[static_cast<UInt32>(material.flags.blendModesSrc)], GLBlendModes[static_cast<UInt32>(material.flags.blendModesDst)]);
+		glDepthFunc(GLTestFlags[static_cast<UInt32>(material.flags.depthFlags)]);
+
+		UInt32 culling = GL_BACK;
+
+		if (material.flags.cullingMode == CullingMode::Both)
+		{
+			culling = 0;
+		}
+		else if (material.flags.cullingMode == CullingMode::Front)
+		{
+			culling = GL_FRONT;
+		}
+
+		if (culling != 0)
+		{
+			glEnable(GL_CULL_FACE);
+			glCullFace(culling);
+		}
+		else
+		{
+			glDisable(GL_CULL_FACE);
+		}
+	}
+
+	void GraphicsDevice::SetTextureFlags(Texture& texture)
+	{
+		static const UInt32 GLFilters[] = {
+			GL_NEAREST,
+			GL_LINEAR,
+			GL_NEAREST_MIPMAP_NEAREST,
+			GL_LINEAR_MIPMAP_NEAREST,
+			GL_NEAREST_MIPMAP_LINEAR,
+			GL_LINEAR_MIPMAP_LINEAR,
+		};
+
+		static const UInt32 GLWraps[] = {
+			GL_REPEAT,
+			GL_CLAMP_TO_EDGE
+		};
+
+		const UInt32 mag = static_cast<UInt32>(texture.flags.magFiltering);
+		UInt32 min = static_cast<UInt32>(texture.flags.minFiltering);
+
+		if (texture.flags.mipmaps)
+		{
+			if (min == 0 && mag == 0)
+			{
+				min = 2;
+			}
+			else if (min == 1 && mag == 0)
+			{
+				min = 3;
+			}
+			else if (min == 0 && mag == 1)
+			{
+				min = 4;
+			}
+			else if (min == 1 && mag == 1)
+			{
+				min = 5;
+			}
+		}
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GLFilters[min]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GLFilters[mag]);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GLWraps[static_cast<UInt32>(texture.flags.wrapModes)]);
+
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLWraps[static_cast<UInt32>(texture.flags.wrapModes)]);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GLWraps[static_cast<UInt32>(texture.flags.wrapModes)]);
 	}
 }
