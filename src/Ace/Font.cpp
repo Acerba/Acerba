@@ -3,9 +3,32 @@
 #include <stb_truetype.h>
 
 #include <Ace/Font.h>
+#include <Ace/GraphicsDevice.h>
 
 namespace ace
 {
+	void CreateGlyphs(std::vector<Glyph>& glyphs, stbtt_bakedchar* cdata, UInt32 size, UInt32 first)
+	{
+
+		for (int i = 0; i < size; i++)
+		{
+			Glyph glyph;
+			
+			glyph.h = cdata[i].y1 - cdata[i].y0;
+			glyph.w = cdata[i].x1 - cdata[i].x0;
+
+			glyph.x = cdata[i].x0;
+			glyph.y = cdata[i].y0;
+			
+			glyph.xoff = cdata[i].xoff;
+			glyph.yoff = cdata[i].yoff;
+
+			glyph.xadvance = cdata[i].xadvance;
+
+			glyphs.push_back(glyph);
+		}
+	}
+
 	struct Font::FontInfo
 	{
 		stbtt_fontinfo font;
@@ -29,7 +52,7 @@ namespace ace
 
 	///BakeFontSheet to image
 	///Image int width, int heigth, float pixelheight int first char, int num of chars (0-255)
-	ace::Image ace::Font::BakeFontSheet(const int& w, const int& h, const float& pixelheight, const int& first_char, const int& num_chars)
+	Image Font::BakeFontSheet(const int& w, const int& h, const float& pixelheight, const int& first_char, const int& num_chars)
 	{
 
 		stbtt_bakedchar cdata[255]; // ASCII 32..126 is 95 glyphs
@@ -37,17 +60,29 @@ namespace ace
 
 		int nW, nH;
 		stbtt_GetCodepointBitmap(&m_info->font, 0, stbtt_ScaleForPixelHeight(&m_info->font, 16), 'a', &nW, &nH, 0, 0);
-
+		
 		//-- bake a font to a bitmap for use as texture
 		stbtt_BakeFontBitmap(m_buffer.get(), 0, pixelheight, bitmap, w, h, first_char, num_chars, cdata);
 
+		//Saves image size
+		m_w = w;
+		m_h = h;
+
+		//Saves where glyps start and end
+		m_start = first_char;
+		m_end = num_chars;
+
+		//Adds glyps into vector for later use
+		CreateGlyphs(ASCII, cdata, 255, first_char);
+
 		Image image(bitmap, w, h, ace::PixelFormat::R);
+
 
 		return image;
 	}
 	
 	///Baking text box with given width and height
-	ace::Image ace::Font::BakeTextBox(const char *text_to_print, int w, int h, float lineHeight)
+	Image Font::BakeTextBox(const char *text_to_print, int w, int h, float lineHeight)
 	{
 		int totalSize = w * h;
 		UInt8* bitmap = new UInt8[totalSize];
@@ -119,7 +154,7 @@ namespace ace
 	}
 
 	///Preparing image for baking with minimum empty image space
-	ace::Image ace::Font::BakeTextBox(const char *text_to_print, float lineHeight)
+	Image Font::BakeTextBox(const char *text_to_print, float lineHeight)
 	{
 		int w = 0;
 		int h = lineHeight;
@@ -139,7 +174,7 @@ namespace ace
 			int character = text_to_print[i];
 			int nextCharacter = text_to_print[i + 1];
 
-			// Checking characters if they contain 
+			// Checking characters if they contain  Å, å, Ä, ä, Ö, or ö
 			if (character < 0)
 			{
 				character = character + 256;
@@ -189,13 +224,94 @@ namespace ace
 		return BakeTextBox(text_to_print, w, h, lineHeight);
 	}
 
-	///Saving font character data
-	void Font::SaveAllFonts(int x, int y, const int w, const int h)
+	//Returns glyph
+	Glyph Font::GetGlyph(const char letter)
 	{
+		UInt32 index = letter;
+		index -= m_start;
+
+		if (index < 0 || index > m_end)
+		{
+			return Glyph();
+		}
+
+		return ASCII[index];
+	}
+
+
+	void Font::GetTextBuffer(Buffer& buffer, const char* text)
+	{
+		UInt32 len = strlen(text);
+
+		if (len < 0)
+		{
+			return;
+		}
+
+		Vertex* vertex = new Vertex[6 * len];
+
+
 		/*
-			eli x ja y ovat koordinaatit kullekkin kirjaimelle, 
-			w ja h ovat kirjaimen koon tallentaminen??
+		Elikkäs:
+			jokainen kirjain (glyph) sisältää 6 verteksiä (2 kolmiota)
+			jokainen vertex tulee määrittää itse oikeanlaiseksi, antaen
+			värin paikan ja uv:n (joista uv on kinnkisin)
+			koska se tarvii glyphin x,y:n ja se tulee jakaa kuvalla josta se on otettu
+
+			väri: ? öööh
+
+			paikka: x ja y apuna,
+				vasen ylä -> vasen ala		oikea ylä -> oikea ala
+				vasen ala -> oikea ala		oikea ala -> vasen ylä
+				oikea ala -> vasen ylä		vasen ylä -> oikea ylä
+			
+			uv: ?? hyöööögh
+				x ja y apuna? , kuva josta glyph otettiin, jaetaan x ja y:llä, tulokseski
+				tuleva määrä on uv?
 		*/
-		
+
+
+		for (int i = 0; i < len; ++i)
+		{
+			Glyph g = GetGlyph(text[i]);
+
+			/*	Verteksin piseet tulisi antaa Vector4 muodossa, jolloin tulisi 
+			tietää x,y,(z),(z2), mutta 2D sisältää vain  X:n ja Y:n				*/
+			////Adding vertex positions
+			//vertex[6 * i + 0].position = g.x + g.y;
+			//vertex[6 * i + 1].position = g.x + g.h;
+			//vertex[6 * i + 2].position = g.w + g.h;
+			//
+			//vertex[6 * i + 3].position = g.w + g.y;
+			//vertex[6 * i + 4].position = g.w + g.h;
+			//vertex[6 * i + 5].position = g.x + g.y;
+
+
+			/*	värit tulisi ottaa siten että fontti ei mitenkään muuttuisi tai
+				sitten olisi täysin valkoinen?									*/
+			//Adding vertex colors	r,g,b,a
+			vertex[6 * i + 0].color = Color32(0, 0, 0, 1);
+			vertex[6 * i + 1].color = Color32(0, 0, 0, 1);
+			vertex[6 * i + 2].color = Color32(0, 0, 0, 1);
+
+			vertex[6 * i + 3].color = Color32(0, 0, 0, 1);
+			vertex[6 * i + 4].color = Color32(0, 0, 0, 1);
+			vertex[6 * i + 5].color = Color32(0, 0, 0, 1);
+
+			/*	UV tulisi ottaa kirjaimen koon mukaan, kirjaimen alue tulisi jakaa
+				tasaisesti omiin "pikseleihinsä"(?)									*/
+			//Adding vertex UV	x & y
+			vertex[6 * i + 0].uv = Vector2(g.w / m_w, g.h / m_h);
+			vertex[6 * i + 1].uv = Vector2(g.w / m_w, g.h / m_h);
+			vertex[6 * i + 2].uv = Vector2(g.w / m_w, g.h / m_h);
+
+			vertex[6 * i + 3].uv = Vector2(g.w / m_w, g.h / m_h);
+			vertex[6 * i + 4].uv = Vector2(g.w / m_w, g.h / m_h);
+			vertex[6 * i + 5].uv = Vector2(g.w / m_w, g.h / m_h);
+
+		}
+
+		GraphicsDevice::BufferData(buffer, len, vertex);
+		delete[] vertex;
 	}
 }
