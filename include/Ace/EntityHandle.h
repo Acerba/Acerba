@@ -60,16 +60,22 @@ namespace ace
 
     public:
 
-
-        void AddChild(EntityHandle* childToAdd)
+        /**
+        @brief Marks target as a child of this and this as a parent of target.
+        @param[in, out] target Will be child of this. Must be valid pointer.
+        */
+        void AddChild(EntityHandle* target)
         {
-            if (!childToAdd)
+            if (!target)
                 return;
-            ChildList::AddChild(this, childToAdd);
-            childToAdd->m_parent = this;
+            ChildList::AddChild(this, target);
+            target->m_parent = this;
         }
 
 
+        /**
+        @brief Get the number of children this entity has
+        */
         UInt32 ChildCount() const
         {
             UInt32 count = 0u;
@@ -98,6 +104,12 @@ namespace ace
             return count;
         }
 
+        /**
+        @brief Retrieves the index'th child of this
+        @param[in] index Index of the child. Defaults to first child.
+        @see ChildCount
+        @return Pointer to child handle. Nullptr if invalid index.
+        */
         EntityHandle* GetChild(UInt32 index = 0u)
         {
             if (!m_children.thisChild)
@@ -106,52 +118,54 @@ namespace ace
                 return m_children.thisChild;
 
             ChildList* next = m_children.nextChild;
-            while (next || --index == 0u)
+            while (next)
             {
+                if (--index == 0u)
+                {
+                    break;
+                }
                 next = next->nextChild;
             }
-            return next->thisChild;
+
+            return next ? next->thisChild : nullptr;
         }
 
 
-        //Removes a single child from anywhere below this
-        static void RemoveChild(EntityHandle* toRemove)
+        /**
+        @brief Removes target and all its children.
+        @param[in, out] target  Must be valid pointer. Target and all its children will be invalidated on this call.
+        */
+        static void RemoveChild(EntityHandle* target)
         {
-            if (!toRemove)
+            if (!target)
                 return;
 
-            ChildList* prev = &toRemove->m_parent->m_children;
-            ChildList* next = nullptr;
+            ChildList* prev = &target->m_parent->m_children;
 
             //Target is first child
-            if (prev->thisChild == toRemove)
+            if (prev->thisChild == target)
             {
-                next = prev->nextChild;
-                toRemove->m_parent->m_children.thisChild = next ? next->thisChild : nullptr;
-                toRemove->m_parent->m_children.nextChild = next;
+                *prev = *prev->nextChild;
             }
             //Target is older child
             else
             {
-                next = prev->nextChild;
-                while (true)
+                ChildList* next = prev->nextChild;
+
+                while (next)
                 {
-                    //Failed to remove
-                    if (!next)
+                    if (next->thisChild == target)
                     {
-                        return;
-                    }
-                    if (next->thisChild == toRemove)
-                    {
-                        prev->nextChild->nextChild = next->nextChild ? next->nextChild->nextChild : nullptr;
+                        *prev->nextChild = *next->nextChild;
                         break;
                     }
+
                     prev = next;
                     next = next->nextChild;
                 }
             }
             //Remove target and all its children
-            _removeChild(toRemove);
+            _removeChild(target);
         }
 
     private:

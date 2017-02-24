@@ -11,13 +11,14 @@ namespace ace
         EntityManager::EntityHandle* m_handle;
 
         /**
-        @brief Disabled copy- and move-ctor, assignment left as-is.
+        @brief Disabled copy-ctor, assignment left as-is.
         This means that assigning an entity to another will cause them to share the components present at the moment of assigning.
         */
         Entity(const Entity&) = delete;
-        Entity(Entity&&);
 
     public:
+
+        Entity(Entity&&);
 
         /**
         @brief Default constructor.
@@ -77,20 +78,43 @@ namespace ace
         }
 
 
-
+        /**
+        @brief Marks target as a child of this and this as a parent of target.
+        @param[in, out] target Will be child of this. Must be valid pointer.
+        */
         void AddChild(Entity& parent)
         {
             m_handle->AddChild(parent.m_handle);
         }
+
+
+        /**
+        @brief Retrieves the number of children this entity has
+        */
         UInt32 ChildCount() const
         {
             return m_handle->ChildCount();
         }
+
+
         //Check for validity with bool() after this
-        Entity GetChild()
+        /**
+        @brief Retrieves the index'th child of this
+        @param[in] index Index of the child. Defaults to first child.
+        @see ChildCount
+        @return Entity built from child. Internally same as actual child.
+        @warning Check for validity with bool() operator after return.
+        */
+        Entity GetChild(const UInt32 index = 0u)
         {
-            return Entity(m_handle->GetChild());
+            return Entity(m_handle->GetChild(index));
         }
+
+
+        /**
+        @brief Removes target and all its children.
+        @param[in, out] target  Must be valid pointer. Target and all its children will be invalidated on this call.
+        */
         static void RemoveChild(Entity& target)
         {
             EntityManager::EntityHandle::RemoveChild(target.m_handle);
@@ -110,7 +134,7 @@ namespace ace
 
 
         /**
-        @brief Reserve 'size' amount of elements for components of type 'CompType'. Note that this is indeed Type-wise reservation.
+        @brief Reserve 'size' amount of elements for components of type 'CompType'. Note that this is a Type-wise reservation.
         @param[in] size Target size to reserve to. No effect if current reserved size is same or larger.
         */
         template <typename CompType>
