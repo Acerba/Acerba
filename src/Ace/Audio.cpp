@@ -57,7 +57,6 @@ namespace ace
 			printf("Channels : %d\nFrequency : %d", clip->clip->GetChannels(), clip->clip->GetFrequency());
 			clip->id = OAL_Sample_Play(OAL_FREE, clip->clip, clip.volume, clip.loop, clip.priority);
 			OAL_Source_SetPaused(clip->id, false);
-
 		}
 		else
 		{
@@ -74,7 +73,6 @@ namespace ace
 	void Audio::PauseAudio(AudioClip& clip, bool pause)
 	{
 		OAL_Source_SetPaused(clip->id, pause);
-
 	}
 
 	void Audio::StopAudio(const AudioClip& clip)

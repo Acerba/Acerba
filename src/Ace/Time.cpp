@@ -24,4 +24,19 @@ namespace ace
 		return SDL_GetPerformanceFrequency();
 	}
 
+	float Time::DeltaTime()
+	{
+		static UInt64 s_now = 0;
+		static UInt64 s_last = 0;
+
+		s_last = s_now;
+		s_now = GetPerformanceCounter();
+
+		return((s_now - s_last) * 1000 / SDL_GetPerformanceFrequency());
+	}
+
+	bool Time::WaitTime::IsDone()
+	{
+		return SDL_TICKS_PASSED(Time::GetTicks(),wait);
+	}
 }
