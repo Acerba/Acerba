@@ -121,21 +121,7 @@ namespace ace
         Pointer to the 'SecondaryComponent' is passed in as the third argument.
         */
         template <typename PrimaryComponent, typename SecondaryComponent, typename Function>
-        inline static void ForEach(Function function)
-        {
-            ComponentPool<PrimaryComponent>& primaryPool = ComponentPool<PrimaryComponent>::GetPool();
-            ComponentPool<SecondaryComponent>& secondaryPool = ComponentPool<SecondaryComponent>::GetPool();
-
-            ComponentBaseHandle* secondary = nullptr;
-
-            for (size_t i = 0u; i < primaryPool.m_components.size(); ++i)
-            {
-                if (primaryPool.m_handles[i]->entity->Count() > 1u && (secondary = primaryPool.m_handles[i]->entity->Get<SecondaryComponent>()) != nullptr)
-                {
-                    function(primaryPool.m_handles[i]->entity, &primaryPool.m_components[i], &secondaryPool.m_components[secondary->index]);
-                }
-            }
-        }
+		static void ForEach(Function function);
 
 
         /**
@@ -145,14 +131,7 @@ namespace ace
         Pointer of the component is passed in as the second argument to the function.
         */
         template <typename CompType, typename Function>
-        inline static void ForEach(Function function)
-        {
-            ComponentPool<CompType>& pool = ComponentPool<CompType>::GetPool();
-            for (size_t i = 0u; i < pool.m_components.size(); ++i)
-            {
-                function(pool.m_handles[i]->entity, pool.m_components[i]);
-            }
-        }
+		static void ForEach(Function function);
 
 
         /**
@@ -163,7 +142,7 @@ namespace ace
         template <typename Function>
         inline static void ForEach(Function function, EntityManager& manager = DefaultManager())
         {
-            for (size_t i = 0u; i < manager.m_entities.size(); ++i)
+			for (UInt32 i = 0u; i < manager.m_entities.size(); ++i)
             {
                 function(manager.m_entities[i]);
             }

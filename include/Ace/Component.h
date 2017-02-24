@@ -39,20 +39,20 @@ namespace ace
     struct EntityManager::ComponentHandle final : public EntityManager::ComponentBaseHandle
     {
     private:
-        template <typename CompType>
+        template <typename Type>
         struct Cloner
         {
             static CompType Clone(void* comp)
             {
-                return *static_cast<CompType*>(comp);
+				return *static_cast<Type*>(comp);
             }
         };
-        template <typename CompType>
-        struct Cloner<CompType*>
+		template <typename Type>
+		struct Cloner<Type*>
         {
             static CompType Clone(void* comp)
             {
-                return **static_cast<CompType*>(comp);
+				return **static_cast<Type*>(comp);
             }
         };
 

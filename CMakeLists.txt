@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(ACERBA CXX)
+project(ACERBA)
 include("cmake/ProjectBuild.cmake" REQUIRED)
 
 BuildBegin()
 
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+
+#list( APPEND CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 
 add_subdirectory(${ACERBA_SOURCE_DIR}/3rdparty)
@@ -45,12 +49,14 @@ BuildLibrary(acerba STATIC)
 # Example Program
 # -> Add CMake option
 
-file(GLOB SOURCES ${ACERBA_SOURCE_DIR}/example/*)
+file(GLOB SOURCES ${ACERBA_SOURCE_DIR}/example/*.cpp)
 set(LIBS acerba)
 
-if(ANDROID)
+if(ANDROID OR PB_ANDROID)
 
-	file(APPEND SOURCES "${ACERBA_SOURCE_DIR}/3rdparty/SDL2/src/main/android/SDL_android_main.c")
+	list(APPEND SOURCES "${ACERBA_SOURCE_DIR}/3rdparty/SDL2/src/main/android/SDL_android_main.c")
+	message(STATUS ${SOURCES})	
+
 	BuildApplication(main) # libmain.so -> SDL2 Activity
 
 else()

@@ -313,7 +313,7 @@ namespace ace
 			glUniform1iv(location, elements, static_cast<const Int32*>(data));
 			break;
 		case ace::UniformType::UInt32:
-			glUniform1uiv(location, elements, static_cast<const UInt32*>(data));
+			glUniform1iv(location, elements, static_cast<const Int32*>(data));
 			break;
 		case ace::UniformType::Float:
 			glUniform1fv(location, elements, static_cast<const float*>(data));

@@ -345,7 +345,7 @@ namespace ace
         }
 
         template <typename CompType>
-        void RemoveComponent(ComponentBaseHandle* handle = nullptr)
+        void Remove(ComponentBaseHandle* handle = nullptr)
         {
             if (!handle)
                 handle = Get<CompType>();
@@ -390,4 +390,47 @@ namespace ace
             return components;
         }
     };
+
+	/**
+	@brief Executes 'function' for all components of 'PrimaryComponent' type, where they share a common owner entity with 'SecondaryType'.
+	@param[in, out] function Function to execute.
+	Pointer to the parent entity is passed in as the first argument.
+	Pointer to the 'PrimaryComponent' is passed in as the second argument.
+	Pointer to the 'SecondaryComponent' is passed in as the third argument.
+	*/
+	template <typename PrimaryComponent, typename SecondaryComponent, typename Function>
+	inline void EntityManager::ForEach(Function function)
+	{
+		ComponentPool<PrimaryComponent>& primaryPool = ComponentPool<PrimaryComponent>::GetPool();
+		ComponentPool<SecondaryComponent>& secondaryPool = ComponentPool<SecondaryComponent>::GetPool();
+
+		ComponentBaseHandle* secondary = nullptr;
+		
+		EntityHandle* entity = nullptr;
+		for (UInt32 i = 0u; i < primaryPool.m_components.size(); ++i)
+		{
+			entity = primaryPool.m_handles[i]->entity;
+			if (primaryPool.m_handles[i]->entity->Count() > 1u && (secondary = entity->Get<SecondaryComponent>()) != nullptr)
+			{
+				function(primaryPool.m_handles[i]->entity, &primaryPool.m_components[i], &secondaryPool.m_components[secondary->index]);
+			}
+		}
+	}
+
+
+	/**
+	@brief Executes 'function' for all components of 'CompType'.
+	@param[in, out] function Function to execute.
+	Pointer of the components owner entity is passed in as the first argument to the function.
+	Pointer of the component is passed in as the second argument to the function.
+	*/
+	template <typename CompType, typename Function>
+	inline void EntityManager::ForEach(Function function)
+	{
+		ComponentPool<CompType>& pool = ComponentPool<CompType>::GetPool();
+		for (UInt32 i = 0u; i < pool.m_components.size(); ++i)
+		{
+			function(pool.m_handles[i]->entity, pool.m_components[i]);
+		}
+	}
 }

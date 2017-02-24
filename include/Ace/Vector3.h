@@ -39,7 +39,7 @@ namespace ace
 
                 const float l = v.Length();
 
-				for (size_t i = 0u; i < 3u; ++i)
+				for (UInt32 i = 0u; i < 3u; ++i)
 				{
 					v.array[i] /= l;
 				}

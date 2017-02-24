@@ -47,7 +47,7 @@ namespace ace
 
     EntityManager::~EntityManager()
     {
-        for (size_t i = 0u; i < m_entities.size(); ++i)
+        for (UInt32 i = 0u; i < m_entities.size(); ++i)
         {
             if (m_entities[i])
             {
