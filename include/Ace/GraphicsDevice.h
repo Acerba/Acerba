@@ -9,6 +9,7 @@
 #include <Ace/Shader.h>
 #include <Ace/Material.h>
 #include <Ace/Texture.h>
+#include <Ace/Framebuffer.h>
 
 namespace ace
 {
@@ -88,6 +89,8 @@ namespace ace
 		static void SetTexture(Material&, const Texture&);
 
 		static void Uniform(Material& material, const char* name, const void* data, UniformType uniform, UInt32 elements = 1);
+
+		static Framebuffer CreateFramebuffer();
 
 	private:
 

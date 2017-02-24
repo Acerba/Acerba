@@ -404,7 +404,7 @@ namespace ace
 		glDepthFunc(GLTestFlags[static_cast<UInt32>(material.flags.depthFlags)]);
 
 		UInt32 culling = GL_BACK;
-
+		
 		if (material.flags.cullingMode == CullingMode::Both)
 		{
 			culling = 0;
