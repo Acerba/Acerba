@@ -9,6 +9,9 @@
 
 namespace ace
 {
+	/**
+	@brief Uniform Types
+	*/
 	enum class UniformType
 	{
 		Int32,
@@ -22,6 +25,9 @@ namespace ace
 		Mat4,
 	};
 
+	/**
+	@brief Graphics Material
+	*/
 	struct Material
 	{
 		struct MaterialImpl;
@@ -37,7 +43,7 @@ namespace ace
 
 		/**
 			@brief Initialization Constructor
-			Create material from vertex and fragment shaders.
+			Creates material from vertex and fragment shaders.
 		*/
 		Material(const Shader& vertex, const Shader& fragment);
 
@@ -46,7 +52,6 @@ namespace ace
 			@return True if material is valid.
 		*/
 		bool Init(const Shader& vertex, const Shader& fragment);
-
 
 		void Uniform(const char* name, const UInt32&);
 		void Uniform(const char* name, const Int32&);

@@ -7,6 +7,9 @@
 
 namespace ace
 {
+	/**
+		@brief Window
+	*/
 	class Window
 	{
 
@@ -19,6 +22,9 @@ namespace ace
 
 	public:
 
+		/**
+			@brief Constructor
+		*/
 		Window(const char* title, UInt16 w, UInt16 h);
 		~Window();
 
@@ -27,10 +33,25 @@ namespace ace
 			return m_windowImpl.get();
 		}
 
+		/**
+			@brief Updates Window
+		*/
 		void Present();
+
+		/**
+			@brief Clears Windows
+		*/
 		void Clear(const Color32& color);
 
+		/**
+			@return Window Size
+		*/
 		Vector2 GetSize() const;
+
+		/**
+			@brief Sets Window size
+			@param[in] size
+		*/
 		void SetSize(const Vector2&);
 
 		operator bool() const;

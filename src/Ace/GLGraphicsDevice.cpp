@@ -200,11 +200,13 @@ namespace ace
 
 	void GraphicsDevice::UpdateTexture(Texture& texture, const UInt8* pixels, UInt32 w, UInt32 h, PixelFormat format)
 	{
+		static const UInt32 GLFormat[] = { GL_RED, GL_RG, GL_RGB, GL_RGBA };
+		static const UInt32 GLFormatType[] = { GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE };
+
 		glBindTexture(GL_TEXTURE_2D, texture.impl->textureID);
-
-		// TODO: Format & Filters
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+		
+		UInt8 formatIndex = static_cast<UInt8>(format);
+		glTexImage2D(GL_TEXTURE_2D, 0, GLFormat[formatIndex], w, h, 0, GLFormat[formatIndex], GLFormatType[formatIndex], pixels);
 
 		SetTextureFlags(texture);
 		

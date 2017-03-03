@@ -6,6 +6,9 @@
 
 namespace ace
 {
+	/**
+		@brief Shader Type
+	*/
 	enum class ShaderType
 	{
 		Vertex,
