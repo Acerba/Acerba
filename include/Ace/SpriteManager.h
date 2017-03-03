@@ -4,6 +4,7 @@
 
 namespace ace
 {
+    class Material;
     class Scene;
     class SpriteManagerImpl;
 
@@ -20,7 +21,7 @@ namespace ace
 
         static SpriteManager& GetInstance();
 
-        static void Draw(const Scene& scene);
+        static void Draw(const Scene& scene, Material* material = nullptr);
 
     };
 

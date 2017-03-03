@@ -37,14 +37,17 @@ namespace ace
     {
 
         std::vector<Sprite> m_sprites;
+        Buffer m_buffer;
+        UInt32* m_indexTable;
+        UInt32 m_size;
 
-        std::vector<size_t> _sortIndices(const std::vector<EntityManager::EntityHandle*>& handles) const
+        std::vector<UInt32> _sortIndices(const std::vector<EntityManager::EntityHandle*>& handles) const
         {
-            std::vector<size_t> indices(m_sprites.size());
-            detail::ACE_iota(indices.begin(), indices.end(), 0);
+            std::vector<UInt32> indices(m_sprites.size());
+            detail::ACE_iota(indices.begin(), indices.end(), 0u);
 
             std::sort(indices.begin(), indices.end(),
-                [handles](size_t i1, size_t i2){return handles[i1]->m_transform->position.z > handles[i2]->m_transform->position.z; }
+                [&handles](const UInt32 i1, const UInt32 i2){return handles[i1]->m_transform->position.z > handles[i2]->m_transform->position.z; }
             );
 
             return indices;
@@ -61,7 +64,7 @@ namespace ace
             EntityManager::ComponentBaseHandle* secondary = nullptr;
 
             //Find all entities that have both material and sprite
-            for (size_t i = 0u; i < primaryPool.m_components.size(); ++i)
+            for (UInt32 i = 0u; i < primaryPool.m_components.size(); ++i)
             {
                 if (primaryPool.m_handles[i]->entity->Count() > 1u && (secondary = primaryPool.m_handles[i]->entity->Get<Sprite>()) != nullptr)
                 {
@@ -102,51 +105,86 @@ namespace ace
             return groups;
         }
 
-        UInt32 _indices(const UInt32 baseIndex)
+
+        void _handleIndices(const UInt32 newSize)
         {
-            UInt32 indices = 0u;
-
-            //TODO: what to iterate over
-            for (size_t i = 0u; i < 666u; ++i)
+            if (!m_indexTable)
             {
-                indices += baseIndex + 6u * i;
+                m_indexTable = new UInt32[newSize];
+                m_size = newSize;
+                for (UInt32 j = 0u; j < newSize; ++j)
+                {
+                    m_indexTable[0u + 6u * j] = 0u + 6u * j;
+                    m_indexTable[1u + 6u * j] = 1u + 6u * j;
+                    m_indexTable[2u + 6u * j] = 2u + 6u * j;
+                    m_indexTable[3u + 6u * j] = 0u + 6u * j;
+                    m_indexTable[4u + 6u * j] = 2u + 6u * j;
+                    m_indexTable[5u + 6u * j] = 3u + 6u * j;
+                }
             }
+            else if (newSize > m_size)
+            {
+                UInt32* temp = new UInt32[m_size];
+                std::copy(m_indexTable, m_indexTable + (m_size - 1u), temp);
+                delete[]m_indexTable;
+                m_indexTable = new UInt32[newSize];
+                std::copy(temp, temp + (m_size - 1u), m_indexTable);
 
-            return indices;
+                for (UInt32 j = m_size; j < newSize; ++j)
+                {
+                    m_indexTable[0u + 6u * j] = 0u + 6u * j;
+                    m_indexTable[1u + 6u * j] = 1u + 6u * j;
+                    m_indexTable[2u + 6u * j] = 2u + 6u * j;
+                    m_indexTable[3u + 6u * j] = 0u + 6u * j;
+                    m_indexTable[4u + 6u * j] = 2u + 6u * j;
+                    m_indexTable[5u + 6u * j] = 3u + 6u * j;
+                }
+
+                m_size = newSize;
+            }
         }
-
 
     public:
 
-        void Draw(const Scene& scene)
+        void Draw(const Scene& scene, Material* material = nullptr)
         {
 
             std::vector<Group> groups(_sort());
-            for (size_t i = 0u; i < groups.size(); ++i)
+
+            _handleIndices(std::distance(groups.begin(), std::max_element(groups.begin(), groups.end(),
+                [](const Group& g1, const Group& g2){return g1.end - g1.start < g2.end - g2.start; })));
+
+
+            for (UInt32 i = 0u; i < groups.size(); ++i)
             {
-                
-                //TODO: buffer?
-                //groups[i].material.impl
-                Buffer b;
+                const UInt32 indexCount = groups[i].end - groups[i].start;
 
-                GraphicsDevice::BufferData(b, groups[i].end - groups[i].start, m_sprites[i].vertexData.data(), BufferUsage::Streaming);
-                
+                GraphicsDevice::BufferData(m_buffer, indexCount, m_sprites[groups[i].start].vertexData.data(), BufferUsage::Streaming);
 
-                //TODO: change material on the fly
-
-
-                //TODO: elements count?
-                GraphicsDevice::Draw(groups[i].material, 666u, _indices(i));
+                GraphicsDevice::SetBuffer(m_buffer);
+                GraphicsDevice::Draw(material ? *material : groups[i].material, 0u, indexCount * 6u, m_indexTable);
             }
 
-            //TODO: to erase or not to erase
-            //m_sprites.erase(m_sprites.begin(), m_sprites.end());
+            //TODO: Add logic to check if the sprites may be saved
+            m_sprites.clear();
         }
 
         SpriteManagerImpl() :
-            m_sprites()
+            m_sprites(),
+            m_buffer(),
+            m_indexTable(nullptr),
+            m_size(0u)
         {
+            m_buffer = GraphicsDevice::CreateBuffer(BufferType::Vertex);
+        }
 
+        ~SpriteManagerImpl()
+        {
+            if (m_indexTable)
+            {
+                delete[]m_indexTable;
+                m_indexTable = nullptr;
+            }
         }
 
 
@@ -178,9 +216,9 @@ namespace ace
         return instance;
     }
 
-    void SpriteManager::Draw(const Scene& scene)
+    void SpriteManager::Draw(const Scene& scene, Material* material)
     {
-        SpriteManager::GetInstance().m_impl->Draw(scene);
+        SpriteManager::GetInstance().m_impl->Draw(scene, material);
     }
 
 }
