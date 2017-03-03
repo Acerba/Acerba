@@ -1,7 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-// stb_image_write.h lis‰‰minen
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
@@ -9,8 +8,8 @@
 
 namespace ace
 {
-	///Loads image from file
-	///Image PixelFormat: Gray, Gray Alpha, RGB, RGBA
+	//Loads image from file
+	//Image PixelFormat: Gray, Gray Alpha, RGB, RGBA
 	Image::Image(const ace::File& p_file, PixelFormat format) : format(format)
 	{
 		auto buffer = p_file.ReadAll();
@@ -21,23 +20,27 @@ namespace ace
 		format = static_cast<PixelFormat>(comp);
 	}
 
-	///Loads image where is only pixeldata
+	//Loads image where is only pixeldata
 	Image::Image(UInt8* pixels, int w, int h, PixelFormat format) : m_pixels(pixels), w(w), h(h), format(format)
 	{
-
+		//TODO: Stuff
 	}
 
-	///Makes a "image" from a color (r,g,b,a)
-	///Image PixelFormat: Gray, Gray Alpha, RGB, RGBA
-	Image::Image(const ace::Color& p_color) : format(PixelFormat::RGBA), w(1), h(1)
+	//Makes a "image" from a color (r,g,b,a)
+	//Image PixelFormat: Gray, Gray Alpha, RGB, RGBA
+	Image::Image(const ace::Color& p_color) :
+		format(PixelFormat::RGBA),
+		w(1),
+		h(1),
+		m_pixels(nullptr)
 	{ 
-		UInt8* pixels = new UInt8[4];
-
-		pixels[0] = p_color.r;
-		pixels[1] = p_color.g;
-		pixels[2] = p_color.b;
-		pixels[3] = p_color.a;
-
+		UInt8 pixels[4u] =
+		{
+			p_color.r,
+			p_color.g,
+			p_color.b,
+			p_color.a
+		};
 		
 		m_pixels.reset(pixels);
 	}
@@ -47,18 +50,19 @@ namespace ace
 
 	}
 
-	///Returns image pixel data
-	UInt8* Image::Pixels()
+	//Returns image pixel data
+	UInt8* Image::GetPixelData()
 	{
 		return m_pixels.get();
 	}
 
-	const UInt8* Image::Pixels() const
+	//Return pixel data
+	const UInt8* Image::GetPixelData() const
 	{
 		return m_pixels.get();
 	}
 
-	///Saves a file into given path
+	//Saves a file into given path
 	void Image::WritePNG(const Path& path) const
 	{
 		stbi_write_png(path.GetPath().c_str(), w, h, static_cast<int>(format), m_pixels.get(), w*static_cast<int>(format));

@@ -2,7 +2,6 @@
 
 #include <Ace/File.h>
 #include <Ace/Image.h>
-
 #include <Ace/Buffer.h>
 
 #include <memory>
@@ -12,17 +11,18 @@ namespace ace
 {
 	struct Glyph
 	{
-		//UInt32 id; // Character
+		///UInt32 id; 
+		///Character
 		UInt16 x, y, w, h;
 		float xoff, yoff, xadvance;
-
 	};
 
 	class Font
 	{
 	public:
-		//Give file to read font from
+		///Give file to read font from
 		Font(const ace::File& p_file);
+		///Destructor
 		~Font();
 
 		///BakeFontSheet to image
@@ -36,31 +36,27 @@ namespace ace
 
 		///Returns looked glyph
 		///const char letter
-		Glyph GetGlyph(const char letter);
+		Glyph GetGlyph(const UInt32 letter);
 
+		///Buffers text
+		void GetTextBuffer(Buffer&, const char* text, float scale = 0.75f, float xPos = -75.0f, float yPos = 0.0f);
 
-		void GetTextBuffer(Buffer&, const char* text);
-
+		///Font lineheight and space size float
+		float m_lineHeight = 42.0f, m_spaceSize = 20.0f;
 	private:
 		//Image size from baking image to sheet
 		int m_w, m_h;
 
 		UInt32 m_start, m_end;
 
+		//Vector where Glyphs are stored
 		std::vector<Glyph>ASCII;
 		std::vector<Glyph>::iterator it = ASCII.begin();
 
+		//Sharedpointers
 		struct FontInfo;
 		std::shared_ptr<FontInfo> m_info;
 		std::shared_ptr<UInt8> m_buffer;
 
 	};
 }
-
-
-/*
-		TODO:
-		-Tapa jolla käyttäjä saa kirjoitettua?? * pikainen tapa on, 
-			mutta parempi uupuu vielä
-
-*/

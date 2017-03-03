@@ -225,7 +225,7 @@ namespace ace
 	}
 
 	//Returns glyph
-	Glyph Font::GetGlyph(const char letter)
+	Glyph Font::GetGlyph(const UInt32 letter)
 	{
 		UInt32 index = letter;
 		index -= m_start;
@@ -238,10 +238,12 @@ namespace ace
 		return ASCII[index];
 	}
 
-
-	void Font::GetTextBuffer(Buffer& buffer, const char* text)
+	//Buffers text
+	void Font::GetTextBuffer(Buffer& buffer, const char* text, float scale, float xPos, float yPos)
 	{
 		UInt32 len = strlen(text);
+		//First position for X
+		float XPos = xPos;
 
 		if (len < 0)
 		{
@@ -249,69 +251,84 @@ namespace ace
 		}
 
 		Vertex* vertex = new Vertex[6 * len];
-
-
-		/*
-		Elikkäs:
-			jokainen kirjain (glyph) sisältää 6 verteksiä (2 kolmiota)
-			jokainen vertex tulee määrittää itse oikeanlaiseksi, antaen
-			värin paikan ja uv:n (joista uv on kinnkisin)
-			koska se tarvii glyphin x,y:n ja se tulee jakaa kuvalla josta se on otettu
-
-			väri: ? öööh
-
-			paikka: x ja y apuna,
-				vasen ylä -> vasen ala		oikea ylä -> oikea ala
-				vasen ala -> oikea ala		oikea ala -> vasen ylä
-				oikea ala -> vasen ylä		vasen ylä -> oikea ylä
-			
-			uv: ?? hyöööögh
-				x ja y apuna? , kuva josta glyph otettiin, jaetaan x ja y:llä, tulokseski
-				tuleva määrä on uv?
-		*/
-
-
+		
 		for (int i = 0; i < len; ++i)
 		{
-			Glyph g = GetGlyph(text[i]);
+			// Checking if there is space 
+			if (text[i] == ' ')
+			{
+				xPos += m_spaceSize * scale;
+				continue;
+			}
 
-			/*	Verteksin piseet tulisi antaa Vector4 muodossa, jolloin tulisi 
-			tietää x,y,(z),(z2), mutta 2D sisältää vain  X:n ja Y:n				*/
-			////Adding vertex positions
-			//vertex[6 * i + 0].position = g.x + g.y;
-			//vertex[6 * i + 1].position = g.x + g.h;
-			//vertex[6 * i + 2].position = g.w + g.h;
-			//
-			//vertex[6 * i + 3].position = g.w + g.y;
-			//vertex[6 * i + 4].position = g.w + g.h;
-			//vertex[6 * i + 5].position = g.x + g.y;
+			// Checking if there is endline 
+			if (text[i] == '\n')
+			{
+				yPos = yPos - m_lineHeight * scale;
+				xPos = XPos;
+				continue;
+			}
 
+			// Checking characters if they contain  Å, å, Ä, ä, Ö, or ö
+			int character = text[i];
+			if (character < 0)
+			{
+				character = character + 256;
+			}
 
-			/*	värit tulisi ottaa siten että fontti ei mitenkään muuttuisi tai
-				sitten olisi täysin valkoinen?									*/
+			Glyph g = GetGlyph(character);
+			
+			//Adding vertex UV
+			auto uv0 = Vector2((float)(g.x + g.w) / m_w	,(float)(g.y + 0) / m_h);
+			auto uv1 = Vector2((float)(g.x + g.w) / m_w	,(float)(g.y + g.h) / m_h);
+			auto uv2 = Vector2((float)(g.x + 0) / m_w	,(float)(g.y + g.h) / m_h);
+			 
+			auto uv3 = Vector2((float)(g.x + g.w) / m_w	,(float)(g.y + 0) / m_h);
+			auto uv4 = Vector2((float)(g.x + 0) / m_w, (float)(g.y + 0) / m_h);
+			auto uv5 = Vector2((float)(g.x + 0) / m_w	,(float)(g.y + g.h) / m_h);
+
+			vertex[6 * i + 0].uv = uv5;
+			vertex[6 * i + 2].uv = uv4;
+			vertex[6 * i + 1].uv = uv3;
+									 
+			vertex[6 * i + 3].uv = uv2;
+			vertex[6 * i + 4].uv = uv1;
+			vertex[6 * i + 5].uv = uv0;
+
+			g.w *= scale;
+			g.h *= scale;
+			g.xoff *= scale;
+			g.yoff *= scale;
+			g.xadvance *= scale;
+
+			//Adding vertex positions
+			
+			float y = yPos;
+			yPos -= (g.h + g.yoff);
+
+			vertex[6 * i + 0].position = Vector4(xPos, yPos, 0, 0);
+			vertex[6 * i + 2].position = Vector4(xPos, yPos + g.h, 0, 0);
+			vertex[6 * i + 1].position = Vector4(xPos + g.w, yPos + g.h, 0, 0);
+
+			vertex[6 * i + 3].position = Vector4(xPos, yPos, 0, 0);
+			vertex[6 * i + 4].position = Vector4(xPos + g.w, yPos, 0, 0);
+			vertex[6 * i + 5].position = Vector4(xPos + g.w, yPos + g.h, 0, 0);
+
+			yPos = y;
+			xPos += g.xoff + g.w;
+
 			//Adding vertex colors	r,g,b,a
-			vertex[6 * i + 0].color = Color32(0, 0, 0, 1);
-			vertex[6 * i + 1].color = Color32(0, 0, 0, 1);
-			vertex[6 * i + 2].color = Color32(0, 0, 0, 1);
-
-			vertex[6 * i + 3].color = Color32(0, 0, 0, 1);
-			vertex[6 * i + 4].color = Color32(0, 0, 0, 1);
-			vertex[6 * i + 5].color = Color32(0, 0, 0, 1);
-
-			/*	UV tulisi ottaa kirjaimen koon mukaan, kirjaimen alue tulisi jakaa
-				tasaisesti omiin "pikseleihinsä"(?)									*/
-			//Adding vertex UV	x & y
-			vertex[6 * i + 0].uv = Vector2(g.w / m_w, g.h / m_h);
-			vertex[6 * i + 1].uv = Vector2(g.w / m_w, g.h / m_h);
-			vertex[6 * i + 2].uv = Vector2(g.w / m_w, g.h / m_h);
-
-			vertex[6 * i + 3].uv = Vector2(g.w / m_w, g.h / m_h);
-			vertex[6 * i + 4].uv = Vector2(g.w / m_w, g.h / m_h);
-			vertex[6 * i + 5].uv = Vector2(g.w / m_w, g.h / m_h);
-
+			Color32  white(1, 1, 1, 1);
+			vertex[6 * i + 0].color = white;
+			vertex[6 * i + 1].color = white;
+			vertex[6 * i + 2].color = white;
+									
+			vertex[6 * i + 3].color = white;
+			vertex[6 * i + 5].color = white;
+			vertex[6 * i + 4].color = white;
 		}
 
-		GraphicsDevice::BufferData(buffer, len, vertex);
+		GraphicsDevice::BufferData(buffer, len*6, vertex);
 		delete[] vertex;
 	}
 }

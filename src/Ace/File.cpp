@@ -12,6 +12,7 @@ namespace ace
 		//FileImpl konstruktor
 		FileImpl(const char* path, const char* mode) : rwops(SDL_RWFromFile(path, mode))
 		{
+			//	TODO: Error handler loggerilla
 			// Warning: if nullptr
 			if (rwops == NULL)
 			{
@@ -39,13 +40,13 @@ namespace ace
 
 	}
 
-	///Return buffer size
+	//Return buffer size
 	UInt32 File::Size() const
 	{
 		return SDL_RWsize(m_fileImpl->rwops);
 	}
 
-	///Read data from file to buffer
+	//Read data from file to buffer
 	bool File::Read(UInt8* buffer, UInt32 size) const
 	{
 		SDL_RWread(m_fileImpl->rwops, buffer, size, 1);
@@ -53,7 +54,7 @@ namespace ace
 		return true;
 	}
 
-	///Read all data from file to buffer
+	//Read all data from file to buffer
 	std::shared_ptr<UInt8> File::ReadAll() const
 	{
 		UInt64 size = SDL_RWsize(m_fileImpl->rwops);
@@ -72,7 +73,7 @@ namespace ace
 		return std::shared_ptr<char>(buffer);
 	}
 
-	///Writing to end of a file
+	//Writing to end of a file
 	bool File::Write(UInt8* buffer, UInt32 size, const char* text)
 	{
 		SDL_RWseek(m_fileImpl->rwops, 0, RW_SEEK_END);
@@ -81,6 +82,7 @@ namespace ace
 
 		if (SDL_RWwrite(m_fileImpl->rwops, text, text_len, 1) != text_len)
 		{
+			//TODO: Error handler loggerilla
 			//Fixed!?!?!??!
 			//printf("\nError! Couldn't fully write string!! \n");
 		}
