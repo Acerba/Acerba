@@ -24,6 +24,11 @@ namespace ace
 		// No SDL_Joystick on headers.
 		//static void CheckAcclrm(SDL_Joystick *Accelmeter);
 
+		/**
+			@brief Get the current state of an axis control on a joystick(Accelerometer).
+			@brief The state is a value ranging from -32768 to 32767.
+			@return Axis
+		*/
 		static float GetAxis(Int32 axis);
 	};
 }

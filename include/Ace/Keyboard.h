@@ -19,7 +19,18 @@ namespace ace
 	class Keyboard
 	{
 	public:
+
+		/**
+			@brief Returns the pressed key.
+			@return Key Code
+		*/
 		static KeyCode GetKey();
+
+		/**
+			@brief Returns the pressed modifier.
+			@return Key Mod
+		*/
 		static KeyMod GetMod();
+
 	};
 }

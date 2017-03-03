@@ -20,7 +20,16 @@ namespace ace
 		//Mouse();
 		//~Mouse();
 
+		/**
+			@brief Returns vector2 position for mouse.
+			@return Position
+		*/
 		static Vector2 GetPosition();
+
+		/**
+			@brief Returns the pressed mouse button.
+			@return MouseButton
+		*/
 		static MouseButton GetButton();
 	};
 }

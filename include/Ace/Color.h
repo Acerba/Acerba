@@ -61,9 +61,8 @@ namespace ace
 		Color32(UInt32 hex)
 		{
 			Color c(hex);
-			*this = c;
+			*this = c; //<--Don't worry about this :D
 		}
-
 		Color32 operator+(const Color32& c32) const
 		{
 			return{ r + c32.r, g + c32.g, b + c32.b, a + c32.a };
@@ -87,11 +86,19 @@ namespace ace
 		operator Color() const;
 	};
 
+	/**
+		@brief Conversion from Color to Color32
+		@return Color32
+	*/
 	inline Color::operator ace::Color32() const
 	{
 		return Color32(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 	}
 	
+	/**
+		@brief Conversion from Color32 to Color
+		@return Color
+	*/
 	inline Color32::operator ace::Color() const
 	{
 		return Color(r * 255, g * 255, b * 255, a * 255);
