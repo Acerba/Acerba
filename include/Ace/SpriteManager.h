@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include <Ace/Macros.h>
 
 namespace ace
 {
@@ -17,29 +17,21 @@ namespace ace
 
         ~SpriteManager();
 
-    public:
-
         static SpriteManager& GetInstance();
 
+        ACE_DISABLE_COPY(SpriteManager)
+
+    public:
+
+        /**
+        @brief Draw all entities which are parented to scene and have both Material and Sprite attached to them.
+        @param[in] scene Target scene whose children to draw.
+        @param[in] material Pointer to a material to use instead of the entities own materials. Uses entities materials by default.
+        */
         static void Draw(const Scene& scene, Material* material = nullptr);
 
     };
 
 
-
-    namespace detail
-    {
-
-        template <typename FWIter, typename Type>
-        void ACE_iota(FWIter first, FWIter last, Type value)
-        {
-            while (first != last)
-            {
-                *first++ = value;
-                ++value;
-            }
-        }
-
-    }
 
 }

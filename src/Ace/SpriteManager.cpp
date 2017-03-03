@@ -32,6 +32,16 @@ namespace ace
     };
 
 
+    template <typename FWIter, typename Type>
+    void ACE_iota(FWIter first, FWIter last, Type value)
+    {
+        while (first != last)
+        {
+            *first++ = value;
+            ++value;
+        }
+    }
+
 
     class SpriteManagerImpl
     {
@@ -44,7 +54,7 @@ namespace ace
         std::vector<UInt32> _sortIndices(const std::vector<EntityManager::EntityHandle*>& handles) const
         {
             std::vector<UInt32> indices(m_sprites.size());
-            detail::ACE_iota(indices.begin(), indices.end(), 0u);
+            ACE_iota(indices.begin(), indices.end(), 0u);
 
             std::sort(indices.begin(), indices.end(),
                 [&handles](const UInt32 i1, const UInt32 i2){return handles[i1]->m_transform->position.z > handles[i2]->m_transform->position.z; }
@@ -110,8 +120,8 @@ namespace ace
         {
             if (!m_indexTable)
             {
-                m_indexTable = new UInt32[newSize];
                 m_size = newSize;
+                m_indexTable = new UInt32[newSize];
                 for (UInt32 j = 0u; j < newSize; ++j)
                 {
                     m_indexTable[0u + 6u * j] = 0u + 6u * j;
@@ -146,23 +156,22 @@ namespace ace
 
     public:
 
-        void Draw(const Scene& scene, Material* material = nullptr)
+        void Draw(const Scene& scene, Material* material)
         {
 
             std::vector<Group> groups(_sort());
 
+            //Checks and grows m_indexTable if needed
             _handleIndices(std::distance(groups.begin(), std::max_element(groups.begin(), groups.end(),
                 [](const Group& g1, const Group& g2){return g1.end - g1.start < g2.end - g2.start; })));
 
-
-            for (UInt32 i = 0u; i < groups.size(); ++i)
+            //TODO: Change loop and both Draw-functions params to const if GraphicsDevice::Draw material accepts const
+            for (auto& itr : groups)
             {
-                const UInt32 indexCount = groups[i].end - groups[i].start;
-
-                GraphicsDevice::BufferData(m_buffer, indexCount, m_sprites[groups[i].start].vertexData.data(), BufferUsage::Streaming);
-
+                const UInt32 indexCount = itr.end - itr.start;
+                GraphicsDevice::BufferData(m_buffer, indexCount, m_sprites[itr.start].vertexData.data(), BufferUsage::Streaming);
                 GraphicsDevice::SetBuffer(m_buffer);
-                GraphicsDevice::Draw(material ? *material : groups[i].material, 0u, indexCount * 6u, m_indexTable);
+                GraphicsDevice::Draw(material ? *material : itr.material, 0u, indexCount * 6u, m_indexTable);
             }
 
             //TODO: Add logic to check if the sprites may be saved
@@ -171,11 +180,11 @@ namespace ace
 
         SpriteManagerImpl() :
             m_sprites(),
-            m_buffer(),
+            m_buffer(GraphicsDevice::CreateBuffer(BufferType::Vertex)),
             m_indexTable(nullptr),
             m_size(0u)
         {
-            m_buffer = GraphicsDevice::CreateBuffer(BufferType::Vertex);
+
         }
 
         ~SpriteManagerImpl()

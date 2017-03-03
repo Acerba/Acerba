@@ -12,7 +12,7 @@ namespace ace
     template <typename ParamT>
     class EventManager
     {
-        //Container of event pointers
+
         std::vector<EventBase<ParamT>*> m_events;
 
         EventManager() :
@@ -28,20 +28,29 @@ namespace ace
 
     public:
 
-        //Singleton
+        /**
+        @brief Singleton instance retriever.
+        @return EventManager reference.
+        */
         static EventManager& GetInstance()
         {
             static EventManager manager;
             return manager;
         }
 
-        //Add event to container
+        /**
+        @brief Add event to container.
+        @param[in, out] evnt Event to add to container.
+        */
         static void Add(EventBase<ParamT>& evnt)
         {
             EventManager::GetInstance().m_events.emplace_back(&evnt);
         }
 
-        //Removes event from container
+        /**
+        @brief Removes event from container.
+        @param[in, out] evnt Event to remove from container.
+        */
         static void Remove(EventBase<ParamT>& evnt)
         {
             auto& m = EventManager::GetInstance();
@@ -53,12 +62,16 @@ namespace ace
             ), m.m_events.end());
         }
 
-        //Broadcast to all events listening to ParamT
-        static void Broadcast(ParamT paramt)
+
+        /**
+        @brief Broadcast to all events listening to ParamT.
+        @param[in, out] param Parameter to broadcast.
+        */
+        static void Broadcast(ParamT param)
         {
             for (auto& itr : EventManager<ParamT>::GetInstance().m_events)
             {
-                itr->OnEvent(paramt);
+                itr->OnEvent(param);
             }
         }
 
@@ -70,20 +83,27 @@ namespace ace
     {
     public:
 
-        //Event lives with the parenting object
+        /**
+        @brief Event lives until its parenting object dies
+        */
         EventBase()
         {
             EventManager<ParamT>::Add(*this);
         }
 
-        //Event dies along with parenting object
+        /**
+        @brief Event dies along with parenting object
+        */
         ~EventBase()
         {
             EventManager<ParamT>::Remove(*this);
         }
 
-        //Override this method for custom logic
-        virtual void OnEvent(ParamT) = 0;
+        /**
+        @brief Overridable function for custom logic.
+        @param[in] param Parameter for event.
+        */
+        virtual void OnEvent(ParamT param) = 0;
     };
 
 }

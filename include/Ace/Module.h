@@ -2,13 +2,19 @@
 
 namespace ace
 {
-    ///Initialize Acerba engine
+    /**
+    @brief Initialize Acerba engine
+    */
     void Init();
 
-    ///Initialize Acerba engine 
+    /**
+    @brief Initialize Acerba engine 
+    */
     void Init(int argc, char** argv);
 
-    ///Shutdown Acerba engine
+    /**
+    @brief Shutdown Acerba engine
+    */
     void Quit();
     
 }

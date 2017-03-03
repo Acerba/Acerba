@@ -69,6 +69,8 @@ namespace ace
         {
             if (!target)
                 return;
+            GetRoot()->RemoveChild(target);
+            target->RemoveChild(target);
             ChildList::AddChild(this, target);
             target->m_parent = this;
         }
@@ -129,6 +131,20 @@ namespace ace
             }
 
             return next ? next->thisChild : nullptr;
+        }
+
+        /**
+        @brief Retrieves root entityHandle
+        @return Returns root
+        */
+        EntityHandle* GetRoot()
+        {
+            EntityHandle* parent = this;
+            while (parent->m_parent)
+            {
+                parent = parent->m_parent;
+            }
+            return parent;
         }
 
 
