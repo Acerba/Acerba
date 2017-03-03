@@ -69,7 +69,7 @@ namespace ace
 	
 		static void Scissor(Int32 x, Int32 y, UInt32 width, UInt32 height);
 
-		static void Draw(Material& material, UInt32 elements, UInt32 indicies);
+		static void Draw(Material& material, UInt32 elements, UInt32 indicies, const UInt32* indexTable = nullptr);
 		static void Draw(Material& material, const Mesh& mesh);
 
 		static Buffer CreateBuffer(BufferType type);

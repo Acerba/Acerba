@@ -342,7 +342,7 @@ namespace ace
 
 	}
 
-	void GraphicsDevice::Draw(Material& material, UInt32 elements, UInt32 indicies)
+	void GraphicsDevice::Draw(Material& material, UInt32 elements, UInt32 indicies, const UInt32* indexTable)
 	{
 		glUseProgram(material.impl->materialID);
 
@@ -354,7 +354,7 @@ namespace ace
 		}
 		else
 		{
-			glDrawElements(GL_TRIANGLES, indicies, GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, indicies, GL_UNSIGNED_INT, indexTable == nullptr ? 0 : indexTable);
 		}
 	}
 
