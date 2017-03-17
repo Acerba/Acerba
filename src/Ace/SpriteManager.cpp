@@ -140,7 +140,7 @@ namespace ace
                 for (auto& itr : groups)
                 {
                     start = itr.end;
-                    if (itr.material.impl == primaryPool.m_components[i].impl)
+                    if (*itr.material == *primaryPool.m_components[i])
                     {
                         start = ++itr.end;
                         added = true;
