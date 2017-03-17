@@ -49,29 +49,16 @@ namespace ace
         std::vector<Group> groups(Sort(scene));
 
         //Checks and grows m_indexTable if needed
-        HandleIndices(2);
-        //HandleIndices(groups.size() == 1u ? 1u : std::distance(groups.begin(), std::max_element(groups.begin(), groups.end(),
-        //    [](const Group& g1, const Group& g2){return g1.end - g1.start < g2.end - g2.start; })));
+        HandleIndices(std::distance(groups.begin(), std::max_element(groups.begin(), groups.end(),
+            [](const Group& g1, const Group& g2){return g1.end - g1.start < g2.end - g2.start; })));
 
         //TODO: Change loop and both Draw-functions params to const if GraphicsDevice::Draw material accepts const
         for (auto& itr : groups)
         {
             const UInt32 indexCount = itr.end - itr.start;
-            std::vector<Vertex> temp;
-            temp.reserve(indexCount * 4);
-
-            for (UInt32 i = 0u; i < indexCount; i += 4)
-            {
-                temp.emplace_back(m_sprites[itr.start + i].vertexData[0]);
-                temp.emplace_back(m_sprites[itr.start + i].vertexData[1]);
-                temp.emplace_back(m_sprites[itr.start + i].vertexData[2]);
-                temp.emplace_back(m_sprites[itr.start + i].vertexData[3]);
-            }
-
-            GraphicsDevice::BufferData(m_buffer, indexCount * 4, temp.data(), BufferUsage::Streaming);
+            GraphicsDevice::BufferData(m_buffer, indexCount * 4, m_sprites[itr.start].vertexData.data(), BufferUsage::Streaming);
             GraphicsDevice::SetBuffer(m_buffer);
             GraphicsDevice::Draw(material ? *material : itr.material, 0u, indexCount * 6u, m_indexTable);
-
         }
 
         //TODO: Add logic to check if the sprites may be saved
@@ -86,8 +73,11 @@ namespace ace
     }
 
 
-    void SpriteManager::HandleIndices(const UInt32 newSize)
+    void SpriteManager::HandleIndices(UInt32 newSize)
     {
+        if (newSize == 0u)
+            newSize = 1u;
+
         if (!m_indexTable)
         {
             m_size = newSize;

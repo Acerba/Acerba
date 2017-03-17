@@ -38,7 +38,7 @@ namespace ace
 
         static SpriteManager& GetInstance();
 
-        void HandleIndices(const UInt32 newSize);
+        void HandleIndices(UInt32 newSize);
 
         std::vector<Group> Sort(const Scene& scene);
 
