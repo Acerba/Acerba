@@ -1,23 +1,49 @@
 #pragma once
 
+#include <Ace/Buffer.h>
+#include <Ace/EntityManager.h>
 #include <Ace/Macros.h>
+#include <Ace/Material.h>
+#include <Ace/Scene.h>
+#include <Ace/Sprite.h>
+
+#include <vector>
 
 namespace ace
 {
-    class Material;
-    class Scene;
-    class SpriteManagerImpl;
 
     class SpriteManager
     {
+        struct Group
+        {
+            Material material;
+            UInt32 start;
+            UInt32 end;
 
-        SpriteManagerImpl* m_impl;
+            Group(const Material& mat, const UInt32 begin = static_cast<UInt32>(-1));
+        };
+
+
+        std::vector<Sprite> m_sprites;
+        Buffer m_buffer;
+        UInt32* m_indexTable;
+        UInt32 m_size;
+
 
         SpriteManager();
 
         ~SpriteManager();
 
+        void DrawImpl(const Scene& scene, Material* material);
+
         static SpriteManager& GetInstance();
+
+        void HandleIndices(const UInt32 newSize);
+
+        std::vector<Group> Sort(const Scene& scene);
+
+        std::vector<UInt32> SortIndices(const std::vector<EntityManager::EntityHandle*>& handles) const;
+
 
         ACE_DISABLE_COPY(SpriteManager)
 

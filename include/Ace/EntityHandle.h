@@ -2,12 +2,11 @@
 
 #include <Ace/Component.h>
 #include <Ace/ComponentPool.h>
+#include <Ace/Transform.h>
 
 
 namespace ace
 {
-
-    class Transform;
 
     struct EntityManager::EntityHandle
     {
@@ -59,7 +58,7 @@ namespace ace
 
     public:
 
-        Transform* m_transform;
+        Transform m_transform;
 
         /**
         @brief Marks target as a child of this and this as a parent of target.
@@ -156,6 +155,9 @@ namespace ace
         {
             if (!target)
                 return;
+            if (!target->m_parent)
+                return;
+
 
             ChildList* prev = &target->m_parent->m_children;
 
@@ -289,7 +291,7 @@ namespace ace
             m_last(nullptr),
             m_next(nullptr),
             m_parent(nullptr),
-            m_transform(nullptr)
+            m_transform()
         {
 
         }

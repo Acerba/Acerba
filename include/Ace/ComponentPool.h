@@ -42,7 +42,7 @@ namespace ace
 
         friend class EntityManager;
         friend struct EntityManager::ComponentHandle<CompType>;
-        friend class SpriteManagerImpl;
+        friend class SpriteManager;
 
         std::vector<CompType> m_components;
         std::vector<EntityManager::ComponentHandle<CompType>*> m_handles;

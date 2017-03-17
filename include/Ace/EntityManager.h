@@ -10,7 +10,7 @@ namespace ace
 
     class EntityManager
     {
-        friend class SpriteManagerImpl;
+        friend class SpriteManager;
 
     public:
 

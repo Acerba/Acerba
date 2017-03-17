@@ -82,9 +82,9 @@ namespace ace
         @brief Marks target as a child of this and this as a parent of target.
         @param[in, out] target Will be child of this. Must be valid pointer.
         */
-        void AddChild(Entity& parent)
+        void AddChild(Entity& target)
         {
-            m_handle->AddChild(parent.m_handle);
+            m_handle->AddChild(target.m_handle);
         }
 
 
@@ -185,6 +185,10 @@ namespace ace
         @brief Allows access to this entitys handle.
         @return Pointer to the handle.
         */
+        inline const EntityManager::EntityHandle* operator->() const
+        {
+            return m_handle;
+        }
         inline EntityManager::EntityHandle* operator->()
         {
             return m_handle;

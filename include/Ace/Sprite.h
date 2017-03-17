@@ -21,11 +21,7 @@ namespace ace
         */
         Sprite(const Vertex(&data)[4]);
 
-        /**
-        @Brief Sprite constructor.
-        @param[in] data std::array of 4 vertices by reference.
-        */
-        Sprite(const std::array<Vertex, 4u>& data);
+        Sprite(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4);
 
     };
 
