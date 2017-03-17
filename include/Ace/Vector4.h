@@ -29,6 +29,10 @@ namespace ace
 
 			Vector4(float x = 0, float y = 0, float z = 0, float w = 0) : x(x), y(y), z(z), w(w) {}
 
+			/**
+			@return Lenght
+			*/
+
 			float Lenght()
 			{
 				return Sqrt(x*x + y*y + z*z + w*w);
@@ -94,6 +98,10 @@ namespace ace
 				return *this;
 			}
 
+			/**
+			@param[in] Vector4
+			@return Dot product
+			*/
 
 			float Dot(const Vector4& vec1) const
 			{

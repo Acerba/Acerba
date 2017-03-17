@@ -24,6 +24,13 @@ namespace ace
 
             }
 
+			/**
+			@brief Calculate quaternion using euler angles
+			@param[in] x X-axis rotation in degrees
+			@param[in] y Y-axis rotation in degrees
+			@param[in] z Z-axis rotation in degrees
+			@return Rotated quaternion
+			*/
 			static Quaternion Euler(float xDegree, float yDegree, float zDegree)
 			{
 				float x = Rad(xDegree / 2.0f);
@@ -49,10 +56,22 @@ namespace ace
            
 			Quaternion& operator-=(const Quaternion& q1);
            
+			/**
+			@brief Convert quaternion to matrix2
+			@return matrix2
+			*/
 			Matrix2 ToMatrix2() const;
 
+			/**
+			@brief Convert quaternion to matrix3
+			@return matrix3
+			*/
 			Matrix3 ToMatrix3() const;
 
+			/**
+			@brief Convert quaternion to matrix4
+			@return matrix4
+			*/
 			Matrix4 ToMatrix4() const;
         };
     }
