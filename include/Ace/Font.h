@@ -9,39 +9,89 @@
 
 namespace ace
 {
+	/**
+		@brief Glyph
+	*/
 	struct Glyph
 	{
-		///UInt32 id; 
-		///Character
-		UInt16 x, y, w, h;
-		float xoff, yoff, xadvance;
+		/**
+			@param x X-position
+			@param y Y-position
+			@param w Width
+			@param h Height
+		*/
+		UInt16 x;
+		UInt16 y;
+		UInt16 w;
+		UInt16 h;
+		
+		/**
+			@param xoff Xoffset
+			@param yoff Yoffset
+			@param xadvance Xadvance
+		*/
+		float xoff;
+		float yoff;
+		float xadvance;
 	};
 
 	class Font
 	{
 	public:
-		///Give file to read font from
+		/**
+			@brief Font construktor
+			@param[in] p_file File to read
+		*/
 		Font(const ace::File& p_file);
-		///Destructor
+		
 		~Font();
 
-		///BakeFontSheet to image
-		///Image int width, int heigth, float pixelheight, int first char (0-255), int num of chars (0-255)
+		/**
+			@brief Baking imgaefile of the fontsheet from ttf-file
+			@param[in] w Width for the fonstsheet image
+			@param[in] h Height for the fontsheet image
+			@param[in] pixelheight Fontsize in pixels
+			@param[in] first_char First charater to save from ttf-file
+			@param[in] num_chars Range of characters to bake
+			@return Fontsheet imagefile
+		*/
 		Image BakeFontSheet(const int& w, const int& h, const float& pixelheight = 32.0f, const int& first_char = 0, const int& num_chars = 255);
 
-		///BakeTextBox image (text image file)
-		///char text_to_print, int image_width, int image_heigth, float font_size (32.0F)
+		/**
+			@brief Bake text into image file
+			@param[in] text_to_print Text to save in the image file
+			@param[in] w Widht of the image file in pixels
+			@param[in] h Height of the image file in pixels
+			@param[in] lineHeight Font size in pixels
+			@return Text imagefile
+		*/
 		Image BakeTextBox(const char *text_to_print, int w, int h, float lineHeight = 32.0f);
+
+		/**
+			@brief Automated text baking
+			@see BakeTextBox
+		*/
 		Image BakeTextBox(const char *text_to_print, float lineHeight = 32.0f);
 
-		///Returns looked glyph
-		///const char letter
+		/**
+			@return Glyph letter
+		*/
 		Glyph GetGlyph(const UInt32 letter);
 
-		///Buffers text
+		/**
+			@param[in] Buffer Vertexbuffer
+			@param[in] text Printable text
+			@param[in] scale Text scaling
+			@param[in] xPos Text starting position x
+			@param[in] yPos Text starting position y
+			@return Textbuffer 
+		*/
 		void GetTextBuffer(Buffer&, const char* text, float scale = 0.75f, float xPos = -75.0f, float yPos = 0.0f);
 
-		///Font lineheight and space size float
+		/**
+			@brief m_lineHeight Lineheight for printable text
+			@brief m_spaceSize spacesize for printable text
+		*/
 		float m_lineHeight = 42.0f, m_spaceSize = 20.0f;
 	private:
 		//Image size from baking image to sheet
