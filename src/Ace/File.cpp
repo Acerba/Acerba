@@ -74,7 +74,7 @@ namespace ace
 	}
 
 	//Writing to end of a file
-	bool File::Write(UInt8* buffer, UInt32 size, const char* text)
+	bool File::Write(const char* text)
 	{
 		SDL_RWseek(m_fileImpl->rwops, 0, RW_SEEK_END);
 

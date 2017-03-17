@@ -50,7 +50,7 @@ namespace ace
 			@param[in,out] text Text to write in to the file
 			@return True if succesful
 		*/
-		bool Write(UInt8* buffer, UInt32 size, const char* text);
+		bool Write(const char* text);
 
 	private:
 		std::shared_ptr<FileImpl> m_fileImpl;
