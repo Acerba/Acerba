@@ -128,7 +128,7 @@ namespace ace
 			@param[in] usage Buffer Usage
 			@param[in] instances
 		*/
-		static void BufferData(Buffer& buffer, UInt32 count, const Vertex* data, BufferUsage usage = BufferUsage::Static, UInt32 instances = 1);
+		static void BufferData(Buffer& buffer, UInt32 count, const Vertex* data, BufferUsage usage = BufferUsage::Static, UInt32 instances = 0);
 
 		/**
 			@brief BufferSubData

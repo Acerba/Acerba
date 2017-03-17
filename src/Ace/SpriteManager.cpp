@@ -42,7 +42,7 @@ namespace ace
         }
     }
 
-
+	// REMOVEME: CTRL+A & DELETE
     class SpriteManagerImpl
     {
 
@@ -66,9 +66,9 @@ namespace ace
         std::vector<Group> _sort()
         {
             //Temp storage
-            std::vector<EntityManager::EntityHandle*> handles = std::vector<EntityManager::EntityHandle*>();
-            std::vector<Sprite> sprites = std::vector<Sprite>();
-            std::vector<Group> groups = std::vector<Group>();
+            std::vector<EntityManager::EntityHandle*> handles;
+            std::vector<Sprite> sprites;
+            std::vector<Group> groups;
             EntityManager::ComponentPool<Material>& primaryPool = EntityManager::ComponentPool<Material>::GetPool();
             EntityManager::ComponentPool<Sprite>& secondaryPool = EntityManager::ComponentPool<Sprite>::GetPool();
             EntityManager::ComponentBaseHandle* secondary = nullptr;
@@ -80,6 +80,7 @@ namespace ace
                 {
                     bool added = false;
 
+					// FIXME:
                     //Group size grows
                     for (auto& itr : groups)
                     {
@@ -103,14 +104,20 @@ namespace ace
                 }
             }
 
+			// FIXME:
+			groups[0].start = 0;
+			groups[0].end = 2;
 
             m_sprites.reserve(sprites.size());
 
+			// FIXME:
             //Sort spriteindices by Z-value and create sorted m_sprites
-            for (const auto& itr : _sortIndices(handles))
-            {
-                m_sprites.emplace_back(sprites[itr]);
-            }
+			//for (const auto& itr : _sortIndices(handles))
+			//{
+            //    m_sprites.emplace_back(sprites[itr]);
+            //}
+
+			m_sprites.insert(m_sprites.begin(), sprites.begin(), sprites.end());
 
             return groups;
         }
@@ -121,7 +128,7 @@ namespace ace
             if (!m_indexTable)
             {
                 m_size = newSize;
-                m_indexTable = new UInt32[newSize];
+                m_indexTable = new UInt32[newSize * 6];
                 for (UInt32 j = 0u; j < newSize; ++j)
                 {
                     m_indexTable[0u + 6u * j] = 0u + 6u * j;
@@ -134,10 +141,10 @@ namespace ace
             }
             else if (newSize > m_size)
             {
-                UInt32* temp = new UInt32[m_size];
+                UInt32* temp = new UInt32[m_size * 6];
                 std::copy(m_indexTable, m_indexTable + (m_size - 1u), temp);
                 delete[]m_indexTable;
-                m_indexTable = new UInt32[newSize];
+                m_indexTable = new UInt32[newSize * 6];
                 std::copy(temp, temp + (m_size - 1u), m_indexTable);
 
                 for (UInt32 j = m_size; j < newSize; ++j)
@@ -158,10 +165,10 @@ namespace ace
 
         void Draw(const Scene& scene, Material* material)
         {
-
             std::vector<Group> groups(_sort());
 
             //Checks and grows m_indexTable if needed
+			// FIXME:
             _handleIndices(std::distance(groups.begin(), std::max_element(groups.begin(), groups.end(),
                 [](const Group& g1, const Group& g2){return g1.end - g1.start < g2.end - g2.start; })));
 
@@ -169,9 +176,9 @@ namespace ace
             for (auto& itr : groups)
             {
                 const UInt32 indexCount = itr.end - itr.start;
-                GraphicsDevice::BufferData(m_buffer, indexCount, m_sprites[itr.start].vertexData.data(), BufferUsage::Streaming);
+                GraphicsDevice::BufferData(m_buffer, indexCount*4, m_sprites[itr.start].vertexData.data(), BufferUsage::Streaming);
                 GraphicsDevice::SetBuffer(m_buffer);
-                GraphicsDevice::Draw(material ? *material : itr.material, 0u, indexCount * 6u, m_indexTable);
+				GraphicsDevice::Draw(material ? *material : itr.material, 0u, indexCount * 6u, m_indexTable);
             }
 
             //TODO: Add logic to check if the sprites may be saved
@@ -185,7 +192,7 @@ namespace ace
             m_size(0u)
         {
 
-        }
+		}
 
         ~SpriteManagerImpl()
         {
