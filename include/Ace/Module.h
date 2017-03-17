@@ -13,6 +13,11 @@ namespace ace
     void Init(int argc, char** argv);
 
     /**
+    @brief Updates all core modules: Audio, Event
+    */
+    void Update();
+
+    /**
     @brief Shutdown Acerba engine
     */
     void Quit();

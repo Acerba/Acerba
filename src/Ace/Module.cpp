@@ -1,6 +1,7 @@
 
 #include <Ace/Module.h>
-
+#include <Ace/Audio.h>
+#include <Ace/Event.h>
 #include <SDL.h>
 
 #include <iostream>
@@ -20,13 +21,11 @@ namespace ace
 
     public:
 
-        //TODO:
         void Init()
         {
             #if ACE_WIN
                 std::cout << "Acerba initialized" << std::endl;
             #endif
-
             SDL_Init(SDL_INIT_EVERYTHING);
         }
 
@@ -35,9 +34,18 @@ namespace ace
 
         }
 
+        void Update()
+        {
+            //TODO: Audio handler needed
+            //Audio::Update();
+            Event::Update();
+        }
+
         void Quit()
         {
-            std::cout << "Acerba shut down" << std::endl;
+            #if ACE_WIN
+                std::cout << "Acerba shut down" << std::endl;
+            #endif
             SDL_Quit();
         }
 
