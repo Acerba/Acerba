@@ -5,7 +5,7 @@
 
 namespace ace
 {
-	struct Texture::TextureImpl
+	struct TextureImpl
 	{
 		UInt32 textureID;
 

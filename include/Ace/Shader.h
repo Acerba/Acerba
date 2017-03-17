@@ -2,7 +2,7 @@
 
 #include <Ace/File.h>
 
-#include <memory>
+#include <Ace/GraphicsObject.h>
 
 namespace ace
 {
@@ -15,18 +15,15 @@ namespace ace
 		Fragment,
 	};
 
-	struct Shader
+	struct Shader : public GraphicsObject<struct ShaderImpl>
 	{
-		struct ShaderImpl;
-
 		ShaderType type;
-		std::shared_ptr<ShaderImpl> impl;
 
 		/**
 			@brief Default Constructor
 			Creates an empty shader.
 		*/
-		Shader();
+		Shader(ShaderImpl* impl = nullptr);
 
 		/**
 			@brief Initialization Constructor
@@ -45,5 +42,8 @@ namespace ace
 			@return True if shader is valid.
 		*/
 		bool Create(const char* src, ShaderType type);
+
+	protected:
+		virtual void Init() const;
 	};
 }

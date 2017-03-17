@@ -3,12 +3,12 @@
 
 namespace ace
 {
-	Material::Material() : impl(nullptr)
+	Material::Material(MaterialImpl* impl) : Graphics(impl)
 	{
 
 	}
 
-	Material::Material(const Shader& vertex, const Shader& fragment)
+	Material::Material(const Shader& vertex, const Shader& fragment) : Graphics(nullptr)
 	{
 		Init(vertex, fragment);
 	}
@@ -16,7 +16,13 @@ namespace ace
 	bool Material::Init(const Shader& vertex, const Shader& fragment)
 	{
 		*this = GraphicsDevice::CreateMaterial(vertex, fragment);
-		return impl != nullptr;
+		return (*this);
+	}
+
+	void Material::AddTexture(const Texture& texture, const char* name, UInt8 id)
+	{
+		textures[id] = texture;
+		strcpy(textureNames[id], name);
 	}
 
 	void Material::Uniform(const char* name, const UInt32& value)

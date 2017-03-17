@@ -3,26 +3,22 @@
 #include <Ace/Image.h>
 #include <Ace/TextureFlags.h>
 
-#include <memory>
+#include <Ace/GraphicsObject.h>
 
 namespace ace
 {
 	/**
 		@brief Graphics Texture
 	*/
-	struct Texture
+	struct Texture : public GraphicsObject<struct TextureImpl>
 	{
-		struct TextureImpl;
-		std::shared_ptr<TextureImpl> impl;
-
 		TextureFlags flags;
 
 		/**
 			@brief Default Constructor
 			Creates an empty Texture.
 		*/
-		Texture();
-
+		Texture(TextureImpl* impl = nullptr);
 
 		/**
 			@brief Initialization Constructor
@@ -46,5 +42,8 @@ namespace ace
 			@return True if parameters are valid.
 		*/
 		bool Create(const UInt8* pixels, UInt32 width, UInt32 height, PixelFormat format);
+
+	protected:
+		virtual void Init() const;
 	};
 }

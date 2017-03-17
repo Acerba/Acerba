@@ -6,7 +6,7 @@
 
 namespace ace
 {
-	struct Shader::ShaderImpl
+	struct ShaderImpl
 	{
 		UInt32 shaderID;
 

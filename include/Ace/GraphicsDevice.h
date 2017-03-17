@@ -181,6 +181,12 @@ namespace ace
 		static Material CreateMaterial(const Shader& vertex, const Shader& fragment);
 		
 		/**
+			@return Material
+		*/
+		static Material CreateMaterial();
+
+
+		/**
 			@brief Create Texture
 			@return Texture
 		*/
@@ -201,7 +207,7 @@ namespace ace
 			@param[in,out] material
 			@param[in] texture
 		*/
-		static void SetTexture(Material&, const Texture&);
+		static void SetTexture(Material&, const Texture&, const char* name, UInt8 id);
 
 		/**
 			@brief Uniform

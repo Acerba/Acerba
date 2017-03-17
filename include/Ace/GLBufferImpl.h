@@ -5,7 +5,7 @@
 
 namespace ace
 {
-	struct Buffer::BufferImpl
+	struct BufferImpl
 	{
 		UInt32 bufferID;
 

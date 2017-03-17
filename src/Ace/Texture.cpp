@@ -3,12 +3,12 @@
 
 namespace ace
 {
-	Texture::Texture()
+	Texture::Texture(TextureImpl* impl) : Graphics(impl)
 	{
 
 	}
 
-	Texture::Texture(const Image& image)
+	Texture::Texture(const Image& image) : Graphics(nullptr)
 	{
 		Create(image);
 	}
@@ -25,7 +25,7 @@ namespace ace
 
 	bool Texture::Create(const UInt8* pixels, UInt32 w, UInt32 h, PixelFormat format)
 	{
-		if (impl == nullptr && (*this = GraphicsDevice::CreateTexture()).impl == nullptr)
+		if (!(*this) && !(*this = GraphicsDevice::CreateTexture()))
 		{
 			return false;
 		}

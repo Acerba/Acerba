@@ -3,12 +3,12 @@
 
 namespace ace
 {
-	Shader::Shader() : impl(nullptr)
+	Shader::Shader(ShaderImpl* impl) : Graphics(impl)
 	{
 
 	}
 
-	Shader::Shader(const File& file, ShaderType type)
+	Shader::Shader(const File& file, ShaderType type) : Graphics(nullptr)
 	{
 		Load(file, type);
 	}
@@ -22,6 +22,7 @@ namespace ace
 	bool Shader::Create(const char* source, ShaderType type)
 	{
 		*this = GraphicsDevice::CreateShader(source, type);
-		return impl != nullptr;
+		bool status = (*this);
+		return status != false;
 	}
 }

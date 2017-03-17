@@ -3,7 +3,7 @@ namespace ace
 	/**
 		@brief Filtering Modes
 	*/
-	enum class FilteringModes
+	enum class FilteringModes : UInt8
 	{
 		Nearest,	/** Nearest Filtering  */
 		Linear,		/** Linear Filtering   */
@@ -13,7 +13,7 @@ namespace ace
 	/**
 		@brief Wrap modes
 	*/
-	enum class WrapModes
+	enum class WrapModes : UInt8
 	{
 		Repeat,		/** Repeat Texture UV  */
 		Clamp,		/** Clamp Texture UV   */
@@ -34,4 +34,5 @@ namespace ace
 
 		}
 	};
+
 }

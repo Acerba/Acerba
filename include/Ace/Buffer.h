@@ -2,7 +2,7 @@
 
 #include <Ace/Types.h>
 
-#include <memory>
+#include <Ace/GraphicsObject.h>
 
 namespace ace
 {
@@ -63,17 +63,22 @@ namespace ace
 	/**
 	@brief Graphics Buffer
 	*/
-	struct Buffer
+	struct Buffer : public GraphicsObject<struct BufferImpl>
 	{
-		struct BufferImpl;
-		std::shared_ptr<BufferImpl> impl;
-
 		BufferType type;
 		UInt32 size;
 
-		Buffer() : impl(nullptr), size(0)
+		Buffer(BufferType type = BufferType::Vertex) : Graphics(nullptr), type(type), size(0)
 		{
 
 		}
+
+		Buffer(BufferImpl* impl) : Graphics(impl), size(0)
+		{
+			
+		}
+
+	protected:
+		virtual void Init() const;
 	};
 }

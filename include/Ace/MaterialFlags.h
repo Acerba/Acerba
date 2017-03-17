@@ -3,7 +3,7 @@ namespace ace
 	/**
 		@brief BlendModes
 	*/
-	enum class BlendModes
+	enum class BlendModes : UInt8
 	{
 		Zero,					/** Zero Blend				*/
 		One,					/** One Blend				*/
@@ -20,7 +20,7 @@ namespace ace
 	/**
 		@brief TestFlags for Depth and Stencil
 	*/
-	enum class TestFlags
+	enum class TestFlags : UInt8
 	{											 
 		Always,					/** Always			*/
 		Never,					/** Never			*/
@@ -35,7 +35,7 @@ namespace ace
 	/**
 		@brief Stencil Operators
 	*/
-	enum class StencilOps
+	enum class StencilOps : UInt8
 	{											
 		Keep,					/**	Keep			*/
 		Zero,					/**	Zero			*/
@@ -50,7 +50,7 @@ namespace ace
 	/**
 		@brief Culling Mode
 	*/
-	enum class CullingMode
+	enum class CullingMode : UInt8
 	{						   
 		Back,					/**	Back Culling	 */
 		Front,					/**	Front Culling	 */

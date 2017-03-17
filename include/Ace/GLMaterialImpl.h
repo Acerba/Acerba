@@ -5,7 +5,7 @@
 
 namespace ace
 {
-	struct Material::MaterialImpl
+	struct MaterialImpl
 	{
 		UInt32 materialID;
 

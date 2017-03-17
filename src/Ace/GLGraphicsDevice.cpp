@@ -105,8 +105,7 @@ namespace ace
 
 	Buffer GraphicsDevice::CreateBuffer(BufferType type)
 	{
-		Buffer buffer;
-		buffer.impl.reset(new Buffer::BufferImpl());
+		Buffer buffer(new BufferImpl());
 		buffer.type = type;
 		return buffer;
 	}
@@ -116,7 +115,7 @@ namespace ace
 		UInt32 target = GLBufferTargets[static_cast<UInt32>(buffer.type)];
 		buffer.size = count * instances;
 
-		glBindBuffer(target, buffer.impl->bufferID);
+		glBindBuffer(target, buffer->bufferID);
 
 		if (instances > 0)
 		{
@@ -148,20 +147,20 @@ namespace ace
 	{
 		UInt32 target = GLBufferTargets[static_cast<UInt32>(buffer.type)];
 
-		glBindBuffer(target, buffer.impl->bufferID);
+		glBindBuffer(target, buffer->bufferID);
 		glBufferSubData(target, offset, count * sizeof(Vertex), data);
 		glBindBuffer(target, 0);
 	}
 
 	void GraphicsDevice::SetBuffer(const Buffer& buffer, BufferType type)
 	{
-		if (buffer.impl == nullptr)
+		if (!buffer)
 		{
 			return;
 		}
 
 		UInt32 target = GLBufferTargets[static_cast<UInt32>(type)];
-		glBindBuffer(target, buffer.impl->bufferID);
+		glBindBuffer(target, buffer->bufferID);
 
 		if (type == BufferType::Vertex)
 		{
@@ -192,9 +191,7 @@ namespace ace
 
 	Texture GraphicsDevice::CreateTexture()
 	{
-		Texture texture;
-		texture.impl.reset(new Texture::TextureImpl());
-
+		Texture texture(new TextureImpl());
 		return texture;
 	}
 
@@ -203,7 +200,7 @@ namespace ace
 		static const UInt32 GLFormat[] = { GL_RED, GL_RG, GL_RGB, GL_RGBA };
 		static const UInt32 GLFormatType[] = { GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE };
 
-		glBindTexture(GL_TEXTURE_2D, texture.impl->textureID);
+		glBindTexture(GL_TEXTURE_2D, texture->textureID);
 		
 		UInt8 formatIndex = static_cast<UInt8>(format);
 		glTexImage2D(GL_TEXTURE_2D, 0, GLFormat[formatIndex], w, h, 0, GLFormat[formatIndex], GLFormatType[formatIndex], pixels);
@@ -214,90 +211,95 @@ namespace ace
 	}
 
 
-	void GraphicsDevice::SetTexture(Material& material, const Texture& texture)
+	void GraphicsDevice::SetTexture(Material& material, const Texture& texture, const char* name, UInt8 id)
 	{
-		const UInt32 ID = 0;
-		glUseProgram(material.impl->materialID);
-		glActiveTexture(GL_TEXTURE0 + ID);
-		glBindTexture(GL_TEXTURE_2D, texture.impl->textureID);
+		if (!material.textures[id])
+		{
+			material.AddTexture(texture, name, id);
+		}
+
+		glUseProgram(material->materialID);
+		glActiveTexture(GL_TEXTURE0 + id);
+		glUniform1i(glGetUniformLocation(material->materialID, name), id);
+		glBindTexture(GL_TEXTURE_2D, texture->textureID);
 	}
 
 	Shader GraphicsDevice::CreateShader(const char* source, ShaderType type)
 	{
-		Shader shader;
-
-		shader.impl.reset(new Shader::ShaderImpl(GLShaderTypes[static_cast<UInt32>(type)]));
+		Shader shader(new ShaderImpl(GLShaderTypes[static_cast<UInt32>(type)]));
 		shader.type = type;
 		
-		glShaderSource(shader.impl->shaderID, 1, &source, NULL);
-		glCompileShader(shader.impl->shaderID);
+		glShaderSource(shader->shaderID, 1, &source, NULL);
+		glCompileShader(shader->shaderID);
 		
 		GLint result = GL_FALSE;
 		GLint errorMsgLength = 0;
 		
-		glGetShaderiv(shader.impl->shaderID, GL_COMPILE_STATUS, &result);
-		glGetShaderiv(shader.impl->shaderID, GL_INFO_LOG_LENGTH, &errorMsgLength);
+		glGetShaderiv(shader->shaderID, GL_COMPILE_STATUS, &result);
+		glGetShaderiv(shader->shaderID, GL_INFO_LOG_LENGTH, &errorMsgLength);
 		
 		if (errorMsgLength > 0)
 		{
 			char* errorMsg = new char[errorMsgLength + 1];
-			glGetShaderInfoLog(shader.impl->shaderID, errorMsgLength, NULL, errorMsg);
+			glGetShaderInfoLog(shader->shaderID, errorMsgLength, NULL, errorMsg);
 			Logger::Log(Logger::Priority::Error, "%s", errorMsg);
 		
 			delete[] errorMsg;
-			shader.impl = nullptr;
 		}
 
 		return shader;
 	}
 
+	Material GraphicsDevice::CreateMaterial()
+	{
+		Material material(new MaterialImpl());
+		return material;
+	}
+
 	Material GraphicsDevice::CreateMaterial(const Shader& vertex, const Shader& fragment)
 	{
-		Material material;
-		material.impl.reset(new Material::MaterialImpl());
+		Material material(new MaterialImpl());
 
-		if (vertex.impl)
+		if (vertex)
 		{
-			glAttachShader(material.impl->materialID, vertex.impl->shaderID);
+			glAttachShader(material->materialID, vertex->shaderID);
 		}
 
-		if (fragment.impl)
+		if (fragment)
 		{
-			glAttachShader(material.impl->materialID, fragment.impl->shaderID);
+			glAttachShader(material->materialID, fragment->shaderID);
 		}
 
 		for (int i = 0; i < (int)VertexAttributes::COUNT; ++i)
 		{
-			glBindAttribLocation(material.impl->materialID, i, vertexAttributeNames[i]);
+			glBindAttribLocation(material->materialID, i, vertexAttributeNames[i]);
 		}
 
-		glLinkProgram(material.impl->materialID);
+		glLinkProgram(material->materialID);
 	
-		if (vertex.impl)
+		if (vertex)
 		{
-			glDetachShader(material.impl->materialID, vertex.impl->shaderID);
+			glDetachShader(material->materialID, vertex->shaderID);
 		}
 		
-		if (fragment.impl)
+		if (fragment)
 		{
-			glDetachShader(material.impl->materialID, fragment.impl->shaderID);
+			glDetachShader(material->materialID, fragment->shaderID);
 		}
 		
 		GLint result = GL_FALSE;
 		GLint errorMsgLength = 0;
 
-		glGetProgramiv(material.impl->materialID, GL_LINK_STATUS, &result);
-		glGetProgramiv(material.impl->materialID, GL_INFO_LOG_LENGTH, &errorMsgLength);
+		glGetProgramiv(material->materialID, GL_LINK_STATUS, &result);
+		glGetProgramiv(material->materialID, GL_INFO_LOG_LENGTH, &errorMsgLength);
 
 		if (errorMsgLength > 0)
 		{
 			char* errorMsg = new char[errorMsgLength + 1];
-			glGetProgramInfoLog(material.impl->materialID, errorMsgLength, NULL, errorMsg);
+			glGetProgramInfoLog(material->materialID, errorMsgLength, NULL, errorMsg);
 
 			Logger::Log(Logger::Priority::Warning, "%s", errorMsg);
 			delete[] errorMsg;
-
-			material.impl = nullptr;
 
 			// TODO: Set default error material.
 		}		
@@ -306,8 +308,8 @@ namespace ace
 
 	void GraphicsDevice::Uniform(Material& material, const char* name, const void* data, UniformType uniform, UInt32 elements)
 	{
-		glUseProgram(material.impl->materialID);
-		UInt32 location = glGetUniformLocation(material.impl->materialID, name);
+		glUseProgram(material->materialID);
+		UInt32 location = glGetUniformLocation(material->materialID, name);
 
 		switch (uniform)
 		{
@@ -346,7 +348,7 @@ namespace ace
 
 	void GraphicsDevice::Draw(Material& material, UInt32 elements, UInt32 indicies, const UInt32* indexTable)
 	{
-		glUseProgram(material.impl->materialID);
+		glUseProgram(material->materialID);
 
 		SetMaterialFlags(material);
 
@@ -424,6 +426,14 @@ namespace ace
 		else
 		{
 			glDisable(GL_CULL_FACE);
+		}
+
+		for (UInt8 i = 0; i < Material::MAX_TEXTURES; ++i)
+		{
+			if (material.textures[i])
+			{
+				SetTexture(material, material.textures[i], material.textureNames[i], i);
+			}
 		}
 	}
 

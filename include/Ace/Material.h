@@ -3,8 +3,9 @@
 #include <Ace/Shader.h>
 #include <Ace/Types.h>
 #include <Ace/MaterialFlags.h>
+#include <Ace/GraphicsObject.h>
+#include <Ace/Texture.h>
 
-#include <memory>
 #include <vector>
 
 namespace ace
@@ -28,18 +29,21 @@ namespace ace
 	/**
 	@brief Graphics Material
 	*/
-	struct Material
+	struct Material : public GraphicsObject<struct MaterialImpl>
 	{
-		struct MaterialImpl;
-		std::shared_ptr<MaterialImpl> impl;
-
+		
 		MaterialFlags flags;
+		
+		static const UInt32 MAX_TEXTURES = 4;
+
+		char textureNames[MAX_TEXTURES][16];
+		Texture textures[MAX_TEXTURES];
 
 		/**
 			@brief Defautl Constructor
 			Creates an empty material.
 		*/
-		Material();
+		Material(MaterialImpl* impl = nullptr);
 
 		/**
 			@brief Initialization Constructor
@@ -52,6 +56,8 @@ namespace ace
 			@return True if material is valid.
 		*/
 		bool Init(const Shader& vertex, const Shader& fragment);
+
+		void AddTexture(const Texture& texture, const char* name, UInt8 id);
 
 		void Uniform(const char* name, const UInt32&);
 		void Uniform(const char* name, const Int32&);
@@ -66,8 +72,6 @@ namespace ace
 		void Uniform(const char* name, const Matrix3&);
 		void Uniform(const char* name, const Matrix4&);
 
-
-
 		void Uniform(const char* name, const std::vector<UInt32>&);
 		void Uniform(const char* name, const std::vector<Int32>&);
 		void Uniform(const char* name, const std::vector<float>&);
@@ -81,5 +85,7 @@ namespace ace
 		void Uniform(const char* name, const std::vector<Matrix3>&);
 		void Uniform(const char* name, const std::vector<Matrix4>&);
 
+	protected:
+		virtual void Init() const;
 	};
 }
