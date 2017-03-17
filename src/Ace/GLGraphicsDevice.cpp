@@ -219,9 +219,9 @@ namespace ace
 		}
 
 		glUseProgram(material->materialID);
+		glBindTexture(GL_TEXTURE_2D, texture->textureID);
 		glActiveTexture(GL_TEXTURE0 + id);
 		glUniform1i(glGetUniformLocation(material->materialID, name), id);
-		glBindTexture(GL_TEXTURE_2D, texture->textureID);
 	}
 
 	Shader GraphicsDevice::CreateShader(const char* source, ShaderType type)
