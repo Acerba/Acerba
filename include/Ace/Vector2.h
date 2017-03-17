@@ -18,6 +18,10 @@ namespace ace
 
 			Vector2(float x = 0, float y = 0) : x(x), y(y) {}
 
+			/**
+			@return Lenght
+			*/
+
 			float Lenght()
 			{
 				return Sqrt(x*x + y*y);
@@ -75,10 +79,20 @@ namespace ace
 				return *this;
 			}
 
+			/**
+			@param[in] Vector2
+			@return Cross product
+			*/
+
 			float Cross(const Vector2& vec1) const
 			{
 				return{ x * vec1.y - y * vec1.x};
 			}
+
+			/**
+			@param[in] Vector2
+			@return Dot product
+			*/
 
 			float Dot(const Vector2& vec1) const
 			{

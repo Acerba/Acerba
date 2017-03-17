@@ -27,11 +27,19 @@ namespace ace
 
 
 			Vector3(float x = 0, float y = 0, float z = 0) : x(x), y(y), z(z) {}
+			
+			/**
+			@return Lenght
+			*/
 
 			float Length()
 			{
 				return Sqrt(x*x + y*y + z*z);
 			}
+
+			/**
+			@return Normalized vector
+			*/
 
 			Vector3 Normalize()
 			{
@@ -103,12 +111,22 @@ namespace ace
 				return *this;
 			}
 
+			/**
+			@param[in] Vector3
+			@return Cross product
+			*/
+
 			Vector3 Cross(const Vector3& vec1) const
 			{
 				return{y * vec1.z - z * vec1.y,
 					   z * vec1.x - x * vec1.z, 
 					   x * vec1.y - y * vec1.x};
 			}
+
+			/**
+			@param[in] Vector3
+			@return Dot product
+			*/
 
 			float Dot(const Vector3& vec1) const
 			{

@@ -31,19 +31,45 @@ namespace ace
 			Matrix2(float identity);
 			Matrix2(Vector2 v1, Vector2 v2);
 
+			/**
+			@return Determinant
+			*/
 			float Determinant() const;
+			/**
+			@return Transpose matrix
+			*/
 			Matrix2 Transpose() const;
+			/**
+			@return Inverse matrix
+			*/
 			Matrix2 Inverse() const;
+			/**
+			@return Cofactor matrix
+			*/
 			Matrix2 Cofactor() const;
+			/**
+			@return Adjunct matrix
+			*/
 			Matrix2 Adjunct() const;
 			Matrix2 operator*(const Matrix2& m) const;
 			Vector2 operator*(const Vector2& o) const;
 			Matrix2 operator*(float scalar) const;
 
 
-
+			/**
+			@return Identity matrix
+			*/
 			static Matrix2 Identity();
+			/**
+			@param[in] x Scaling for x-axis
+			@param[in] y Scaling for y-axis
+			@return Scale matrix
+			*/
 			static Matrix2 Scale(float x, float y);
+			/**
+			@param[in] a Rotation in radians
+			@return Rotation matrix
+			*/
 			static Matrix2 Rotation(float a);
 			
 
