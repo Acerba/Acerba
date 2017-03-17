@@ -43,4 +43,10 @@ namespace ace
 	
 	};
 
+	/**
+		@brief Jameson is proved to be 10000% faster and better than Json.
+	*/
+	typedef Json Jameson;
+	
+
 }
