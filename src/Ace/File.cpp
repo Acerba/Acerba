@@ -1,5 +1,6 @@
 #include <Ace/File.h>
 #include <SDL_rwops.h>
+#include <Ace/Log.h>
 
 #include <iostream>
 
@@ -16,7 +17,7 @@ namespace ace
 			// Warning: if nullptr
 			if (rwops == NULL)
 			{
-				printf("\nWarning! Pointer is null!\n");
+				Logger::LogError("File doesn't exist");
 			}
 		}
 
@@ -29,6 +30,18 @@ namespace ace
 			}
 		}
 	};
+
+	bool File::Exists(const Path& path)
+	{
+		SDL_RWops* file = SDL_RWFromFile(path.GetPath().c_str(), "r");
+		
+		if (file != nullptr)
+		{
+			SDL_RWclose(file);
+			return true;
+		}
+		return false;
+	}
 
 	File::File(const Path& path, const char* mode) : m_fileImpl(new File::FileImpl(path.GetPath().c_str(), mode))
 	{
@@ -82,9 +95,7 @@ namespace ace
 
 		if (SDL_RWwrite(m_fileImpl->rwops, text, text_len, 1) != text_len)
 		{
-			//TODO: Error handler loggerilla
-			//Fixed!?!?!??!
-			//printf("\nError! Couldn't fully write string!! \n");
+			Logger::LogError("Couldn't fully write string");
 		}
 		else
 		{
@@ -102,7 +113,7 @@ namespace ace
 
 		if (SDL_RWwrite(m_fileImpl->rwops, buffer, size, 1) != size)
 		{
-			//TODO: Error handler
+			Logger::LogError("Couldn't fully write string");
 		}
 		else
 		{

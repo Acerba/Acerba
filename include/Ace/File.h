@@ -11,6 +11,11 @@ namespace ace
 		struct FileImpl;
 	public:
 		/**
+			@return True if file exists
+		*/
+		static bool Exists(const Path& path);
+
+		/**
 			@brief File constructor
 			@param[in] path Relative path
 			@param[in] mode r, w, a, r+, w+, a+
@@ -54,6 +59,9 @@ namespace ace
 
 		/**
 			@brief Write certain amount of text from known buffer to a file
+			@param buffer Buffer that contains writable data
+			@param size Size of the data to write
+			@return True if succesful
 		*/
 		bool Write(UInt8* buffer, UInt32 size);
 
