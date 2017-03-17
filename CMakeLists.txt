@@ -19,7 +19,8 @@ find_package(OpenGL)
 
 file(GLOB SOURCES ${ACERBA_SOURCE_DIR}/src/Ace/*.cpp ${ACERBA_SOURCE_DIR}/include/Ace/*)
 set(INCLUDES ${ACERBA_SOURCE_DIR}/include ${ACERBA_SOURCE_DIR}/3rdparty/SDL2/include ${ACERBA_SOURCE_DIR}/3rdparty/Khronos ${ACERBA_SOURCE_DIR}/3rdparty/gl3w/include/
-			 ${ACERBA_SOURCE_DIR}/3rdparty/stb/ ${ACERBA_SOURCE_DIR}/3rdparty/OALWrapper/include/ ${ACERBA_SOURCE_DIR}/3rdparty/rapidjson/include)
+			 ${ACERBA_SOURCE_DIR}/3rdparty/stb/ ${ACERBA_SOURCE_DIR}/3rdparty/OALWrapper/include/ ${ACERBA_SOURCE_DIR}/3rdparty/rapidjson/include 
+			${ACERBA_SOURCE_DIR}/3rdparty/nuklear)
 
 set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper)
 
