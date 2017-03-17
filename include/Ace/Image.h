@@ -11,7 +11,7 @@ namespace ace
 	*/
 	enum class PixelFormat
 	{
-		R = 1,	/**	Gray		*/
+		R,		/**	Gray		*/
 		RG,		/**	Gray Alpha	*/
 		RGB,	/**	RGB			*/
 		RGBA,	/**	RGBA		*/
