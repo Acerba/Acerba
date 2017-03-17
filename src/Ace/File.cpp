@@ -94,4 +94,23 @@ namespace ace
 		SDL_RWseek(m_fileImpl->rwops, 0, RW_SEEK_SET);
 		return true;
 	}
+
+	bool File::Write(UInt8* buffer, UInt32 size)
+	{
+		//Set writing to end of the file
+		SDL_RWseek(m_fileImpl->rwops, 0, RW_SEEK_END);
+
+		if (SDL_RWwrite(m_fileImpl->rwops, buffer, size, 1) != size)
+		{
+			//TODO: Error handler
+		}
+		else
+		{
+			printf("\nWrote %d 1-byte blocks \n", size);
+		}
+
+		//Set "cursor" to beginning of file
+		SDL_RWseek(m_fileImpl->rwops, 0, RW_SEEK_SET);
+		return true;
+	}
 }

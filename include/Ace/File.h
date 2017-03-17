@@ -52,6 +52,12 @@ namespace ace
 		*/
 		bool Write(const char* text);
 
+		/**
+			@brief Write certain amount of text from known buffer to a file
+		*/
+		bool Write(UInt8* buffer, UInt32 size);
+
+
 	private:
 		std::shared_ptr<FileImpl> m_fileImpl;
 
