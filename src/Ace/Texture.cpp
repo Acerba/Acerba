@@ -20,7 +20,7 @@ namespace ace
 
 	bool Texture::Create(const Image& image)
 	{
-		return Create(image.Pixels(), image.w, image.h, image.format);
+		return Create(image.GetPixelData(), image.w, image.h, image.format);
 	}
 
 	bool Texture::Create(const UInt8* pixels, UInt32 w, UInt32 h, PixelFormat format)

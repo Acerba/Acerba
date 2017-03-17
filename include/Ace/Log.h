@@ -20,4 +20,6 @@ namespace ace
 
     };
 
+	typedef Logger::Priority LogPriority;
+
 }
