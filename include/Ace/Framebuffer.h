@@ -2,15 +2,28 @@
 
 #include <Ace/IntTypes.h>
 
-#include <memory>
+#include <Ace/GraphicsObject.h>
 
 namespace ace
 {
-	struct Framebuffer
+	struct Framebuffer : public GraphicsObject<struct FramebufferImpl>
 	{
-		struct FramebufferImpl;
-		std::shared_ptr<FramebufferImpl> impl;
+		enum Attachment
+		{
+			Depth,			/** */
+			Stencil,		/** */
+			DepthStencil,	/** */
+			Color0,			/** ColorX attachement, X can be between 0 to 31. */
+		};
 
-		bool Init();
+		Framebuffer(FramebufferImpl* impl = nullptr) : Graphics(impl)
+		{
+			
+		}
+
+	protected:
+		virtual void Init() const;
 	};
+
+	typedef Framebuffer::Attachment FramebufferAttachment;
 }

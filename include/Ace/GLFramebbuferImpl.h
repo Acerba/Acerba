@@ -6,7 +6,7 @@
 
 namespace ace
 {
-	struct Framebuffer::FramebufferImpl
+	struct FramebufferImpl
 	{
 		UInt32 framebufferID;
 

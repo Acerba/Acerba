@@ -73,6 +73,11 @@ namespace ace
         module.Init(argc, argv);
     }
 
+	void Update()
+	{
+		module.Update();
+	}
+
     void Quit()
     {
         module.Quit();
