@@ -10,12 +10,12 @@ namespace ace
 {
 	//Loads image from file
 	//Image PixelFormat: Gray, Gray Alpha, RGB, RGBA
-	Image::Image(const ace::File& p_file, PixelFormat format)
+	Image::Image(const ace::File& p_file)
 	{
 		auto buffer = p_file.ReadAll();
 		int comp;
 
-		UInt8* pixels = stbi_load_from_memory(buffer.get(), p_file.Size(), &w, &h, &comp, static_cast<UInt32>(format));
+		UInt8* pixels = stbi_load_from_memory(buffer.get(), p_file.Size(), &w, &h, &comp, 0);
 		m_pixels.reset(pixels);
 
 		this->format = static_cast<PixelFormat>(comp-1);

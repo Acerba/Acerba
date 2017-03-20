@@ -26,7 +26,7 @@ namespace ace
 			@param[in] PixelFormat PixelFormat of the target image file
 			@see PixelFormat
 		*/
-		Image(const ace::File &p_file, PixelFormat);
+		Image(const ace::File &p_file);
 
 		/**
 			@brief Load image with only pixeldata
