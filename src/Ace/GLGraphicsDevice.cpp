@@ -9,6 +9,7 @@
 #include <Ace/GLShaderImpl.h>
 #include <Ace/GLMaterialImpl.h>
 #include <Ace/GLTextureImpl.h>
+#include <Ace/GLFramebbuferImpl.h>
 
 namespace ace
 {
@@ -501,5 +502,40 @@ namespace ace
 
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GLWraps[static_cast<UInt32>(texture.flags.wrapModes)]);
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GLWraps[static_cast<UInt32>(texture.flags.wrapModes)]);
+	}
+
+	Framebuffer GraphicsDevice::CreateFramebuffer()
+	{
+		Framebuffer framebuffer(new FramebufferImpl());
+		
+		return framebuffer;
+	}
+
+	void GraphicsDevice::SetFramebuffer(Framebuffer* framebuffer)
+	{
+		if (framebuffer)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, (*framebuffer)->framebufferID);
+		}
+		else
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+	}
+
+	void GraphicsDevice::SetFramebufferTarget(Framebuffer& buffer, Texture& texture, UInt32 framebufferAttachment)
+	{
+		static const UInt32 GLAttachments[] = {
+			GL_DEPTH_ATTACHMENT, 
+			GL_STENCIL_ATTACHMENT, 
+			GL_DEPTH_STENCIL_ATTACHMENT,
+			GL_COLOR_ATTACHMENT0
+		};
+
+		UInt32 attachments = framebufferAttachment < 3 ? GLAttachments[framebufferAttachment] : GLAttachments[3] + framebufferAttachment;
+
+		SetFramebuffer(&buffer);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, attachments, GL_TEXTURE_2D, texture->textureID, 0);
+		SetFramebuffer(nullptr);
 	}
 }

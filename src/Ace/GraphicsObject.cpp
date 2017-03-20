@@ -25,4 +25,9 @@ namespace ace
 	{
 		InitImpl(GraphicsDevice::CreateMaterial());
 	}
+
+	void Framebuffer::Init() const
+	{
+		InitImpl(GraphicsDevice::CreateFramebuffer());
+	}
 }

@@ -73,17 +73,17 @@ namespace ace
 			*/
 			static Matrix4 Translation(const Vector3& t);
 			/**
-			@param[in] a Rotation in radians
+			@param[in] a Rotation in degrees
 			@return RotationX matrix
 			*/
 			static Matrix4 RotationX(float a);
 			/**
-			@param[in] a Rotation in radians
+			@param[in] a Rotation in degrees
 			@return RotationY matrix
 			*/
 			static Matrix4 RotationY(float a);
 			/**
-			@param[in] a Rotation in radians
+			@param[in] a Rotation in degrees
 			@return RotationZ matrix
 			*/
 			static Matrix4 RotationZ(float a);

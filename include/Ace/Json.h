@@ -11,6 +11,7 @@ namespace ace
 {
 	class Json
 	{
+	public:
 		Json() {};
 
 		std::string read(Path path)

@@ -88,6 +88,21 @@ namespace ace
 		*/
 		void GetTextBuffer(Buffer&, const char* text, float scale = 0.75f, float xPos = -75.0f, float yPos = 0.0f);
 
+
+        /**
+        @brief Returns constant raw font data and sets its size to 'size'
+        @param[in, out] size Size of the buffer
+        @return Constant raw font data
+        */
+        const UInt8* GetBuffer(UInt32& size) const;
+        /**
+            @brief Returns raw font data and sets its size to 'size'
+            @param[in, out] size Size of the buffer
+            @return Raw font data
+        */
+        UInt8* GetBuffer(UInt32& size);
+
+
 		/**
 			@brief m_lineHeight Lineheight for printable text
 			@brief m_spaceSize spacesize for printable text
@@ -107,6 +122,7 @@ namespace ace
 		struct FontInfo;
 		std::shared_ptr<FontInfo> m_info;
 		std::shared_ptr<UInt8> m_buffer;
+        UInt32 m_bufferSize;
 
 	};
 }

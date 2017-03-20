@@ -55,7 +55,6 @@ namespace ace
 		/*
 			TODO:
 			Framebuffers
-			- Create
 			- Set
 		*/
 
@@ -234,6 +233,8 @@ namespace ace
 			@return Framebuffer
 		*/
 		static Framebuffer CreateFramebuffer();
+		static void SetFramebuffer(Framebuffer* framebuffer);
+		static void SetFramebufferTarget(Framebuffer& framebuffer, Texture&, UInt32 framebufferAttachment);
 
 	private:
 
