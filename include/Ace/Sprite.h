@@ -15,6 +15,8 @@ namespace ace
 
 		Sprite();
 
+		Sprite(float deg);
+
         /**
         @Brief Sprite constructor.
         @param[in] data Array of 4 vertices by reference.

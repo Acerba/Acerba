@@ -1,4 +1,5 @@
 #include <Ace/Sprite.h>
+#include <Ace/Math.h>
 
 namespace ace
 {
@@ -11,9 +12,17 @@ namespace ace
     };
 
     Sprite::Sprite() : Sprite(triangle)
-    {
+    {	
 
     }
+
+	Sprite::Sprite(float deg) : Sprite()
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			vertexData[i].position = math::Matrix4::RotationZ(deg) * vertexData[i].position;
+		}
+	}
 
     Sprite::Sprite(const Vertex(&data)[4]) :
         vertexData({ data[0], data[1], data[2], data[3] })

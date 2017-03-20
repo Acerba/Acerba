@@ -8,14 +8,20 @@
 #include <Ace/Keyboard.h>
 #include <Ace/Sprite.h>
 #include <Ace/SpriteManager.h>
+#include <Ace/Time.h>
+#include <Ace/Font.h>
+#include <Ace/IntTypes.h>
+
 
 #include <allocators>
 
 
+#include <iostream>
+
 
 void update()
 {
-	ace::Event::Update();
+	
 
 }
 
@@ -33,13 +39,14 @@ int main()
 
 			//Creating stuff
 	//Loading images
-	ace::Image Ball(ace::File ("/Pong/ball.png"), ace::PixelFormat::RGB);
-	ace::Image Enemy(ace::File("/Pong/enemy.png"), ace::PixelFormat::RGB);
-	ace::Image Player(ace::File("/Pong/player.png"), ace::PixelFormat::RGB);
-	
+	ace::Image Ball(ace::File ("/Pong/ball.png"));
+	ace::Image Enemy(ace::File("/Pong/enemy.png"));
+	ace::Image Player(ace::File("/Pong/player.png"));
 
-	//Something is broken
+	//Loading textures
 	ace::Texture BallTexture(Ball);
+	ace::Texture EnemyTexture(Enemy);
+	ace::Texture PlayerTexture(Player);
 	//ace::Material Ballmaterial();	//Currently empty
 
 	//Vertex and fragment shaders
@@ -49,15 +56,58 @@ int main()
 
 	//material loading
 	ace::Material material(vertex, fragment);
-	//material.flags.cullingMode = ace::CullingMode::Both;
+	material.flags.cullingMode = ace::CullingMode::Both;
+	
+	ace::Sprite BallSprite;
+	ace::Sprite EnemySprite(90.0f);
+	ace::Sprite PlayerSprite(90.0f);
 
-	ace::GraphicsDevice::SetTexture(material, BallTexture);
+	EnemySprite.vertexData[0].uv.y /= 2.0f;
+	EnemySprite.vertexData[1].uv.y /= 2.0f;
+	EnemySprite.vertexData[2].uv.y /= 2.0f;
+	EnemySprite.vertexData[3].uv.y /= 2.0f;
 
-	ace::Sprite BallSprite();
-
+	//Loading and making score text
+	//auto Score = arial.BakeTextBox("Score:");
+	ace::Int32 Score = 100;
 	ace::Font arial(ace::File("arial.ttf"));
-	auto Score = arial.BakeTextBox("Score:");
+	ace::Image FontSheet = arial.BakeFontSheet(920, 920, 64, 32, 255);
+	
+	ace::Buffer TextBuffer = ace::GraphicsDevice::CreateBuffer(ace::BufferType::Vertex);
+	arial.GetTextBuffer(TextBuffer, "Score: ", 0.25f);
 
+	ace::Buffer ScoreBuffer = ace::GraphicsDevice::CreateBuffer(ace::BufferType::Vertex);
+	std::string scoreString = std::to_string(Score);
+
+	
+	//Asettaa spritesheetin nyt tekstuuriksi????
+	ace::Texture fontSheet(FontSheet);
+	ace::UInt32 i = 0, l;
+
+	ace::Vector2 ScorePosition = ace::Vector2{0.0f , 0.9f};
+	//ace::Sprite ScoreSprite;
+
+	
+	//Enabling blend and depth
+	ace::GraphicsDevice::Enable(true, ace::Features::Blend | ace::Features::Depth );
+
+	//Positions for enemy, player and ball
+	ace::Vector2 BallPosition = ace::Vector2{ 0.0f, 0.0f };
+	ace::Vector2 EnemyPosition = ace::Vector2{-0.9f,0};
+	ace::Vector2 PlayerPosition = ace::Vector2{ 0.9f, 0 };;
+
+	//Some booleans for ball
+	bool BallRight = false;
+	bool BallHitPlayer = false;
+
+	static const float PLAYER_OFFSET_Y = 0.32f;
+
+	//Ball mocing speeds
+	float xMove = 0.01f;
+	float yMove = 0.001f;
+	//Ballmaximum moving speeds
+	float xMax = 0.02f;
+	float yMax = 0.35f;
 
 	//GameLoop
 	while (!exit)
@@ -65,13 +115,171 @@ int main()
 		update();
 		draw();
 
-		//Exit command
+		ace::Event::Update();
+
+		//Score things
+		
+		l = strlen("Score: ");
+		scoreString = std::to_string(Score);
+		arial.GetTextBuffer(ScoreBuffer, scoreString.c_str(), 0.25f);
+
+
+		//Exit ;
 		if (ace::Keyboard::GetKey() == ace::KeyCode::F1)
 		{
 			printf("Exiting game!\n");
 			ace::Time::Delay(100);
 			exit = true;
 		}
+
+
+			//Ball movement
+		//Ball heading on X-axis
+		if (BallPosition.x < -0.8f)	// BallPosition.x > 0.8f || 
+		{
+			BallRight = !BallRight;
+			
+			if (yMove <= 0.0f)
+			{
+				yMove = yMove - 0.001f;
+			}
+			else
+			{
+				yMove = yMove + 0.001f;
+			}
+		}
+
+		//Ball hitting player
+		if (BallHitPlayer)
+		{
+			BallRight = !BallRight;
+			BallHitPlayer = false;
+			
+
+		}
+
+		//Ball heading on Y-axis
+		if (BallPosition.y >= 0.95f || BallPosition.y <= -0.95f)
+		{
+			if (yMove <= yMax);
+			{
+				yMove = -yMove;
+			}
+		}
+
+		//Ball movement
+		if (BallRight)
+		{
+			BallPosition += {xMove, yMove} *ace::Time::DeltaTime();
+		}
+		else
+		{
+			BallPosition += {-xMove, yMove} *ace::Time::DeltaTime();
+		}
+
+		//Ball collision statement
+		bool playerCollision = BallPosition.x > PlayerPosition.x - 0.1f && !(BallPosition.y > (PlayerPosition.y + PLAYER_OFFSET_Y) || BallPosition.y < (PlayerPosition.y - PLAYER_OFFSET_Y));
+
+		//Ball and player collision
+		if (playerCollision)
+		{
+			Score += 10;
+			scoreString = std::to_string(Score);
+			BallHitPlayer = true;
+			if (xMove < 0.02f)
+			{
+				xMove = xMove + 0.0001f;
+			}
+		}
+
+		//Losing game
+		if (BallPosition.x > 0.95f)
+		{
+			xMove = 0.0f;
+			yMove = 0.0f;
+			printf("Game Over!");
+		}
+
+		//Player movement up
+		if (ace::Keyboard::GetKey() == ace::KeyCode::W)
+		{
+			if (PlayerPosition.y < 0.75)
+			{
+				PlayerPosition += {0, 0.01f} * ace::Time::DeltaTime();
+			}
+			else
+			{
+				PlayerPosition.y = 0.74;
+			}
+		}
+		//Player movement down
+		if (ace::Keyboard::GetKey() == ace::KeyCode::S)
+		{
+			if (PlayerPosition.y > -0.75)
+			{
+				PlayerPosition += {0, -0.01f} *ace::Time::DeltaTime();
+			}
+			else
+			{
+				PlayerPosition.y = -0.74;
+			}
+		}
+
+		window.Clear({ 0x0008400FFU });
+
+		//Debug things
+		//printf(BallPosition.x);
+		//printf(BallPosition.y);
+
+		//std::cout << "Ball position X: " << BallPosition.x << std::endl;
+		//std::cout << "Ball position Y: " << BallPosition.y << std::endl;
+
+		//std::cout<<std::endl;
+
+		//std::cout << "Player position X: " << PlayerPosition.x << std::endl;
+		//std::cout << "Player position Y: " << PlayerPosition.y << std::endl;
+		//std::cout << "Ball speed X: " << xMove << std::endl;
+
+		//Draw Enemy
+		material.Uniform("UseColor", 1);
+		material.Uniform("position", EnemyPosition);
+		material.Uniform("scale", ace::Vector2{0.2f,2.0f});
+		ace::GraphicsDevice::SetTexture(material, EnemyTexture, "Texture",0);
+		ace::GraphicsDevice::Draw(material, EnemySprite);
+		
+		//Draw Player
+		material.Uniform("position", PlayerPosition);
+		material.Uniform("scale", ace::Vector2{ 0.25f, 0.5f });
+		ace::GraphicsDevice::SetTexture(material, PlayerTexture, "Texture", 0);
+		ace::GraphicsDevice::Draw(material, PlayerSprite);
+		
+		//Draw ball
+		material.Uniform("position", BallPosition);
+		material.Uniform("scale", ace::Vector2{ 0.2f, 0.2f });
+		ace::GraphicsDevice::SetTexture(material, BallTexture, "Texture", 0);
+		ace::GraphicsDevice::Draw(material, BallSprite);
+
+
+		//Draw score Image text
+		material.Uniform("position", ScorePosition);
+		material.Uniform("scale", ace::Vector2{ 0.01f, 0.01f });
+		material.Uniform("UseColor", 0);
+		ace::GraphicsDevice::SetTexture(material, fontSheet,"Texture", 0);
+		ace::GraphicsDevice::SetBuffer(TextBuffer);
+		ace::Int32 TextBufferSize = TextBuffer.size / (l)* (i % (l)+1);
+		ace::GraphicsDevice::Draw(material, TextBufferSize*6,0);
+
+		material.Uniform("position", ScorePosition - ace::Vector2{0, 0.2f});
+		material.Uniform("scale", ace::Vector2{ 0.01f, 0.01f });
+		material.Uniform("UseColor", 0);
+		ace::GraphicsDevice::SetTexture(material, fontSheet, "Texture", 0);
+		ace::GraphicsDevice::SetBuffer(ScoreBuffer);
+		l = scoreString.size();
+		TextBufferSize = ScoreBuffer.size / (l)* (i % (l)+1);
+		ace::GraphicsDevice::Draw(material, TextBufferSize * 6, 0);
+
+
+		window.Present();
 	}
 
 
