@@ -36,9 +36,8 @@ namespace ace
 
         void Update()
         {
-            //TODO: Audio handler needed
-            //Audio::Update();
             Event::Update();
+            Audio::Update();
         }
 
         void Quit()
