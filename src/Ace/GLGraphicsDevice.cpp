@@ -113,7 +113,7 @@ namespace ace
 	void GraphicsDevice::BufferData(Buffer& buffer, UInt32 count, const Vertex* data, BufferUsage usage, UInt32 instances)
 	{
 		UInt32 target = GLBufferTargets[static_cast<UInt32>(buffer.type)];
-		buffer.size = count * instances;
+		buffer.size = count * (1 + instances);
 
 		glBindBuffer(target, buffer->bufferID);
 
@@ -370,6 +370,24 @@ namespace ace
 		SetBuffer(mesh.indexBuffer);
 
 		Draw(material, mesh.GetElements(), mesh.GetIndicies());
+	}
+
+	void GraphicsDevice::Draw(Material& material, const Sprite& sprite)
+	{
+		static const UInt32 indexTable[] = {
+			0,
+			1,
+			2,
+			0,
+			2,
+			3,
+		};
+
+		static Buffer s_spriteBuffer = GraphicsDevice::CreateBuffer(ace::BufferType::Vertex);
+		BufferData(s_spriteBuffer, 4, sprite.vertexData.data(), BufferUsage::Streaming);
+		SetVertexBuffer(s_spriteBuffer);
+
+		Draw(material, 0, 6, indexTable);
 	}
 
 	void GraphicsDevice::SetMaterialFlags(Material& material)

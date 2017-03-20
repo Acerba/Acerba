@@ -11,6 +11,8 @@
 #include <Ace/Texture.h>
 #include <Ace/Framebuffer.h>
 
+#include <Ace/Sprite.h>
+
 namespace ace
 {
 	class Window;
@@ -95,7 +97,15 @@ namespace ace
 		static void Scissor(Int32 x, Int32 y, UInt32 width, UInt32 height);
 
 		/**
-			@brief Draw
+		@brief Draw using Sprites
+		@see SetVertexBuffer
+		@param[in] material
+		@param[in] sprite
+		*/
+		static void Draw(Material& material, const Sprite& sprite);
+
+		/**
+			@brief Draw using Buffers
 			@see SetBuffer
 			@see SetVertexBuffer
 			@param[in] material
