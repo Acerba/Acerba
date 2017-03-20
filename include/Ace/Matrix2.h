@@ -67,7 +67,7 @@ namespace ace
 			*/
 			static Matrix2 Scale(float x, float y);
 			/**
-			@param[in] a Rotation in radians
+			@param[in] a Rotation in degrees
 			@return Rotation matrix
 			*/
 			static Matrix2 Rotation(float a);
