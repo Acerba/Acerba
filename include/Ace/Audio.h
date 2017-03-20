@@ -2,9 +2,11 @@
 
 #include <Ace/Vector3.h>
 #include <Ace/File.h>
+#include <Ace/Math.h>
 
+#include <Ace/Macros.h>
 
-
+#include <vector>
 #include <memory>
 
 namespace ace
@@ -20,6 +22,7 @@ namespace ace
 		std::shared_ptr<AudioClipImpl> impl;
 		bool ispaused;
 
+		
 		float volume;
 		float pitch;
 		UInt32 priority;
@@ -102,9 +105,64 @@ namespace ace
 		*/
 		UInt32 GetPriority();
 
-		//void SetPosition(math::Vector3 position);
-		//void SetVelocity(math::Vector3 velocity);
+		/**
+			@brief Sets  audio position for the specified source
+			@param[in] Position
+		*/
+		void SetPosition(math::Vector3 position);
+		
+		/**
+			@brief Sets  audio position for the specified source
+			@param[in] Velocity
+		*/
+		void SetVelocity(math::Vector3 velocity);
 
+		/**
+			@brief fades audio
+			@param[in] duration, endvolume
+		*/
+		void Fade(float duration, float endVolume);
+
+	};
+
+	class IAudioEffect
+	{
+	public:
+
+		float duration;
+		float time;
+		AudioClip clip;
+
+		IAudioEffect(const AudioClip& clip, float duration) : clip(clip), duration(duration), time(0)
+		{
+
+		}
+
+		virtual ~IAudioEffect()
+		{
+
+		}
+
+		virtual void Effect(float normalizedTime) = 0;
+
+
+	};
+
+	class FadeEffect : public IAudioEffect
+	{
+	public:
+		float volume;
+		float endVolume;
+
+		FadeEffect(const AudioClip& clip, float duration, float volume, float endVolume) : IAudioEffect(clip, duration), volume(volume), endVolume(endVolume)
+		{
+
+		}
+
+		virtual void Effect(float normalizedTime)
+		{
+			clip.SetVolume(math::Lerp(volume, endVolume, normalizedTime));
+		}
 	};
 
 	class Audio
@@ -127,17 +185,33 @@ namespace ace
 
 		/**
 			@brief Updates the specified clip.
+			@param[in] AudioClip&
 		*/
 		static bool Update(const AudioClip& Clip);
 
 		/**
+			@brief Updates the all clips.
+		*/
+		static void Update();
+
+		/**
 			@brief Plays audio with current set of attribute modifiers.
+			@param[in] AudioClip&
 			@return Is Playing
 		*/
 		static void PlayAudio(const AudioClip& Clip);
 
-		//static void PlayAudioAtPosition(const AudioClip& Clip, Vector3 pos);
-		//static void SetAttributes(vector3 apPos, const float* apVel, const float* apForward, const float* apUpward);
+		/**
+			@brief Sets 3D audio position for the specified source.
+			@param[in] AudioClip&, Vector3 pos
+		*/
+		static void PlayAudioAtPosition(const AudioClip& Clip, math::Vector3 pos);
+		
+		/**
+			@briefSets 3D audio attributes for the listener.
+			@param[in] Vector3 apPos, Vector3 apVel, Vector3 apforward, Vector3 apupward
+		*/
+		static void SetAttributes(math::Vector3 apPos, math::Vector3 apVel, math::Vector3 apForward, math::Vector3 apUpward);
 
 		/**
 			@brief Stops the specific clip.
@@ -151,11 +225,29 @@ namespace ace
 
 		/**
 			@brief Sets the master volume.
+			@param[in] volume
 		*/
 		static void SetMasterVolume(float volume);
 
+		/**
+			@brief Adds effect to array
+			@param[in] IAudioEffect
+		*/
+		static void AddEffect(IAudioEffect* effect);
+		
+
 	private:
+
+		static Audio& GetAudio();
+		ACE_DISABLE_COPY(Audio)
+
+		Audio();
+		~Audio();
+
+		std::vector<AudioClip> clips;
+		std::vector<IAudioEffect*> effects;
 	
 	};
 	
+
 }

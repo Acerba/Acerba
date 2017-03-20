@@ -16,6 +16,10 @@ namespace ace
 			return rad / PI * 180.0f;
 		}
 
+		inline float Lerp(float start, float end, float delta)
+		{
+			return start + delta * (end - start);
+		}
 
 		float Abs(float);
 	    float Pow(float base, float exp);

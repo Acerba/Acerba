@@ -2,6 +2,7 @@
 
 #include <ace/Math.h>
 #include <Ace/IntTypes.h>
+#include <Ace/Vector2.h>
 
 
 namespace ace
@@ -109,6 +110,11 @@ namespace ace
 				z /= scalar;
 
 				return *this;
+			}
+
+			inline operator Vector2()const
+			{
+				return Vector2(x, y);
 			}
 
 			/**

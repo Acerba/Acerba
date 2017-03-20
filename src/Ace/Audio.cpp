@@ -2,6 +2,8 @@
 #include <string>
 #include <Ace/Audio.h>
 #include <Ace/IntTypes.h>
+#include <Ace/Time.h>
+
 
 #include <OALWrapper/OAL_Funcs.h>
 #include <OALWrapper/OAL_Sample.h>
@@ -57,11 +59,14 @@ namespace ace
 			printf("Channels : %d\nFrequency : %d", clip->clip->GetChannels(), clip->clip->GetFrequency());
 			clip->id = OAL_Sample_Play(OAL_FREE, clip->clip, clip.volume, clip.loop, clip.priority);
 			OAL_Source_SetPaused(clip->id, false);
+
+			Audio::GetAudio().clips.push_back(clip);
 		}
 		else
 		{
 			printf("Error!\n");
 		}
+
 	}
 
 	void Audio::PauseAudio(AudioClip& clip)
@@ -145,24 +150,94 @@ namespace ace
 		return OAL_Source_IsPlaying((*this)->id);
 	}
 
-	//void AudioClip::SetPosition(math::Vector3 position)
-	//{
-	//	OAL_Source_SetPosition((*this)->, position);
-	//}
+	void AudioClip::SetPosition(math::Vector3 position)
+	{
+		OAL_Source_SetPosition((*this)->id, position.array);
+	}
 
-	//void AudioClip::SetVelocity(math::Vector3 velocity)
-	//{
-	//	OAL_Source_SetPosition((*this)->, velocity);
-	//}
+	void AudioClip::SetVelocity(math::Vector3 velocity)
+	{
+		OAL_Source_SetPosition((*this)->id, velocity.array);
+	}
 
-	//void Audio::PlayAudioAtPosition(const AudioClip& Clip, Vector3 pos)
-	//{
-	//	OAL_Source_SetPosition(clip->id, pos);
-	//}
+	void AudioClip::Fade(float duration, float endVolume)
+	{
+		FadeEffect* fade = new FadeEffect(*this, duration, volume, endVolume);
+		Audio::AddEffect(fade);
+	}
 
-	//void Audio::SetAttributes(vector3 apPos, vector3 apVel, vector3 apForward, vector3 apUpward)
-	//{
-	//	OAL_Listener_SetAttributes(apPos, apVel, apForward, apUpward);
-	//}
+	Audio& Audio::GetAudio()
+	{
+		static Audio s_audio;
+		return s_audio;
+	}
 
+	Audio::Audio()
+	{
+
+	}
+
+	Audio::~Audio()
+	{
+		for (int i = 0; i < effects.size(); ++i)
+		{
+			if (effects[i] == nullptr)
+			{
+				continue;
+			}
+
+			delete effects[i];
+			effects[i] = nullptr;
+			
+		}
+	}
+	
+	void Audio::AddEffect(IAudioEffect* effect)
+	{
+		Audio& audio = Audio::GetAudio();
+
+		audio.effects.push_back(effect);
+	}
+
+	void Audio::PlayAudioAtPosition(const AudioClip& Clip, math::Vector3 pos)
+	{
+		OAL_Source_SetPosition(Clip->id, pos.array);
+	}
+
+	void Audio::SetAttributes(math::Vector3 apPos, math::Vector3 apVel, math::Vector3 apForward, math::Vector3 apUpward)
+	{
+		OAL_Listener_SetAttributes(apPos.array, apVel.array, apForward.array, apUpward.array);
+	}
+
+	void Audio::Update()
+	{
+		Audio& audio = Audio::GetAudio();
+		
+		for (int i = 0; i < audio.effects.size(); ++i)
+		{
+			if (audio.effects[i] == nullptr)
+			{
+				continue;
+			}
+
+			float normalized = audio.effects[i]->time / audio.effects[i]->duration;
+
+			if (normalized > 1)
+			{
+				delete audio.effects[i];
+				audio.effects[i] = nullptr;
+				continue;
+			}
+
+			// TODO: Check that effect clip is playing.
+
+			audio.effects[i]->Effect(normalized);
+			audio.effects[i]->time += Time::DeltaTime(); 
+		}
+
+		for (int i = 0; i < audio.clips.size(); ++i)
+		{
+			OAL_Source_IsPlaying(audio.clips[i]->id);
+		}
+	}
 }
