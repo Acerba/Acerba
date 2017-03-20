@@ -39,6 +39,8 @@ namespace ace
 	{
 		//Font is placed inside buffer
 		m_buffer = p_file.ReadAll();
+        
+        m_bufferSize = p_file.Size();
 
 		//Loads font file from a memory buffer
 		stbtt_InitFont(&m_info->font, m_buffer.get(), stbtt_GetFontOffsetForIndex(m_buffer.get(), 0));
@@ -76,7 +78,6 @@ namespace ace
 		CreateGlyphs(ASCII, cdata, 255, first_char);
 
 		Image image(bitmap, w, h, ace::PixelFormat::R);
-
 
 		return image;
 	}
@@ -331,4 +332,19 @@ namespace ace
 		GraphicsDevice::BufferData(buffer, len*6, vertex);
 		delete[] vertex;
 	}
+
+
+    const UInt8* Font::GetBuffer(UInt32& size) const
+    {
+        size = m_bufferSize;
+        return m_buffer.get();
+    }
+
+
+    UInt8* Font::GetBuffer(UInt32& size)
+    {
+        size = m_bufferSize;
+        return m_buffer.get();
+    }
+
 }

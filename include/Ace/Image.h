@@ -36,7 +36,7 @@ namespace ace
 			@param[in] PixelFormat PixelFormat of the target image file
 			@see PixelFormat
 		*/
-		Image(UInt8* pixels, int w, int h, PixelFormat);
+		Image(UInt8* pixels, Int32 w, Int32 h, PixelFormat);
 		
 		/**
 			@brief Image with colored pixels

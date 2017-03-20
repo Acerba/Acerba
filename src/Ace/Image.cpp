@@ -22,7 +22,7 @@ namespace ace
 	}
 
 	//Loads image where is only pixeldata
-	Image::Image(UInt8* pixels, int w, int h, PixelFormat format) : m_pixels(pixels), w(w), h(h), format(format)
+	Image::Image(UInt8* pixels, Int32 w, Int32 h, PixelFormat format) : m_pixels(pixels), w(w), h(h), format(format)
 	{
 		//TODO: Stuff
 	}
@@ -66,6 +66,6 @@ namespace ace
 	//Saves a file into given path
 	void Image::WritePNG(const Path& path) const
 	{
-		stbi_write_png(path.GetPath().c_str(), w, h, static_cast<int>(format), m_pixels.get(), w*static_cast<int>(format));
+		stbi_write_png(path.GetPath().c_str(), w, h, static_cast<Int32>(format) + 1, m_pixels.get(), w * (static_cast<Int32>(format) + 1));
 	}
 }

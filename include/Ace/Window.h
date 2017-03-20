@@ -28,6 +28,11 @@ namespace ace
 		Window(const char* title, UInt16 w, UInt16 h);
 		~Window();
 
+        inline WindowImpl* operator*() const
+        {
+            return m_windowImpl.get();
+        }
+
 		inline WindowImpl* operator*()
 		{
 			return m_windowImpl.get();
