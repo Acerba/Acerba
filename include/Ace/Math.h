@@ -1,4 +1,6 @@
 #pragma once
+#include <random>
+#include <iostream>
 
 namespace ace
 {
@@ -21,6 +23,9 @@ namespace ace
 			return start + delta * (end - start);
 		}
 
+
+
+		float Rand(float min, float max);
 		float Abs(float);
 	    float Pow(float base, float exp);
 		float Sqrt(float);
