@@ -17,7 +17,7 @@ namespace ace
 			// Warning: if nullptr
 			if (rwops == NULL)
 			{
-				Logger::LogError("File doesn't exist");
+				Logger::LogError("File doesn't exist: %s", path);
 			}
 		}
 

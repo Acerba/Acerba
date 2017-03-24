@@ -68,15 +68,9 @@ namespace ace
 		BufferType type;
 		UInt32 size;
 
-		Buffer(BufferType type = BufferType::Vertex) : Graphics(nullptr), type(type), size(0)
-		{
+		Buffer(BufferType type = BufferType::Vertex);
 
-		}
-
-		Buffer(BufferImpl* impl) : Graphics(impl), size(0)
-		{
-			
-		}
+		Buffer(BufferImpl* impl);
 
 	protected:
 		virtual void Init() const;

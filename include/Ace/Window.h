@@ -24,8 +24,11 @@ namespace ace
 
 		/**
 			@brief Constructor
+			@param[in] title Window title
+			@param[in] width
+			@param[in] height
 		*/
-		Window(const char* title, UInt16 w, UInt16 h);
+		Window(const char* title, UInt16 width, UInt16 height);
 		~Window();
 
         inline WindowImpl* operator*() const
@@ -39,22 +42,27 @@ namespace ace
 		}
 
 		/**
-			@brief Updates Window
+			@brief Closes the window
+		*/
+		void Close();
+
+		/**
+			@brief Updates the window
 		*/
 		void Present();
 
 		/**
-			@brief Clears Windows
+			@brief Clears the window
 		*/
 		void Clear(const Color32& color);
 
 		/**
-			@return Window Size
+			@return Window size
 		*/
 		Vector2 GetSize() const;
 
 		/**
-			@brief Sets Window size
+			@brief Sets window size
 			@param[in] size
 		*/
 		void SetSize(const Vector2&);

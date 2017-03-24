@@ -55,7 +55,7 @@ namespace ace
 			@param[in] num_chars Range of characters to bake
 			@return Fontsheet imagefile
 		*/
-		Image BakeFontSheet(const int& w, const int& h, const float& pixelheight = 32.0f, const int& first_char = 0, const int& num_chars = 255);
+		Image BakeFontSheet(UInt32 w, UInt32 h, float pixelheight = 32.0f, Int32 first_char = 0, Int32 num_chars = 255);
 
 		/**
 			@brief Bake text into image file
@@ -65,7 +65,7 @@ namespace ace
 			@param[in] lineHeight Font size in pixels
 			@return Text imagefile
 		*/
-		Image BakeTextBox(const char *text_to_print, int w, int h, float lineHeight = 32.0f);
+		Image BakeTextBox(const char *text_to_print, Int32 w, Int32 h, float lineHeight = 32.0f);
 
 		/**
 			@brief Automated text baking

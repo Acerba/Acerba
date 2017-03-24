@@ -20,6 +20,14 @@ namespace ace
 
 	}
 
+	void Window::Close()
+	{
+		if (m_windowImpl)
+		{
+			m_windowImpl->isClosed = true;
+		}
+	}
+
 	void Window::Clear(const Color32& color)
 	{
 		GraphicsDevice::Clear(color);

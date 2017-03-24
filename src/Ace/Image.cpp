@@ -18,13 +18,13 @@ namespace ace
 		UInt8* pixels = stbi_load_from_memory(buffer.get(), p_file.Size(), &w, &h, &comp, 0);
 		m_pixels.reset(pixels);
 
-		this->format = static_cast<PixelFormat>(comp-1);
+		this->format = static_cast<PixelFormat>(comp);
 	}
 
 	//Loads image where is only pixeldata
 	Image::Image(UInt8* pixels, Int32 w, Int32 h, PixelFormat format) : m_pixels(pixels), w(w), h(h), format(format)
 	{
-		//TODO: Stuff
+		
 	}
 
 	//Makes a "image" from a color (r,g,b,a)
@@ -35,7 +35,7 @@ namespace ace
 		h(1),
 		m_pixels(nullptr)
 	{ 
-		UInt8 pixels[4u] =
+		UInt8* pixels = new UInt8[4]
 		{
 			p_color.r,
 			p_color.g,
@@ -66,6 +66,6 @@ namespace ace
 	//Saves a file into given path
 	void Image::WritePNG(const Path& path) const
 	{
-		stbi_write_png(path.GetPath().c_str(), w, h, static_cast<Int32>(format) + 1, m_pixels.get(), w * (static_cast<Int32>(format) + 1));
+		stbi_write_png(path.GetPath().c_str(), w, h, static_cast<Int32>(format), m_pixels.get(), w * (static_cast<Int32>(format)));
 	}
 }

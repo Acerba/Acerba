@@ -32,10 +32,7 @@ namespace ace
 	public:
 
 
-		AudioClip(AudioClipImpl* clip = nullptr) : impl(clip)
-		{
-
-		}
+		AudioClip(AudioClipImpl* clip = nullptr);
 
 		AudioClip(const File& file, float volume = 1.0f, bool loop = false, UInt32 priority = 10);
 

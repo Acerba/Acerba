@@ -21,7 +21,7 @@ namespace ace
 
 		mutable std::shared_ptr<Impl> m_impl;
 
-		inline void InitImpl(GraphicsObject obj) const
+		inline void InitImpl(const GraphicsObject& obj) const
 		{
 			m_impl.swap(obj.m_impl);
 		}

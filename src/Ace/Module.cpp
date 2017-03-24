@@ -2,6 +2,7 @@
 #include <Ace/Module.h>
 #include <Ace/Audio.h>
 #include <Ace/Event.h>
+#include <Ace/Time.h>
 #include <SDL.h>
 
 #include <iostream>
@@ -38,6 +39,7 @@ namespace ace
         {
             Event::Update();
             Audio::Update();
+			Time::Update();
         }
 
         void Quit()

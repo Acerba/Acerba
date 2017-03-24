@@ -2,6 +2,7 @@
 #include <Ace/IntTypes.h>
 
 #include <SDL_log.h>
+#include <SDL_assert.h>
 #include <string.h>
 
 namespace ace
@@ -40,6 +41,11 @@ namespace ace
         SDL_LogMessageV(SDL_LOG_CATEGORY_TEST, SDL_Priorities[static_cast<UInt32>(priority)], format, args);
 
         delete[] format;
+
+		if (priority == Logger::Priority::Error)
+		{
+			SDL_assert(false && "Acerba Error");
+		}
     }
 
 

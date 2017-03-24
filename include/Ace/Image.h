@@ -11,10 +11,11 @@ namespace ace
 	*/
 	enum class PixelFormat
 	{
-		R,		/**	Gray		*/
-		RG,		/**	Gray Alpha	*/
-		RGB,	/**	RGB			*/
-		RGBA,	/**	RGBA		*/
+		Unknown,
+		R,			/**	Gray		*/
+		RG,			/**	Gray Alpha	*/
+		RGB,		/**	RGB			*/
+		RGBA,		/**	RGBA		*/
 	};
 
 	class Image
@@ -66,8 +67,6 @@ namespace ace
 		void WritePNG(const Path& path) const;
 	private:
 		std::shared_ptr<UInt8> m_pixels;
-
-
 
 	};
 }

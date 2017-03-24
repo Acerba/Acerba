@@ -38,6 +38,9 @@ namespace ace
 			@return Delta Time
 		*/
 		static float DeltaTime();
+
+
+		static void Update();
 		
 		struct WaitTime
 		{

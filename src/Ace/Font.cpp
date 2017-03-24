@@ -49,20 +49,19 @@ namespace ace
 
 	Font::~Font()
 	{
-
+		
 	}
 
 	///BakeFontSheet to image
 	///Image int width, int heigth, float pixelheight int first char, int num of chars (0-255)
-	Image Font::BakeFontSheet(const int& w, const int& h, const float& pixelheight, const int& first_char, const int& num_chars)
+	Image Font::BakeFontSheet(UInt32 w, UInt32 h, float pixelheight, Int32 first_char, Int32 num_chars)
 	{
 
 		stbtt_bakedchar cdata[255]; // ASCII 32..126 is 95 glyphs
 		UInt8* bitmap = new UInt8[w*h];
 
 		int nW, nH;
-		stbtt_GetCodepointBitmap(&m_info->font, 0, stbtt_ScaleForPixelHeight(&m_info->font, 16), 'a', &nW, &nH, 0, 0);
-		
+	
 		//-- bake a font to a bitmap for use as texture
 		stbtt_BakeFontBitmap(m_buffer.get(), 0, pixelheight, bitmap, w, h, first_char, num_chars, cdata);
 
@@ -77,13 +76,28 @@ namespace ace
 		//Adds glyps into vector for later use
 		CreateGlyphs(ASCII, cdata, 255, first_char);
 
-		Image image(bitmap, w, h, ace::PixelFormat::R);
+		static const PixelFormat format = PixelFormat::RGBA;
+		static const UInt8 channels = static_cast<UInt8>(format);
 
-		return image;
+		// Adds RGBA channels
+
+		UInt8* rgba = new UInt8[w*h*channels];
+
+		for (UInt32 i = 0, j = 0; i < w*h; ++i, j += channels)
+		{
+			rgba[j + 0] = bitmap[i];
+			rgba[j + 1] = bitmap[i];
+			rgba[j + 2] = bitmap[i];
+			rgba[j + 3] = bitmap[i];
+		}
+
+		delete[] bitmap;
+
+		return Image(rgba, w, h, format);
 	}
 	
 	///Baking text box with given width and height
-	Image Font::BakeTextBox(const char *text_to_print, int w, int h, float lineHeight)
+	Image Font::BakeTextBox(const char *text_to_print, Int32 w, Int32 h, float lineHeight)
 	{
 		int totalSize = w * h;
 		UInt8* bitmap = new UInt8[totalSize];

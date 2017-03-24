@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Ace/IntTypes.h>
-
 #include <Ace/GraphicsObject.h>
 
 namespace ace
@@ -12,14 +11,10 @@ namespace ace
 		{
 			Depth,			/** */
 			Stencil,		/** */
-			DepthStencil,	/** */
 			Color0,			/** ColorX attachement, X can be between 0 to 31. */
 		};
 
-		Framebuffer(FramebufferImpl* impl = nullptr) : Graphics(impl)
-		{
-			
-		}
+		Framebuffer(FramebufferImpl* impl = nullptr);
 
 	protected:
 		virtual void Init() const;

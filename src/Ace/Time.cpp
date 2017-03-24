@@ -24,7 +24,14 @@ namespace ace
 		return SDL_GetPerformanceFrequency();
 	}
 
+	static float s_deltaTime;
+
 	float Time::DeltaTime()
+	{
+		return s_deltaTime;
+	}
+
+	void Time::Update()
 	{
 		static UInt64 s_now = 0;
 		static UInt64 s_last = 0;
@@ -32,7 +39,7 @@ namespace ace
 		s_last = s_now;
 		s_now = GetPerformanceCounter();
 
-		return static_cast<float>(((s_now - s_last) * 1000 / GetPerformanceFrequency())) / 1000.0f;
+		s_deltaTime = static_cast<float>(((s_now - s_last) * 1000.0f / GetPerformanceFrequency())) / 1000.0f;
 	}
 
 	bool Time::WaitTime::IsDone()

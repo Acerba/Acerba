@@ -1,5 +1,6 @@
 #include <Ace/Texture.h>
 #include <Ace/GraphicsDevice.h>
+#include <Ace/GLTextureImpl.h>
 
 namespace ace
 {

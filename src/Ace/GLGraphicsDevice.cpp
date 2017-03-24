@@ -11,6 +11,8 @@
 #include <Ace/GLTextureImpl.h>
 #include <Ace/GLFramebbuferImpl.h>
 
+#include <Ace/Platform.h>
+
 namespace ace
 {
 	static const UInt32 GLBufferTargets[] = {GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER};
@@ -198,9 +200,13 @@ namespace ace
 
 	void GraphicsDevice::UpdateTexture(Texture& texture, const UInt8* pixels, UInt32 w, UInt32 h, PixelFormat format)
 	{
-		static const UInt32 GLFormat[] = { GL_RED, GL_RG, GL_RGB, GL_RGBA };
-		static const UInt32 GLFormatType[] = { GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE };
-
+		#if ACE_ANDROID
+			static const UInt32 GLFormat[] = { 0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA };
+			static const UInt32 GLFormatType[] = { 0, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE };
+		#else
+			static const UInt32 GLFormat[] = { 0, GL_RED, GL_RG, GL_RGB, GL_RGBA };
+			static const UInt32 GLFormatType[] = { 0, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE };
+		#endif
 		glBindTexture(GL_TEXTURE_2D, texture->textureID);
 		
 		UInt8 formatIndex = static_cast<UInt8>(format);
@@ -214,10 +220,10 @@ namespace ace
 
 	void GraphicsDevice::SetTexture(Material& material, const Texture& texture, const char* name, UInt8 id)
 	{
-		if (!material.textures[id])
-		{
-			material.AddTexture(texture, name, id);
-		}
+		//if (!material.textures[id])
+		//{
+		//	material.AddTexture(texture, name, id);
+		//}
 
 		glUseProgram(material->materialID);
 		glBindTexture(GL_TEXTURE_2D, texture->textureID);
@@ -271,7 +277,7 @@ namespace ace
 			glAttachShader(material->materialID, fragment->shaderID);
 		}
 
-		for (int i = 0; i < (int)VertexAttributes::COUNT; ++i)
+		for (UInt32 i = 0; i < (UInt32)VertexAttributes::COUNT; ++i)
 		{
 			glBindAttribLocation(material->materialID, i, vertexAttributeNames[i]);
 		}
@@ -299,7 +305,7 @@ namespace ace
 			char* errorMsg = new char[errorMsgLength + 1];
 			glGetProgramInfoLog(material->materialID, errorMsgLength, NULL, errorMsg);
 
-			Logger::Log(Logger::Priority::Warning, "%s", errorMsg);
+			Logger::Log(Logger::Priority::Error, "%s", errorMsg);
 			delete[] errorMsg;
 
 			// TODO: Set default error material.
@@ -528,7 +534,6 @@ namespace ace
 		static const UInt32 GLAttachments[] = {
 			GL_DEPTH_ATTACHMENT, 
 			GL_STENCIL_ATTACHMENT, 
-			GL_DEPTH_STENCIL_ATTACHMENT,
 			GL_COLOR_ATTACHMENT0
 		};
 

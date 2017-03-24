@@ -22,6 +22,11 @@ namespace ace
 		}
 	};
 
+	AudioClip::AudioClip(AudioClipImpl* clip) : impl(clip)
+	{
+
+	}
+
 	AudioClip::AudioClip(const File& file, float volume, bool loop, UInt32 priority)
 	{
 		UInt32 pos = file.Size();

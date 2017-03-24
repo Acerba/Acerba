@@ -1,9 +1,6 @@
 #pragma once
 
 #include <Ace/Macros.h>
-
-#include <math.h>
-
 #include <Ace/EventManager.h>
 
 namespace ace

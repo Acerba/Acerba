@@ -1,5 +1,6 @@
 #include <Ace/Material.h>
 #include <Ace/GraphicsDevice.h>
+#include <Ace/GLMaterialImpl.h>
 
 namespace ace
 {

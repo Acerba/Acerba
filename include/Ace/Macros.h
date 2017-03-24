@@ -39,3 +39,4 @@ inline enumName operator~(enumName rhs) \
     className(const className&)=delete; \
     className(className&&)=delete; \
     className operator=(const className&)=delete;
+
