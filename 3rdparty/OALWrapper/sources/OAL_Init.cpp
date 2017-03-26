@@ -27,14 +27,12 @@ using namespace std;
 
 cOAL_Device* gpDevice = NULL;
 
-
-
 ///////////////////////////////////////////////////////////
 //	bool OAL_Init ( char *asDeviceName,	int alOutputFreq,
 //					bool abUseThread, 	int alUpdateFreq,
 //					int alReqMajorVersion, int alReqMinorVersion)
 ///////////////////////////////////////////////////////////
-bool	OAL_Init ( cOAL_Init_Params &acParams )
+bool OAL_Init ( cOAL_Init_Params &acParams )
 {
 	OAL_Log(eOAL_LogVerbose_None, eOAL_LogMsg_Text,"-------------------------------------\n----- OpenAL Wrapper Log opened -----\n-------------------------------------\n");
 

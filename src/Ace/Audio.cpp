@@ -1,22 +1,48 @@
-#include <iostream>
-#include <string>
 #include <Ace/Audio.h>
 #include <Ace/IntTypes.h>
 #include <Ace/Time.h>
-
+#include <Ace/Log.h>
 
 #include <OALWrapper/OAL_Funcs.h>
 #include <OALWrapper/OAL_Sample.h>
 
+#include <SDL_thread.h>
+
+
+//#include <OALWrapper/OAL_Device.h>
+//#include <OALWrapper/OAL_Source.h>
+//#include <OALWrapper/OAL_OggSample.h>
+//#include <OALWrapper/OAL_WAVSample.h>
+//#include <OALWrapper/OAL_OggStream.h>
+//#include <OALWrapper/OAL_CustomStream.h>
+//#include <OALWrapper/OAL_SourceManager.h>
+//
+//#include <OALWrapper/OAL_Filter.h>
+//#include <OALWrapper/OAL_Helper.h>
 
 namespace ace
 {
+	static SDL_Thread* g_audioThread;
+	static bool g_isAudioRunning;
+	
+	// Audio Update thread.
+	static int AudioUpdate(void* data)
+	{
+		 Int32 wait = 1000 / 30; // 30times / second
+		while (g_isAudioRunning)
+		{
+			Audio::Update();
+			Time::Delay(wait);
+		}
+		return 0;
+	}
+
 	struct AudioClip::AudioClipImpl
 	{
 		cOAL_Sample* clip;
 		int id;
 
-		AudioClipImpl(cOAL_Sample* clip) : clip(clip)
+		AudioClipImpl(cOAL_Sample* clip) : clip(clip), id(-1)
 		{
 
 		}
@@ -27,7 +53,7 @@ namespace ace
 
 	}
 
-	AudioClip::AudioClip(const File& file, float volume, bool loop, UInt32 priority)
+	AudioClip::AudioClip(const File& file, float volume, bool loop, UInt32 priority) : volume(volume), loop(loop), priority(priority)
 	{
 		UInt32 pos = file.Size();
 		UInt8* buffer = new UInt8[pos];
@@ -41,19 +67,128 @@ namespace ace
 
 	void Audio::Init()
 	{
+		// Temp. Test Code
+		//bool bALError = false;	
+		//bool bALCError = false;
+		//
+		//ALCdevice*			mpDevice;
+		//ALCcontext*			mpContext;
+		//
+		//cOAL_Init_Params acParams;
+		//
+		//Logger::LogInfo("Initializing device: %s...\n", (acParams.msDeviceName == "") ? "\"preferred\"" : acParams.msDeviceName.c_str());
+		//Logger::LogInfo("Configuring streaming options:\n");
+		//
+		//
+		//Logger::LogInfo("Attempting to open device...\n");
+		//// Open the device, if fails return false
+		//if (acParams.msDeviceName.empty())
+		//	mpDevice = alcOpenDevice(NULL);
+		//else
+		//	mpDevice = alcOpenDevice(acParams.msDeviceName.c_str());
+		//
+		//if (mpDevice == NULL)
+		//{
+		//	Logger::LogInfo("Error opening device\n");
+		//	return;
+		//}
+		//
+		//Logger::LogInfo("Success.\n");
+		//
+		//ALCint lAttrList[] =
+		//{
+		//	ALC_FREQUENCY, acParams.mlOutputFreq,
+		//	#ifdef __APPLE__
+		//	#else
+		//				ALC_MONO_SOURCES, acParams.mbVoiceManagement ? 256 : acParams.mlMinMonoSourcesHint,
+		//				ALC_STEREO_SOURCES, acParams.mbVoiceManagement ? 0 : acParams.mlMinStereoSourcesHint,
+		//	#endif
+		//	ALC_MAX_AUXILIARY_SENDS, acParams.mlNumSendsHint,
+		//	0,
+		//};
+		//
+		//Logger::LogInfo("Creating context\n");
+		//// Create and set a context
+		//#ifdef __EMSCRIPTEN__
+		//		mpContext = RUN_ALC_FUNC(alcCreateContext(mpDevice, NULL));
+		//#else
+		//		mpContext = alcCreateContext(mpDevice, lAttrList);
+		//#endif
+		//
+		//alcMakeContextCurrent(mpContext);
+		//
+		//if (ALC_ERROR_OCCURED)
+		//{
+		//	Logger::LogInfo("Error creating context\n");
+		//	return;
+		//}
+		//
+		//int mlMajorVersion, mlMinorVersion, mlEFXSends;
+		//
+		//// Get the OpenAL impl. version
+		//alcGetIntegerv(mpDevice, ALC_MAJOR_VERSION, sizeof(ALCint), &mlMajorVersion);
+		//alcGetIntegerv(mpDevice, ALC_MINOR_VERSION, sizeof(ALCint), &mlMinorVersion);
+		//
+		//alcGetIntegerv(mpDevice, ALC_MAX_AUXILIARY_SENDS, sizeof(ALCint), &mlEFXSends);
+		//
+		//Logger::LogInfo("OpenAL version: %d.%d\n", mlMajorVersion, mlMinorVersion);
+		//
+		//// Check device version
+		//if ((mlMajorVersion < acParams.mlMajorVersionReq) ||
+		//	((mlMajorVersion == acParams.mlMajorVersionReq) && (mlMinorVersion < acParams.mlMinorVersionReq)))
+		//{
+		//	Logger::LogInfo("Version required: %d.%d\n", acParams.mlMajorVersionReq, acParams.mlMinorVersionReq);
+		//	return;
+		//}
+		//
+		////	If alSourceNumHint == -1, create as many sources as possible
+		//if (acParams.mlNumSourcesHint == -1)
+		//	acParams.mlNumSourcesHint = 4096;
+		//
+		//Logger::LogInfo("Creating Source Manager\n");
+		//cOAL_SourceManager* mpSourceManager;
+		////Create The source manager
+		//mpSourceManager = new cOAL_SourceManager;
+		//if (mpSourceManager->Initialize(acParams.mbVoiceManagement, acParams.mlNumSourcesHint, acParams.mbUseThread, acParams.mlUpdateFreq, mlEFXSends) == false)
+		//{
+		//	Logger::LogInfo("Error creating Source Manager\n");
+		//	return;
+		//}
+
 		cOAL_Init_Params oal_parms;
+
 		if (OAL_Init(oal_parms) == false)
 		{
-			printf("Audio initializing failed!\n");
+			Logger::LogInfo("Audio initializing failed!");
 		}
 		else
 		{
-			printf("Audio initializing succeeded!\n");
+			Logger::LogInfo("Audio initializing succeeded!");
 		}
+			
+		g_isAudioRunning = true;
+		g_audioThread = SDL_CreateThread(AudioUpdate, "Audio", nullptr);
+	}
+
+	void Audio::Quit()
+	{
+		if (g_audioThread)
+		{
+			g_isAudioRunning = false;
+			SDL_WaitThread(g_audioThread, nullptr);
+			g_audioThread = nullptr;
+		}
+
+		OAL_Close();
 	}
 
 	bool Audio::Update(const AudioClip& clip)
 	{
+		if (clip->id != -1)
+		{
+			return false;
+		}
+
 		return OAL_Source_IsPlaying(clip->id);
 	}
 
@@ -61,17 +196,18 @@ namespace ace
 	{
 		if (clip->clip)
 		{
-			printf("Channels : %d\nFrequency : %d", clip->clip->GetChannels(), clip->clip->GetFrequency());
+			// TODO: Use Logger instead! (Debug Only)
+
+			printf("Channels : %d\nFrequency : %d\n", clip->clip->GetChannels(), clip->clip->GetFrequency());
+
 			clip->id = OAL_Sample_Play(OAL_FREE, clip->clip, clip.volume, clip.loop, clip.priority);
 			OAL_Source_SetPaused(clip->id, false);
-
 			Audio::GetAudio().clips.push_back(clip);
 		}
 		else
 		{
 			printf("Error!\n");
 		}
-
 	}
 
 	void Audio::PauseAudio(AudioClip& clip)
@@ -193,7 +329,6 @@ namespace ace
 
 			delete effects[i];
 			effects[i] = nullptr;
-			
 		}
 	}
 	
@@ -242,7 +377,10 @@ namespace ace
 
 		for (int i = 0; i < audio.clips.size(); ++i)
 		{
-			OAL_Source_IsPlaying(audio.clips[i]->id);
+			if (!OAL_Source_IsPlaying(audio.clips[i]->id))
+			{
+				// TODO: Remove clip from the vector. (Or add check for "duplicated" clips in PlayAudio method)
+			}
 		}
 	}
 }

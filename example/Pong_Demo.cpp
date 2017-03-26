@@ -12,12 +12,12 @@
 #include <Ace/Font.h>
 #include <Ace/IntTypes.h>
 #include <Ace/Accelerometer.h>
+#include <Ace/Audio.h>
 
 #include <string>
 #include <sstream>
 
 #include <Ace/Platform.h>
-#include <SDL.h>
 
 #if ACE_ANDROID
 
@@ -41,6 +41,17 @@ void update()
 
 }
 
+void Flip(ace::Sprite& sprite)
+{
+	ace::Sprite temp = sprite;
+
+	sprite.vertexData[0].uv.x = temp.vertexData[2].uv.x;
+	sprite.vertexData[1].uv.x = temp.vertexData[3].uv.x;
+	sprite.vertexData[2].uv.x = temp.vertexData[0].uv.x;
+	sprite.vertexData[3].uv.x = temp.vertexData[1].uv.x;
+
+}
+
 void draw(ace::Material& material, ace::Sprite& sprite, ace::Texture& texture, const ace::Vector2& position, const ace::Vector2& scale)
 {
 	material.Uniform("position", position);
@@ -53,16 +64,32 @@ void draw(ace::Material& material, ace::Sprite& sprite, ace::Texture& texture, c
 int main(int, char**)
 {
 	ace::Init();
+
 	ace::Window window("Pong2.0", 1200, 800);
 
+	ace::AudioClip HitSound({ "Pong/hit.wav" });
+
 	// Loading images
-	//ace::Image Ball(ace::File ("/Pong/ball.png"));
-	//ace::Image Enemy(ace::File("/Pong/enemy.png"));
-	//ace::Image Player(ace::File("/Pong/player.png"));
+
 	ace::Image Ball(0xFFFFFFFFU);
-	ace::Image Enemy(0xFF0000FFU);
-	ace::Image Player(0x0000FFFFU);
-	
+	ace::Image Enemy(0xFFFFFFFFU);
+	ace::Image Player(0xFFFFFFFFU);
+
+	if (ace::File::Exists("Pong/ball.png"))
+	{
+		Ball = ace::Image(ace::File("Pong/ball.png"));
+	}
+
+	if (ace::File::Exists("Pong/enemy.png"))
+	{
+		Enemy = ace::Image(ace::File("Pong/enemy.png"));
+	}
+
+	if (ace::File::Exists("Pong/player.png"))
+	{
+		Player = ace::Image(ace::File("Pong/player.png"));
+	}
+
 	//Loading textures
 	ace::Texture BallTexture(Ball);
 	ace::Texture EnemyTexture(Enemy);
@@ -78,6 +105,7 @@ int main(int, char**)
 	material.flags.cullingMode = ace::CullingMode::Both;
 	
 	ace::Sprite BallSprite;
+	Flip(BallSprite);
 	ace::Sprite EnemySprite(90.0f);
 	ace::Sprite PlayerSprite(90.0f);
 
@@ -150,6 +178,8 @@ int main(int, char**)
 		if (BallPosition.x < -0.8f)
 		{
 			BallRight = !BallRight;
+			Flip(BallSprite);
+			ace::Audio::PlayAudio(HitSound);
 			
 			if (yMove <= 0.0f)
 			{
@@ -164,6 +194,8 @@ int main(int, char**)
 		// Ball hitting player
 		if (BallHitPlayer)
 		{
+			Flip(BallSprite);
+			ace::Audio::PlayAudio(HitSound);
 			BallRight = !BallRight;
 			BallHitPlayer = false;
 		}
@@ -301,6 +333,7 @@ int main(int, char**)
 		window.Present();
 	}
 
+	ace::Quit();
+
 	return 0;
 }
-

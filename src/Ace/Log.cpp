@@ -72,6 +72,4 @@ namespace ace
         _print(Priority::Info, message, args);
         va_end(args);
     }
-
-
 }

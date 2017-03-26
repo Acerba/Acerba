@@ -20,12 +20,11 @@ find_package(OpenGL)
 file(GLOB SOURCES ${ACERBA_SOURCE_DIR}/src/Ace/*.cpp ${ACERBA_SOURCE_DIR}/include/Ace/*)
 set(INCLUDES ${ACERBA_SOURCE_DIR}/include ${ACERBA_SOURCE_DIR}/3rdparty/SDL2/include ${ACERBA_SOURCE_DIR}/3rdparty/Khronos ${ACERBA_SOURCE_DIR}/3rdparty/gl3w/include/
 			 ${ACERBA_SOURCE_DIR}/3rdparty/stb/ ${ACERBA_SOURCE_DIR}/3rdparty/OALWrapper/include/ ${ACERBA_SOURCE_DIR}/3rdparty/rapidjson/include 
-			${ACERBA_SOURCE_DIR}/3rdparty/nuklear)
+			${ACERBA_SOURCE_DIR}/3rdparty/nuklear ${ACERBA_SOURCE_DIR}/3rdparty/vorbis/include ${ACERBA_SOURCE_DIR}/3rdparty/ogg/include)
 
 set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper)
 
 if(ANDROID)
-
 	set(DEFINES ANDROID GL_GLEXT_PROTOTYPES)
 	set(LIBS SDL2 android log openal OALWrapper dl GLESv1_CM GLESv2)
 
@@ -58,6 +57,7 @@ if(ANDROID OR PB_ANDROID)
 	list(APPEND SOURCES "${ACERBA_SOURCE_DIR}/3rdparty/SDL2/src/main/android/SDL_android_main.c")
 	message(STATUS ${SOURCES})	
 
+	set(LIBS acerba)
 	BuildApplication(main) # libmain.so -> SDL2 Activity
 
 else()

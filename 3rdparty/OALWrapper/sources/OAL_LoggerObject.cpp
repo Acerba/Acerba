@@ -18,6 +18,10 @@
 #include <shlobj.h>
 #endif
 
+
+#include <SDL_log.h>
+
+
 using namespace std;
 
 static wstring BuildLogFilename ( const string& asFilename );
@@ -48,13 +52,20 @@ void iOAL_LoggerObject::LogMsg(const string& asIDStr, eOAL_LogVerbose aVerbose, 
 	//	return;
 	//
 	//string sMessage;
-    //
-	//char text[2048];
-	//va_list ap;
-	//va_start(ap, asMessage);
-	//vsprintf(text, asMessage, ap);
-	//va_end(ap);
-    //
+    
+	int len = strlen(asMessage);
+
+	if (len < 2)
+	{
+		return;
+	}
+
+	va_list ap;
+	va_start(ap, asMessage);
+	SDL_LogMessageV(SDL_LOG_CATEGORY_TEST, SDL_LOG_PRIORITY_INFO, asMessage, ap);
+	va_end(ap);
+
+    
 	//switch(aType)
 	//{
 	//case eOAL_LogMsg_Command:
@@ -70,6 +81,8 @@ void iOAL_LoggerObject::LogMsg(const string& asIDStr, eOAL_LogVerbose aVerbose, 
 	//sMessage.append(asIDStr.c_str()).append(text);
     //
 	//Write(sMessage);
+
+
 
 }
 

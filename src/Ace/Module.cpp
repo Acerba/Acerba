@@ -5,11 +5,12 @@
 #include <Ace/Time.h>
 #include <SDL.h>
 
+#include <Ace/Platform.h>
+
 #include <iostream>
 
 namespace ace
 {
-
     class Module
     {
 
@@ -20,14 +21,21 @@ namespace ace
         Module(const Module&&) = delete;
         Module operator=(const Module&) = delete;
 
+		bool m_isInitialized;
+
     public:
 
         void Init()
         {
-            #if ACE_WIN
-                std::cout << "Acerba initialized" << std::endl;
-            #endif
+			if (m_isInitialized)
+			{
+				return;
+			}
+
             SDL_Init(SDL_INIT_EVERYTHING);
+			Audio::Init();
+
+			m_isInitialized = true;
         }
 
         void Init(int argc, char**)
@@ -38,28 +46,34 @@ namespace ace
         void Update()
         {
             Event::Update();
-            Audio::Update();
 			Time::Update();
         }
 
         void Quit()
         {
-            #if ACE_WIN
-                std::cout << "Acerba shut down" << std::endl;
-            #endif
+			if (!m_isInitialized)
+			{
+				return;
+			}
+
+			Audio::Quit();
             SDL_Quit();
+
+			m_isInitialized = false;
         }
 
         ///Initialize Acerba engine
-        Module()
+		Module() : m_isInitialized(false)
         {
-            Init();
+			#if ACE_WIN
+				Init();
+			#endif
         }
 
         ///Shutdown Acerba engine
         ~Module()
         {
-
+			Quit();
         }
 
     } module;

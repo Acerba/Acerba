@@ -171,6 +171,11 @@ namespace ace
 		static void Init();
 
 		/**
+			@brief Quits Audio.
+		*/
+		static void Quit();
+
+		/**
 			@brief Pauses the specified clip.
 		*/
 		static void PauseAudio(AudioClip& Clip);
@@ -234,8 +239,9 @@ namespace ace
 		
 
 	private:
-
+		
 		static Audio& GetAudio();
+
 		ACE_DISABLE_COPY(Audio)
 
 		Audio();

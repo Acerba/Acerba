@@ -89,7 +89,6 @@ bool cOAL_Device::Init( cOAL_Init_Params& acParams )
 	cOAL_Stream::SetBufferCount(acParams.mlStreamingBufferCount);
 	LogMsg("",eOAL_LogVerbose_High, eOAL_LogMsg_Info, "\tSetting queue length to %d buffers\n",cOAL_Stream::GetBufferCount());
 
-	
 	LogMsg("",eOAL_LogVerbose_Low, eOAL_LogMsg_Info, "Attempting to open device...\n" );
 	// Open the device, if fails return false
 	if(acParams.msDeviceName.empty())
