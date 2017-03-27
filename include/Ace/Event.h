@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Ace/Events.h>
 #include <Ace/Macros.h>
 #include <Ace/EventManager.h>
 

@@ -21,6 +21,8 @@ namespace ace
 
 	public:
 
+		static UInt32 GetID();
+
 		/**
 			@brief Get the current state of an axis control on a Accelerometer.
 			The state is a value ranging from -1 to 1.

@@ -58,6 +58,11 @@ namespace ace
 		}
 	}
 
+	UInt32 Accelerometer::GetID()
+	{
+		return SDL_JoystickInstanceID(GetAccelerometer()->m_accelerometerImpl->sdlJoystick);
+	}
+
 	float Accelerometer::GetAxis(Int32 axis)
 	{
 		SDL_JoystickUpdate();

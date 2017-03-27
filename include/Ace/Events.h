@@ -5,14 +5,14 @@
 namespace ace
 {
 
-	enum TouchEventType
+	enum class TouchEventType
 	{
 		Motion,
 		Pressed,
 		Released
 	};
 
-	enum WindowEventType
+	enum class WindowEventType
 	{
 		None,
 		Shown,
@@ -33,7 +33,7 @@ namespace ace
 		HitTest
 	};
 
-	enum MouseEventType
+	enum class MouseEventType
 	{
 		Motion,
 		Pressed,
@@ -45,7 +45,7 @@ namespace ace
 	struct TouchEvent
 	{
 		TouchEventType type;
-		UInt32 FingerID;
+		UInt32 fingerID;
 		float x;
 		float y;
 		float dx;
@@ -56,7 +56,6 @@ namespace ace
 	struct WindowEvent
 	{
 		WindowEventType type;
-		UInt8 event;
 		Int32 data1;
 		Int32 data2;
 	};
@@ -64,21 +63,21 @@ namespace ace
 	struct MouseEvent
 	{
 		MouseEventType type;
-		UInt32 Which;
-		UInt8 Button;
-		UInt8 State;
-		UInt8 Clicks;
+		UInt32 which;
+		UInt8 button;
+		UInt8 state;
+		UInt8 clicks;
 		Int32 x;
 		Int32 y;
 		Int32 xRel;
 		Int32 yRel;
-		UInt32 Direction;
+		UInt32 direction;
 	};
 
 	struct AccelerometerEvent
 	{
-		UInt8 Axis;
-		Int16 Value;
+		UInt8 axis;
+		Int16 value;
 	};
 
 }
