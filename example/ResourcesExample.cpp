@@ -1,75 +1,50 @@
 #include <Ace/Module.h>
-#include <Ace/File.h>
-#include <Ace/Image.h>
 #include <Ace/Font.h>
-#include <Ace/Sprite.h>
+#include <Ace/Audio.h>
+#include <Ace/Image.h>
 #include <Ace/Texture.h>
-#include <Ace/Shader.h>
-#include <Ace/Material.h>
-#include <Ace/Window.h>
-#include <Ace/GraphicsDevice.h>
 
-
-void draw(ace::Material& material, ace::Sprite& sprite, ace::Texture& texture, const ace::Vector2& position, const ace::Vector2& scale)
-{
-	material.Uniform("position", position);
-	material.Uniform("scale", scale);
-
-	ace::GraphicsDevice::SetTexture(material, texture, "Texture", 0);
-	ace::GraphicsDevice::Draw(material, sprite);
-}
 
 int main(int, char**)
 {
 	ace::Init();
 
-	// Loading images
+
+	// Loading image
 
 	ace::Image exampleImage(0xFFFFFFFFU);
 
-	if (ace::File::Exists("ExampleImage.png"))
-		{
-			exampleImage = ace::Image(ace::File("ExampleImage.png"));
-		}
-
-	//Loading textures
-
-	ace::Texture exampleTexture(exampleImage);
+	if (ace::File::Exists("exampleImage.png"))
+	{
+		exampleImage = ace::Image(ace::File("exampleImage.png"));
+	}
 
 
-	// Vertex and fragment shaders
+	// Writing image
 
-	ace::Shader fragment, vertex;
-	vertex.Load({ "vertex.vert" }, ace::ShaderType::Vertex);
-	fragment.Load({ "fragment.frag" }, ace::ShaderType::Fragment);
-
-	// Material loading
-
-	ace::Material material(vertex, fragment);
-	material.flags.cullingMode = ace::CullingMode::Both;
+	exampleImage.WritePNG("newExampleImage.png");
 
 
-	//creating a sprite
+	// Loading audio
 
-	ace::Sprite exampleSprite;
-	
+	ace::AudioClip exampleSound;
+	bool useAudio = false;
 
-	// Position for sprite
-	ace::Vector2 position = ace::Vector2{ 0.0f, 0.0f };
+	if (ace::File::Exists("exampleSound.wav"))
+	{
+		useAudio = true;
+		exampleSound = ace::AudioClip({ "exampleSound.wav" });
+	}
 
-	// drawing sprite
 
-	draw(material, exampleSprite, exampleTexture, position, { 0.2f, 2.0f });
-
-
-	// Loading text
+	// Loading font and create fontsheet using fontsheet image
 
 	ace::Font arial(ace::File("arial.ttf"));
 	ace::Image FontSheet = arial.BakeFontSheet(920, 920, 64, 32, 255);
 
-	
-	//TODO add vertex and fragment shaders, add example for drawing text
-			
+	ace::Texture fontSheet(FontSheet);
+
+
 
 	return 0;
 }
