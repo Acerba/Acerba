@@ -67,8 +67,14 @@ int main(int, char**)
 
 	ace::Window window("Pong2.0", 1200, 800);
 
-	ace::AudioClip HitSound({ "Pong/hit.wav" });
+	ace::AudioClip HitSound;
+	bool useAudio = false;
 
+	if (ace::File::Exists("Pong/hit.wav"))
+	{
+		useAudio = true;
+		HitSound = ace::AudioClip({ "Pong/hit.wav" });
+	}
 	// Loading images
 
 	ace::Image Ball(0xFFFFFFFFU);
@@ -179,8 +185,12 @@ int main(int, char**)
 		{
 			BallRight = !BallRight;
 			Flip(BallSprite);
-			ace::Audio::PlayAudio(HitSound);
-			
+
+			if (useAudio)
+			{
+				ace::Audio::PlayAudio(HitSound);
+			}
+
 			if (yMove <= 0.0f)
 			{
 				yMove = yMove - 0.001f;
@@ -195,9 +205,13 @@ int main(int, char**)
 		if (BallHitPlayer)
 		{
 			Flip(BallSprite);
-			ace::Audio::PlayAudio(HitSound);
 			BallRight = !BallRight;
 			BallHitPlayer = false;
+
+			if (useAudio)
+			{
+				ace::Audio::PlayAudio(HitSound);
+			}
 		}
 
 		// Ball heading on Y-axis
