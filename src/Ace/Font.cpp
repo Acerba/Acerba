@@ -10,7 +10,7 @@ namespace ace
 	void CreateGlyphs(std::vector<Glyph>& glyphs, stbtt_bakedchar* cdata, UInt32 size, UInt32 first)
 	{
 
-		for (int i = 0; i < size; i++)
+		for (UInt32 i = 0u; i < size; i++)
 		{
 			Glyph glyph;
 			
@@ -60,7 +60,7 @@ namespace ace
 		stbtt_bakedchar cdata[255]; // ASCII 32..126 is 95 glyphs
 		UInt8* bitmap = new UInt8[w*h];
 
-		int nW, nH;
+		Int32 nW = 0, nH = 0;
 	
 		//-- bake a font to a bitmap for use as texture
 		stbtt_BakeFontBitmap(m_buffer.get(), 0, pixelheight, bitmap, w, h, first_char, num_chars, cdata);
@@ -99,26 +99,26 @@ namespace ace
 	///Baking text box with given width and height
 	Image Font::BakeTextBox(const char *text_to_print, Int32 w, Int32 h, float lineHeight)
 	{
-		int totalSize = w * h;
+		Int32 totalSize = w * h;
 		UInt8* bitmap = new UInt8[totalSize];
 		std::fill(bitmap, bitmap + totalSize, 0);
 
 		float scale = stbtt_ScaleForPixelHeight(&m_info->font, lineHeight);
-		float x = 0;
-		int ascent, descent, lineGap;
+		float x = 0.f;
+		Int32 ascent = 0, descent = 0, lineGap = 0;
 
 		stbtt_GetFontVMetrics(&m_info->font, &ascent, &descent, &lineGap);
 		ascent *= scale;
 		descent *= scale;
 
 		// Row that text will be written on
-		int writableRow = 0;
+		Int32 writableRow = 0;
 
-		int length = strlen(text_to_print);
-		for (int i = 0; i < length; ++i)
+		UInt32 length = strlen(text_to_print);
+		for (UInt32 i = 0u; i < length; ++i)
 		{
-			int character = text_to_print[i];
-			int nextCharacter = text_to_print[i + 1];
+			Int32 character = text_to_print[i];
+			Int32 nextCharacter = text_to_print[i + 1];
 
 			// Checking characters if they contain 
 			if (character < 0)
@@ -133,11 +133,11 @@ namespace ace
 			float x_shift = x - (float)floor(x);
 
 			/* get bounding box for character (may be offset to account for chars that dip above or below the line */
-			int c_x1, c_y1, c_x2, c_y2;
+			Int32 c_x1 = 0, c_y1 = 0, c_x2 = 0, c_y2 = 0;
 			stbtt_GetCodepointBitmapBoxSubpixel(&m_info->font, character, scale, scale, x_shift, 0, &c_x1, &c_y1, &c_x2, &c_y2);
 
 			/* compute y (different characters have different heights */
-			int y = ascent + c_y1;
+			Int32 y = ascent + c_y1;
 
 			// Chacking if character is new line command
 			const char newLine = '\n';
@@ -149,16 +149,16 @@ namespace ace
 			}
 
 			/* render character (stride and offset is important here) */
-			int byteOffset = (int)x + c_x1 + (((writableRow * lineHeight) + y) * w);
+			Int32 byteOffset = (Int32)x + c_x1 + (((writableRow * lineHeight) + y) * w);
 			stbtt_MakeCodepointBitmapSubpixel(&m_info->font, bitmap + byteOffset, c_x2 - c_x1, c_y2 - c_y1, w, scale, scale, x_shift, 0, character);
 
 			/* how wide is this character */
-			int ax;
+			Int32 ax = 0;
 			stbtt_GetCodepointHMetrics(&m_info->font, character, &ax, 0);
 			x += ax * scale;
 
 			/* add kerning */
-			int kern;
+			Int32 kern = 0;
 			if (nextCharacter)
 			{
 				kern = stbtt_GetCodepointKernAdvance(&m_info->font, character, nextCharacter);
@@ -171,23 +171,23 @@ namespace ace
 	///Preparing image for baking with minimum empty image space
 	Image Font::BakeTextBox(const char *text_to_print, float lineHeight)
 	{
-		int w = 0;
-		int h = lineHeight;
-		int writableRow = 0;
+		Int32 w = 0;
+		Int32 h = lineHeight;
+		Int32 writableRow = 0;
 
 		float scale = stbtt_ScaleForPixelHeight(&m_info->font, lineHeight);
 		float x = 0;
-		int ascent, descent, lineGap;
+		Int32 ascent = 0, descent = 0, lineGap = 0;
 
 		stbtt_GetFontVMetrics(&m_info->font, &ascent, &descent, &lineGap);
 		ascent *= scale;
 		descent *= scale;
 
-		int length = strlen(text_to_print);
-		for (int i = 0; i < length; ++i)
+		UInt32 length = strlen(text_to_print);
+		for (UInt32 i = 0u; i < length; ++i)
 		{
-			int character = text_to_print[i];
-			int nextCharacter = text_to_print[i + 1];
+			Int32 character = text_to_print[i];
+			Int32 nextCharacter = text_to_print[i + 1];
 
 			// Checking characters if they contain  Å, å, Ä, ä, Ö, or ö
 			if (character < 0)
@@ -202,11 +202,11 @@ namespace ace
 			float x_shift = x - (float)floor(x);
 
 			/* get bounding box for character (may be offset to account for chars that dip above or below the line */
-			int c_x1, c_y1, c_x2, c_y2;
+			Int32 c_x1 = 0, c_y1 = 0, c_x2 = 0, c_y2 = 0;
 			stbtt_GetCodepointBitmapBoxSubpixel(&m_info->font, character, scale, scale, x_shift, 0, &c_x1, &c_y1, &c_x2, &c_y2);
 
 			/* compute y (different characters have different heights */
-			int y = ascent + c_y1;
+			Int32 y = ascent + c_y1;
 
 			// Chacking if character is new line command
 			const char newLine = '\n';
@@ -217,12 +217,12 @@ namespace ace
 			}
 
 			/* how wide is this character */
-			int ax;
+			Int32 ax = 0;
 			stbtt_GetCodepointHMetrics(&m_info->font, character, &ax, 0);
 			x += ax * scale;
 
 			/* add kerning */
-			int kern;
+			Int32 kern = 0;
 			if (nextCharacter)
 			{
 				kern = stbtt_GetCodepointKernAdvance(&m_info->font, character, nextCharacter);
@@ -267,7 +267,7 @@ namespace ace
 
 		Vertex* vertex = new Vertex[6 * len];
 		
-		for (int i = 0; i < len; ++i)
+		for (UInt32 i = 0u; i < len; ++i)
 		{
 			// Checking if there is space 
 			if (text[i] == ' ')
@@ -285,7 +285,7 @@ namespace ace
 			}
 
 			// Checking characters if they contain  Å, å, Ä, ä, Ö, or ö
-			int character = text[i];
+			Int32 character = text[i];
 			if (character < 0)
 			{
 				character = character + 256;

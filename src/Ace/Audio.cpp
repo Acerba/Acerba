@@ -320,7 +320,7 @@ namespace ace
 
 	Audio::~Audio()
 	{
-		for (int i = 0; i < effects.size(); ++i)
+		for (UInt32 i = 0u; i < effects.size(); ++i)
 		{
 			if (effects[i] == nullptr)
 			{
@@ -353,7 +353,7 @@ namespace ace
 	{
 		Audio& audio = Audio::GetAudio();
 		
-		for (int i = 0; i < audio.effects.size(); ++i)
+		for (UInt32 i = 0u; i < audio.effects.size(); ++i)
 		{
 			if (audio.effects[i] == nullptr)
 			{
@@ -375,7 +375,7 @@ namespace ace
 			audio.effects[i]->time += Time::DeltaTime(); 
 		}
 
-		for (int i = 0; i < audio.clips.size(); ++i)
+		for (UInt32 i = 0u; i < audio.clips.size(); ++i)
 		{
 			if (!OAL_Source_IsPlaying(audio.clips[i]->id))
 			{

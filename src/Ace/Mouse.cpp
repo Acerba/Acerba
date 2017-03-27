@@ -29,5 +29,6 @@ namespace ace
 		{
 			return MouseButton::Right;
 		}
+		return MouseButton::Invalid;
 	}
 }

@@ -4,16 +4,18 @@ namespace ace
 {
 	enum class KeyCode
 	{
-		W=1,  A ,   S,    D,
-		ONE, TWO, THREE, FOUR,
-		F1,	  F2,   F3,   F4,
+		Invalid = 0,
+		W,  A ,   S,    D, ///< W, A, S, D Keycodes.
+		One, Two, Three, Four, ///< 1, 2, 3, 4 Keycodes.
+		F1,	  F2,   F3,   F4, ///< F1, F2, F3, F4 Keycodes.
 	};
 
 	enum class KeyMod
 	{
-		SHIFT=1, CTRL,
-		ALT, ALTGR, CAPS,
-		WIN, NUMLOCK,
+		Invalid = 0,
+		Shift, Ctrl, ///< Shift, Ctrl KeyMods.
+		Alt, AltGr, Caps, ///< Alt, AltGr, Caps KeyMods.
+		Win, Numlock, ///< Win, Numlock KeyMods.
 	};
 
 	class Keyboard
@@ -22,13 +24,13 @@ namespace ace
 
 		/**
 			@brief Returns the pressed key.
-			@return Key Code
+			@return KeyCode
 		*/
 		static KeyCode GetKey();
 
 		/**
 			@brief Returns the pressed modifier.
-			@return Key Mod
+			@return KeyMod
 		*/
 		static KeyMod GetMod();
 

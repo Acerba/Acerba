@@ -40,9 +40,9 @@ namespace ace
 
 	Vector2 Window::GetSize() const
 	{
-		int w, h;
+		Int32 w = 0, h = 0;
 		SDL_GetWindowSize(m_windowImpl->sdlWindow, &w, &h);
-		return Vector2( w, h );
+		return Vector2( (float)w, (float)h );
 	}
 
 	void Window::SetSize(const Vector2& size)

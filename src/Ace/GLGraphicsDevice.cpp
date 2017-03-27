@@ -124,9 +124,9 @@ namespace ace
 		{
 			Vertex* instance = new Vertex[count * instances];
 
-			for (int j = 0; j < instances; ++j)
+			for (UInt32 j = 0u; j < instances; ++j)
 			{
-				for (int i = 0; i < count; ++i)
+				for (UInt32 i = 0u; i < count; ++i)
 				{
 					instance[i + j * count] = data[i];
 					instance[i + j * count].position.w = j;
