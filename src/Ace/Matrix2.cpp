@@ -13,7 +13,7 @@ namespace ace
 			rows[1] = v2;
 		}
 
-		Matrix2::Matrix2(float identity) : rows()
+		Matrix2::Matrix2(const float identity) : rows()
 		{
 			data[0][0] = data[1][1] = identity;
 		}
@@ -41,7 +41,7 @@ namespace ace
 
 		Matrix2 Matrix2::Inverse() const
 		{
-			return Adjunct() * (1 / Determinant());
+			return Adjunct() * (1.f / Determinant());
 		}
 
 		Matrix2 Matrix2::Cofactor() const
@@ -90,13 +90,13 @@ namespace ace
 
 		Matrix2 Matrix2::Identity()
 		{
-			return Matrix2(1);
+			return Matrix2(1.f);
 		}
 
 		Matrix2 Matrix2::Scale(float x, float y)
 		{
-			Vector2 r1(x, 0);
-			Vector2 r2(0, y);
+			Vector2 r1(x, 0.f);
+			Vector2 r2(0.f, y);
 			
 
 			return Matrix2(r1, r2);

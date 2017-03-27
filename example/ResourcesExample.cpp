@@ -3,6 +3,7 @@
 #include <Ace/Audio.h>
 #include <Ace/Image.h>
 #include <Ace/Texture.h>
+#include <Ace/Json.h>
 
 
 int main(int, char**)

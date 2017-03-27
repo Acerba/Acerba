@@ -27,7 +27,7 @@ namespace ace
 
 			
 
-			Vector4(float x = 0, float y = 0, float z = 0, float w = 0) : x(x), y(y), z(z), w(w) {}
+			Vector4(float x = 0.f, float y = 0.f, float z = 0.f, float w = 0.f) : x(x), y(y), z(z), w(w) {}
 
 			/**
 			@return Lenght

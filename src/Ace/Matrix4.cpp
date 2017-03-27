@@ -138,20 +138,20 @@ namespace ace
 
 		Matrix4 Matrix4::Scale(float x, float y, float z)
 		{
-			Vector4 r1(x, 0, 0, 0);
-			Vector4 r2(0, y, 0, 0);
-			Vector4 r3(0, 0, z, 0);
-			Vector4 r4(0, 0, 0, 1);
+			Vector4 r1(x, 0.f, 0.f, 0.f);
+			Vector4 r2(0.f, y, 0.f, 0.f);
+			Vector4 r3(0.f, 0.f, z, 0.f);
+			Vector4 r4(0.f, 0.f, 0.f, 1.f);
 
 			return Matrix4(r1, r2, r3, r4);
 		}
 
 		Matrix4 Matrix4::Translation(const Vector3& t)
 		{
-			Vector4 r1(1, 0, 0, 0);
-			Vector4 r2(0, 1, 0, 0);
-			Vector4 r3(0, 0, 1, 0);
-			Vector4 r4(t.x, t.y, t.z, 1);
+			Vector4 r1(1.f, 0.f, 0.f, 0.f);
+			Vector4 r2(0.f, 1.f, 0.f, 0.f);
+			Vector4 r3(0.f, 0.f, 1.f, 0.f);
+			Vector4 r4(t.x, t.y, t.z, 1.f);
 
 			return Matrix4(r1, r2, r3, r4);
 		}
@@ -159,10 +159,10 @@ namespace ace
 		Matrix4 Matrix4::RotationX(float a)
 		{
 			a = Rad(a);
-			Vector4 r1(1,   0   ,   0    , 0);
-			Vector4 r2(0, Cos(a), -Sin(a), 0);
-			Vector4 r3(0, Sin(a),  Cos(a), 0);
-			Vector4 r4(0,    0  ,    0   , 1);
+			Vector4 r1(1.f,   0.f   ,   0.f    , 0.f);
+			Vector4 r2(0.f, Cos(a), -Sin(a), 0.f);
+			Vector4 r3(0.f, Sin(a),  Cos(a), 0.f);
+			Vector4 r4(0.f,    0.f  ,    0.f   , 1.f);
 
 			return Matrix4(r1, r2, r3, r4);
 		}
@@ -170,10 +170,10 @@ namespace ace
 		Matrix4 Matrix4::RotationZ(float a)
 		{
 			a = Rad(a);
-			Vector4 r1(Cos(a), -Sin(a),0, 0);
-			Vector4 r2(Sin(a), Cos(a), 0, 0);
-			Vector4 r3(  0   ,   0   , 1, 0);
-			Vector4 r4(  0   ,   0   , 0, 1);
+			Vector4 r1(Cos(a), -Sin(a),0.f, 0.f);
+			Vector4 r2(Sin(a), Cos(a), 0.f, 0.f);
+			Vector4 r3(  0.f   ,   0.f   , 1.f, 0.f);
+			Vector4 r4(  0.f   ,   0.f   , 0.f, 1.f);
 
 			return Matrix4(r1, r2, r3, r4);
 		}
@@ -181,10 +181,10 @@ namespace ace
 		Matrix4 Matrix4::RotationY(float a)
 		{
 			a = Rad(a);
-			Vector4 r1(Cos(a) , 0, Sin(a), 0);
-			Vector4 r2(   0   , 1,   0   , 0);
-			Vector4 r3(-Sin(a), 0, Cos(a), 0);
-			Vector4 r4(  0    , 0,   0   , 1);
+			Vector4 r1(Cos(a) , 0.f, Sin(a), 0.f);
+			Vector4 r2(   0.f   , 1.f,   0.f   , 0.f);
+			Vector4 r3(-Sin(a), 0.f, Cos(a), 0.f);
+			Vector4 r4(  0.f    , 0.f,   0.f   , 1.f);
 
 			return Matrix4(r1, r2, r3, r4);
 		}
@@ -193,25 +193,25 @@ namespace ace
 		{
 			Matrix4 ortho(1);
 
-			ortho[0].x = -2.0 / (right - left);
-			ortho[0].y = 0;
-			ortho[0].z = 0;
+			ortho[0].x = -2.f / (right - left);
+			ortho[0].y = 0.f;
+			ortho[0].z = 0.f;
 			ortho[0].w = -(right + left) / (right - left);
 
-			ortho[1].x = 0;
-			ortho[1].y = 2.0 / (top - bottom);
-			ortho[1].z = 0;
+			ortho[1].x = 0.f;
+			ortho[1].y = 2.f / (top - bottom);
+			ortho[1].z = 0.f;
 			ortho[1].w = -(top + bottom) / (top - bottom);
 
-			ortho[2].x = 0;
-			ortho[2].y = 0;
-			ortho[2].z = 2.0 / (zfar - znear);
+			ortho[2].x = 0.f;
+			ortho[2].y = 0.f;
+			ortho[2].z = 2.f / (zfar - znear);
 			ortho[2].w = -(zfar + znear) / (zfar - znear);
 
-			ortho[3].x = -1.0;
-			ortho[3].y = +1.0;
-			ortho[3].z = 0;
-			ortho[3].w = 1;
+			ortho[3].x = -1.f;
+			ortho[3].y = +1.f;
+			ortho[3].z = 0.f;
+			ortho[3].w = 1.f;
 
 			return ortho;
 		}

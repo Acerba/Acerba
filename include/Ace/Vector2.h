@@ -16,7 +16,7 @@ namespace ace
 			float x;
 			float y;
 
-			Vector2(float x = 0, float y = 0) : x(x), y(y) {}
+			Vector2(float x = 0.f, float y = 0.f) : x(x), y(y) {}
 
 			/**
 			@return Lenght
