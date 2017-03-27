@@ -1,48 +1,49 @@
 #pragma once
 
-#include <Ace/Font.h>
-#include <Ace/IntTypes.h>
-#include <Ace/Macros.h>
+#include <Ace/Event.h>
+#include <Ace/Types.h>
 
-#define NK_INCLUDE_DEFAULT_ALLOCATOR 1
-#define NK_INCLUDE_DEFAULT_FONT 1
-#define NK_INCLUDE_FONT_BAKING 1
-#define NK_INCLUDE_STANDARD_IO 1
-#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT 1
-#include <nuklear/nuklear.h>
-
-#include <memory>
-
-struct nk_context;
 
 namespace ace
 {
-    class Font;
+
     class Window;
 
-    class UI
+    //struct SDL_Window;
+    //typedef union SDL_Event SDL_Event;
+
+
+    class UserInterface
     {
-        //class UIImpl;
-        //friend class Module;
 
-        //std::unique_ptr<UIImpl> m_impl;
-        UI() = delete;
-        ~UI() = delete;
-        ACE_DISABLE_COPY(UI)
+        static bool m_debugEnabled;
 
+        UserInterface() = delete;
+        ~UserInterface() = delete;
+        UserInterface(UserInterface&&) = delete;
+        UserInterface(const UserInterface&) = delete;
+        UserInterface& operator=(const UserInterface&) = delete;
 
+        static void MakeDebug();
 
     public:
 
-        static void AddFonts(const std::vector<Font>& fonts);
 
-        static void Draw();
+        static void Begin();
 
-        static nk_context* GetContext();
+        static void End();
 
-        static void Init(const Window& win);
+        static void Init(const Window& window);
 
+        static void SetDebug(const bool status);
+
+        static void Quit();
 
     };
+
+
+    typedef UserInterface UI;
+
+
 
 }

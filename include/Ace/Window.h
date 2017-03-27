@@ -22,13 +22,17 @@ namespace ace
 
 	public:
 
-		/**
+		
+        Window(WindowImpl* impl);
+        
+        /**
 			@brief Constructor
 			@param[in] title Window title
 			@param[in] width
 			@param[in] height
 		*/
 		Window(const char* title, UInt16 width, UInt16 height);
+
 		~Window();
 
         inline WindowImpl* operator*() const

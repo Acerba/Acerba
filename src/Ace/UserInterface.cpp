@@ -1,337 +1,374 @@
-#define NK_IMPLEMENTATION 1
 #include <Ace/UserInterface.h>
-
+#include <Ace/Macros.h>
+#include <Ace/Platform.h>
 #include <Ace/Window.h>
 #include <Ace/WindowImpl.h>
-#include <Ace/Log.h>
 
-#include <Ace/GL.h>
+#include <imgui.h>
+#include <imgui_internal.h>
+
+
 #include <SDL.h>
-
-#define MAX_VERTEX_MEMORY 512 * 1024
-#define MAX_ELEMENT_MEMORY 128 * 1024
+#include <SDL_syswm.h>
+#include <Ace/GL.h>
 
 namespace ace
 {
 
-    class UIImpl
+    class UserInterfaceImpl : public EventBase<Event::SDLEventArg>
     {
-        friend class UI;
 
-        struct sdl_vertex {
-            float position[2];
-            float uv[2];
-            nk_byte col[4];
+    public:
+
+        double   m_Time;
+        bool     m_MousePressed[3];
+        float    m_MouseWheel;
+        UInt32   m_FontTexture;
+        Int32    m_ShaderHandle;
+        Int32    m_VertHandle;
+        Int32    m_FragHandle;
+        Int32    m_AttribLocationTex;
+        Int32    m_AttribLocationProjMtx;
+        Int32    m_AttribLocationPosition;
+        Int32    m_AttribLocationUV;
+        Int32    m_AttribLocationColor;
+        UInt32   m_VboHandle;
+        UInt32   m_VaoHandle;
+        UInt32   m_ElementsHandle;
+        Window   m_window;
+
+        UserInterfaceImpl() :
+            m_Time(0.0f),
+            m_MousePressed(),
+            m_MouseWheel(0.0f),
+            m_ShaderHandle(0),
+            m_VertHandle(0),
+            m_FragHandle(0),
+            m_AttribLocationTex(0),
+            m_AttribLocationProjMtx(0),
+            m_AttribLocationPosition(0),
+            m_AttribLocationUV(0),
+            m_AttribLocationColor(0),
+            m_FontTexture(0u),
+            m_VboHandle(0u),
+            m_VaoHandle(0u),
+            m_ElementsHandle(0u),
+            m_window(nullptr)
+        {
+            m_MousePressed[0] = false;
+            m_MousePressed[1] = false;
+            m_MousePressed[2] = false;
         };
 
-        struct sdl_dev
+        ~UserInterfaceImpl()
         {
-            nk_buffer cmds;
-            nk_draw_null_texture nulTex;
-            UInt32 fontTex = 0u;
-            Uint32 vbo = 0u;
-            UInt32 vao = 0u;
-            UInt32 ebo = 0u;
-            UInt32 prog = 0u;
-            UInt32 vert = 0u;
-            UInt32 frag = 0u;
-            Int32 attrPos = 0u;
-            Int32 attrUV = 0u;
-            Int32 attrCol = 0u;
-            Int32 unifTex = 0u;
-            Int32 unifProj = 0u;
-
-            sdl_dev() = default;
-            ~sdl_dev() = default;
-            ACE_DISABLE_COPY(sdl_dev)
-        };
-
-
-        struct sdl_wrap
-        {
-            nk_font_atlas atlas;
-            nk_context context;
-            sdl_dev ogl;
-            SDL_Window* window = nullptr;
-
-            sdl_wrap() = default;
-            ~sdl_wrap() = default;
-            ACE_DISABLE_COPY(sdl_wrap)
-        };
-
-        sdl_wrap m_sdl;
-
-        UIImpl() :
-            m_sdl()
-        {
-
-        }
-        ~UIImpl()
-        {
-            nk_font_atlas_clear(&m_sdl.atlas);
-            nk_free(&m_sdl.context);
-            glDeleteTextures(1, &m_sdl.ogl.fontTex);
-            nk_buffer_free(&m_sdl.ogl.cmds);
+            Shutdown();
         }
 
-        static UIImpl& GetInstance()
+        bool CreateDeviceObjects()
         {
-            static UIImpl impl;
-            return impl;
-        }
 
+            // Backup GL state
+            Int32 last_texture, last_array_buffer, last_vertex_array;
+            glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+            glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
+            glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
 
-        static void ClipboardCopy(nk_handle user, const char* text, Int32 length)
-        {
-            //does this need the other stuff
-            SDL_SetClipboardText(text);
-        }
-
-        static void ClipboardPaste(nk_handle user, nk_text_edit* edit)
-        {
-            const char* text = SDL_GetClipboardText();
-            if (text)
-                nk_textedit_paste(edit, text, nk_strlen(text));
-            //why cast user to void here
-        }
-
-        void DeviceCreate()
-        {
-            Int32 status = 0;
-            static const GLchar* vertex_shader =
-                "#version 300 es\n"
+            const GLchar *vertex_shader =
+                "#version 330\n"
                 "uniform mat4 ProjMtx;\n"
                 "in vec2 Position;\n"
-                "in vec2 TexCoord;\n"
+                "in vec2 UV;\n"
                 "in vec4 Color;\n"
                 "out vec2 Frag_UV;\n"
                 "out vec4 Frag_Color;\n"
-                "void main() {\n"
-                "   Frag_UV = TexCoord;\n"
-                "   Frag_Color = Color;\n"
-                "   gl_Position = ProjMtx * vec4(Position.xy, 0, 1);\n"
+                "void main()\n"
+                "{\n"
+                "	Frag_UV = UV;\n"
+                "	Frag_Color = Color;\n"
+                "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
                 "}\n";
-            static const GLchar* fragment_shader =
-                "#version 300 es\n"
-                "precision mediump float;\n"
+
+            const GLchar* fragment_shader =
+                "#version 330\n"
                 "uniform sampler2D Texture;\n"
                 "in vec2 Frag_UV;\n"
                 "in vec4 Frag_Color;\n"
                 "out vec4 Out_Color;\n"
-                "void main(){\n"
-                "   Out_Color = Frag_Color * texture(Texture, Frag_UV.st);\n"
+                "void main()\n"
+                "{\n"
+                "	Out_Color = Frag_Color * texture( Texture, Frag_UV.st);\n"
                 "}\n";
 
-            sdl_dev *dev = &m_sdl.ogl;
-            nk_buffer_init_default(&dev->cmds);
-            dev->prog = glCreateProgram();
-            dev->vert = glCreateShader(GL_VERTEX_SHADER);
-            dev->frag = glCreateShader(GL_FRAGMENT_SHADER);
-            glShaderSource(dev->vert, 1, &vertex_shader, 0);
-            glShaderSource(dev->frag, 1, &fragment_shader, 0);
-            glCompileShader(dev->vert);
-            glCompileShader(dev->frag);
-            glGetShaderiv(dev->vert, GL_COMPILE_STATUS, &status);
-            assert(status == GL_TRUE);
-            glGetShaderiv(dev->frag, GL_COMPILE_STATUS, &status);
-            assert(status == GL_TRUE);
-            glAttachShader(dev->prog, dev->vert);
-            glAttachShader(dev->prog, dev->frag);
-            glLinkProgram(dev->prog);
-            glGetProgramiv(dev->prog, GL_LINK_STATUS, &status);
-            assert(status == GL_TRUE);
+            m_ShaderHandle = glCreateProgram();
+            m_VertHandle = glCreateShader(GL_VERTEX_SHADER);
+            m_FragHandle = glCreateShader(GL_FRAGMENT_SHADER);
+            glShaderSource(m_VertHandle, 1, &vertex_shader, 0);
+            glShaderSource(m_FragHandle, 1, &fragment_shader, 0);
+            glCompileShader(m_VertHandle);
+            glCompileShader(m_FragHandle);
+            glAttachShader(m_ShaderHandle, m_VertHandle);
+            glAttachShader(m_ShaderHandle, m_FragHandle);
+            glLinkProgram(m_ShaderHandle);
 
-            dev->unifTex = glGetUniformLocation(dev->prog, "Texture");
-            dev->unifProj = glGetUniformLocation(dev->prog, "ProjMtx");
-            dev->attrPos = glGetAttribLocation(dev->prog, "Position");
-            dev->attrUV = glGetAttribLocation(dev->prog, "TexCoord");
-            dev->attrCol = glGetAttribLocation(dev->prog, "Color");
+            m_AttribLocationTex = glGetUniformLocation(m_ShaderHandle, "Texture");
+            m_AttribLocationProjMtx = glGetUniformLocation(m_ShaderHandle, "ProjMtx");
+            m_AttribLocationPosition = glGetAttribLocation(m_ShaderHandle, "Position");
+            m_AttribLocationUV = glGetAttribLocation(m_ShaderHandle, "UV");
+            m_AttribLocationColor = glGetAttribLocation(m_ShaderHandle, "Color");
 
+            glGenBuffers(1, &m_VboHandle);
+            glGenBuffers(1, &m_ElementsHandle);
+
+            glGenVertexArrays(1, &m_VaoHandle);
+            glBindVertexArray(m_VaoHandle);
+            glBindBuffer(GL_ARRAY_BUFFER, m_VboHandle);
+            glEnableVertexAttribArray(m_AttribLocationPosition);
+            glEnableVertexAttribArray(m_AttribLocationUV);
+            glEnableVertexAttribArray(m_AttribLocationColor);
+
+#define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
+            glVertexAttribPointer(m_AttribLocationPosition, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, pos));
+            glVertexAttribPointer(m_AttribLocationUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, uv));
+            glVertexAttribPointer(m_AttribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
+#undef OFFSETOF
+
+            CreateFontsTexture();
+
+            // Restore modified GL state
+            glBindTexture(GL_TEXTURE_2D, last_texture);
+            glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+            glBindVertexArray(last_vertex_array);
+
+            return true;
+
+        }
+
+        void CreateFontsTexture()
+        {
+            // Build texture atlas
+            ImGuiIO& io = ImGui::GetIO();
+            UInt8* pixels;
+            Int32 width, height;
+            io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bits for OpenGL3 demo because it is more likely to be compatible with user's existing shader.
+
+            // Upload texture to graphics system
+            Int32 last_texture;
+            glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+            glGenTextures(1, &m_FontTexture);
+            glBindTexture(GL_TEXTURE_2D, m_FontTexture);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+            // Store our identifier
+            io.Fonts->TexID = (void *)(UInt32)m_FontTexture;
+
+            // Restore state
+            glBindTexture(GL_TEXTURE_2D, last_texture);
+        }
+
+        static const char* GetClipboardText(void*)
+        {
+            return SDL_GetClipboardText();
+        }
+
+        static UserInterfaceImpl& GetInstance()
+        {
+            static UserInterfaceImpl instance;
+            return instance;
+        }
+
+        void Init(const Window& window)
+        {
+            m_window = window;
+            ImGuiIO& io = ImGui::GetIO();
+            io.KeyMap[ImGuiKey_Tab] = SDLK_TAB;                     // Keyboard mapping. ImGui will use those indices to peek Int32o the io.KeyDown[] array.
+            io.KeyMap[ImGuiKey_LeftArrow] = SDL_SCANCODE_LEFT;
+            io.KeyMap[ImGuiKey_RightArrow] = SDL_SCANCODE_RIGHT;
+            io.KeyMap[ImGuiKey_UpArrow] = SDL_SCANCODE_UP;
+            io.KeyMap[ImGuiKey_DownArrow] = SDL_SCANCODE_DOWN;
+            io.KeyMap[ImGuiKey_PageUp] = SDL_SCANCODE_PAGEUP;
+            io.KeyMap[ImGuiKey_PageDown] = SDL_SCANCODE_PAGEDOWN;
+            io.KeyMap[ImGuiKey_Home] = SDL_SCANCODE_HOME;
+            io.KeyMap[ImGuiKey_End] = SDL_SCANCODE_END;
+            io.KeyMap[ImGuiKey_Delete] = SDLK_DELETE;
+            io.KeyMap[ImGuiKey_Backspace] = SDLK_BACKSPACE;
+            io.KeyMap[ImGuiKey_Enter] = SDLK_RETURN;
+            io.KeyMap[ImGuiKey_Escape] = SDLK_ESCAPE;
+            io.KeyMap[ImGuiKey_A] = SDLK_a;
+            io.KeyMap[ImGuiKey_C] = SDLK_c;
+            io.KeyMap[ImGuiKey_V] = SDLK_v;
+            io.KeyMap[ImGuiKey_X] = SDLK_x;
+            io.KeyMap[ImGuiKey_Y] = SDLK_y;
+            io.KeyMap[ImGuiKey_Z] = SDLK_z;
+
+            io.RenderDrawListsFn = RenderDrawLists;   // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
+            io.SetClipboardTextFn = SetClipboardText;
+            io.GetClipboardTextFn = GetClipboardText;
+            io.ClipboardUserData = NULL;
+
+#ifdef ACE_WIN
+            SDL_SysWMinfo wmInfo;
+            SDL_VERSION(&wmInfo.version);
+            SDL_GetWindowWMInfo((*m_window)->sdlWindow, &wmInfo);
+            io.ImeWindowHandle = wmInfo.info.win.window;
+#else
+            (void)window;
+#endif
+        }
+
+        // Use if you want to reset your rendering device without losing ImGui state.
+        void InvalidateDeviceObjects()
+        {
+            if (m_VaoHandle) glDeleteVertexArrays(1, &m_VaoHandle);
+            if (m_VboHandle) glDeleteBuffers(1, &m_VboHandle);
+            if (m_ElementsHandle) glDeleteBuffers(1, &m_ElementsHandle);
+            m_VaoHandle = m_VboHandle = m_ElementsHandle = 0;
+
+            if (m_ShaderHandle && m_VertHandle) glDetachShader(m_ShaderHandle, m_VertHandle);
+            if (m_VertHandle) glDeleteShader(m_VertHandle);
+            m_VertHandle = 0;
+
+            if (m_ShaderHandle && m_FragHandle) glDetachShader(m_ShaderHandle, m_FragHandle);
+            if (m_FragHandle) glDeleteShader(m_FragHandle);
+            m_FragHandle = 0;
+
+            if (m_ShaderHandle) glDeleteProgram(m_ShaderHandle);
+            m_ShaderHandle = 0;
+
+            if (m_FontTexture)
             {
-                /* buffer setup */
-                static const Int32 vs = sizeof(sdl_vertex);
-                UInt64 vp = offsetof(sdl_vertex, position);
-                UInt64 vt = offsetof(sdl_vertex, uv);
-                UInt64 vc = offsetof(sdl_vertex, col);
-
-                glGenBuffers(1, &dev->vbo);
-                glGenBuffers(1, &dev->ebo);
-                glGenVertexArrays(1, &dev->vao);
-
-                glBindVertexArray(dev->vao);
-                glBindBuffer(GL_ARRAY_BUFFER, dev->vbo);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dev->ebo);
-
-                glEnableVertexAttribArray((GLuint)dev->attrPos);
-                glEnableVertexAttribArray((GLuint)dev->attrUV);
-                glEnableVertexAttribArray((GLuint)dev->attrCol);
-
-                glVertexAttribPointer((GLuint)dev->attrCol, 2, GL_FLOAT, GL_FALSE, vs, (void*)vp);
-                glVertexAttribPointer((GLuint)dev->attrUV, 2, GL_FLOAT, GL_FALSE, vs, (void*)vt);
-                glVertexAttribPointer((GLuint)dev->attrCol, 4, GL_UNSIGNED_BYTE, GL_TRUE, vs, (void*)vc);
+                glDeleteTextures(1, &m_FontTexture);
+                ImGui::GetIO().Fonts->TexID = 0;
+                m_FontTexture = 0;
             }
-
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-            glBindVertexArray(0);
         }
 
-        void DeviceDestroy()
+        void NewFrame()
         {
-            sdl_dev* dev = &m_sdl.ogl;
-            glDetachShader(dev->prog, dev->vert);
-            glDetachShader(dev->prog, dev->frag);
-            glDeleteShader(dev->vert);
-            glDeleteShader(dev->frag);
-            glDeleteProgram(dev->prog);
-            glDeleteTextures(1, &dev->fontTex);
-            glDeleteBuffers(1, &dev->vbo);
-            glDeleteBuffers(1, &dev->ebo);
-            nk_buffer_free(&dev->cmds);
-        }
+            SDL_Window* window = (*m_window)->sdlWindow;
 
-        void FontStashBegin()//nk_font_atlas** atlas)
-        {
-            nk_font_atlas_init_default(&m_sdl.atlas);
-            nk_font_atlas_begin(&m_sdl.atlas);
-            //font = nk_font_atlas_add_default(&m_sdl.atlas, 13.0f, nullptr);
-            //*atlas = &m_sdl.atlas;
-        }
+            if (!m_FontTexture)
+                CreateDeviceObjects();
 
-        void FontStashEnd()
-        {
+            ImGuiIO& io = ImGui::GetIO();
+
+            // Setup display size (every frame to accommodate for window resizing)
             Int32 w = 0, h = 0;
-            const void* image = nk_font_atlas_bake(&m_sdl.atlas, &w, &h, NK_FONT_ATLAS_RGBA32);
-            UploadAtlas(image, w, h);
-            nk_font_atlas_end(&m_sdl.atlas, nk_handle_id(static_cast<Int32>(m_sdl.ogl.fontTex)), &m_sdl.ogl.nulTex);
+            Int32 display_w = 0, display_h = 0;
+            SDL_GetWindowSize(window, &w, &h);
+            SDL_GL_GetDrawableSize(window, &display_w, &display_h);
+            io.DisplaySize = ImVec2((float)w, (float)h);
+            io.DisplayFramebufferScale = ImVec2(w > 0 ? ((float)display_w / w) : 0, h > 0 ? ((float)display_h / h) : 0);
 
-            nk_init_default(&m_sdl.context, &m_sdl.atlas.default_font->handle);
-            nk_style_set_font(&m_sdl.context, &m_sdl.atlas.fonts->handle);
+            // Setup time step
+            Uint32 time = SDL_GetTicks();
+            double current_time = time / 1000.0;
+            io.DeltaTime = m_Time > 0.0 ? (float)(current_time - m_Time) : (float)(1.0f / 60.0f);
+            m_Time = current_time;
 
+            // Setup inputs
+            // (we already got mouse wheel, keyboard keys & characters from SDL_PollEvent())
+            Int32 mx = 0, my = 0;
+            Uint32 mouseMask = SDL_GetMouseState(&mx, &my);
+            if (SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS)
+                io.MousePos = ImVec2((float)mx, (float)my);   // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
+            else
+                io.MousePos = ImVec2(-1, -1);
 
-            if (m_sdl.atlas.default_font)
-                nk_style_set_font(&m_sdl.context, &m_sdl.atlas.default_font->handle);
+            io.MouseDown[0] = m_MousePressed[0] || (mouseMask & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;		// If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
+            io.MouseDown[1] = m_MousePressed[1] || (mouseMask & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
+            io.MouseDown[2] = m_MousePressed[2] || (mouseMask & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0;
+            m_MousePressed[0] = m_MousePressed[1] = m_MousePressed[2] = false;
 
+            io.MouseWheel = m_MouseWheel;
+            m_MouseWheel = 0.0f;
 
+            // Hide OS mouse cursor if ImGui is drawing it
+            SDL_ShowCursor(io.MouseDrawCursor ? 0 : 1);
+
+            // Start the frame
+            ImGui::NewFrame();
         }
 
-        Int32 HandleEvent(SDL_Event* evt)
+        bool ProcessEvent(SDL_Event* _event)
         {
-            nk_context* ctx = &m_sdl.context;
-
-            /* optional grabbing behavior */
-            if (ctx->input.mouse.grab)
+            ImGuiIO& io = ImGui::GetIO();
+            switch (_event->type)
             {
-                SDL_SetRelativeMouseMode(SDL_TRUE);
-                ctx->input.mouse.grab = 0;
-            }
-            else if (ctx->input.mouse.ungrab)
+            case SDL_MOUSEWHEEL:
             {
-                SDL_SetRelativeMouseMode(SDL_FALSE);
-                SDL_WarpMouseInWindow(m_sdl.window, static_cast<Int32>(ctx->input.mouse.prev.x), static_cast<Int32>(ctx->input.mouse.prev.y));
-                ctx->input.mouse.ungrab = 0;
+                if (_event->wheel.y > 0)
+                    m_MouseWheel = 1;
+                if (_event->wheel.y < 0)
+                    m_MouseWheel = -1;
+                return true;
             }
-            if (evt->type == SDL_KEYUP || evt->type == SDL_KEYDOWN)
+            case SDL_MOUSEBUTTONDOWN:
             {
-                /* key events */
-                Int32 down = evt->type == SDL_KEYDOWN;
-                const UInt8* state = SDL_GetKeyboardState(0);
-                switch (evt->key.keysym.sym)
-                {
-                case SDLK_RSHIFT:       //[[fallthrough]]
-                case SDLK_LSHIFT:       nk_input_key(ctx, NK_KEY_SHIFT, down);                                                                                  break;
-                case SDLK_DELETE:       nk_input_key(ctx, NK_KEY_DEL, down);                                                                                    break;
-                case SDLK_RETURN:       nk_input_key(ctx, NK_KEY_ENTER, down);                                                                                  break;
-                case SDLK_TAB:          nk_input_key(ctx, NK_KEY_TAB, down);                                                                                    break;
-                case SDLK_BACKSPACE:    nk_input_key(ctx, NK_KEY_BACKSPACE, down);                                                                              break;
-                case SDLK_HOME:         nk_input_key(ctx, NK_KEY_TEXT_START, down); nk_input_key(ctx, NK_KEY_SCROLL_START, down);                               break;
-                case SDLK_END:          nk_input_key(ctx, NK_KEY_TEXT_END, down); nk_input_key(ctx, NK_KEY_SCROLL_END, down);                                   break;
-                case SDLK_PAGEDOWN:     nk_input_key(ctx, NK_KEY_SCROLL_DOWN, down);                                                                            break;
-                case SDLK_PAGEUP:       nk_input_key(ctx, NK_KEY_SCROLL_UP, down);                                                                              break;
-                case SDLK_z:            nk_input_key(ctx, NK_KEY_TEXT_UNDO, down && state[SDL_SCANCODE_LCTRL]);                                                 break;
-                case SDLK_r:            nk_input_key(ctx, NK_KEY_TEXT_REDO, down && state[SDL_SCANCODE_LCTRL]);                                                 break;
-                case SDLK_c:            nk_input_key(ctx, NK_KEY_COPY, down && state[SDL_SCANCODE_LCTRL]);                                                      break;
-                case SDLK_v:            nk_input_key(ctx, NK_KEY_PASTE, down && state[SDL_SCANCODE_LCTRL]);                                                     break;
-                case SDLK_x:            nk_input_key(ctx, NK_KEY_CUT, down && state[SDL_SCANCODE_LCTRL]);                                                       break;
-                case SDLK_b:            nk_input_key(ctx, NK_KEY_TEXT_LINE_START, down && state[SDL_SCANCODE_LCTRL]);                                           break;
-                case SDLK_e:            nk_input_key(ctx, NK_KEY_TEXT_LINE_END, down && state[SDL_SCANCODE_LCTRL]);                                             break;
-                case SDLK_UP:           nk_input_key(ctx, NK_KEY_UP, down);                                                                                     break;
-                case SDLK_DOWN:         nk_input_key(ctx, NK_KEY_DOWN, down);                                                                                   break;
-                case SDLK_LEFT:         state[SDL_SCANCODE_LCTRL] ? nk_input_key(ctx, NK_KEY_TEXT_WORD_LEFT, down) : nk_input_key(ctx, NK_KEY_LEFT, down);      break;
-                case SDLK_RIGHT:        state[SDL_SCANCODE_LCTRL] ? nk_input_key(ctx, NK_KEY_TEXT_WORD_RIGHT, down) : nk_input_key(ctx, NK_KEY_RIGHT, down);    break;
-                default: return 0;
-                }
-                return 1;
+                if (_event->button.button == SDL_BUTTON_LEFT) m_MousePressed[0] = true;
+                if (_event->button.button == SDL_BUTTON_RIGHT) m_MousePressed[1] = true;
+                if (_event->button.button == SDL_BUTTON_MIDDLE) m_MousePressed[2] = true;
+                return true;
             }
-            else if (evt->type == SDL_MOUSEBUTTONDOWN || evt->type == SDL_MOUSEBUTTONUP)
+            case SDL_TEXTINPUT:
             {
-                /* mouse button */
-                if (evt->button.button == SDL_BUTTON_LEFT)
-                    nk_input_button(ctx, NK_BUTTON_LEFT, evt->button.x, evt->button.y, static_cast<Int32>(evt->type == SDL_MOUSEBUTTONDOWN));
-                if (evt->button.button == SDL_BUTTON_MIDDLE)
-                    nk_input_button(ctx, NK_BUTTON_MIDDLE, evt->button.x, evt->button.y, static_cast<Int32>(evt->type == SDL_MOUSEBUTTONDOWN));
-                if (evt->button.button == SDL_BUTTON_RIGHT)
-                    nk_input_button(ctx, NK_BUTTON_RIGHT, evt->button.x, evt->button.y, static_cast<Int32>(evt->type == SDL_MOUSEBUTTONDOWN));
-                else
-                    return 0;
-                return 1;
+                io.AddInputCharactersUTF8(_event->text.text);
+                return true;
             }
-            else if (evt->type == SDL_MOUSEMOTION)
+            case SDL_KEYDOWN:
+            case SDL_KEYUP:
             {
-                ctx->input.mouse.grabbed ?
-                    nk_input_motion(ctx, static_cast<Int32>(ctx->input.mouse.prev.x) + evt->motion.xrel, static_cast<Int32>(ctx->input.mouse.prev.y) + evt->motion.yrel) :
-                    nk_input_motion(ctx, evt->motion.x, evt->motion.y);
-                return 1;
+                Int32 key = _event->key.keysym.sym & ~SDLK_SCANCODE_MASK;
+                io.KeysDown[key] = (_event->type == SDL_KEYDOWN);
+                io.KeyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
+                io.KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
+                io.KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
+                io.KeySuper = ((SDL_GetModState() & KMOD_GUI) != 0);
+                return true;
             }
-            else if (evt->type == SDL_TEXTINPUT)
-            {
-                nk_glyph glyph;
-                memcpy(glyph, evt->text.text, NK_UTF_SIZE);
-                nk_input_glyph(ctx, glyph);
-                return 1;
             }
-            else if (evt->type == SDL_MOUSEWHEEL)
-            {
-                nk_input_scroll(ctx, static_cast<float>(evt->wheel.y));
-                return 1;
-            }
-            return 0;
+            return false;
         }
 
-        void Init(SDL_Window* win)
+        static void Render()
         {
-            m_sdl.window = win;
-            nk_init_default(&m_sdl.context, 0);
-            m_sdl.context.clip.copy = ClipboardCopy;
-            m_sdl.context.clip.paste = ClipboardPaste;
-            m_sdl.context.clip.userdata = nk_handle_ptr(nullptr);
-            DeviceCreate();
-            FontStashBegin();
+            glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
+            ImGui::Render();
         }
 
-        void Render(const nk_anti_aliasing AA, const Int32 max_vertex_buffer, const Int32 max_element_buffer)
+        static void RenderDrawLists(ImDrawData* draw_data)
         {
-            sdl_dev* dev = &m_sdl.ogl;
-            Int32 width = 0, height = 0;
-            Int32 display_width = 0, display_height = 0;
-            struct nk_vec2 scale;
-            GLfloat ortho[4][4] = {
-                { 2.0f, 0.0f, 0.0f, 0.0f },
-                { 0.0f, -2.0f, 0.0f, 0.0f },
-                { 0.0f, 0.0f, -1.0f, 0.0f },
-                { -1.0f, 1.0f, 0.0f, 1.0f },
-            };
-            SDL_GetWindowSize(m_sdl.window, &width, &height);
-            SDL_GL_GetDrawableSize(m_sdl.window, &display_width, &display_height);
-            ortho[0][0] /= static_cast<float>(width);
-            ortho[1][1] /= static_cast<float>(height);
+            // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
+            ImGuiIO& io = ImGui::GetIO();
+            UserInterfaceImpl& impl = GetInstance();
+            Int32 fb_width = (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x);
+            Int32 fb_height = (int)(io.DisplaySize.y * io.DisplayFramebufferScale.y);
+            if (fb_width == 0 || fb_height == 0)
+                return;
+            draw_data->ScaleClipRects(io.DisplayFramebufferScale);
 
-            scale.x = static_cast<float>(display_width) / static_cast<float>(width);
-            scale.y = static_cast<float>(display_height) / static_cast<float>(height);
+            // Backup GL state
+            Int32 last_program; glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+            Int32 last_texture; glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+            Int32 last_active_texture; glGetIntegerv(GL_ACTIVE_TEXTURE, &last_active_texture);
+            Int32 last_array_buffer; glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
+            Int32 last_element_array_buffer; glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
+            Int32 last_vertex_array; glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
+            Int32 last_blend_src; glGetIntegerv(GL_BLEND_SRC, &last_blend_src);
+            Int32 last_blend_dst; glGetIntegerv(GL_BLEND_DST, &last_blend_dst);
+            Int32 last_blend_equation_rgb; glGetIntegerv(GL_BLEND_EQUATION_RGB, &last_blend_equation_rgb);
+            Int32 last_blend_equation_alpha; glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &last_blend_equation_alpha);
+            Int32 last_viewport[4]; glGetIntegerv(GL_VIEWPORT, last_viewport);
+            Int32 last_scissor_box[4]; glGetIntegerv(GL_SCISSOR_BOX, last_scissor_box);
+            GLboolean last_enable_blend = glIsEnabled(GL_BLEND);
+            GLboolean last_enable_cull_face = glIsEnabled(GL_CULL_FACE);
+            GLboolean last_enable_depth_test = glIsEnabled(GL_DEPTH_TEST);
+            GLboolean last_enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
 
-            /* setup global state */
-            glViewport(0, 0, display_width, display_height);
+            // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled
             glEnable(GL_BLEND);
             glBlendEquation(GL_FUNC_ADD);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -340,134 +377,160 @@ namespace ace
             glEnable(GL_SCISSOR_TEST);
             glActiveTexture(GL_TEXTURE0);
 
-            /* setup program */
-            glUseProgram(dev->prog);
-            glUniform1i(dev->unifTex, 0);
-            glUniformMatrix4fv(dev->unifProj, 1, GL_FALSE, &ortho[0][0]);
+            // Setup orthographic projection matrix
+            glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
+            const float ortho_projection[4][4] =
             {
-                /* convert from command queue into draw list and draw to screen */
-                const nk_draw_command* cmd;
-                void *vertices = nullptr;
-                void* elements = nullptr;
-                const nk_draw_index* offset = NULL;
+                { 2.0f / io.DisplaySize.x, 0.0f, 0.0f, 0.0f },
+                { 0.0f, 2.0f / -io.DisplaySize.y, 0.0f, 0.0f },
+                { 0.0f, 0.0f, -1.0f, 0.0f },
+                { -1.0f, 1.0f, 0.0f, 1.0f },
+            };
+            glUseProgram(impl.m_ShaderHandle);
+            glUniform1i(impl.m_AttribLocationTex, 0);
+            glUniformMatrix4fv(impl.m_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
+            glBindVertexArray(impl.m_VaoHandle);
 
-                /* allocate vertex and element buffer */
-                //glBindVertexArray(dev->vao);
-                glBindBuffer(GL_ARRAY_BUFFER, dev->vbo);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dev->ebo);
+            for (int n = 0; n < draw_data->CmdListsCount; n++)
+            {
+                const ImDrawList* cmd_list = draw_data->CmdLists[n];
+                const ImDrawIdx* idx_buffer_offset = 0;
 
-                glBufferData(GL_ARRAY_BUFFER, max_vertex_buffer, NULL, GL_STREAM_DRAW);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, max_element_buffer, NULL, GL_STREAM_DRAW);
+                glBindBuffer(GL_ARRAY_BUFFER, impl.m_VboHandle);
+                glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.Size * sizeof(ImDrawVert), (GLvoid*)cmd_list->VtxBuffer.Data, GL_STREAM_DRAW);
 
-                /* load vertices/elements directly into vertex/element buffer */
-                vertices = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-                elements = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, impl.m_ElementsHandle);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx), (GLvoid*)cmd_list->IdxBuffer.Data, GL_STREAM_DRAW);
+
+                for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
                 {
-                    /* fill convert configuration */
-                    struct nk_convert_config config;
-                    static const struct nk_draw_vertex_layout_element vertex_layout[] = {
-                        { NK_VERTEX_POSITION, NK_FORMAT_FLOAT, NK_OFFSETOF(sdl_vertex, position) },
-                        { NK_VERTEX_TEXCOORD, NK_FORMAT_FLOAT, NK_OFFSETOF(sdl_vertex, uv) },
-                        { NK_VERTEX_COLOR, NK_FORMAT_R8G8B8A8, NK_OFFSETOF(sdl_vertex, col) },
-                        { NK_VERTEX_LAYOUT_END }
-                    };
-                    NK_MEMSET(&config, 0, sizeof(config));
-                    config.vertex_layout = vertex_layout;
-                    config.vertex_size = sizeof(sdl_vertex);
-                    config.vertex_alignment = NK_ALIGNOF(sdl_vertex);
-                    config.null = dev->nulTex;
-                    config.circle_segment_count = 22;
-                    config.curve_segment_count = 22;
-                    config.arc_segment_count = 22;
-                    config.global_alpha = 1.0f;
-                    config.shape_AA = AA;
-                    config.line_AA = AA;
-
-                    /* setup buffers to load vertices and elements */
+                    const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+                    if (pcmd->UserCallback)
                     {
-                        nk_buffer vbuf, ebuf;
-                        nk_buffer_init_fixed(&vbuf, vertices, (nk_size)max_vertex_buffer);
-                        nk_buffer_init_fixed(&ebuf, elements, (nk_size)max_element_buffer);
-                       
-                        nk_convert(&m_sdl.context, &dev->cmds, &vbuf, &ebuf, &config);
+                        pcmd->UserCallback(cmd_list, pcmd);
                     }
+                    else
+                    {
+                        glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+                        glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+                        glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, idx_buffer_offset);
+                    }
+                    idx_buffer_offset += pcmd->ElemCount;
                 }
-                glUnmapBuffer(GL_ARRAY_BUFFER);
-                glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-
-                /* iterate over and execute each draw command */
-                nk_draw_foreach(cmd, &m_sdl.context, &dev->cmds)
-                {
-                    if (!cmd->elem_count) continue;
-                    glBindTexture(GL_TEXTURE_2D, (GLuint)cmd->texture.id);
-                    glScissor((GLint)(cmd->clip_rect.x * scale.x),
-                        (GLint)((height - (GLint)(cmd->clip_rect.y + cmd->clip_rect.h)) * scale.y),
-                        (GLint)(cmd->clip_rect.w * scale.x),
-                        (GLint)(cmd->clip_rect.h * scale.y));
-                   glDrawElements(GL_TRIANGLES, (GLsizei)cmd->elem_count, GL_UNSIGNED_SHORT, offset);
-                   offset += cmd->elem_count;
-                }
-                nk_clear(&m_sdl.context);
             }
 
-            glUseProgram(0);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-            glBindVertexArray(0);
-            glDisable(GL_BLEND);
-            glDisable(GL_SCISSOR_TEST);
+            // Restore modified GL state
+            glUseProgram(last_program);
+            glActiveTexture(last_active_texture);
+            glBindTexture(GL_TEXTURE_2D, last_texture);
+            glBindVertexArray(last_vertex_array);
+            glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
+            glBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
+            glBlendFunc(last_blend_src, last_blend_dst);
+            if (last_enable_blend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
+            if (last_enable_cull_face) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+            if (last_enable_depth_test) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
+            if (last_enable_scissor_test) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
+            glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
+            glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
         }
 
-        void UploadAtlas(const void* image, const Int32 width, const Int32 height)
+        static void SetClipboardText(void*, const char* text)
         {
-            glGenTextures(1, &m_sdl.ogl.fontTex);
-            glBindTexture(GL_TEXTURE_2D, m_sdl.ogl.fontTex);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)width, (GLsizei)height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+            SDL_SetClipboardText(text);
         }
 
-        ACE_DISABLE_COPY(UIImpl)
+        void Shutdown()
+        {
+            InvalidateDeviceObjects();
+            ImGui::Shutdown();
+        }
+
+        virtual void OnEvent(Event::SDLEventArg eventArg)
+        {
+            ProcessEvent(&eventArg.event);
+        }
+
     };
 
 
-    void UI::AddFonts(const std::vector<Font>& fonts)
+    bool UserInterface::m_debugEnabled = false;
+
+
+    void UserInterface::Begin()
     {
-        UIImpl& impl = UIImpl::GetInstance();
+        UserInterfaceImpl::GetInstance().NewFrame();
+        if (m_debugEnabled)
+            MakeDebug();
+    }
 
-        struct nk_font_config cfg = nk_font_config(0);
-        cfg.oversample_h = 3; cfg.oversample_v = 2;
+    void UserInterface::End()
+    {
+        UserInterfaceImpl::Render();
+    }
 
-        for (const auto& itr : fonts)
+    void UserInterface::Init(const Window& window)
+    {
+        UserInterfaceImpl::GetInstance().Init(window);
+    }
+
+    void UserInterface::MakeDebug()
+    {
+        //static float f = 0.0f;
+        //static ImVec4 clear_color = ImColor(0, 0, 0);
+
+        //ImGui::Text("Hello, world!");
+        //ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+        //ImGui::ColorEdit3("clear color", (float*)&clear_color);
+        //if (ImGui::Button("Test Window")) show_test_window ^= 1;
+        //if (ImGui::Button("Another Window")) show_another_window ^= 1;
+
+
+        ImGui::SetNextWindowSize(ImVec2(120.f, 60.f), ImGuiSetCond_FirstUseEver);
+        //ImGui::SetNextWindowPos(ImVec2(5.f, 5.f));
+        bool* ptr = nullptr;
+        Int32 flags = 0;
+            /*ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_ChildMenu;*/
+        ImGui::Begin("debug", ptr, flags);
+        auto s = ImGui::GetWindowSize();
+        auto p = ImGui::GetWindowPos();
+
+        static float bar = 0.f;
+        ImGui::ProgressBar(bar);
+        static bool checkVal = false;
+        if (ImGui::Checkbox("Select for 20%", &checkVal))
         {
-            UInt32 size = 0u;
-            const UInt8* data = itr.GetBuffer(size);
-            //nk_font* f = nk_font_atlas_add_from_memory(&impl.m_sdl.atlas, (void*)data, size, itr.m_lineHeight, nullptr);
-            nk_font* f = nk_font_atlas_add_from_file(&impl.m_sdl.atlas, Path("arial.ttf").GetPath().c_str(), 13.f, &cfg);
-            int i = 2 * 3;
-            //impl.m_sdl.context.style.font = f;
+            bar = 0.2f;
         }
-
-        impl.FontStashEnd();
-
-    }
-
-    void UI::Draw()
-    {
-        UIImpl::GetInstance().Render(NK_ANTI_ALIASING_OFF, MAX_VERTEX_MEMORY, MAX_ELEMENT_MEMORY);
-    }
-
-    nk_context* UI::GetContext()
-    {
-        return &UIImpl::GetInstance().m_sdl.context;
-    }
-
-    void UI::Init(const Window& win)
-    {
-        if (win)
+        //else
+        //{
+        //    bar = 0.f;
+        //}
+        if (ImGui::Button("BTN"))
+            bar += 0.1f;
+        if (bar >= 1.f)
+            m_debugEnabled = false;
+        if (ImGui::CloseButton(ImGui::GetID("debug"), ImVec2(p.x + s.x - 10.f, p.y + 20.f), 10.f))
         {
-            UIImpl::GetInstance().Init((*win)->sdlWindow);
+            m_debugEnabled = false;
+            //ImGui::End();
         }
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+        ImGui::End();
+    }
+
+    void UserInterface::SetDebug(const bool status)
+    {
+        m_debugEnabled = status;
+    }
+
+    void UserInterface::Quit()
+    {
+        UserInterfaceImpl::GetInstance().Shutdown();
     }
 
 }
