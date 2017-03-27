@@ -49,15 +49,13 @@ BuildLibrary(acerba STATIC)
 # Example Program
 # -> Add CMake option
 
-file(GLOB SOURCES ${ACERBA_SOURCE_DIR}/example/*.cpp)
-set(LIBS acerba)
+file(GLOB SOURCES ${ACERBA_SOURCE_DIR}/example/main.cpp)
+set(LIBS acerba OALWrapper)
 
 if(ANDROID OR PB_ANDROID)
 
 	list(APPEND SOURCES "${ACERBA_SOURCE_DIR}/3rdparty/SDL2/src/main/android/SDL_android_main.c")
 	message(STATUS ${SOURCES})	
-
-	set(LIBS acerba)
 	BuildApplication(main) # libmain.so -> SDL2 Activity
 
 else()
