@@ -12,36 +12,23 @@ namespace ace
 	class Json
 	{
 	public:
-		Json() {};
 
-		std::string read(Path path)
-		{
-			File f(path);
-			
-			return f.ReadAllText().get();
-		}
+		rapidjson::Document document;
 
-		rapidjson::Document Parse(std::string str)
-		{
-			const char* json = str.c_str();
+		Json();
 
-			rapidjson::Document d;
-			d.Parse(json);
-
-			return d;
-		}
-
-		void Write(rapidjson::Document d, Path path)
-		{
-			rapidjson::StringBuffer buffer;
-			rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-			d.Accept(writer);
-
-			File f(path, "w");
-			f.Write(buffer.GetString());
-		}
+		//TODO copy constructer
+		
+		std::string Read(Path path);
+		
+		void Parse(std::string str);
+		
+		void Write(Path path);
 	
-	
+	private:
+		rapidjson::Document *ptr;
+
+
 	};
 
 	/**

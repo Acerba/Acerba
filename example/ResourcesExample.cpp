@@ -46,6 +46,18 @@ int main(int, char**)
 	ace::Texture fontSheet(FontSheet);
 
 
+	// Loading Json file
+	
+	ace::Json json;
+	std::string result = json.Read("example.json");
+
+	// Parse json
+
+	json.Parse(result);
+
+	// Writing Json file
+
+	json.Write("example.json");
 
 	return 0;
 }
