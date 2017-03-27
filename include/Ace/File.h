@@ -65,6 +65,7 @@ namespace ace
 		*/
 		bool Write(UInt8* buffer, UInt32 size);
 
+		operator bool() const;
 
 	private:
 		std::shared_ptr<FileImpl> m_fileImpl;

@@ -124,4 +124,9 @@ namespace ace
 		SDL_RWseek(m_fileImpl->rwops, 0, RW_SEEK_SET);
 		return true;
 	}
+
+	File::operator bool() const
+	{
+		return m_fileImpl.get() != nullptr && m_fileImpl->rwops != nullptr;
+	}
 }

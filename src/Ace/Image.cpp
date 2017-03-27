@@ -8,10 +8,107 @@
 
 namespace ace
 {
+
+	Image Image::MissingFile()
+	{
+		Int32 w = 4;
+		Int32 h = 4;
+
+		UInt8* pixels = new UInt8[w*h*16];
+		
+		pixels[0 + 0 * 4] = 255;
+		pixels[1 + 0 * 4] = 255;
+		pixels[2 + 0 * 4] = 255;
+		pixels[3 + 0 * 4] = 255;
+				   
+		pixels[0 + 1 * 4] = 186;
+		pixels[1 + 1 * 4] = 85;
+		pixels[2 + 1 * 4] = 211;
+		pixels[3 + 1 * 4] = 255;
+				   
+		pixels[0 + 2 * 4] = 255;
+		pixels[1 + 2 * 4] = 255;
+		pixels[2 + 2 * 4] = 255;
+		pixels[3 + 2 * 4] = 255;
+				   
+		pixels[0 + 3 * 4] = 186;
+		pixels[1 + 3 * 4] = 85;
+		pixels[2 + 3 * 4] = 211;
+		pixels[3 + 3 * 4] = 255;
+
+		pixels[0 + 4 * 4] = 186;
+		pixels[1 + 4 * 4] = 85;
+		pixels[2 + 4 * 4] = 211;
+		pixels[3 + 4 * 4] = 255;
+
+		pixels[0 + 5 * 4] = 255;
+		pixels[1 + 5 * 4] = 255;
+		pixels[2 + 5 * 4] = 255;
+		pixels[3 + 5 * 4] = 255;
+
+		pixels[0 + 6 * 4] = 186;
+		pixels[1 + 6 * 4] = 85;
+		pixels[2 + 6 * 4] = 211;
+		pixels[3 + 6 * 4] = 255;
+
+		pixels[0 + 7 * 4] = 255;
+		pixels[1 + 7 * 4] = 255;
+		pixels[2 + 7 * 4] = 255;
+		pixels[3 + 7 * 4] = 255;
+
+		pixels[0 + 8 * 4] = 255;
+		pixels[1 + 8 * 4] = 255;
+		pixels[2 + 8 * 4] = 255;
+		pixels[3 + 8 * 4] = 255;
+
+		pixels[0 + 9 * 4] = 186;
+		pixels[1 + 9 * 4] = 85;
+		pixels[2 + 9 * 4] = 211;
+		pixels[3 + 9 * 4] = 255;
+
+		pixels[0 + 10 * 4] = 255;
+		pixels[1 + 10 * 4] = 255;
+		pixels[2 + 10 * 4] = 255;
+		pixels[3 + 10 * 4] = 255;
+
+		pixels[0 + 11 * 4] = 186;
+		pixels[1 + 11 * 4] = 85;
+		pixels[2 + 11 * 4] = 211;
+		pixels[3 + 11 * 4] = 255;
+
+		pixels[0 + 12 * 4] = 186;
+		pixels[1 + 12 * 4] = 85;
+		pixels[2 + 12 * 4] = 211;
+		pixels[3 + 12 * 4] = 255;
+
+		pixels[0 + 13 * 4] = 255;
+		pixels[1 + 13 * 4] = 255;
+		pixels[2 + 13 * 4] = 255;
+		pixels[3 + 13 * 4] = 255;
+
+		pixels[0 + 14 * 4] = 186;
+		pixels[1 + 14 * 4] = 85;
+		pixels[2 + 14 * 4] = 211;
+		pixels[3 + 14 * 4] = 255;
+
+		pixels[0 + 15 * 4] = 255;
+		pixels[1 + 15 * 4] = 255;
+		pixels[2 + 15 * 4] = 255;
+		pixels[3 + 15 * 4] = 255;
+
+		return Image(pixels, w, h, PixelFormat::RGBA);
+	}
+
 	//Loads image from file
 	//Image PixelFormat: Gray, Gray Alpha, RGB, RGBA
 	Image::Image(const ace::File& p_file)
 	{
+		if (!p_file)
+		{
+			*this = MissingFile();
+			return;
+		}
+
 		auto buffer = p_file.ReadAll();
 		int comp;
 

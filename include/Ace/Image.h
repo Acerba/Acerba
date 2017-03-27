@@ -21,13 +21,16 @@ namespace ace
 	class Image
 	{
 	public:
+
+		static Image MissingFile();
+
 		/**
 			@brief Load image data
 			@param[in] p_file Image file to load
 			@param[in] PixelFormat PixelFormat of the target image file
 			@see PixelFormat
 		*/
-		Image(const ace::File &p_file);
+		Image(const ace::File &file);
 
 		/**
 			@brief Load image with only pixeldata
@@ -65,6 +68,8 @@ namespace ace
 			@param path Creates imagefile to the relative path 
 		*/
 		void WritePNG(const Path& path) const;
+
+
 	private:
 		std::shared_ptr<UInt8> m_pixels;
 
