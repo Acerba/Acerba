@@ -101,7 +101,7 @@ namespace ace
 	*/
 	inline Color32::operator ace::Color() const
 	{
-		return Color(r * 255, g * 255, b * 255, a * 255);
+		return Color(r * 255.f, g * 255.f, b * 255.f, a * 255.f);
 	}
 
 }

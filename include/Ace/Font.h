@@ -39,15 +39,15 @@ namespace ace
 	{
 	public:
 		/**
-			@brief Font construktor
+			@brief Font constructor
 			@param[in] p_file File to read
 		*/
-		Font(const ace::File& p_file);
+		Font(const File& p_file);
 		
 		~Font();
 
 		/**
-			@brief Baking imgaefile of the fontsheet from ttf-file
+			@brief Baking imagefile of the fontsheet from ttf-file
 			@param[in] w Width for the fonstsheet image
 			@param[in] h Height for the fontsheet image
 			@param[in] pixelheight Fontsize in pixels

@@ -83,12 +83,12 @@ namespace ace
 
 		UInt8* rgba = new UInt8[w*h*channels];
 
-		for (UInt32 i = 0, j = 0; i < w*h; ++i, j += channels)
+		for (UInt32 i = 0u, j = 0u; i < w*h; ++i, j += channels)
 		{
-			rgba[j + 0] = bitmap[i];
-			rgba[j + 1] = bitmap[i];
-			rgba[j + 2] = bitmap[i];
-			rgba[j + 3] = bitmap[i];
+			rgba[j + 0u] = bitmap[i];
+			rgba[j + 1u] = bitmap[i];
+			rgba[j + 2u] = bitmap[i];
+			rgba[j + 3u] = bitmap[i];
 		}
 
 		delete[] bitmap;

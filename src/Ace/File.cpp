@@ -10,7 +10,7 @@ namespace ace
 	{
 		SDL_RWops* rwops;
 
-		//FileImpl konstruktor
+		//FileImpl constructor
 		FileImpl(const char* path, const char* mode) : rwops(SDL_RWFromFile(path, mode))
 		{
 			//	TODO: Error handler loggerilla
@@ -21,7 +21,7 @@ namespace ace
 			}
 		}
 
-		//FileImpl destruktor
+		//FileImpl destructor
 		~FileImpl()
 		{
 			if (rwops)

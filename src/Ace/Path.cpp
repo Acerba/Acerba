@@ -4,7 +4,7 @@
 
 namespace ace
 {
-	///Sdt::string konstruktor
+	//std::string constructor
 	Path::Path(std::string p)
 	{
 		char *base_path = SDL_GetBasePath();
@@ -19,7 +19,7 @@ namespace ace
 		}
 	}
 
-	///Const char konstruktor
+	//Const char constructor
 	Path::Path(const char* c)
 	{
 		//This changes const char to std::string
@@ -42,7 +42,7 @@ namespace ace
 
 	}
 
-	///Returns path in string
+	//Returns path as std::string
 	std::string Path::GetPath() const
 	{
 		return m_data_path;

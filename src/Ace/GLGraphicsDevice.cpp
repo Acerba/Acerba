@@ -129,7 +129,7 @@ namespace ace
 				for (UInt32 i = 0u; i < count; ++i)
 				{
 					instance[i + j * count] = data[i];
-					instance[i + j * count].position.w = j;
+					instance[i + j * count].position.w = (float)j;
 				}
 			}
 

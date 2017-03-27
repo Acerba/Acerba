@@ -2,15 +2,15 @@
 
 namespace ace
 {
-	typedef char Int8;
+	typedef signed char Int8;
 	typedef unsigned char UInt8;
 	
-	typedef short Int16;
+	typedef signed short Int16;
 	typedef unsigned short UInt16;
 	
-	typedef int Int32;
+	typedef signed int Int32;
 	typedef unsigned int UInt32;
 	
-	typedef long Int64;
+	typedef signed long Int64;
 	typedef unsigned long UInt64;
 }
