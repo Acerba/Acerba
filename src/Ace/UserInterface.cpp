@@ -20,6 +20,8 @@ namespace ace
 
     public:
 
+		// NOTE: naming: m_variable...
+
         double   m_Time;
         bool     m_MousePressed[3];
         float    m_MouseWheel;
@@ -33,7 +35,7 @@ namespace ace
         Int32    m_AttribLocationUV;
         Int32    m_AttribLocationColor;
         UInt32   m_VboHandle;
-        UInt32   m_VaoHandle;
+        //UInt32   m_VaoHandle;
         UInt32   m_ElementsHandle;
         Window   m_window;
 
@@ -51,7 +53,7 @@ namespace ace
             m_AttribLocationColor(0),
             m_FontTexture(0u),
             m_VboHandle(0u),
-            m_VaoHandle(0u),
+            //m_VaoHandle(0u),
             m_ElementsHandle(0u),
             m_window(nullptr)
         {
@@ -69,10 +71,12 @@ namespace ace
         {
 
             // Backup GL state
-            Int32 last_texture, last_array_buffer, last_vertex_array;
-            glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-            glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
-            glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
+            //Int32 last_texture, last_array_buffer, last_vertex_array;
+            //glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+            //glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
+            //glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
+
+			// TODO: Convert Shaders from GLSL 3 to GLSL 1. (#version 100)
 
             const GLchar *vertex_shader =
                 "#version 330\n"
@@ -120,8 +124,8 @@ namespace ace
             glGenBuffers(1, &m_VboHandle);
             glGenBuffers(1, &m_ElementsHandle);
 
-            glGenVertexArrays(1, &m_VaoHandle);
-            glBindVertexArray(m_VaoHandle);
+            //glGenVertexArrays(1, &m_VaoHandle);
+            //glBindVertexArray(m_VaoHandle);
             glBindBuffer(GL_ARRAY_BUFFER, m_VboHandle);
             glEnableVertexAttribArray(m_AttribLocationPosition);
             glEnableVertexAttribArray(m_AttribLocationUV);
@@ -136,9 +140,9 @@ namespace ace
             CreateFontsTexture();
 
             // Restore modified GL state
-            glBindTexture(GL_TEXTURE_2D, last_texture);
-            glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
-            glBindVertexArray(last_vertex_array);
+            //glBindTexture(GL_TEXTURE_2D, last_texture);
+            //glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+            //glBindVertexArray(last_vertex_array); // GLES 2 doesn't support this.
 
             return true;
 
@@ -154,19 +158,19 @@ namespace ace
 
             // Upload texture to graphics system
             Int32 last_texture;
-            glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+            //glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
             glGenTextures(1, &m_FontTexture);
             glBindTexture(GL_TEXTURE_2D, m_FontTexture);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+            //glPixelStorei(GL_UNPACK_ROW_LENGTH, 0); // GLES 2 doesn't support this.
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
             // Store our identifier
             io.Fonts->TexID = (void *)(UInt32)m_FontTexture;
 
             // Restore state
-            glBindTexture(GL_TEXTURE_2D, last_texture);
+            //glBindTexture(GL_TEXTURE_2D, last_texture);
         }
 
         static const char* GetClipboardText(void*)
@@ -222,10 +226,11 @@ namespace ace
         // Use if you want to reset your rendering device without losing ImGui state.
         void InvalidateDeviceObjects()
         {
-            if (m_VaoHandle) glDeleteVertexArrays(1, &m_VaoHandle);
+            //if (m_VaoHandle) glDeleteVertexArrays(1, &m_VaoHandle);
             if (m_VboHandle) glDeleteBuffers(1, &m_VboHandle);
             if (m_ElementsHandle) glDeleteBuffers(1, &m_ElementsHandle);
-            m_VaoHandle = m_VboHandle = m_ElementsHandle = 0;
+            //m_VaoHandle = m_VboHandle = m_ElementsHandle = 0;
+			m_VboHandle = m_ElementsHandle = 0;
 
             if (m_ShaderHandle && m_VertHandle) glDetachShader(m_ShaderHandle, m_VertHandle);
             if (m_VertHandle) glDeleteShader(m_VertHandle);
@@ -351,22 +356,22 @@ namespace ace
             draw_data->ScaleClipRects(io.DisplayFramebufferScale);
 
             // Backup GL state
-            Int32 last_program; glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
-            Int32 last_texture; glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-            Int32 last_active_texture; glGetIntegerv(GL_ACTIVE_TEXTURE, &last_active_texture);
-            Int32 last_array_buffer; glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
-            Int32 last_element_array_buffer; glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
-            Int32 last_vertex_array; glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
-            Int32 last_blend_src; glGetIntegerv(GL_BLEND_SRC, &last_blend_src);
-            Int32 last_blend_dst; glGetIntegerv(GL_BLEND_DST, &last_blend_dst);
-            Int32 last_blend_equation_rgb; glGetIntegerv(GL_BLEND_EQUATION_RGB, &last_blend_equation_rgb);
-            Int32 last_blend_equation_alpha; glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &last_blend_equation_alpha);
-            Int32 last_viewport[4]; glGetIntegerv(GL_VIEWPORT, last_viewport);
-            Int32 last_scissor_box[4]; glGetIntegerv(GL_SCISSOR_BOX, last_scissor_box);
-            GLboolean last_enable_blend = glIsEnabled(GL_BLEND);
-            GLboolean last_enable_cull_face = glIsEnabled(GL_CULL_FACE);
-            GLboolean last_enable_depth_test = glIsEnabled(GL_DEPTH_TEST);
-            GLboolean last_enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
+            //Int32 last_program; glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+            //Int32 last_texture; glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+            //Int32 last_active_texture; glGetIntegerv(GL_ACTIVE_TEXTURE, &last_active_texture);
+            //Int32 last_array_buffer; glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
+            //Int32 last_element_array_buffer; glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
+            //Int32 last_vertex_array; glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
+            //Int32 last_blend_src; glGetIntegerv(GL_BLEND_SRC, &last_blend_src);
+            //Int32 last_blend_dst; glGetIntegerv(GL_BLEND_DST, &last_blend_dst);
+            //Int32 last_blend_equation_rgb; glGetIntegerv(GL_BLEND_EQUATION_RGB, &last_blend_equation_rgb);
+            //Int32 last_blend_equation_alpha; glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &last_blend_equation_alpha);
+            //Int32 last_viewport[4]; glGetIntegerv(GL_VIEWPORT, last_viewport);
+            //Int32 last_scissor_box[4]; glGetIntegerv(GL_SCISSOR_BOX, last_scissor_box);
+            //GLboolean last_enable_blend = glIsEnabled(GL_BLEND);
+            //GLboolean last_enable_cull_face = glIsEnabled(GL_CULL_FACE);
+            //GLboolean last_enable_depth_test = glIsEnabled(GL_DEPTH_TEST);
+            //GLboolean last_enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
 
             // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled
             glEnable(GL_BLEND);
@@ -389,7 +394,7 @@ namespace ace
             glUseProgram(impl.m_ShaderHandle);
             glUniform1i(impl.m_AttribLocationTex, 0);
             glUniformMatrix4fv(impl.m_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
-            glBindVertexArray(impl.m_VaoHandle);
+            //glBindVertexArray(impl.m_VaoHandle);
 
             for (int n = 0; n < draw_data->CmdListsCount; n++)
             {
@@ -420,20 +425,20 @@ namespace ace
             }
 
             // Restore modified GL state
-            glUseProgram(last_program);
-            glActiveTexture(last_active_texture);
-            glBindTexture(GL_TEXTURE_2D, last_texture);
-            glBindVertexArray(last_vertex_array);
-            glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
-            glBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
-            glBlendFunc(last_blend_src, last_blend_dst);
-            if (last_enable_blend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
-            if (last_enable_cull_face) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
-            if (last_enable_depth_test) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
-            if (last_enable_scissor_test) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
-            glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
-            glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
+            //glUseProgram(last_program);
+            //glActiveTexture(last_active_texture);
+            //glBindTexture(GL_TEXTURE_2D, last_texture);
+            //glBindVertexArray(last_vertex_array);
+            //glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+            //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
+            //glBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
+            //glBlendFunc(last_blend_src, last_blend_dst);
+            //if (last_enable_blend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
+            //if (last_enable_cull_face) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+            //if (last_enable_depth_test) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
+            //if (last_enable_scissor_test) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
+            //glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
+            //glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
         }
 
         static void SetClipboardText(void*, const char* text)

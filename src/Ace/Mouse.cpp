@@ -1,14 +1,18 @@
-#include <Ace\Mouse.h>
-#include <Ace\IntTypes.h>
+#include <Ace/Mouse.h>
+#include <Ace/IntTypes.h>
+#include <Ace/Window.h>
+
 #include <SDL_mouse.h>
-#include <iostream>
+
 namespace ace
 {
 	Vector2 Mouse::GetPosition()
 	{
+		Vector2 size = Window::GetCurrent()->GetSize();
+
 		Int32 x, y;
 		SDL_GetMouseState(&x, &y);
-		return Vector2(static_cast<float>(x), static_cast<float>(y));
+		return Vector2(static_cast<float>(x / size.x), static_cast<float>(y / size.y));
 	}
 
 	MouseButton Mouse::GetButton()

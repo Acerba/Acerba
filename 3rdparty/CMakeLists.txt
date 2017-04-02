@@ -12,6 +12,6 @@ add_subdirectory(gl3w)
 add_subdirectory(imgui)
 
 if(NOT ANDROID)
-	set_property(TARGET SDL2 SDL2main SDL2-static gl3w PROPERTY FOLDER 3rdParty)
+	set_property(TARGET SDL2 SDL2main SDL2-static gl3w imgui PROPERTY FOLDER 3rdParty)
 	set_property(TARGET vorbisfile vorbisenc OALWrapper vorbis ogg PROPERTY FOLDER 3rdParty/Audio)
 endif()

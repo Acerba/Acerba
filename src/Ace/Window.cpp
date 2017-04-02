@@ -10,20 +10,35 @@
 
 namespace ace
 {
+	static Window* g_currentWindow = nullptr;
+
+	Window* Window::GetCurrent()
+	{
+		return g_currentWindow;
+	}
 
     Window::Window(WindowImpl* impl) : m_windowImpl(impl)
     {
-
+		if (g_currentWindow == nullptr)
+		{
+			g_currentWindow = this;
+		}
     }
 
     Window::Window(const char* title, UInt16 w, UInt16 h) : m_windowImpl(new Window::WindowImpl(title, w, h))
     {
-
+		if (g_currentWindow == nullptr)
+		{
+			g_currentWindow = this;
+		}
     }
 
     Window::~Window()
     {
-
+		if (this == g_currentWindow)
+		{
+			g_currentWindow = nullptr;
+		}
     }
 
     void Window::Close()

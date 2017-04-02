@@ -22,6 +22,7 @@ namespace ace
 
 	public:
 
+		static Window* GetCurrent();
 		
         Window(WindowImpl* impl);
         

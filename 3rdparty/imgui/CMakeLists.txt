@@ -4,6 +4,6 @@ project (imgui)
 
 include_directories(include)
 
-file(GLOB SRC src/*.cpp)
+file(GLOB SOURCES src/*.cpp)
 
-add_library(imgui STATIC ${SRC})
+BuildLibrary(imgui STATIC)

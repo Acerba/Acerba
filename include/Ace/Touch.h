@@ -7,8 +7,12 @@ namespace ace
 {
 	class Touch
 	{
-	public:
+	private:
 
+		UInt32 m_id;
+
+	public:
+		
 		/**
 			@brief Get the number of active fingers on the device.
 			@return finger count
@@ -22,27 +26,18 @@ namespace ace
 		*/
 		static Touch GetTouch(UInt32 index);
 
-	private:
-
-		UInt32 m_id;
-
-	public:
-
 		/**
-			@brief Returns id of finger.
-			@return id
+			@return Id of finger.
 		*/
 		Int64 GetID() const;
 
 		/**
-			@brief Returns position of finger in Vector2.
-			@return Vector2
+			@return Position of finger.
 		*/
 		Vector2 GetPosition() const;
 
 		/**
-			@brief Returns pressure of finger press.
-			@return pressure
+			@return Pressure of finger.
 		*/
 		float GetPressure() const;
 	};

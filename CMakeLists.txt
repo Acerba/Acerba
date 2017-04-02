@@ -31,11 +31,11 @@ set(INCLUDES
     ${ACERBA_SOURCE_DIR}/3rdparty/imgui/include
 )
 
-set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper)
+set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui)
 
 if(ANDROID)
 	set(DEFINES ANDROID GL_GLEXT_PROTOTYPES)
-	set(LIBS SDL2 android log openal OALWrapper dl GLESv1_CM GLESv2)
+	set(LIBS SDL2 android log openal OALWrapper dl GLESv1_CM GLESv2 imgui)
 
 endif()
 
