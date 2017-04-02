@@ -39,7 +39,11 @@ if(ANDROID)
 
 endif()
 
-BuildLibrary(acerba STATIC)
+if(ANDROID)
+	BuildLibrary(acerba SHARED)
+else()
+	BuildLibrary(acerba STATIC)
+endif()
 
 
 #file(GLOB ACERBA_SRC ${ACERBA_SOURCE_DIR}/src/Ace/*.cpp ${ACERBA_SOURCE_DIR}/include/Ace/*)
@@ -63,8 +67,8 @@ set(LIBS acerba OALWrapper)
 
 if(ANDROID OR PB_ANDROID)
 
-	list(APPEND SOURCES "${ACERBA_SOURCE_DIR}/3rdparty/SDL2/src/main/android/SDL_android_main.c")
-	message(STATUS ${SOURCES})	
+	#list(APPEND SOURCES "${ACERBA_SOURCE_DIR}/3rdparty/SDL2/src/main/android/SDL_android_main.c")
+	list(APPEND LIBS openal)	
 	BuildApplication(main) # libmain.so -> SDL2 Activity
 
 else()
@@ -72,7 +76,57 @@ else()
 endif()
 
 
+if(PB_MAIN)
+	if(PB_ANDROID_NDK)
+		add_custom_command(TARGET ProjectBuild POST_BUILD
+			COMMAND ndk-build NDK_PROJECT_PATH=. NDK_APPLICATION_MK=acerba/Application.mk APP_BUILD_SCRIPT=acerba/Android.mk NDK_LIBS_OUT=acerba/libs BASE_PATH="${ACERBA_SOURCE_DIR}"
+			WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/android")
+			
+		add_custom_command(TARGET ProjectBuild POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_BINARY_DIR}/android/acerba/libs/" "${PROJECT_BINARY_DIR}/android/libs/")
+	endif()
+endif()
+
+
 #file(GLOB EXAMPLE_SRC ${ACERBA_SOURCE_DIR}/example/*)
 #add_executable(example ${EXAMPLE_SRC})
 
 #target_link_libraries(example PUBLIC acerba)
+
+# Set DLL directory
+SET (CMAKE_LIBRARY_OUTPUT_DIRECTORY
+   ${PROJECT_BINARY_DIR}/Bin
+   CACHE PATH
+   "Single Directory for all Libraries"
+   )
+
+# Set Exe directory
+SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY
+   ${PROJECT_BINARY_DIR}/Bin
+   CACHE PATH
+   "Single Directory for all Executables."
+   )
+
+# Set LIB directory
+SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY
+   ${PROJECT_BINARY_DIR}/Libs
+   CACHE PATH
+   "Single Directory for all static libraries."
+   )
+
+if(WIN32)
+
+	set(RENAME_LIBS vorbis.lib vorbisenc.lib vorbisfile.lib)
+
+	foreach(LIB ${RENAME_LIBS})
+		add_custom_command(TARGET acerba PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/Libs/Debug/${LIB}" "${PROJECT_BINARY_DIR}/lib${LIB}")
+	endforeach() 
+
+
+	add_custom_command(TARGET acerba PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/Libs/Debug/SDL2.lib" "${PROJECT_BINARY_DIR}/SDL2.lib")
+
+	add_custom_command(TARGET acerba PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/Libs/Debug/SDL2.lib" "${PROJECT_BINARY_DIR}/SDL.lib")
+endif()

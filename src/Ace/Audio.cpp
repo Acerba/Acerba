@@ -65,7 +65,7 @@ namespace ace
 	}
 
 
-	void Audio::Init()
+	void Audio::Init(bool externalInit)
 	{
 		// Temp. Test Code
 		//bool bALError = false;	
@@ -155,17 +155,27 @@ namespace ace
 		//	return;
 		//}
 
-		cOAL_Init_Params oal_parms;
+		if(g_audioThread != nullptr)
+		{
+			return;
+		}
 
-		if (OAL_Init(oal_parms) == false)
+		if(!externalInit)
 		{
-			Logger::LogInfo("Audio initializing failed!");
+
+			cOAL_Init_Params oal_parms;
+
+			if (OAL_Init(oal_parms) == false)
+			{
+				Logger::LogInfo("Audio initializing failed!");
+			}
+			else
+			{
+				Logger::LogInfo("Audio initializing succeeded!");
+			}
+				
 		}
-		else
-		{
-			Logger::LogInfo("Audio initializing succeeded!");
-		}
-			
+
 		g_isAudioRunning = true;
 		g_audioThread = SDL_CreateThread(AudioUpdate, "Audio", nullptr);
 	}

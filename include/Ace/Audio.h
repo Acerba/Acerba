@@ -168,7 +168,7 @@ namespace ace
 		/**
 			@brief Inits Audio.
 		*/
-		static void Init();
+		static void Init(bool = false);
 
 		/**
 			@brief Quits Audio.
