@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 2.8)
 project(ACERBA)
 include("cmake/ProjectBuild.cmake" REQUIRED)
 
+set(ACERBA_MOVELIBS TRUE CACHE BOOL "" )
+
 BuildBegin()
 
 
@@ -114,7 +116,7 @@ SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY
    "Single Directory for all static libraries."
    )
 
-if(WIN32)
+if(WIN32 AND ACERBA_MOVELIBS)
 
 	set(RENAME_LIBS vorbis.lib vorbisenc.lib vorbisfile.lib)
 
