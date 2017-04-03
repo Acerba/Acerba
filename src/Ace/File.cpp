@@ -43,7 +43,7 @@ namespace ace
 		return false;
 	}
 
-	File::File(const Path& path, const char* mode) : m_fileImpl(new File::FileImpl(path.GetPath().c_str(), mode))
+	File::File(const Path& path, const char* mode) : m_fileImpl(new File::FileImpl(path.GetPath().c_str(), mode)), path(path)
 	{
 		
 	}

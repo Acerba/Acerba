@@ -10,6 +10,9 @@ namespace ace
 	{
 		struct FileImpl;
 	public:
+
+		const Path path;
+
 		/**
 			@return True if file exists
 		*/
