@@ -81,30 +81,30 @@ cOAL_Source::cOAL_Source(cOAL_SourceManager *apSourceManager, int alId, int alSe
 
 cOAL_Source::~cOAL_Source()
 {
-	LogMsg("", eOAL_LogVerbose_High, eOAL_LogMsg_Command, "Source Destructor called\n" );
+	//LogMsg("", eOAL_LogVerbose_High, eOAL_LogMsg_Command, "Source Destructor called\n" );
 	Stop();
 
 	if(mpSourceMutex)
 	{
-		LogMsg("", eOAL_LogVerbose_High, eOAL_LogMsg_Info, "Destroying Mutex...\n" );
+		//LogMsg("", eOAL_LogVerbose_High, eOAL_LogMsg_Info, "Destroying Mutex...\n" );
 		SDL_DestroyMutex(mpSourceMutex);
 		mpSourceMutex = NULL;
 	}
 
 	if(mpFilter)
 	{
-		LogMsg("",eOAL_LogVerbose_High, eOAL_LogMsg_Info, "Destroying Filter...\n" );
+		//LogMsg("",eOAL_LogVerbose_High, eOAL_LogMsg_Info, "Destroying Filter...\n" );
 		delete mpFilter;
 		mpFilter = NULL;
 	}
 	
 	if(mvSends.empty()==false)
 	{
-		LogMsg("",eOAL_LogVerbose_High, eOAL_LogMsg_Info, "Destroying Sends...\n" );
+		//LogMsg("",eOAL_LogVerbose_High, eOAL_LogMsg_Info, "Destroying Sends...\n" );
 		for(unsigned int i = 0; i<mvSends.size(); ++i)
 			delete mvSends[i];
 	}
-	LogMsg("",eOAL_LogVerbose_High, eOAL_LogMsg_Info, "Destroying Low Level Object...\n" );
+	//LogMsg("",eOAL_LogVerbose_High, eOAL_LogMsg_Info, "Destroying Low Level Object...\n" );
 	DestroyLowLevelID();
 }
 

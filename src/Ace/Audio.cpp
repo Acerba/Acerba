@@ -22,8 +22,21 @@
 
 namespace ace
 {
+	static SDL_Thread* g_audioThread;
 	static bool g_isAudioRunning;
-	
+
+	// Audio Update thread.
+	static int AudioUpdate(void* data)
+	{
+		Int32 wait = 1000 / 30; // 30times / second
+		while (g_isAudioRunning)
+		{
+			Audio::Update();
+			Time::Delay(wait);
+		}
+		return 0;
+	}
+
 	struct AudioClip::AudioClipImpl
 	{
 		cOAL_Stream* stream;
@@ -92,13 +105,18 @@ namespace ace
 		}
 
 		g_isAudioRunning = true;
+		g_audioThread = SDL_CreateThread(AudioUpdate, "Audio", nullptr);
 	}
 
 	void Audio::Quit()
 	{
 		if (g_isAudioRunning)
 		{
+
 			g_isAudioRunning = false;
+			SDL_WaitThread(g_audioThread, nullptr);
+			g_audioThread = nullptr;
+
 			OAL_Close();
 		}
 

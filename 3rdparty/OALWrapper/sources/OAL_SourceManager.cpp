@@ -53,7 +53,7 @@ bool cOAL_SourceManager::Initialize ( bool abManageVoices, int alNumSourcesHint,
 		RUN_AL_FUNC(alGenSources(1,&lTempSource[mlNumOfVoices]));
 		if(!AL_ERROR_OCCURED)
 		{
-			LogMsg("", eOAL_LogVerbose_High, eOAL_LogMsg_Info, "Source Object successfully created\n" );
+			//LogMsg("", eOAL_LogVerbose_High, eOAL_LogMsg_Info, "Source Object successfully created\n" );
 			++mlNumOfVoices;
 		}
 		else
