@@ -22,27 +22,21 @@
 
 namespace ace
 {
-	static SDL_Thread* g_audioThread;
 	static bool g_isAudioRunning;
 	
-	// Audio Update thread.
-	static int AudioUpdate(void* data)
-	{
-		 Int32 wait = 1000 / 30; // 30times / second
-		while (g_isAudioRunning)
-		{
-			Audio::Update();
-			Time::Delay(wait);
-		}
-		return 0;
-	}
-
 	struct AudioClip::AudioClipImpl
 	{
-		cOAL_Sample* clip;
+		cOAL_Stream* stream;
+		cOAL_Sample* sample;
+
 		int id;
 
-		AudioClipImpl(cOAL_Sample* clip) : clip(clip), id(-1)
+		AudioClipImpl(cOAL_Stream* clip) : stream(clip), id(-1), sample(nullptr)
+		{
+
+		}
+
+		AudioClipImpl(cOAL_Sample* clip) : sample(clip), id(-1), stream(nullptr)
 		{
 
 		}
@@ -53,21 +47,30 @@ namespace ace
 
 	}
 
-	AudioClip::AudioClip(const File& file, float volume, bool loop, UInt32 priority) : volume(volume), loop(loop), priority(priority)
+	AudioClip::AudioClip(const File& file, float volume, bool loop) : volume(volume), loop(loop)
 	{
 		UInt32 pos = file.Size();
 		UInt8* buffer = new UInt8[pos];
 
 		file.Read(buffer, pos);
-		impl.reset(new AudioClip::AudioClipImpl(OAL_Sample_LoadFromBuffer(buffer, pos)));
+		
+		cOAL_Stream* check = OAL_Stream_LoadFromBuffer(buffer, pos);
 
+		if (check == nullptr)
+		{
+			impl.reset(new AudioClip::AudioClipImpl(OAL_Sample_LoadFromBuffer(buffer, pos)));
+		}
+		else
+		{
+			impl.reset(new AudioClip::AudioClipImpl(check));
+		}
 		delete buffer;
 	}
 
 
 	void Audio::Init(bool externalInit)
 	{
-		if(g_audioThread != nullptr)
+		if (g_isAudioRunning)
 		{
 			return;
 		}
@@ -89,19 +92,16 @@ namespace ace
 		}
 
 		g_isAudioRunning = true;
-		g_audioThread = SDL_CreateThread(AudioUpdate, "Audio", nullptr);
 	}
 
 	void Audio::Quit()
 	{
-		if (g_audioThread)
+		if (g_isAudioRunning)
 		{
 			g_isAudioRunning = false;
-			SDL_WaitThread(g_audioThread, nullptr);
-			g_audioThread = nullptr;
+			OAL_Close();
 		}
 
-		OAL_Close();
 	}
 
 	bool Audio::Update(const AudioClip& clip)
@@ -116,15 +116,22 @@ namespace ace
 
 	void Audio::PlayAudio(const AudioClip& clip)
 	{
-		if (clip->clip)
+		if (clip->sample||clip->stream)
 		{
 			// TODO: Use Logger instead! (Debug Only)
 
-			printf("Channels : %d\nFrequency : %d\n", clip->clip->GetChannels(), clip->clip->GetFrequency());
+			//printf("Channels : %d\nFrequency : %d\n", clip->clip->GetChannels(), clip->clip->GetFrequency());
 
-			clip->id = OAL_Sample_Play(OAL_FREE, clip->clip, clip.volume, clip.loop, clip.priority);
+			if (clip->sample == nullptr)
+			{
+				clip->id = OAL_Stream_Play(OAL_FREE, clip->stream, clip.volume, clip.loop);
+			}
+			else
+			{
+				clip->id = OAL_Sample_Play(OAL_FREE, clip->sample, clip.volume, clip.loop, 0);
+				Audio::GetAudio().clips.push_back(clip);
+			}
 			OAL_Source_SetPaused(clip->id, false);
-			Audio::GetAudio().clips.push_back(clip);
 		}
 		else
 		{
@@ -183,15 +190,15 @@ namespace ace
 		OAL_Source_SetLoop((*this)->id, loop);
 	}
 
-	void AudioClip::SetPriority(UInt32 priority)
-	{
-		OAL_Source_SetPriority((*this)->id, priority);
-	}
-
-	UInt32 AudioClip::GetPriority()
-	{
-		return OAL_Source_GetPriority((*this)->id);
-	}
+	//void AudioClip::SetPriority(UInt32 priority)
+	//{
+	//	OAL_Source_SetPriority((*this)->id, priority);
+	//}
+	
+	//UInt32 AudioClip::GetPriority()
+	//{
+	//	return OAL_Source_GetPriority((*this)->id);
+	//}
 
 	void AudioClip::SetElapsedTime(double time)
 	{
@@ -281,22 +288,22 @@ namespace ace
 			{
 				continue;
 			}
-
+		
 			float normalized = audio.effects[i]->time / audio.effects[i]->duration;
-
+		
 			if (normalized > 1)
 			{
 				delete audio.effects[i];
 				audio.effects[i] = nullptr;
 				continue;
 			}
-
+		
 			// TODO: Check that effect clip is playing.
-
+		
 			audio.effects[i]->Effect(normalized);
 			audio.effects[i]->time += Time::DeltaTime(); 
 		}
-
+		
 		for (UInt32 i = 0u; i < audio.clips.size(); ++i)
 		{
 			if (!OAL_Source_IsPlaying(audio.clips[i]->id))

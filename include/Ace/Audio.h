@@ -25,7 +25,6 @@ namespace ace
 		
 		float volume;
 		float pitch;
-		UInt32 priority;
 		bool loop;
 		
 
@@ -34,7 +33,7 @@ namespace ace
 
 		AudioClip(AudioClipImpl* clip = nullptr);
 
-		AudioClip(const File& file, float volume = 1.0f, bool loop = false, UInt32 priority = 10);
+		AudioClip(const File& file, float volume = 1.0f, bool loop = false);
 
 		inline AudioClipImpl* operator->() const
 		{
@@ -94,13 +93,13 @@ namespace ace
 		/**
 			@brief Sets the priority of the specified clip.
 		*/
-		void SetPriority(UInt32);
+		//void SetPriority(UInt32);
 
 		/**
 			@brief Returns the clip priority.
 			@return Priority
 		*/
-		UInt32 GetPriority();
+		//UInt32 GetPriority();
 
 		/**
 			@brief Sets  audio position for the specified source
