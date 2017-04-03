@@ -7,7 +7,7 @@ namespace ace
 
 		Matrix2::Matrix2() : rows() {}
 
-		Matrix2::Matrix2(Vector2 v1, Vector2 v2)
+		Matrix2::Matrix2(const Vector2& v1, const Vector2& v2)
 		{
 			rows[0] = v1;
 			rows[1] = v2;

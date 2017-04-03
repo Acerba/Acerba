@@ -1,4 +1,5 @@
 #include <Ace/UserInterface.h>
+#include <Ace/Assert.h>
 #include <Ace/Macros.h>
 #include <Ace/Platform.h>
 #include <Ace/Window.h>
@@ -15,12 +16,25 @@
 namespace ace
 {
 
+    const UInt32 UI::s_windowFlags =
+        ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoScrollbar |
+        ImGuiWindowFlags_NoSavedSettings;
+
+    //static const UInt32 s_windowFlagsNoInput = s_windowFlags | ImGuiWindowFlags_NoInputs;
+
+    static const float s_factorUI = 0.92f;
+    static UInt8 s_windowID = 0u;
+
+
     class UserInterfaceImpl : public EventBase<Event::SDLEventArg>
     {
 
     public:
 
-		// NOTE: naming: m_variable...
+        // NOTE: naming: m_variable...
 
         double   m_Time;
         bool     m_MousePressed[3];
@@ -76,7 +90,7 @@ namespace ace
             //glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
             //glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
 
-			// TODO: Convert Shaders from GLSL 3 to GLSL 1. (#version 100)
+            // TODO: Convert Shaders from GLSL 3 to GLSL 1. (#version 100)
 
             const GLchar *vertex_shader =
                 "#version 330\n"
@@ -230,7 +244,7 @@ namespace ace
             if (m_VboHandle) glDeleteBuffers(1, &m_VboHandle);
             if (m_ElementsHandle) glDeleteBuffers(1, &m_ElementsHandle);
             //m_VaoHandle = m_VboHandle = m_ElementsHandle = 0;
-			m_VboHandle = m_ElementsHandle = 0;
+            m_VboHandle = m_ElementsHandle = 0;
 
             if (m_ShaderHandle && m_VertHandle) glDetachShader(m_ShaderHandle, m_VertHandle);
             if (m_VertHandle) glDeleteShader(m_VertHandle);
@@ -443,10 +457,10 @@ namespace ace
             //glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
             //glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
 
-			glDisable(GL_BLEND);
-			glDisable(GL_CULL_FACE);
-			glDisable(GL_DEPTH_TEST);
-			glDisable(GL_SCISSOR_TEST);
+            glDisable(GL_BLEND);
+            glDisable(GL_CULL_FACE);
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_SCISSOR_TEST);
         }
 
         static void SetClipboardText(void*, const char* text)
@@ -468,78 +482,74 @@ namespace ace
     };
 
 
-    bool UserInterface::m_debugEnabled = false;
-
-
-    void UserInterface::Begin()
+    void UserInterface::BeginUI()
     {
+        s_windowID = 0u;
         UserInterfaceImpl::GetInstance().NewFrame();
-        if (m_debugEnabled)
-            MakeDebug();
     }
 
-    void UserInterface::End()
+    void UserInterface::EndUI()
     {
         UserInterfaceImpl::Render();
     }
+
+
+    void UserInterface::BeginGroup(const Vector2& size, const Vector2& position, const UInt32 flags)
+    {
+        ACE_ASSERT(s_windowID == 255u, "Too many UI groups created.", "")
+        ImGui::SetNextWindowSize(ImVec2(size.x, size.y));
+        ImGui::SetNextWindowPos(ImVec2(position.x, position.y));
+        ImGui::GetStyle().Colors[ImGuiCol_WindowBg].w = 0.f;
+        ImGui::Begin(reinterpret_cast<const char*>(&++s_windowID), nullptr, s_windowFlags);
+        ImGui::GetStyle().Colors[ImGuiCol_WindowBg].w = 1.f;
+    }
+
+    void UserInterface::EndGroup()
+    {
+        ImGui::End();
+    }
+
+
+    void UserInterface::Debug(const Vector2* size, const Vector2* position)
+    {
+        //The easiest way is to create a dummy window.
+        //Call Begin() with NoTitleBar | NoResize | NoMove | NoScrollbar | NoSavedSettings | NoInputs flag
+        //zero background alpha,
+        //then retrieve the ImDrawList* via GetWindowDrawList() and draw to it in any way you like.
+
+        BeginGroup(size ? *size : Vector2(60.f, 60.f), position ? *position : Vector2(0.f, 0.f), s_windowFlags | ImGuiWindowFlags_NoCollapse);
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        EndGroup();
+    }
+
 
     void UserInterface::Init(const Window& window)
     {
         UserInterfaceImpl::GetInstance().Init(window);
     }
 
-    void UserInterface::MakeDebug()
+
+    void UserInterface::MakeBar(const float progress, const Vector2& size, const char* text)
     {
-        //static float f = 0.0f;
-        //static ImVec4 clear_color = ImColor(0, 0, 0);
-
-        //ImGui::Text("Hello, world!");
-        //ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-        //ImGui::ColorEdit3("clear color", (float*)&clear_color);
-        //if (ImGui::Button("Test Window")) show_test_window ^= 1;
-        //if (ImGui::Button("Another Window")) show_another_window ^= 1;
-
-
-        ImGui::SetNextWindowSize(ImVec2(120.f, 60.f), ImGuiSetCond_FirstUseEver);
-        //ImGui::SetNextWindowPos(ImVec2(5.f, 5.f));
-        bool* ptr = nullptr;
-        Int32 flags = 0;
-            /*ImGuiWindowFlags_NoResize |
-            ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_ChildMenu;*/
-        ImGui::Begin("debug", ptr, flags);
-        auto s = ImGui::GetWindowSize();
-        auto p = ImGui::GetWindowPos();
-
-        static float bar = 0.f;
-        ImGui::ProgressBar(bar);
-        static bool checkVal = false;
-        if (ImGui::Checkbox("Select for 20%", &checkVal))
-        {
-            bar = 0.2f;
-        }
-        //else
-        //{
-        //    bar = 0.f;
-        //}
-        if (ImGui::Button("BTN"))
-            bar += 0.1f;
-        if (bar >= 1.f)
-            m_debugEnabled = false;
-        if (ImGui::CloseButton(ImGui::GetID("debug"), ImVec2(p.x + s.x - 10.f, p.y + 20.f), 10.f))
-        {
-            m_debugEnabled = false;
-            //ImGui::End();
-        }
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-        ImGui::End();
+        ImGui::ProgressBar(progress, ImVec2(size.x * s_factorUI, size.y * s_factorUI), text);
     }
 
-    void UserInterface::SetDebug(const bool status)
+
+    bool UserInterface::MakeButton(const Vector2& size, const char* text)
     {
-        m_debugEnabled = status;
+        return ImGui::Button(text, ImVec2(size.x * s_factorUI, size.y * s_factorUI));
     }
+
+
+    void UserInterface::MakeText(const char* text ...)
+    {
+        ACE_ASSERT(text, "Invalid UI Text field", "")
+        va_list args;
+        va_start(args, text);
+        ImGui::Text(text, args); //format, args
+        va_end(args);
+    }
+
 
     void UserInterface::Quit()
     {

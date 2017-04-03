@@ -33,13 +33,21 @@ namespace ace
 
 	void Time::Update()
 	{
-		static UInt64 s_now = 0;
-		static UInt64 s_last = 0;
+		//static UInt64 s_now = 0;
+		//static UInt64 s_last = 0;
+        //
+		//s_last = s_now;
+		//s_now = GetPerformanceCounter();
+        //
+		//s_deltaTime = static_cast<float>(((s_now - s_last) / GetPerformanceFrequency())) / 1000.0f;
 
-		s_last = s_now;
-		s_now = GetPerformanceCounter();
-
-		s_deltaTime = static_cast<float>(((s_now - s_last) * 1000.0f / GetPerformanceFrequency())) / 1000.0f;
+        static UInt32 s_now = 0;
+        static UInt32 s_last = 0;
+        
+        s_last = s_now;
+        s_now = GetTicks();
+        
+        s_deltaTime = static_cast<float>(s_now - s_last) / 1000.0f;
 	}
 
 	bool Time::WaitTime::IsDone()
