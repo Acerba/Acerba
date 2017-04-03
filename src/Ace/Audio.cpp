@@ -37,7 +37,7 @@ namespace ace
 		return 0;
 	}
 
-	struct AudioClip::AudioClipImpl
+	struct IAudioSample::AudioClipImpl
 	{
 		cOAL_Stream* stream;
 		cOAL_Sample* sample;
@@ -55,29 +55,74 @@ namespace ace
 		}
 	};
 
-	AudioClip::AudioClip(AudioClipImpl* clip) : impl(clip)
+	
+	IAudioSample::IAudioSample(IAudioSample::AudioClipImpl* impl) : impl(impl)
 	{
 
 	}
 
-	AudioClip::AudioClip(const File& file, float volume, bool loop) : volume(volume), loop(loop)
+	IAudioSample::AudioClipImpl* IAudioSample::operator->() const
+	{
+		return impl.get();
+	}
+
+	static cOAL_Sample* LoadSample(const File& file)
 	{
 		UInt32 pos = file.Size();
 		UInt8* buffer = new UInt8[pos];
 
 		file.Read(buffer, pos);
-		
-		cOAL_Stream* check = OAL_Stream_LoadFromBuffer(buffer, pos);
 
-		if (check == nullptr)
+		cOAL_Sample* sample =  OAL_Sample_LoadFromBuffer(buffer, pos);
+
+		if (sample == nullptr)
 		{
-			impl.reset(new AudioClip::AudioClipImpl(OAL_Sample_LoadFromBuffer(buffer, pos)));
+			Logger::LogError("Audioclip not found %s!", file.path.GetPath().c_str());
 		}
-		else
-		{
-			impl.reset(new AudioClip::AudioClipImpl(check));
-		}
+
 		delete buffer;
+		return sample;
+	}
+
+	static cOAL_Stream* LoadStream(const File& file)
+	{
+		UInt32 pos = file.Size();
+		UInt8* buffer = new UInt8[pos];
+
+		file.Read(buffer, pos);
+
+		cOAL_Stream* stream = OAL_Stream_LoadFromBuffer(buffer, pos);
+
+		if (stream == nullptr)
+		{
+			Logger::LogError("Audioclip not found %s!", file.path.GetPath().c_str());
+		}
+
+		delete buffer;
+		return stream;
+	}
+
+
+	AudioClip::AudioClip() : IAudioSample(nullptr)
+	{
+
+	}
+
+	AudioClip::AudioClip(const File& file, float volume, bool loop) : IAudioSample(new AudioClipImpl(LoadSample(file)))
+	{
+		this->volume = volume;
+		this->loop = loop;
+	}
+
+	AudioStream::AudioStream() : IAudioSample(nullptr) 
+	{
+	
+	}
+
+	AudioStream::AudioStream(const File& file, float volume, bool loop) : IAudioSample(new AudioClipImpl(LoadStream(file)))
+	{
+		this->volume = volume;
+		this->loop = loop;
 	}
 
 
@@ -132,28 +177,51 @@ namespace ace
 		return OAL_Source_IsPlaying(clip->id);
 	}
 
-	void Audio::PlayAudio(const AudioClip& clip)
+	void AudioStream::Play()
 	{
-		if (clip->sample||clip->stream)
+		Audio::PlayAudio(*this);
+	}
+
+
+    void AudioClip::Play()
+	{
+		Audio::PlayAudio(*this);
+	}
+
+	void Audio::PlayAudio(AudioClip& clip)
+	{
+		//printf("Channels : %d\nFrequency : %d\n", clip->clip->GetChannels(), clip->clip->GetFrequency());
+		if (clip.impl->sample)
 		{
-			// TODO: Use Logger instead! (Debug Only)
+			clip.impl->id = OAL_Sample_Play(OAL_FREE, clip.impl->sample, clip.volume, clip.loop, 0);
+			Audio::GetAudio().clips.push_back(clip);
 
-			//printf("Channels : %d\nFrequency : %d\n", clip->clip->GetChannels(), clip->clip->GetFrequency());
-
-			if (clip->sample == nullptr)
-			{
-				clip->id = OAL_Stream_Play(OAL_FREE, clip->stream, clip.volume, clip.loop);
-			}
-			else
-			{
-				clip->id = OAL_Sample_Play(OAL_FREE, clip->sample, clip.volume, clip.loop, 0);
-				Audio::GetAudio().clips.push_back(clip);
-			}
 			OAL_Source_SetPaused(clip->id, false);
 		}
 		else
 		{
-			printf("Error!\n");
+			Logger::LogError("Audioclip play failed!");
+		}
+	}
+
+	void Audio::PlayAudio(AudioStream& stream)
+	{
+
+		if (stream.impl->stream)
+		{
+			if (stream.impl->id != -1)
+			{
+				stream.SetElapsedTime(0);
+			}
+			else
+			{
+				stream.impl->id = OAL_Stream_Play(OAL_FREE, stream.impl->stream, stream.volume, stream.loop);
+			}
+			
+		}
+		else
+		{
+			Logger::LogError("Audiostream play failed!");
 		}
 	}
 
@@ -183,27 +251,27 @@ namespace ace
 		OAL_Listener_SetMasterVolume(volume);
 	}
 
-	void AudioClip::SetVolume(float volume)
+	void IAudioSample::SetVolume(float volume)
 	{
 		OAL_Source_SetGain((*this)->id, volume);
 	}
 	
-	float AudioClip::GetVolume()
+	float IAudioSample::GetVolume()
 	{
 		return OAL_Source_GetGain((*this)->id);
 	}
 
-	void AudioClip::SetPitch(float pitch)
+	void IAudioSample::SetPitch(float pitch)
 	{
 		OAL_Source_SetPitch((*this)->id, pitch);
 	}
 
-	float AudioClip::GetPitch()
+	float IAudioSample::GetPitch()
 	{
 		return OAL_Source_GetPitch((*this)->id);
 	}
 
-	void AudioClip::SetLoop(bool loop)
+	void IAudioSample::SetLoop(bool loop)
 	{
 		OAL_Source_SetLoop((*this)->id, loop);
 	}
@@ -218,32 +286,32 @@ namespace ace
 	//	return OAL_Source_GetPriority((*this)->id);
 	//}
 
-	void AudioClip::SetElapsedTime(double time)
+	void IAudioSample::SetElapsedTime(double time)
 	{
 		OAL_Source_SetElapsedTime((*this)->id, time);
 	}
 
-	double AudioClip::GetElapsedTime()
+	double IAudioSample::GetElapsedTime()
 	{
 		return OAL_Source_GetElapsedTime((*this)->id);
 	}
 
-	double AudioClip::GetTotalTime()
+	double IAudioSample::GetTotalTime()
 	{
 		return OAL_Source_GetTotalTime((*this)->id);
 	}
 
-	bool AudioClip::IsPlaying()
+	bool IAudioSample::IsPlaying()
 	{
 		return OAL_Source_IsPlaying((*this)->id);
 	}
 
-	void AudioClip::SetPosition(math::Vector3 position)
+	void IAudioSample::SetPosition(math::Vector3 position)
 	{
 		OAL_Source_SetPosition((*this)->id, position.array);
 	}
 
-	void AudioClip::SetVelocity(math::Vector3 velocity)
+	void IAudioSample::SetVelocity(math::Vector3 velocity)
 	{
 		OAL_Source_SetPosition((*this)->id, velocity.array);
 	}

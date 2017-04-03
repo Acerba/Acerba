@@ -11,115 +11,139 @@
 
 namespace ace
 {
-	class AudioClip
+	class IAudioSample
 	{
 		friend class Audio;
+
 	public:
+
 		struct AudioClipImpl;
 
-
-	private:
+	protected:
 		std::shared_ptr<AudioClipImpl> impl;
+
 		bool ispaused;
 
-		
+
 		float volume;
 		float pitch;
 		bool loop;
-		
 
 	public:
 
-
-		AudioClip(AudioClipImpl* clip = nullptr);
-
-		AudioClip(const File& file, float volume = 1.0f, bool loop = false);
-
-		inline AudioClipImpl* operator->() const
-		{
-			return impl.get();
-		}
+		IAudioSample(AudioClipImpl* clip = nullptr);
 
 		/**
-			@brief Sets the volume for specified clip between 0.0f and 1.0f.
+		@brief Sets the volume for specified clip between 0.0f and 1.0f.
 		*/
 		void SetVolume(float volume);
 
 		/**
-			@brief Returns the volume value for specified clip.
-			@return Volume
+		@brief Returns the volume value for specified clip.
+		@return Volume
 		*/
 		float GetVolume();
 
 		/**
-			@brief Sets pitch value for specified clip.
+		@brief Sets pitch value for specified clip.
 		*/
 		void SetPitch(float pitch);
 
 		/**
-			@brief Returns the pitch value for specified clip.
-			@return Pitch
+		@brief Returns the pitch value for specified clip.
+		@return Pitch
 		*/
 		float GetPitch();
 
 		/**
-			@brief Set specified clip on loop.
+		@brief Set specified clip on loop.
 		*/
 		void SetLoop(bool loop);
 
 		/**
-			@brief Sets time elapsed for the specified clip. 
+		@brief Sets time elapsed for the specified clip.
 		*/
 		void SetElapsedTime(double time);
 
 		/**
-			@brief Returns elapsed time for specified clip
-			@return Elapsed time.
+		@brief Returns elapsed time for specified clip
+		@return Elapsed time.
 		*/
 		double GetElapsedTime();
 
 		/**
-			@brief Returns total time of specified clip
-			@return total time.
+		@brief Returns total time of specified clip
+		@return total time.
 		*/
 		double GetTotalTime();
 
 		/**
-			@brief Returns true if the specified clip is playing audio.
-			@return Is Playing.
+		@brief Returns true if the specified clip is playing audio.
+		@return Is Playing.
 		*/
 		bool IsPlaying();
 
 		/**
-			@brief Sets the priority of the specified clip.
+		@brief Sets the priority of the specified clip.
 		*/
 		//void SetPriority(UInt32);
 
 		/**
-			@brief Returns the clip priority.
-			@return Priority
+		@brief Returns the clip priority.
+		@return Priority
 		*/
 		//UInt32 GetPriority();
 
 		/**
-			@brief Sets  audio position for the specified source
-			@param[in] Position
+		@brief Sets  audio position for the specified source
+		@param[in] Position
 		*/
 		void SetPosition(math::Vector3 position);
-		
+
 		/**
-			@brief Sets  audio position for the specified source
-			@param[in] Velocity
+		@brief Sets  audio position for the specified source
+		@param[in] Velocity
 		*/
 		void SetVelocity(math::Vector3 velocity);
 
+		AudioClipImpl* operator->() const;
+
+		virtual void Play() = 0;
+	};
+
+	class AudioClip : public IAudioSample
+	{		
+
+	public:
+
+		AudioClip();
+		AudioClip(const File& file, float volume = 1.0f, bool loop = false);
+
+
 		/**
-			@brief fades audio
-			@param[in] duration, endvolume
+		@brief fades audio
+		@param[in] duration, endvolume
 		*/
 		void Fade(float duration, float endVolume);
 
+
+		virtual void Play();
+
 	};
+
+	class AudioStream : public IAudioSample
+	{
+
+	public:
+
+		AudioStream();
+		AudioStream(const File& file, float volume = 1.0f, bool loop = false);
+
+
+		virtual void Play();
+
+	};
+
 
 	class IAudioEffect
 	{
@@ -163,6 +187,7 @@ namespace ace
 
 	class Audio
 	{
+		friend class AudioClip;
 	public:
 		/**
 			@brief Inits Audio.
@@ -200,7 +225,15 @@ namespace ace
 			@param[in] AudioClip&
 			@return Is Playing
 		*/
-		static void PlayAudio(const AudioClip& Clip);
+		static void PlayAudio(AudioClip& Clip);
+
+
+		/**
+		@brief Plays audio with current set of attribute modifiers.
+		@param[in] AudioClip&
+		@return Is Playing
+		*/
+		static void PlayAudio(AudioStream& stream);
 
 		/**
 			@brief Sets 3D audio position for the specified source.
