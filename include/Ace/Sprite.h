@@ -31,24 +31,24 @@ namespace ace
 		@Brief Rotate sprite
 		@param[in] deg Degrees to rotate in float
 		*/
-		 void Rotate(float deg);
+		void Rotate(float deg);
 
-		 /**
-		 @Brief Scale sprite
-		 @param[in] scale New size in Vector2
-		 */
-		 void Scale(const Vector2& scale);
+		/**
+		@Brief Scale sprite
+		@param[in] scale New size in Vector2
+		*/
+		void Scale(const Vector2& scale);
 
-		 /**
-		 @Brief Move sprite from current location to new location
-		 @param[in] pos New position in Vector3
-		 */
-		 void Move(const Vector3& pos);
+		/**
+		@Brief Move sprite from current location to new location
+		@param[in] pos New position in Vector3
+		*/
+		void Move(const Vector3& pos);
 
-		 /**
-		 @Brief Colorize sprite
-		 @param[in] color New sprite color in Color 
-		 */
+		/**
+		@Brief Colorize sprite
+		@param[in] color New sprite color in Color 
+		*/
 		void Colorize(const Color& color);
 
 		/**
@@ -57,14 +57,14 @@ namespace ace
 		*/
 		void UVRect(const Rect& uv);
 		// Set UV Rect. (Better method name?) 
-		// TODO: Rect (Rectangle)
+		
 		
 		/**
 		@brief FlipUV to opposite direction
 		@param[in] axis True = x-axis, false = y-axis
 		*/
 		void FlipUV(const bool axis = true);
-		// etc.
+		
 
 		// TODO: Update Vertex by Index.
 		// void SetUV(UInt8, const Vector2& uv);
