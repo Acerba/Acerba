@@ -77,7 +77,7 @@ endif()
 
 
 if(PB_MAIN)
-	if(PB_ANDROID_NDK)
+	if(PB_ANDROID)
 		add_custom_command(TARGET ProjectBuild POST_BUILD
 			COMMAND ndk-build NDK_PROJECT_PATH=. NDK_APPLICATION_MK=acerba/Application.mk APP_BUILD_SCRIPT=acerba/Android.mk NDK_LIBS_OUT=acerba/libs BASE_PATH="${ACERBA_SOURCE_DIR}"
 			WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/android")
