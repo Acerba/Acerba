@@ -154,6 +154,7 @@ bool cOAL_OggStream::Stream(cOAL_Buffer* apDestBuffer)
 		else
 			lDataSize += lChunkSize;
 	}
+
 	// Bind the data to the Buffer Object
 	if(lDataSize) 
 		mbStatus = apDestBuffer->Feed(mpPCMBuffer, lDataSize, fStartTime);

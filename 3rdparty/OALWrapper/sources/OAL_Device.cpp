@@ -18,6 +18,8 @@
 #include "OALWrapper/OAL_OggSample.h"
 #include "OALWrapper/OAL_WAVSample.h"
 #include "OALWrapper/OAL_OggStream.h"
+#include "OALWrapper/OAL_WAVStream.h"
+
 #include "OALWrapper/OAL_CustomStream.h"
 #include "OALWrapper/OAL_SourceManager.h"
 
@@ -427,6 +429,11 @@ cOAL_Stream* cOAL_Device::LoadStream(const wstring &asFilename, eOAL_SampleForma
 		case eOAL_SampleFormat_Ogg:
 			pStream = new cOAL_OggStream;
 			break;
+		case eOAL_SampleFormat_Wav:
+			pStream = new cOAL_WAVStream;
+			break;
+
+
 		default:
 			return NULL;
 	}
@@ -460,6 +467,9 @@ cOAL_Stream* cOAL_Device::LoadStreamFromBuffer(const void* apBuffer, size_t aSiz
 	switch(format) {
 		case eOAL_SampleFormat_Ogg:
 			pStream = new cOAL_OggStream;
+			break;
+		case eOAL_SampleFormat_Wav:
+			pStream = new cOAL_WAVStream;
 			break;
 		default:
 			return NULL;

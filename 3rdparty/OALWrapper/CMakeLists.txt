@@ -148,6 +148,7 @@ SET(all_sources
     sources/OAL_OggSample.cpp
     sources/OAL_OggStream.cpp
     sources/OAL_WAVSample.cpp
+    sources/OAL_WAVStream.cpp
     sources/OAL_CustomStream.cpp
     sources/OAL_Playback.cpp
     sources/OAL_Sample.cpp
@@ -183,6 +184,7 @@ SET(all_includes
     include//OALWrapper/OAL_Stream.h
     include//OALWrapper/OAL_Types.h
     include//OALWrapper/OAL_WAVSample.h
+    include//OALWrapper/OAL_WAVStream.h
 )
 
 #IF(USE_SDL2)
