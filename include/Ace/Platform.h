@@ -7,6 +7,10 @@
 	#define ACE_WIN 1
 #endif
 
+#if defined (_DEBUG)
+    #define ACE_DEBUG 1
+#endif
+
 namespace ace
 {
 	// Functions for checking platform. (If needed)

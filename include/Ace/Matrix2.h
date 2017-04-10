@@ -29,7 +29,7 @@ namespace ace
 
 			Matrix2();
 			Matrix2(float identity);
-			Matrix2(Vector2 v1, Vector2 v2);
+			Matrix2(const Vector2& v1, const Vector2& v2);
 
 			/**
 			@return Determinant

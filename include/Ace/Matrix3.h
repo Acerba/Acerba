@@ -30,7 +30,7 @@ namespace ace
 
 			Matrix3();
 			Matrix3(float identity);
-			Matrix3(Vector3 v1, Vector3 v2, Vector3 v3);
+			Matrix3(const Vector3& v1, const Vector3& v2, const Vector3& v3);
 			
 			/**
 			@return Determinant
