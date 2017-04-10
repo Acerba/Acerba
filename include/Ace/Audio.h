@@ -27,6 +27,7 @@ namespace ace
 
 		float volume;
 		float pitch;
+		bool loop;
 		
 
 	public:
@@ -117,7 +118,7 @@ namespace ace
 	public:
 
 		AudioClip();
-		AudioClip(const File& file, float volume = 1.0f, bool isPaused = true);
+		AudioClip(const File& file, float volume = 1.0f, bool isPaused = true, bool loop = false);
 
 
 		/**
@@ -137,7 +138,7 @@ namespace ace
 	public:
 
 		AudioStream();
-		AudioStream(const File& file, float volume = 1.0f, bool isPaused = true);
+		AudioStream(const File& file, float volume = 1.0f, bool isPaused = true, bool loop = false);
 
 
 		virtual void Play();

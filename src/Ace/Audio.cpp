@@ -108,10 +108,11 @@ namespace ace
 
 	}
 
-	AudioClip::AudioClip(const File& file, float volume, bool isPaused) : IAudioSample(new AudioClipImpl(LoadSample(file)))
+	AudioClip::AudioClip(const File& file, float volume, bool isPaused, bool loop) : IAudioSample(new AudioClipImpl(LoadSample(file)))
 	{
 		this->volume = volume;
 		this->ispaused = isPaused;
+		this->loop = loop;
 	}
 
 	AudioStream::AudioStream() : IAudioSample(nullptr) 
@@ -119,10 +120,11 @@ namespace ace
 	
 	}
 
-	AudioStream::AudioStream(const File& file, float volume, bool isPaused) : IAudioSample(new AudioClipImpl(LoadStream(file)))
+	AudioStream::AudioStream(const File& file, float volume, bool isPaused, bool loop) : IAudioSample(new AudioClipImpl(LoadStream(file)))
 	{
 		this->volume = volume;
 		this->ispaused = isPaused;
+		this->loop = loop;
 	}
 
 
@@ -196,6 +198,8 @@ namespace ace
 			clip.impl->id = OAL_Sample_Play(OAL_FREE, clip.impl->sample, clip.volume, clip.ispaused, 0);
 			Audio::GetAudio().clips.push_back(clip);
 
+			OAL_Source_SetLoop(clip->id, clip.loop);
+
 			OAL_Source_SetPaused(clip->id, false);
 		}
 		else
@@ -215,7 +219,11 @@ namespace ace
 			}
 			else
 			{
-				stream.impl->id = OAL_Stream_Play(OAL_FREE, stream.impl->stream, stream.volume, stream.loop);
+				stream.impl->id = OAL_Stream_Play(OAL_FREE, stream.impl->stream, stream.volume, stream.ispaused);
+
+				OAL_Source_SetLoop(stream->id, stream.loop);
+
+				OAL_Source_SetPaused(stream->id, false);
 			}
 			
 		}
