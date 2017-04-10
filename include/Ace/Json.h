@@ -17,24 +17,10 @@ namespace ace
 
 		Json();
 
-		//TODO copy constructer
-		
-		std::string Read(Path path);
-		
-		void Parse(std::string str);
+		bool Parse(const bool isFile, std::string& str);
 		
 		void Write(Path path);
-	
-	private:
-		rapidjson::Document *ptr;
-
 
 	};
-
-	/**
-		@brief Jameson is proved to be 10000% faster and better than Json.
-	*/
-	typedef Json Jameson;
-	
 
 }

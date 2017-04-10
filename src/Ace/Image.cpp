@@ -109,8 +109,8 @@ namespace ace
 			return;
 		}
 
-		auto buffer = p_file.ReadAll();
-		int comp;
+		auto& buffer = p_file.ReadAll();
+		Int32 comp = 0;
 
 		UInt8* pixels = stbi_load_from_memory(buffer.get(), p_file.Size(), &w, &h, &comp, 0);
 		m_pixels.reset(pixels);

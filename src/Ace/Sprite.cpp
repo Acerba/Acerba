@@ -18,9 +18,9 @@ namespace ace
 
 	Sprite::Sprite(float deg) : Sprite()
 	{
-		for (int i = 0; i < 4; ++i)
+		for (auto& i : vertexData)
 		{
-			vertexData[i].position = math::Matrix4::RotationZ(deg) * vertexData[i].position;
+			i.position = math::Matrix4::RotationZ(deg) * i.position;
 		}
 	}
 
@@ -38,35 +38,35 @@ namespace ace
 
 	void Sprite::Rotate(float deg)
 	{
-		for (int i = 0; i < 4; ++i)
+		for (auto& i : vertexData)
 		{
-			vertexData[i].position = math::Matrix4::RotationZ(deg) * vertexData[i].position;
+			i.position = math::Matrix4::RotationZ(deg) * i.position;
 		}
 	}
 
 	void Sprite::Scale(const Vector2& scale)
 	{
-		for (int i = 0; i < 4; ++i)
+		for (auto& i : vertexData)
 		{
-			vertexData[i].position.x *= scale.x;
-			vertexData[i].position.y *= scale.y;
+			i.position.x *= scale.x;
+			i.position.y *= scale.y;
 		}
 	}
 
 	void Sprite::Move(const Vector3& pos)
 	{
-		for (int i = 0; i < 4; ++i)
+		for(auto& i : vertexData)
 		{
-			vertexData[i].position.x += pos.x;
-			vertexData[i].position.y += pos.y;
+			i.position.x += pos.x;
+			i.position.y += pos.y;
 		}
 	}
 
 	void Sprite::Colorize(const Color& color)
 	{
-		for (int i = 0; i < 4; ++i)
+		for (auto& i : vertexData)
 		{
-			vertexData[i].color = color;
+			i.color = color;
 		}
 	}
 
