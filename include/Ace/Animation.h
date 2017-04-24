@@ -1,5 +1,6 @@
 #pragma once
 #include <Ace/IntTypes.h>
+#include <Ace/SpriteSheet.h>
 #include <string>
 
 namespace ace 
@@ -9,27 +10,28 @@ namespace ace
 	public:
 		struct AnimationData
 		{
-			std::string fileName;
-			Int32 sizeX;
-			Int32 sizeY;
+			std::string animation;
 			Int32 loopSpeed;
-
-			Int32 frameSizeX;
-			Int32 frameSizeY;
-
-			UInt8* frames;
-			UInt8 frameCount;
-			AnimationData();
+			std::vector<SpriteSheet::SpriteData> frames;
+			AnimationData(const std::string& name);
 			~AnimationData();
+
+			float currentTime;
+			UInt16 currentFrame;
+
 		};
 
-		Animation(const char* jsonName);
+		Animation(const SpriteSheet& Sheet);
 		~Animation();
 
+		void PlayAnimation(const std::string& animationName);
 
+		std::string AnimationName;
 	private:
 		UInt16 m_frameSpeed;
-		AnimationData m_data;
+		std::vector<AnimationData> m_animations;
+
+
 
 	};
 }

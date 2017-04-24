@@ -1,7 +1,7 @@
 #include <Ace/File.h>
-#include <SDL_rwops.h>
 #include <Ace/Log.h>
 
+#include <SDL_rwops.h>
 #include <iostream>
 
 namespace ace
