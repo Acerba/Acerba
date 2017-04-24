@@ -85,6 +85,14 @@ namespace ace
 		void Uniform(const char* name, const std::vector<Matrix3>&);
 		void Uniform(const char* name, const std::vector<Matrix4>&);
 
+		/**
+			@brief
+		*/
+		inline virtual void Apply()
+		{
+
+		}
+
 	protected:
 		virtual void Init() const;
 	};

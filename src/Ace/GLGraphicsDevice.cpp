@@ -355,6 +355,7 @@ namespace ace
 
 	void GraphicsDevice::Draw(Material& material, UInt32 elements, UInt32 indicies, const UInt32* indexTable)
 	{
+		material.Apply();
 		glUseProgram(material->materialID);
 
 		SetMaterialFlags(material);
