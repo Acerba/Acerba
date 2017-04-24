@@ -496,7 +496,7 @@ namespace ace
 
     void UserInterface::BeginGroup(const Vector2& size, const Vector2& position, const UInt32 flags)
     {
-        ACE_ASSERT(s_windowID == 255u, "Too many UI groups created.", "")
+        ACE_ASSERT(s_windowID != 255u, "Too many UI groups created.", "")
         ImGui::SetNextWindowSize(ImVec2(size.x, size.y));
         ImGui::SetNextWindowPos(ImVec2(position.x, position.y));
         ImGui::GetStyle().Colors[ImGuiCol_WindowBg].w = 0.f;
@@ -529,24 +529,24 @@ namespace ace
     }
 
 
-    void UserInterface::MakeBar(const float progress, const Vector2& size, const char* text)
+    void UserInterface::Bar(const float progress, const Vector2& size, const char* text)
     {
         ImGui::ProgressBar(progress, ImVec2(size.x * s_factorUI, size.y * s_factorUI), text);
     }
 
 
-    bool UserInterface::MakeButton(const Vector2& size, const char* text)
+    bool UserInterface::Button(const Vector2& size, const char* text)
     {
         return ImGui::Button(text, ImVec2(size.x * s_factorUI, size.y * s_factorUI));
     }
 
 
-    void UserInterface::MakeText(const char* text ...)
+    void UserInterface::Text(const char* text ...)
     {
         ACE_ASSERT(text, "Invalid UI Text field", "")
         va_list args;
         va_start(args, text);
-        ImGui::Text(text, args); //format, args
+        ImGui::TextV(text, args);
         va_end(args);
     }
 

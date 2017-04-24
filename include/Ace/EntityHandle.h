@@ -4,331 +4,83 @@
 #include <Ace/ComponentPool.h>
 #include <Ace/Transform.h>
 
+#include <forward_list>
 
 namespace ace
 {
 
     struct EntityManager::EntityHandle
     {
-    private:
-
-        struct ChildList
-        {
-            EntityHandle* thisChild;
-            ChildList* nextChild;
-
-            ChildList(EntityHandle* _this) :
-                thisChild(_this),
-                nextChild(nullptr)
-            {
-
-            }
-
-            ~ChildList()
-            {
-                if (nextChild)
-                {
-                    delete nextChild;
-                    nextChild = nullptr;
-                }
-            }
-
-            static void AddChild(EntityHandle* parent, EntityHandle* newChild)
-            {
-                ChildList* next = &parent->m_children;
-
-                if (!next->thisChild)
-                {
-                    next->thisChild = newChild;
-                    return;
-                }
-
-                while (next->nextChild)
-                {
-                    next = next->nextChild;
-                }
-                next->nextChild = new ChildList(newChild);
-            }
-
-        };
-
-        ChildList m_children;
-        EntityHandle* m_parent;
-        EntityHandle* m_next;
-
-    public:
-
-        Transform m_transform;
-
-        /**
-        @brief Marks target as a child of this and this as a parent of target.
-        @param[in, out] target Will be child of this. Must be valid pointer.
-        */
-        void AddChild(EntityHandle* target)
-        {
-            if (!target)
-                return;
-            GetRoot()->RemoveChild(target);
-            target->RemoveChild(target);
-            ChildList::AddChild(this, target);
-            target->m_parent = this;
-        }
-
-
-        /**
-        @brief Get the number of children this entity has
-        */
-        UInt32 ChildCount() const
-        {
-            UInt32 count = 0u;
-
-            //Recurse children
-            ChildList* next = m_children.nextChild;
-            if (m_children.thisChild)
-                count += 1u + m_children.thisChild->ChildCount();
-            while (next)
-            {
-                if (next->thisChild)
-                {
-                    count += 1u + next->thisChild->ChildCount();
-                    next = next->nextChild;
-                }
-            }
-
-            //Recurse next
-            EntityHandle* nextH = m_next;
-            while (nextH)
-            {
-                count += 1u + nextH->ChildCount();
-                nextH = nextH->m_next;
-            }
-
-            return count;
-        }
-
-        /**
-        @brief Retrieves the index'th child of this
-        @param[in] index Index of the child. Defaults to first child.
-        @see ChildCount
-        @return Pointer to child handle. Nullptr if invalid index.
-        */
-        EntityHandle* GetChild(UInt32 index = 0u)
-        {
-            if (!m_children.thisChild)
-                return nullptr;
-            if (index == 0u)
-                return m_children.thisChild;
-
-            ChildList* next = m_children.nextChild;
-            while (next)
-            {
-                if (--index == 0u)
-                {
-                    break;
-                }
-                next = next->nextChild;
-            }
-
-            return next ? next->thisChild : nullptr;
-        }
-
-        /**
-        @brief Retrieves root entityHandle
-        @return Returns root
-        */
-        EntityHandle* GetRoot()
-        {
-            EntityHandle* parent = this;
-            while (parent->m_parent)
-            {
-                parent = parent->m_parent;
-            }
-            return parent;
-        }
-
-
-        /**
-        @brief Removes target and all its children.
-        @param[in, out] target  Must be valid pointer. Target and all its children will be invalidated on this call.
-        */
-        static void RemoveChild(EntityHandle* target)
-        {
-            if (!target)
-                return;
-            if (!target->m_parent)
-                return;
-
-
-            ChildList* prev = &target->m_parent->m_children;
-
-            //Target is first child
-            if (prev->thisChild == target)
-            {
-                *prev = *prev->nextChild;
-            }
-            //Target is older child
-            else
-            {
-                ChildList* next = prev->nextChild;
-
-                while (next)
-                {
-                    if (next->thisChild == target)
-                    {
-                        *prev->nextChild = *next->nextChild;
-                        break;
-                    }
-
-                    prev = next;
-                    next = next->nextChild;
-                }
-            }
-            //Remove target and all its children
-            _removeChild(target);
-        }
+        Transform transform;
+        EntityManager* manager;
 
     private:
 
-        //Removes target and all children
-        static void _removeChild(EntityHandle* target)
-        {
-            if (!target)
-                return;
 
-            ChildList* nextL = &target->m_children;
-            ChildList* tempL = nullptr;
-
-            //Recurse children
-            while (nextL)
-            {
-                tempL = nextL->nextChild;
-                _removeChild(nextL->thisChild);
-                nextL = tempL;
-            }
-
-            EntityHandle* nextH = target->m_next;
-            EntityHandle* tempH = nullptr;
-
-            //Recurse next
-            while (nextH)
-            {
-                tempH = nextH->m_next;
-                _removeChild(tempH);
-                nextH = tempH;
-            }
-            _removeSelf(target);
-        }
-
-        static void _removeSelf(EntityHandle* target)
-        {
-            EntityManager::DestroyEntity(target, *target->manager);
-        }
-
-
-        UInt32 m_componentCount;
-
+        std::forward_list<EntityHandle*> m_children;
         EntityManager::ComponentBaseHandle* m_first;
         EntityManager::ComponentBaseHandle* m_last;
+        EntityHandle* m_next;
+        EntityHandle* m_parent;
+        UInt32 m_componentCount;
 
-        inline void PushHandle(EntityManager::ComponentBaseHandle* handle)
-        {
-            if (!m_first && !m_last)
-            {
-                m_first = m_last = handle;
-            }
-            else
-            {
-                m_last->next = handle;
-                m_last = handle;
-            }
-            ++m_componentCount;
-        }
 
-        inline void PopHandle(EntityManager::ComponentBaseHandle* handle)
-        {
-            if (m_first == m_last && m_first == handle)
-            {
-                m_first = m_last = nullptr;
-            }
-            else if (m_first == handle)
-            {
-                m_first = handle->next;
-            }
-            else
-            {
-                EntityManager::ComponentBaseHandle* prev = m_first;
+        void PushHandle(EntityManager::ComponentBaseHandle* handle);
 
-                while (prev->next != handle && prev)
-                {
-                    prev = prev->next;
-                }
-
-                if (handle == m_last)
-                {
-                    prev->next = nullptr;
-                    m_last = prev;
-                }
-                else
-                {
-                    prev->next = handle->next;
-                }
-            }
-            --m_componentCount;
-        }
+        void PopHandle(EntityManager::ComponentBaseHandle* handle);
 
         ACE_DISABLE_COPY(EntityHandle)
 
     public:
 
-        EntityManager* manager;
+
+        /**
+            @brief Marks target as a child of this and this as a parent of target.
+            @param[in, out] target Will be child of this. Must be valid pointer.
+        */
+        void AddChild(EntityHandle* target);
 
 
-        EntityHandle(EntityManager* manager) :
-            manager(manager),
-            m_componentCount(0u),
-            m_first(nullptr),
-            m_children(nullptr),
-            m_last(nullptr),
-            m_next(nullptr),
-            m_parent(nullptr),
-            m_transform()
-        {
+        /**
+            @brief Get the number of children this entity has.
+        */
+        UInt32 ChildCount() const;
 
-        }
+        /**
+            @brief Get the number of children this entity and the recursive children have.
+        */
+        UInt32 ChildCountTotal() const;
 
-        ~EntityHandle()
-        {
+        /**
+            @brief Retrieves the index'th child of this.
+            @param[in] index Index of the child. Defaults to first child.
+            @see ChildCount
+            @return Pointer to child handle. Nullptr if invalid index.
+        */
+        EntityHandle* GetChild(UInt32 index = 0u);
 
-        }
+        /**
+            @brief Retrieves root entityHandle of this tree
+            @return Returns root
+        */
+        EntityHandle* GetRoot();
 
-        inline static void Clone(EntityHandle* target, EntityHandle* other)
-        {
-            EntityManager::ComponentBaseHandle* otherCurrent = other->m_first;
 
-            while (otherCurrent)
-            {
-                target->PushHandle(otherCurrent->Clone(target, other));
-                otherCurrent = otherCurrent->next;
-            }
-        }
+        /**
+            @brief Removes target and all its children.
+            @param[in, out] target  Must be valid pointer. Target and all its children will be invalidated on this call.
+        */
+        static void RemoveChild(EntityHandle* target);
 
-        inline void Destroy()
-        {
-            EntityManager::ComponentBaseHandle* current = m_first;
-            EntityManager::ComponentBaseHandle* temp = nullptr;
+        EntityHandle(EntityManager* manager);
 
-            while (current)
-            {
-                temp = current;
-                current = current->next;
-                temp->Delete();
-            }
-        }
+        ~EntityHandle();
 
-        inline UInt32 Count() const
-        {
-            return m_componentCount;
-        }
+        static void Clone(EntityHandle* target, EntityHandle* other);
+
+        void Destroy();
+
+        inline UInt32 Count() const;
 
         template <typename CompType>
         bool Has() const
@@ -409,46 +161,46 @@ namespace ace
         }
     };
 
-	/**
-	@brief Executes 'function' for all components of 'PrimaryComponent' type, where they share a common owner entity with 'SecondaryType'.
-	@param[in, out] function Function to execute.
-	Pointer to the parent entity is passed in as the first argument.
-	Pointer to the 'PrimaryComponent' is passed in as the second argument.
-	Pointer to the 'SecondaryComponent' is passed in as the third argument.
-	*/
-	template <typename PrimaryComponent, typename SecondaryComponent, typename Function>
-	inline void EntityManager::ForEach(Function function)
-	{
-		ComponentPool<PrimaryComponent>& primaryPool = ComponentPool<PrimaryComponent>::GetPool();
-		ComponentPool<SecondaryComponent>& secondaryPool = ComponentPool<SecondaryComponent>::GetPool();
+    /**
+    @brief Executes 'function' for all components of 'PrimaryComponent' type, where they share a common owner entity with 'SecondaryType'.
+    @param[in, out] function Function to execute.
+    Pointer to the parent entity is passed in as the first argument.
+    The 'PrimaryComponent' is passed in as the second argument.
+    The 'SecondaryComponent' is passed in as the third argument.
+    */
+    template <typename PrimaryComponent, typename SecondaryComponent, typename Function>
+    inline void EntityManager::ForEach(Function function)
+    {
+        ComponentPool<PrimaryComponent>& primaryPool = ComponentPool<PrimaryComponent>::GetPool();
+        ComponentPool<SecondaryComponent>& secondaryPool = ComponentPool<SecondaryComponent>::GetPool();
 
-		ComponentBaseHandle* secondary = nullptr;
-		
-		EntityHandle* entity = nullptr;
-		for (UInt32 i = 0u; i < primaryPool.m_components.size(); ++i)
-		{
-			entity = primaryPool.m_handles[i]->entity;
-			if (primaryPool.m_handles[i]->entity->Count() > 1u && (secondary = entity->Get<SecondaryComponent>()) != nullptr)
-			{
-				function(primaryPool.m_handles[i]->entity, &primaryPool.m_components[i], &secondaryPool.m_components[secondary->index]);
-			}
-		}
-	}
+        ComponentBaseHandle* secondary = nullptr;
+
+        EntityHandle* entity = nullptr;
+        for (UInt32 i = 0u; i < primaryPool.m_components.size(); ++i)
+        {
+            entity = primaryPool.m_handles[i]->entity;
+            if (primaryPool.m_handles[i]->entity->Count() > 1u && (secondary = entity->Get<SecondaryComponent>()) != nullptr)
+            {
+                function(primaryPool.m_handles[i]->entity, primaryPool.m_components[i], secondaryPool.m_components[secondary->index]);
+            }
+        }
+    }
 
 
-	/**
-	@brief Executes 'function' for all components of 'CompType'.
-	@param[in, out] function Function to execute.
-	Pointer of the components owner entity is passed in as the first argument to the function.
-	Pointer of the component is passed in as the second argument to the function.
-	*/
-	template <typename CompType, typename Function>
-	inline void EntityManager::ForEach(Function function)
-	{
-		ComponentPool<CompType>& pool = ComponentPool<CompType>::GetPool();
-		for (UInt32 i = 0u; i < pool.m_components.size(); ++i)
-		{
-			function(pool.m_handles[i]->entity, pool.m_components[i]);
-		}
-	}
+    /**
+        @brief Executes 'function' for all components of 'CompType'.
+        @param[in, out] function Function to execute.
+        Pointer of the components owner entity is passed in as the first argument to the function.
+        The component is passed in as the second argument to the function.
+    */
+    template <typename CompType, typename Function>
+    inline void EntityManager::ForEach(Function function)
+    {
+        ComponentPool<CompType>& pool = ComponentPool<CompType>::GetPool();
+        for (UInt32 i = 0u; i < pool.m_components.size(); ++i)
+        {
+            function(pool.m_handles[i]->entity, pool.m_components[i]);
+        }
+    }
 }

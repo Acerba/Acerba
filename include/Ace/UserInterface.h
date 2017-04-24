@@ -62,20 +62,20 @@ namespace ace
             @param[in] size Size of the bar.
             @param[in] text Text shown in the bar. 0...1 percentage by default.
         */
-        static void MakeBar(const float progress, const Vector2& size, const char* text = nullptr);
+        static void Bar(const float progress, const Vector2& size, const char* text = nullptr);
 
         /**
             @brief Makes a clickable button to the current group.
             @param[in] size Size of the button in pixels.
             @param[in] text Text on the button. Empty by default.
         */
-        static bool MakeButton(const Vector2& size, const char* text = "");
+        static bool Button(const Vector2& size, const char* text = "");
 
         /**
             @brief Makes a text label to the current group.
             @param[in] text Text to show in the element.
         */
-        static void MakeText(const char* text ...);
+        static void Text(const char* text ...);
 
         /**
             @brief Destroys UI.

@@ -50,7 +50,7 @@ namespace ace
         */
         inline static void Clone(Entity& target, const Entity& other)
         {
-            if (target.ComponenCount() > 0u)
+            if (target.ComponentCount() > 0u)
                 return;
 
             EntityManager::EntityHandle::Clone(target.m_handle, other.m_handle);
@@ -72,7 +72,7 @@ namespace ace
         @brief Returns amount of components tied to this entity.
         @return Number of components tied to this entity.
         */
-        inline UInt32 ComponenCount() const
+        inline UInt32 ComponentCount() const
         {
             return m_handle->Count();
         }
@@ -89,7 +89,7 @@ namespace ace
 
 
         /**
-        @brief Retrieves the number of children this entity has
+            @brief Retrieves the number of children this entity has.
         */
         UInt32 ChildCount() const
         {
@@ -97,16 +97,25 @@ namespace ace
         }
 
 
-        //Check for validity with bool() after this
         /**
-        @brief Retrieves the index'th child of this
-        @param[in] index Index of the child. Defaults to first child.
-        @see ChildCount
-        @return Entity built from child. Internally same as actual child.
-        @warning Check for validity with bool() operator after return.
+            @brief Retrieves the number of children and their children have recursively.
+        */
+        UInt32 ChildCountTotal() const
+        {
+            return m_handle->ChildCountTotal();
+        }
+
+
+        /**
+            @brief Retrieves the index'th child of this
+            @param[in] index Index of the child. Defaults to first child.
+            @see ChildCount
+            @return Entity built from child. Internally same as actual child.
+            @warning Check for validity with bool() operator after return.
         */
         Entity GetChild(const UInt32 index = 0u)
         {
+            //Check for validity with bool() after this
             return Entity(m_handle->GetChild(index));
         }
 

@@ -124,7 +124,7 @@ namespace ace
         EntityManager::ComponentPool<Material>& primaryPool = EntityManager::ComponentPool<Material>::GetPool();
         EntityManager::ComponentPool<Sprite>& secondaryPool = EntityManager::ComponentPool<Sprite>::GetPool();
         EntityManager::ComponentBaseHandle* secondary = nullptr;
-        const Entity* root = scene.GetRoot();
+        const Entity* root = &scene.GetRoot();
 
 
         //Find all entities that have both material and sprite
@@ -192,7 +192,7 @@ namespace ace
         {
             if (i1 == i2)
                 return false;
-            else if (handles[i1]->m_transform.position.z > handles[i2]->m_transform.position.z)
+            else if (handles[i1]->transform.position.z > handles[i2]->transform.position.z)
                 return true;
             else
                 return false;

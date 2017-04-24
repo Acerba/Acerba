@@ -9,9 +9,11 @@ namespace ace
     {
     public:
 
+        Matrix4 model;
         Vector3 position;
         Quaternion rotation;
         Vector3 scale;
+
 
         /**
         @brief Transform class, XYZ-coodrinates
