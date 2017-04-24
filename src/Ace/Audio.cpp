@@ -1,4 +1,5 @@
 #include <Ace/Audio.h>
+#include <Ace/Assert.h>
 #include <Ace/IntTypes.h>
 #include <Ace/Time.h>
 #include <Ace/Log.h>
