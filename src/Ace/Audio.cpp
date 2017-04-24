@@ -140,15 +140,7 @@ namespace ace
 
 			cOAL_Init_Params oal_parms;
 
-			if (OAL_Init(oal_parms) == false)
-			{
-				Logger::LogInfo("Audio initializing failed!");
-			}
-			else
-			{
-				Logger::LogInfo("Audio initializing succeeded!");
-			}
-				
+			ACE_ASSERT(OAL_Init(oal_parms), "Audio initializing failed!", "");				
 		}
 
 		g_isAudioRunning = true;

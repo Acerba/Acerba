@@ -3,6 +3,7 @@
 #include <Ace/File.h>
 #include <Ace/Color.h>
 #include <memory>
+#include <Ace\Assert.h>
 
 namespace ace
 {
