@@ -10,6 +10,8 @@ add_subdirectory(openal-soft)
 add_subdirectory(OALWrapper)
 add_subdirectory(gl3w)
 add_subdirectory(imgui)
+add_subdirectory(TMXParser)
+
 
 if(NOT ANDROID)
 	set_property(TARGET SDL2 SDL2main SDL2-static gl3w imgui PROPERTY FOLDER 3rdParty)

@@ -16,6 +16,8 @@ namespace ace
 		RG,			/**	Gray Alpha	*/
 		RGB,		/**	RGB			*/
 		RGBA,		/**	RGBA		*/
+		Depth,		/** Depth		*/
+		Stencil,	/** Stencil		*/
 	};
 
 	class Image
