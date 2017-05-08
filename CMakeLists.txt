@@ -31,14 +31,14 @@ set(INCLUDES
     ${ACERBA_SOURCE_DIR}/3rdparty/vorbis/include
     ${ACERBA_SOURCE_DIR}/3rdparty/ogg/include
     ${ACERBA_SOURCE_DIR}/3rdparty/imgui/include
-    ${ACERBA_SOURCE_DIR}/3rdparty/TMXParser/include
+    ${ACERBA_SOURCE_DIR}/3rdparty/TMXLoader/TMXLoader
 )
 
-set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui tmxparser)
+set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui TMXLoader)
 
 if(ANDROID)
 	set(DEFINES ANDROID GL_GLEXT_PROTOTYPES)
-	set(LIBS SDL2 android log openal OALWrapper dl GLESv1_CM GLESv2 imgui tmxparser)
+	set(LIBS SDL2 android log openal OALWrapper dl GLESv1_CM GLESv2 imgui TMXLoader)
 
 endif()
 

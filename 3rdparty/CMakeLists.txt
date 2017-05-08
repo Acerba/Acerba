@@ -10,7 +10,7 @@ add_subdirectory(openal-soft)
 add_subdirectory(OALWrapper)
 add_subdirectory(gl3w)
 add_subdirectory(imgui)
-add_subdirectory(TMXParser)
+add_subdirectory(TMXLoader)
 
 
 if(NOT ANDROID)
