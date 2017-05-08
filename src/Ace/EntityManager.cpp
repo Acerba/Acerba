@@ -63,4 +63,12 @@ namespace ace
         return m_entities.back();
     }
 
+	void EntityManager::Update()
+	{
+		for (UInt32 i = 0; i < m_componentPools.size(); ++i)
+		{
+			m_componentPools[i]->Update();
+		}
+	}
+
 }

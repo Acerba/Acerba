@@ -112,6 +112,7 @@ namespace ace
         static EntityManager& DefaultManager();
         static EntityHandle* Entity(EntityManager& manager = DefaultManager());
 
+		static void Update();
 
         /**
         @brief Executes 'function' for all components of 'PrimaryComponent' type, where they share a common owner entity with 'SecondaryType'.

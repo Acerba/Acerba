@@ -17,6 +17,8 @@ namespace ace
         virtual void Reserve(const UInt32 size) = 0;
         virtual UInt32 Size() const = 0;
 
+		virtual void Update() = 0;
+
     protected:
 
         BasePool(const ComponentID id) :
@@ -47,30 +49,49 @@ namespace ace
         std::vector<CompType> m_components;
         std::vector<EntityManager::ComponentHandle<CompType>*> m_handles;
 
+
+
     public:
+
+		typedef void(*UpdateCallback)(CompType&);
+		UpdateCallback update;
 
         virtual const void* Data() const
         {
             return m_components.data();
         }
+
         virtual void* Get(const UInt32 index)
         {
             return &m_components.at(index);
         }
+
         virtual const void* Get(const UInt32 index) const
         {
             return &m_components.at(index);
         }
+
         virtual void Reserve(const UInt32 size)
         {
             m_components.reserve(size);
             m_handles.reserve(size);
         }
+
         virtual UInt32 Size() const
         {
             return m_components.size();
         }
 
+		virtual void Update()
+		{
+			if (update)
+			{
+				for (UInt32 i = 0; i < m_components.size(); ++i)
+				{
+					update(m_components[i]);
+				}
+			}
+		}
 
         static ComponentPool& GetPool()
         {
