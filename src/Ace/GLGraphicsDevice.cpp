@@ -333,7 +333,7 @@ namespace ace
 		return material;
 	}
 
-	void GraphicsDevice::Uniform(Material& material, const char* name, const void* data, UniformType uniform, UInt32 elements)
+	void GraphicsDevice::Uniform(const Material& material, const char* name, const void* data, UniformType uniform, UInt32 elements)
 	{
 		glUseProgram(material->materialID);
 		UInt32 location = glGetUniformLocation(material->materialID, name);

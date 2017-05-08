@@ -60,8 +60,10 @@ namespace ace
 			"																\n"
 			"uniform vec2 Position;											\n"
 			"uniform vec2 Scale;											\n"
-			"uniform mat2 Rotation; // 2D									\n"				
+			"uniform mat2 Rotation; // 2D									\n"		
 			"uniform mat4 Model;											\n"
+			"uniform mat4 M[50];											\n"
+			"uniform mat4 VP;												\n"
 			"																\n"
 			"void main()													\n"
 			"{																\n"
@@ -74,8 +76,7 @@ namespace ace
 			"   pos.y *= Scale.y;											\n"	
 			"	pos.xy += Position.xy;										\n"
 			"																\n"
-			"																\n"
-			"	gl_Position = Model * pos;									\n"
+			"	gl_Position = VP * M[int(a_position.w)] * Model * pos;		\n"
 			"}																\n"
 			, ShaderType::Vertex);											
 																			
@@ -97,6 +98,9 @@ namespace ace
 			, ShaderType::Fragment);
 
 			InitImpl(GraphicsDevice::CreateMaterial(vert, frag));
+
+			Uniform("M", math::Matrix4::Identity());
+			Uniform("VP", math::Matrix4::Identity());
 		}
 	};
 }

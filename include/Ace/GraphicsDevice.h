@@ -226,7 +226,7 @@ namespace ace
 			@param[in] uniform Uniform Type
 			@param[in] elements Count
 		*/
-		static void Uniform(Material& material, const char* name, const void* data, UniformType uniform, UInt32 elements = 1);
+		static void Uniform(const Material& material, const char* name, const void* data, UniformType uniform, UInt32 elements = 1);
 
 		/**
 			@brief Create Framebuffer

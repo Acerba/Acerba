@@ -59,31 +59,31 @@ namespace ace
 
 		void AddTexture(const Texture& texture, const char* name, UInt8 id);
 
-		void Uniform(const char* name, const UInt32&);
-		void Uniform(const char* name, const Int32&);
-		void Uniform(const char* name, const float&);
+		void Uniform(const char* name, const UInt32&) const;
+		void Uniform(const char* name, const Int32&) const;
+		void Uniform(const char* name, const float&) const;
 
-		void Uniform(const char* name, const Vector2&);
-		void Uniform(const char* name, const Vector3&);
-		void Uniform(const char* name, const Vector4&);
-		void Uniform(const char* name, const Color32&);
+		void Uniform(const char* name, const Vector2&) const;
+		void Uniform(const char* name, const Vector3&) const;
+		void Uniform(const char* name, const Vector4&) const;
+		void Uniform(const char* name, const Color32&) const;
 
-		void Uniform(const char* name, const Matrix2&);
-		void Uniform(const char* name, const Matrix3&);
-		void Uniform(const char* name, const Matrix4&);
+		void Uniform(const char* name, const Matrix2&) const;
+		void Uniform(const char* name, const Matrix3&) const;
+		void Uniform(const char* name, const Matrix4&) const;
 
-		void Uniform(const char* name, const std::vector<UInt32>&);
-		void Uniform(const char* name, const std::vector<Int32>&);
-		void Uniform(const char* name, const std::vector<float>&);
+		void Uniform(const char* name, const std::vector<UInt32>&) const;
+		void Uniform(const char* name, const std::vector<Int32>&) const;
+		void Uniform(const char* name, const std::vector<float>&) const;
 
-		void Uniform(const char* name, const std::vector<Vector2>&);
-		void Uniform(const char* name, const std::vector<Vector3>&);
-		void Uniform(const char* name, const std::vector<Vector4>&);
-		void Uniform(const char* name, const std::vector<Color32>&);
+		void Uniform(const char* name, const std::vector<Vector2>&) const;
+		void Uniform(const char* name, const std::vector<Vector3>&) const;
+		void Uniform(const char* name, const std::vector<Vector4>&) const;
+		void Uniform(const char* name, const std::vector<Color32>&) const;
 
-		void Uniform(const char* name, const std::vector<Matrix2>&);
-		void Uniform(const char* name, const std::vector<Matrix3>&);
-		void Uniform(const char* name, const std::vector<Matrix4>&);
+		void Uniform(const char* name, const std::vector<Matrix2>&) const;
+		void Uniform(const char* name, const std::vector<Matrix3>&) const;
+		void Uniform(const char* name, const std::vector<Matrix4>&) const;
 
 		/**
 			@brief
