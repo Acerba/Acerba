@@ -12,6 +12,8 @@
 #include <Ace/GLFramebbuferImpl.h>
 
 #include <Ace/Platform.h>
+#include <Ace/Assert.h>
+
 
 namespace ace
 {
@@ -98,11 +100,17 @@ namespace ace
 
 	void GraphicsDevice::Viewport(UInt32 w, UInt32 h)
 	{
+		ACE_ASSERT(w != 0, "Viewport width must be more than zero, %i", w);
+		ACE_ASSERT(h != 0, "Viewport height must be more than zero, %i", h);
+
 		glViewport(0, 0, w, h);
 	}
 
 	void GraphicsDevice::Scissor(Int32 x, Int32 y, UInt32 width, UInt32 height)
 	{
+		ACE_ASSERT(width != 0, "Scissor width must be more than zero, %i", width);
+		ACE_ASSERT(height != 0, "Scissor height must be more than zero, %i", height);
+
 		glScissor(x, y, width, height);
 	}
 
@@ -157,10 +165,9 @@ namespace ace
 
 	void GraphicsDevice::SetBuffer(const Buffer& buffer, BufferType type)
 	{
-		if (!buffer)
-		{
-			return;
-		}
+			
+		ACE_ASSERT(buffer, "Buffer is not initialized", "");
+
 
 		UInt32 target = GLBufferTargets[static_cast<UInt32>(type)];
 		glBindBuffer(target, buffer->bufferID);
@@ -200,6 +207,10 @@ namespace ace
 
 	void GraphicsDevice::UpdateTexture(Texture& texture, const UInt8* pixels, UInt32 w, UInt32 h, PixelFormat format)
 	{
+		ACE_ASSERT(w != 0, "Texture width must be more than zero, %i", w);
+		ACE_ASSERT(h != 0, "Texture height must be more than zero, %i", h);
+
+
 		#if ACE_ANDROID
 			static const UInt32 GLFormat[] = { 0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT, GL_DEPTH24_STENCIL8 };
 			static const UInt32 GLFormatType[] = { 0, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_FLOAT };
@@ -207,6 +218,7 @@ namespace ace
 			static const UInt32 GLFormat[] = { 0, GL_RED, GL_RG, GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT, GL_DEPTH24_STENCIL8 };
 			static const UInt32 GLFormatType[] = { 0, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_FLOAT, GL_UNSIGNED_INT_24_8 };
 		#endif
+
 		glBindTexture(GL_TEXTURE_2D, texture->textureID);
 		
 		UInt8 formatIndex = static_cast<UInt8>(format);
@@ -225,6 +237,9 @@ namespace ace
 		//	material.AddTexture(texture, name, id);
 		//}
 
+		ACE_ASSERT(material, "Material is not initialized.", "");
+		ACE_ASSERT(texture, "Texture is not initialized.", "");
+
 		glUseProgram(material->materialID);
 		glBindTexture(GL_TEXTURE_2D, texture->textureID);
 		glActiveTexture(GL_TEXTURE0 + id);
@@ -233,6 +248,8 @@ namespace ace
 
 	Shader GraphicsDevice::CreateShader(const char* source, ShaderType type)
 	{
+		ACE_ASSERT(source != nullptr, "Shader Source cannot be null", "");
+
 		Shader shader(new ShaderImpl(GLShaderTypes[static_cast<UInt32>(type)]));
 		shader.type = type;
 		
@@ -266,6 +283,9 @@ namespace ace
 	Material GraphicsDevice::CreateMaterial(const Shader& vertex, const Shader& fragment)
 	{
 		Material material(new MaterialImpl());
+
+		ACE_ASSERT(vertex, "Vertex shader is not initialized or valid.", "");
+		ACE_ASSERT(fragment, "Fragment shader is not initialized or valid.", "");
 
 		if (vertex)
 		{
@@ -530,8 +550,11 @@ namespace ace
 		}
 	}
 
-	void GraphicsDevice::SetFramebufferTarget(Framebuffer& buffer, Texture& texture, UInt32 framebufferAttachment)
+	void GraphicsDevice::SetFramebufferTarget(Framebuffer& framebuffer, Texture& texture, UInt32 framebufferAttachment)
 	{
+		ACE_ASSERT(framebuffer, "Framebuffer is not initialized.", "");
+		ACE_ASSERT(texture, "Texture is not initialized.", "");
+
 		static const UInt32 GLAttachments[] = {
 			GL_DEPTH_ATTACHMENT, 
 			GL_STENCIL_ATTACHMENT, 
@@ -540,7 +563,7 @@ namespace ace
 
 		UInt32 attachments = framebufferAttachment < 3 ? GLAttachments[framebufferAttachment] : GLAttachments[3] + framebufferAttachment;
 
-		SetFramebuffer(&buffer);
+		SetFramebuffer(&framebuffer);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachments, GL_TEXTURE_2D, texture->textureID, 0);
 		SetFramebuffer(nullptr);
 	}
