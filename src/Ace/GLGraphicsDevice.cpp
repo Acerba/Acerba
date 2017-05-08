@@ -238,7 +238,7 @@ namespace ace
 		//}
 
 		ACE_ASSERT(material, "Material is not initialized.", "");
-		ACE_ASSERT(texture, "Texture is not initialized.", "");
+		//ACE_ASSERT(texture, "Texture is not initialized.", "");
 
 		glUseProgram(material->materialID);
 		glBindTexture(GL_TEXTURE_2D, texture->textureID);

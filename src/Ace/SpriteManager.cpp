@@ -1,9 +1,11 @@
 #include <Ace/SpriteManager.h>
 
+#include <Ace/Camera.h>
 #include <Ace/Component.h>
 #include <Ace/ComponentPool.h>
 #include <Ace/Entity.h>
 #include <Ace/EntityHandle.h>
+#include <Ace/EntityManager.h>
 #include <Ace/GraphicsDevice.h>
 #include <Ace/Transform.h>
 
@@ -13,6 +15,7 @@
 
 namespace ace
 {
+    std::vector<math::Matrix4> matrix;
 
 
     SpriteManager::Group::Group(const Material& mat, const UInt32 begin) :
@@ -44,13 +47,24 @@ namespace ace
     }
 
 
-    void SpriteManager::DrawImpl(const Scene& scene, Material* material)
+    Material& SpriteManager::GetTargetMaterial(Material& material, const Camera& camera)
+    {
+        //material.Uniform("VP", camera.GetVPMatrix());
+        material.Uniform("M", matrix);
+        return material;
+    }
+
+
+    void SpriteManager::DrawImpl(const Scene& scene, const Camera& camera, Material* customMaterial)
     {
         std::vector<Group> groups(Sort(scene));
 
+        UInt32 count = 0u;
+        for (const auto& itr : groups)
+            count += (itr.end - itr.start);
+
         //Checks and grows m_indexTable if needed
-        HandleIndices(std::distance(groups.begin(), std::max_element(groups.begin(), groups.end(),
-            [](const Group& g1, const Group& g2){return g1.end - g1.start < g2.end - g2.start; })));
+        HandleIndices(count);
 
         //TODO: Change loop and both Draw-functions params to const if GraphicsDevice::Draw material accepts const
         for (auto& itr : groups)
@@ -58,7 +72,13 @@ namespace ace
             const UInt32 indexCount = itr.end - itr.start;
             GraphicsDevice::BufferData(m_buffer, indexCount * 4, m_sprites[itr.start].vertexData.data(), BufferUsage::Streaming);
             GraphicsDevice::SetBuffer(m_buffer);
-            GraphicsDevice::Draw(material ? *material : itr.material, 0u, indexCount * 6u, m_indexTable);
+           
+            //for (int i = 0; i < indexCount; ++i)
+            //{
+            //    GraphicsDevice::Draw(GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera), m_sprites[i]);
+            //}
+
+            GraphicsDevice::Draw(GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera), 0u, indexCount * 6u, m_indexTable);
         }
 
         //TODO: Add logic to check if the sprites may be saved
@@ -84,12 +104,12 @@ namespace ace
             m_indexTable = new UInt32[newSize * 6u];
             for (UInt32 j = 0u; j < newSize; ++j)
             {
-                m_indexTable[0u + 6u * j] = 0u + 6u * j;
-                m_indexTable[1u + 6u * j] = 1u + 6u * j;
-                m_indexTable[2u + 6u * j] = 2u + 6u * j;
-                m_indexTable[3u + 6u * j] = 0u + 6u * j;
-                m_indexTable[4u + 6u * j] = 2u + 6u * j;
-                m_indexTable[5u + 6u * j] = 3u + 6u * j;
+                m_indexTable[0u + 6u * j] = 0u + 4u * j;
+                m_indexTable[1u + 6u * j] = 1u + 4u * j;
+                m_indexTable[2u + 6u * j] = 2u + 4u * j;
+                m_indexTable[3u + 6u * j] = 2u + 4u * j;
+                m_indexTable[4u + 6u * j] = 3u + 4u * j;
+                m_indexTable[5u + 6u * j] = 0u + 4u * j;
             }
         }
         else if (newSize > m_size)
@@ -102,14 +122,13 @@ namespace ace
 
             for (UInt32 j = m_size; j < newSize; ++j)
             {
-                m_indexTable[0u + 6u * j] = 0u + 6u * j;
-                m_indexTable[1u + 6u * j] = 1u + 6u * j;
-                m_indexTable[2u + 6u * j] = 2u + 6u * j;
-                m_indexTable[3u + 6u * j] = 0u + 6u * j;
-                m_indexTable[4u + 6u * j] = 2u + 6u * j;
-                m_indexTable[5u + 6u * j] = 3u + 6u * j;
+                m_indexTable[0u + 6u * j] = 0u + 4u * j;
+                m_indexTable[1u + 6u * j] = 1u + 4u * j;
+                m_indexTable[2u + 6u * j] = 2u + 4u * j;
+                m_indexTable[3u + 6u * j] = 2u + 4u * j;
+                m_indexTable[4u + 6u * j] = 3u + 4u * j;
+                m_indexTable[5u + 6u * j] = 0u + 4u * j;
             }
-
             m_size = newSize;
         }
     }
@@ -126,6 +145,8 @@ namespace ace
         EntityManager::ComponentBaseHandle* secondary = nullptr;
         const Entity* root = &scene.GetRoot();
 
+
+        matrix.clear();
 
         //Find all entities that have both material and sprite
         for (UInt32 i = 0u; i < primaryPool.m_components.size(); ++i)
@@ -159,6 +180,12 @@ namespace ace
                 if (e->manager == (*root)->manager)
                 {
                     sprites.emplace_back(secondaryPool.m_components[secondary->index]);
+                    sprites.back().vertexData[0].position.w = sprites.size() - 1;
+                    sprites.back().vertexData[1].position.w = sprites.size() - 1;
+                    sprites.back().vertexData[2].position.w = sprites.size() - 1;
+                    sprites.back().vertexData[3].position.w = sprites.size() - 1;
+
+                    matrix.emplace_back(e->transform.model);
                     handles.emplace_back(e);
                 }
             }
@@ -203,9 +230,9 @@ namespace ace
     }
 
 
-    void SpriteManager::Draw(const Scene& scene, Material* material)
+    void SpriteManager::Draw(const Scene& scene, const Camera& camera, Material* material)
     {
-        GetInstance().DrawImpl(scene, material);
+        GetInstance().DrawImpl(scene, camera, material);
     }
 
 }

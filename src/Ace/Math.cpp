@@ -1,5 +1,7 @@
 #include <Ace/Math.h>
+
 #include <math.h>
+#include <random>
 
 namespace ace
 {
@@ -7,7 +9,7 @@ namespace ace
 	{
 		float Abs(float a)
 		{
-			return a > 0 ? a : -a;
+			return a > 0.f ? a : -a;
 			//return abs(a);
 		}
 

@@ -20,7 +20,6 @@ namespace ace
         std::forward_list<EntityHandle*> m_children;
         EntityManager::ComponentBaseHandle* m_first;
         EntityManager::ComponentBaseHandle* m_last;
-        EntityHandle* m_next;
         EntityHandle* m_parent;
         UInt32 m_componentCount;
 
@@ -80,7 +79,7 @@ namespace ace
 
         void Destroy();
 
-        inline UInt32 Count() const;
+        UInt32 Count() const;
 
         template <typename CompType>
         bool Has() const

@@ -8,8 +8,12 @@ namespace ace
 
     void Scene::ComputeMatrices(Entity& entity, const math::Matrix4& parentModel)
     {
-        //TODO: No vector3 * matrix3
-        //entity->transform.model = (entity->transform.scale * entity->transform.rotation.ToMatrix3() * entity->transform.position) *  parentModel;
+        entity->transform.model =
+            (Matrix4::Scale(entity->transform.scale.x, entity->transform.scale.y, entity->transform.scale.z) *
+            entity->transform.rotation.ToMatrix4() *
+            Matrix4::Translation(entity->transform.position))
+            * parentModel;
+
         for (UInt32 i = 0u; i < entity.ChildCount(); ++i)
             ComputeMatrices(entity.GetChild(i), entity->transform.model);
     }

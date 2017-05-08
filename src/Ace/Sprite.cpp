@@ -58,7 +58,8 @@ namespace ace
 		for(auto& i : vertexData)
 		{
 			i.position.x += pos.x;
-			i.position.y += pos.y;
+            i.position.y += pos.y;
+            i.position.z += pos.z;
 		}
 	}
 

@@ -4,7 +4,7 @@
 #include <SDL_events.h>
 #include <Ace/Keyboard.h>
 #include <Ace/IntTypes.h>
-#include <iostream>
+
 namespace ace
 {
 	KeyCode Keyboard::GetKey()

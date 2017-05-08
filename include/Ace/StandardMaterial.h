@@ -76,7 +76,7 @@ namespace ace
 			"   pos.y *= Scale.y;											\n"	
 			"	pos.xy += Position.xy;										\n"
 			"																\n"
-			"	gl_Position = VP * M[int(a_position.w)] * Model * pos;		\n"
+            "	gl_Position = VP * M[int(a_position.w)] * Model * pos;	    \n"
 			"}																\n"
 			, ShaderType::Vertex);											
 																			
@@ -93,7 +93,7 @@ namespace ace
 			"																\n"
 			"void main()													\n"
 			"{																\n"
-			"	gl_FragColor = texture2D(Diffuse, o_uv);					\n"
+			"	gl_FragColor = texture2D(Diffuse, o_uv) * o_c;				\n"
 			"}																\n"
 			, ShaderType::Fragment);
 

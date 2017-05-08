@@ -56,8 +56,10 @@ namespace ace
     {
         if (!target)
             return;
-        auto* root = GetRoot();
-        root->RemoveChild(target);
+        // TODO: fix removal
+        // auto* root = GetRoot();
+        // root->RemoveChild(target);
+        target->m_parent = this;
         m_children.emplace_front(target);
     }
 
@@ -133,7 +135,7 @@ namespace ace
     }
 
 
-    inline UInt32 EntityManager::EntityHandle::Count() const
+    UInt32 EntityManager::EntityHandle::Count() const
     {
         return m_componentCount;
     }
@@ -145,7 +147,6 @@ namespace ace
         m_children(),
         m_first(nullptr),
         m_last(nullptr),
-        m_next(nullptr),
         m_parent(nullptr),
         m_componentCount(0u)
     {

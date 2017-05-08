@@ -1,6 +1,6 @@
 #include <Ace/Touch.h>
 #include <SDL_touch.h>
-#include <iostream>
+
 namespace ace
 {
 	static const UInt32 MAX_FINGERS = 10;

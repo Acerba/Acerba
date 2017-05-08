@@ -1,14 +1,13 @@
-
 #include <Ace/Module.h>
+
 #include <Ace/Audio.h>
+#include <Ace/EntityManager.h>
 #include <Ace/Event.h>
 #include <Ace/Time.h>
 #include <Ace/Platform.h>
-#include <Ace/EntityManager.h>
 
 #include <SDL.h>
 
-#include <iostream>
 
 namespace ace
 {
