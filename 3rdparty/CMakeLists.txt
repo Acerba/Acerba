@@ -13,7 +13,7 @@ add_subdirectory(imgui)
 add_subdirectory(TMXLoader)
 
 
-if(NOT ANDROID)
+if(NOT PB_ANDROID)
 	set_property(TARGET SDL2 SDL2main SDL2-static gl3w imgui PROPERTY FOLDER 3rdParty)
 	set_property(TARGET vorbisfile vorbisenc OALWrapper vorbis ogg PROPERTY FOLDER 3rdParty/Audio)
 endif()
