@@ -18,6 +18,7 @@
 //
 
 #include "TMXTileSet.h"
+#include <AndroidHelper.h>
 
 
 TMXTileSet::TMXTileSet(std::unordered_map<std::string, std::string>& tileSetData, std::unordered_map<std::string, std::string>& propertiesMap, std::vector<TMXTile>& tileVector) : m_propertiesMap(propertiesMap),

@@ -18,6 +18,7 @@
 //
 
 #include "TMXLoader.h"
+#include "AndroidHelper.h"
 
 
 TMXLoader::TMXLoader()

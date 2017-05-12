@@ -4,6 +4,7 @@
 
 #include <Ace/Font.h>
 #include <Ace/GraphicsDevice.h>
+#include <Ace/Math.h>
 
 namespace ace
 {
@@ -129,7 +130,7 @@ namespace ace
                 nextCharacter += 256;
             }
 
-            const float x_shift = x - std::floor(x);
+            const float x_shift = x - math::Floor(x);
 
             /* get bounding box for character (may be offset to account for chars that dip above or below the line */
             Int32 c_x1 = 0, c_y1 = 0, c_x2 = 0, c_y2 = 0;
@@ -194,7 +195,7 @@ namespace ace
                 nextCharacter += 256;
             }
 
-            float x_shift = x - std::floor(x);
+            float x_shift = x - math::Floor(x);
 
             /* get bounding box for character (may be offset to account for chars that dip above or below the line */
             Int32 c_x1 = 0, c_y1 = 0, c_x2 = 0, c_y2 = 0;

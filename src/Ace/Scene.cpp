@@ -15,7 +15,10 @@ namespace ace
             * parentModel;
 
         for (UInt32 i = 0u; i < entity.ChildCount(); ++i)
-            ComputeMatrices(entity.GetChild(i), entity->transform.model);
+		{
+			Entity child = entity.GetChild(i);
+			ComputeMatrices(child, entity->transform.model);
+		}
     }
 
 

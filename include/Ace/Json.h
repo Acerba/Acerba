@@ -16,7 +16,9 @@ namespace ace
 
 		Json();
 
-		bool Parse(const bool isFile, std::string& str);
+		// TODO: ParseString method. 
+		
+		bool Parse(const Path& path);
 		
 		void Write(Path path);
 

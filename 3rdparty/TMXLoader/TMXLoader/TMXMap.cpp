@@ -18,6 +18,7 @@
 //
 
 #include "TMXMap.h"
+#include "AndroidHelper.h"
 
 
 TMXMap::TMXMap()

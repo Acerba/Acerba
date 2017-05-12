@@ -10,13 +10,11 @@ namespace ace
 	{
 		Json Jameson;
 
-		auto s(Path(jsonName).GetPath());
-
-		if (Jameson.Parse(true, std::string(jsonName)))
+		if (Jameson.Parse(Path(jsonName)))
 		{
 			SpriteData Data;
 
-			auto& root = Jameson.document.GetObject();
+			auto root = Jameson.document.GetObject();
 			ACE_ASSERT(root.HasMember("packer"), "Jsonfile does not have a member: packer", jsonName);
 			ACE_ASSERT(root["packer"].HasMember("filename"), "Packer does not have a member: filename", jsonName);
 			ACE_ASSERT(root.HasMember("sprites"), "Jsonfile does not have a member: sprites", jsonName);

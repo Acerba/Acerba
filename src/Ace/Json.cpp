@@ -9,20 +9,19 @@ namespace ace
 	}
 
 
-	bool Json::Parse(const bool isFile, std::string& str)
+	bool Json::Parse(const Path& path)
 	{
-		if (isFile)
+		File f(path);
+		auto data = f.ReadAll();
+		auto* d = data.get();
+		std::string str;
+		
+		str.reserve(f.Size());
+		for (UInt32 i = 0u; i < f.Size(); ++i)
 		{
-			File f(str);
-			auto data = f.ReadAll();
-			auto* d = data.get();
-			str.swap(std::string());
-			str.reserve(f.Size());
-			for (UInt32 i = 0u; i < f.Size(); ++i)
-			{
-				str.push_back(d[i]);
-			}
+			str.push_back(d[i]);
 		}
+		
 		document.Parse(str.c_str());
 		return !document.HasParseError();
 	}
