@@ -21,7 +21,7 @@ namespace ace
 
 		math::Matrix4 model;
 
-		Texture diffuse;
+		mutable Texture diffuse;
 
 		StandardMaterial() : Material(nullptr), model(math::Matrix4::Identity()), color(0xFFFFFFFF), scale(1, 1), position(0, 0), angle(0)
 		{
@@ -98,9 +98,16 @@ namespace ace
 			, ShaderType::Fragment);
 
 			InitImpl(GraphicsDevice::CreateMaterial(vert, frag));
+			
+			if (!diffuse)
+			{
+				diffuse.Create(Image(Color(255, 255, 255, 255)));
+			}
+
 
 			Uniform("M", math::Matrix4::Identity());
 			Uniform("VP", math::Matrix4::Identity());
+
 		}
 	};
 }
