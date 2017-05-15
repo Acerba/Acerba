@@ -72,18 +72,18 @@ namespace ace
 		void Uniform(const char* name, const Matrix3&) const;
 		void Uniform(const char* name, const Matrix4&) const;
 
-		void Uniform(const char* name, const std::vector<UInt32>&) const;
-		void Uniform(const char* name, const std::vector<Int32>&) const;
-		void Uniform(const char* name, const std::vector<float>&) const;
+		void Uniform(const char* name, const UInt32*, UInt32 count) const;
+		void Uniform(const char* name, const Int32*, UInt32 count) const;
+		void Uniform(const char* name, const float*, UInt32 count) const;
 
-		void Uniform(const char* name, const std::vector<Vector2>&) const;
-		void Uniform(const char* name, const std::vector<Vector3>&) const;
-		void Uniform(const char* name, const std::vector<Vector4>&) const;
-		void Uniform(const char* name, const std::vector<Color32>&) const;
+		void Uniform(const char* name, const Vector2*, UInt32 count) const;
+		void Uniform(const char* name, const Vector3*, UInt32 count) const;
+		void Uniform(const char* name, const Vector4*, UInt32 count) const;
+		void Uniform(const char* name, const Color32*, UInt32 count) const;
 
-		void Uniform(const char* name, const std::vector<Matrix2>&) const;
-		void Uniform(const char* name, const std::vector<Matrix3>&) const;
-		void Uniform(const char* name, const std::vector<Matrix4>&) const;
+		void Uniform(const char* name, const Matrix2* , UInt32 count) const;
+		void Uniform(const char* name, const Matrix3* , UInt32 count) const;
+		void Uniform(const char* name, const Matrix4* , UInt32 count) const;
 
 		/**
 			@brief

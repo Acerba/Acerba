@@ -77,54 +77,53 @@ namespace ace
 	}
 	
 
-
-	void Material::Uniform(const char* name, const std::vector<UInt32>& values) const
+	void Material::Uniform(const char* name, const UInt32* values, UInt32 count) const
 	{
-		GraphicsDevice::Uniform(*this, name, values.data(), UniformType::UInt32, values.size());
+		GraphicsDevice::Uniform(*this, name, values, UniformType::UInt32, count);
 	}
 	
-	void Material::Uniform(const char* name, const std::vector<Int32>& values) const
+	void Material::Uniform(const char* name, const Int32* values, UInt32 count) const
 	{
-		GraphicsDevice::Uniform(*this, name, values.data(), UniformType::Int32, values.size());
+		GraphicsDevice::Uniform(*this, name, values, UniformType::Int32, count);
 	}
 	
-	void Material::Uniform(const char* name, const std::vector<float>& values) const
+	void Material::Uniform(const char* name, const float* values, UInt32 count) const
 	{
-		GraphicsDevice::Uniform(*this, name, values.data(), UniformType::Float, values.size());
+		GraphicsDevice::Uniform(*this, name, values, UniformType::Float, count);
 	}
 		
-	void Material::Uniform(const char* name, const std::vector<Vector2>& values) const
+	void Material::Uniform(const char* name, const Vector2* values, UInt32 count) const
 	{
-		GraphicsDevice::Uniform(*this, name, values.data(), UniformType::Vec2, values.size());
+		GraphicsDevice::Uniform(*this, name, values, UniformType::Vec2, count);
 	}
 	
-	void Material::Uniform(const char* name, const std::vector<Vector3>& values) const
+	void Material::Uniform(const char* name, const Vector3* values, UInt32 count) const
 	{
-		GraphicsDevice::Uniform(*this, name, values.data(), UniformType::Vec3, values.size());
+		GraphicsDevice::Uniform(*this, name, values, UniformType::Vec3, count);
 	}
 	
-	void Material::Uniform(const char* name, const std::vector<Vector4>& values) const
+	void Material::Uniform(const char* name, const Vector4* values, UInt32 count) const
 	{
-		GraphicsDevice::Uniform(*this, name, values.data(), UniformType::Vec4, values.size());
+		GraphicsDevice::Uniform(*this, name, values, UniformType::Vec4, count);
 	}
 	
-	void Material::Uniform(const char* name, const std::vector<Color32>& values) const
+	void Material::Uniform(const char* name, const Color32* values, UInt32 count) const
 	{
-		GraphicsDevice::Uniform(*this, name, values.data(), UniformType::Vec4, values.size());
+		GraphicsDevice::Uniform(*this, name, values, UniformType::Vec4, count);
 	}
 		
-	void Material::Uniform(const char* name, const std::vector<Matrix2>& values) const
+	void Material::Uniform(const char* name, const Matrix2* values, UInt32 count) const
 	{
-		GraphicsDevice::Uniform(*this, name, values.data(), UniformType::Mat2, values.size());
+		GraphicsDevice::Uniform(*this, name, values, UniformType::Mat2, count);
 	}
 	
-	void Material::Uniform(const char* name, const std::vector<Matrix3>& values) const
+	void Material::Uniform(const char* name, const Matrix3* values, UInt32 count) const
 	{
-		GraphicsDevice::Uniform(*this, name, values.data(), UniformType::Mat3, values.size());
+		GraphicsDevice::Uniform(*this, name, values, UniformType::Mat3, count);
 	}
 	
-	void Material::Uniform(const char* name, const std::vector<Matrix4>& values) const
+	void Material::Uniform(const char* name, const Matrix4* values, UInt32 count) const
 	{
-		GraphicsDevice::Uniform(*this, name, values.data(), UniformType::Mat4, values.size());
+		GraphicsDevice::Uniform(*this, name, values, UniformType::Mat4, count);
 	}
 }

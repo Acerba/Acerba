@@ -121,4 +121,13 @@ namespace ace
 		vertexData[index].position.x = positon.x;
 		vertexData[index].position.y = positon.y;
 	}
+
+	void Sprite::SetInstanceID(UInt8 id)
+	{
+		vertexData[0].position.w = id;
+		vertexData[1].position.w = id;
+		vertexData[2].position.w = id;
+		vertexData[3].position.w = id;
+	}
+
 }

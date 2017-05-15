@@ -94,7 +94,7 @@ namespace ace
 		*/
 		void SetPosition(UInt8 index, const Vector2& position);
 
-
+		void SetInstanceID(UInt8 id);
     };
 
 }

@@ -62,7 +62,7 @@ namespace ace
 			"uniform vec2 Scale;											\n"
 			"uniform mat2 Rotation; // 2D									\n"		
 			"uniform mat4 Model;											\n"
-			"uniform mat4 M[50];											\n"
+			"uniform mat4 M[64];											\n"
 			"uniform mat4 VP;												\n"
 			"																\n"
 			"void main()													\n"
