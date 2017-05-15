@@ -47,16 +47,18 @@ namespace ace
     }
 
 
-    Material& SpriteManager::GetTargetMaterial(Material& material, const Camera& camera)
+    Material& GetTargetMaterial(Material& material, const Camera& camera,  UInt32 offset = 0u, UInt32 count = 64u)
     {
         //material.Uniform("VP", camera.GetVPMatrix());
-        material.Uniform("M", matrix);
+        material.Uniform("M", matrix.data() + offset, count);
         return material;
     }
 
 
     void SpriteManager::DrawImpl(const Scene& scene, const Camera& camera, Material* customMaterial)
     {
+        static const UInt32 maxCount = 64u;
+
         std::vector<Group> groups(Sort(scene));
 
         UInt32 count = 0u;
@@ -67,18 +69,44 @@ namespace ace
         HandleIndices(count);
 
         //TODO: Change loop and both Draw-functions params to const if GraphicsDevice::Draw material accepts const
+        
         for (auto& itr : groups)
         {
             const UInt32 indexCount = itr.end - itr.start;
             GraphicsDevice::BufferData(m_buffer, indexCount * 4, m_sprites[itr.start].vertexData.data(), BufferUsage::Streaming);
             GraphicsDevice::SetBuffer(m_buffer);
-           
-            //for (int i = 0; i < indexCount; ++i)
-            //{
-            //    GraphicsDevice::Draw(GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera), m_sprites[i]);
-            //}
 
-            GraphicsDevice::Draw(GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera), 0u, indexCount * 6u, m_indexTable);
+            // for (int i = 0; i < indexCount; ++i)
+            // {
+            //     auto& mat = GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera);
+            //     matrix[0] = matrix[i];
+            //     m_sprites[i].vertexData[0].position.w = 0;
+            //     m_sprites[i].vertexData[1].position.w = 0;
+            //     m_sprites[i].vertexData[2].position.w = 0;
+            //     m_sprites[i].vertexData[3].position.w = 0;
+            //     mat.Uniform("M", matrix);
+            //     GraphicsDevice::Draw(mat, m_sprites[i]);
+            // }
+            
+            const float timesTemp = static_cast<float>(indexCount) / 64.f;
+            const UInt32 times = static_cast<UInt32>(timesTemp) + (math::Abs(timesTemp - math::Floor(timesTemp)) < 0.001f ? 0u : 1u);
+
+            for (UInt32 i = 0; i < times; ++i)
+            {
+                const UInt32 elementsCount = 64u < (indexCount - (i * 64u)) ? 64u : (indexCount - (i * 64u));
+                GraphicsDevice::Draw(GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera, 64u * i, elementsCount), 0u, 64u * 6u, m_indexTable + (elementsCount * 6u * i)); //  + (i * maxCount)
+            }
+
+           // const UInt32 index6 = indexCount * 6u;
+            //for (UInt32 i = 0u; i < (index6 / maxCount) + 1u; ++i)
+            //{
+            //    const UInt32 left = index6 - (i * maxCount);
+            //    const UInt32 currentcount = left < maxCount ? left : maxCount;
+            //
+            //    
+            //
+            //    GraphicsDevice::Draw(GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera, 64, currentcount), 0u, i*64, m_indexTable + currentcount); //  + (i * maxCount)
+            //}
         }
 
         //TODO: Add logic to check if the sprites may be saved
@@ -148,6 +176,8 @@ namespace ace
 
         matrix.clear();
 
+        UInt32 instanceID = 0;
+
         //Find all entities that have both material and sprite
         for (UInt32 i = 0u; i < primaryPool.m_components.size(); ++i)
         {
@@ -172,6 +202,7 @@ namespace ace
                 if (added == false)
                 {
                     groups.emplace_back(primaryPool.m_components[i], start);
+                    instanceID = 0;
                 }
 
                 EntityManager::EntityHandle* e = secondaryPool.m_handles[secondary->index]->entity;
@@ -180,10 +211,12 @@ namespace ace
                 if (e->manager == (*root)->manager)
                 {
                     sprites.emplace_back(secondaryPool.m_components[secondary->index]);
-                    sprites.back().vertexData[0].position.w = sprites.size() - 1;
-                    sprites.back().vertexData[1].position.w = sprites.size() - 1;
-                    sprites.back().vertexData[2].position.w = sprites.size() - 1;
-                    sprites.back().vertexData[3].position.w = sprites.size() - 1;
+                    sprites.back().SetInstanceID(instanceID++);
+
+                    if (instanceID >= 64)
+                    {
+                        instanceID = 0;
+                    }
 
                     matrix.emplace_back(e->transform.model);
                     handles.emplace_back(e);

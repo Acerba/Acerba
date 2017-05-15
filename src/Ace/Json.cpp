@@ -11,15 +11,16 @@ namespace ace
 
 	bool Json::Parse(const File& file)
 	{
-		File f = file;
-		auto data = f.ReadAll();
-		auto* d = data.get();
-		std::string str;
+		auto* data = file.ReadAll().get();
+        std::string str;
+
+        //Would this work instead of loop
+        //str = *data;
 		
-		str.reserve(f.Size());
-		for (UInt32 i = 0u; i < f.Size(); ++i)
+		str.reserve(file.Size());
+		for (UInt32 i = 0u; i < file.Size(); ++i)
 		{
-			str.push_back(d[i]);
+			str.push_back(data[i]);
 		}
 		
 		document.Parse(str.c_str());
@@ -28,9 +29,7 @@ namespace ace
 
 	bool Json::ParseString(const std::string& string)
 	{
-		std::string str = string;
-
-		document.Parse(str.c_str);
+		document.Parse(string.c_str());
 		return !document.HasParseError();
 	}
 

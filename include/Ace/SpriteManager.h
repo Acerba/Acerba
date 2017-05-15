@@ -40,8 +40,6 @@ namespace ace
 
         static SpriteManager& GetInstance();
 
-        static Material& GetTargetMaterial(Material& material, const Camera& camera);
-
         void HandleIndices(UInt32 newSize);
 
         std::vector<Group> Sort(const Scene& scene);
