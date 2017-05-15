@@ -64,7 +64,12 @@ namespace ace
 		
 	}
 
-	Animation::Animation(const SpriteSheet& sheet)
+	Animation::Animation(const SpriteSheet& sheet) :
+		isPlaying(false),
+		m_animations(),
+		m_frameSpeed(30u),
+		m_currentAnimation(nullptr)
+
 	{
 		m_animations.reserve(sheet.GetSpriteCount());
 		for (UInt16 i = 0u; i < sheet.GetSpriteCount(); ++i)
@@ -101,22 +106,88 @@ namespace ace
 			//If current animation has same name as looked animation
 			if (itr.animation == animationName)
 			{
-				if ((itr.currentTime += Time::DeltaTime()) > (static_cast<float>(itr.loopSpeed) / 1.f))
-				{
-					itr.currentTime = 0.f;
-					if (++itr.currentFrame >= itr.frames.size())
-					{
-						itr.currentFrame = 0u;
-					}
 
-					//TODO: command for drawing frame somewhere
+				itr.currentTime = 0.0f;
+				itr.currentFrame = 0;
+				
+				// Sets current animation
+				m_currentAnimation = &itr;
 
-				}
 				break;
+
+
+				//if ((itr.currentTime += Time::DeltaTime()) > (static_cast<float>(itr.loopSpeed) / 1.f))
+				//{
+				//	itr.currentTime = 0.f;
+				//	if (++itr.currentFrame >= itr.frames.size())
+				//	{
+				//		itr.currentFrame = 0u;
+				//	}
+				//
+				//	//TODO: command for drawing frame somewhere
+				//
+				//	itr.currentFrame;
+				//
+				//}
 			}
 		}
 	}
 
+	void Animation::UpdateAnimation(Sprite& sprite)
+	{
+		if (m_currentAnimation == nullptr)
+		{
+			return;
+		}
 
+		//for (auto& itr : m_animations)
+		//{
+		//	sprite.UVRect(itr.frames[0].rect);
+		//
+		//}
+
+		//Update UV
+		sprite.UVRect(m_currentAnimation->frames[m_currentAnimation->currentFrame].rect);
+
+		//Update sprite Size
+		sprite.Scale(Vector2(m_currentAnimation->frames[m_currentAnimation->currentFrame].rect.width, m_currentAnimation->frames[m_currentAnimation->currentFrame].rect.height));
+		
+		// TODO: Update Sprite UV, Sprite Size
+	}
+
+	void Animation::OnEvent(AnimationEvent event)
+	{
+		if (m_currentAnimation == nullptr)
+		{
+			return;
+		}
+
+
+
+		if (m_currentAnimation->currentTime >= event.delta)
+		{
+				m_currentAnimation->currentTime = 0.f;
+				if (++m_currentAnimation->currentFrame >= m_currentAnimation->frames.size())
+				{
+					//m_currentAnimation->currentFrame = 0u;
+					//Check if animation is at end
+					if (&m_currentAnimation->frames[m_currentAnimation->currentFrame] == &*m_currentAnimation->frames.end())
+					{
+						//Check if animation is Looping animation 
+						if (m_currentAnimation->loop)
+						{
+							&m_currentAnimation->frames[m_currentAnimation->currentFrame] == &*m_currentAnimation->frames.begin();
+						}
+						else
+						{
+							m_currentAnimation = nullptr;
+						}
+					}
+				}
+		}
+
+		//event.delta // Delta Time
+		// TODO: Update Animation
+	}
 
 }

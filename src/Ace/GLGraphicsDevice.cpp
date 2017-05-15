@@ -53,6 +53,26 @@ namespace ace
 		}
 	}
 
+	inline void CheckGL()
+	{
+		// check OpenGL error
+		GLenum err;
+		while ((err = glGetError()) != GL_NO_ERROR)
+		{
+			std::string error;
+			
+			switch (err) {
+			case GL_INVALID_OPERATION:      error = "INVALID_OPERATION";      break;
+			case GL_INVALID_ENUM:           error = "INVALID_ENUM";           break;
+			case GL_INVALID_VALUE:          error = "INVALID_VALUE";          break;
+			case GL_OUT_OF_MEMORY:          error = "OUT_OF_MEMORY";          break;
+			case GL_INVALID_FRAMEBUFFER_OPERATION:  error = "INVALID_FRAMEBUFFER_OPERATION";  break;
+			}
+
+			Logger::Log(Logger::Priority::Warning, "%s", error.c_str());
+		}
+	}
+
 	void GraphicsDevice::Enable(bool status, Features features)
 	{
 		GLEnable(status, GetIndex(features & Features::Blend, 0));
@@ -80,22 +100,7 @@ namespace ace
 	{
 		SDL_GL_SwapWindow((*window)->sdlWindow);
 
-		// check OpenGL error
-		GLenum err;
-		while ((err = glGetError()) != GL_NO_ERROR)
-		{
-			std::string error;
 
-			switch (err) {
-			case GL_INVALID_OPERATION:      error = "INVALID_OPERATION";      break;
-			case GL_INVALID_ENUM:           error = "INVALID_ENUM";           break;
-			case GL_INVALID_VALUE:          error = "INVALID_VALUE";          break;
-			case GL_OUT_OF_MEMORY:          error = "OUT_OF_MEMORY";          break;
-			case GL_INVALID_FRAMEBUFFER_OPERATION:  error = "INVALID_FRAMEBUFFER_OPERATION";  break;
-			}
-
-			Logger::Log(Logger::Priority::Warning, "%s", error.c_str());
-		}
 	}
 
 	void GraphicsDevice::Viewport(UInt32 w, UInt32 h)
@@ -376,6 +381,7 @@ namespace ace
 	void GraphicsDevice::Draw(Material& material, UInt32 elements, UInt32 indicies, const UInt32* indexTable)
 	{
 		material.Apply();
+		CheckGL();
 		glUseProgram(material->materialID);
 
 		SetMaterialFlags(material);
@@ -388,6 +394,7 @@ namespace ace
 		{
 			glDrawElements(GL_TRIANGLES, indicies, GL_UNSIGNED_INT, indexTable == nullptr ? 0 : indexTable);
 		}
+
 	}
 
 	void GraphicsDevice::Draw(Material& material, const Mesh& mesh)

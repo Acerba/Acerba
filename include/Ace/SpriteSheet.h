@@ -28,6 +28,9 @@ namespace ace
 			Rect rect;
 		};
 
+		SpriteSheet(){};
+
+
 		/**
 			@brief SpriteSheet constructor
 			@param[in] jsonName Json file name

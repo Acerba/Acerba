@@ -26,6 +26,8 @@ namespace ace
 
 		static Image MissingFile();
 
+		Image(){};
+
 		/**
 			@brief Load image data
 			@param[in] p_file Image file to load

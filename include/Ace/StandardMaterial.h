@@ -25,7 +25,8 @@ namespace ace
 
 		StandardMaterial() : Material(nullptr), model(math::Matrix4::Identity()), color(0xFFFFFFFF), scale(1, 1), position(0, 0), angle(0)
 		{
-						
+			Init();
+			Apply();
 		}
 
 		~StandardMaterial()
