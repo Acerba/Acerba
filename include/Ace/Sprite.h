@@ -11,7 +11,9 @@ namespace ace
     {
     public:
 
-        std::array<Vertex, 4u> vertexData;
+		static const UInt32 size = 4;
+
+		std::array<Vertex, size> vertexData;
 
 		Sprite();
 
@@ -46,10 +48,10 @@ namespace ace
 		void Move(const Vector3& pos);
 
 		/**
-		@Brief Colorize sprite
+		@Brief Colorize Sprite
 		@param[in] color New sprite color in Color 
 		*/
-		void Colorize(const Color& color);
+		void Colorize(const Color32& color);
 
 		/**
 		@brief Set UV for sprite
@@ -73,6 +75,25 @@ namespace ace
 		// etc.
 
 		// TODO: Get methods? (Low priority)
+
+		/**
+			@Brief Set Vertex UV
+			@param[in] color
+		*/
+		void SetUV(UInt8 index, const Vector2& uv);
+
+		/**
+			@Brief Set Vertex Color
+			@param[in] color
+		*/
+		void SetColor(UInt8 index, const Color32& color);
+	
+		/**
+			@Brief Set Vertex Position
+			@param[in] color
+		*/
+		void SetPosition(UInt8 index, const Vector2& position);
+
 
     };
 

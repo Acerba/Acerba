@@ -27,7 +27,7 @@ namespace ace
     Sprite::Sprite(const Vertex(&data)[4]) :
         vertexData({ data[0], data[1], data[2], data[3] })
     {
-
+		
     }
 
     Sprite::Sprite(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4) :
@@ -63,7 +63,7 @@ namespace ace
 		}
 	}
 
-	void Sprite::Colorize(const Color& color)
+	void Sprite::Colorize(const Color32& color)
 	{
 		for (auto& i : vertexData)
 		{
@@ -92,18 +92,33 @@ namespace ace
 
 		if (axis)
 		{
-		vertexData[0].uv.x = temp.vertexData[2].uv.x;
-		vertexData[1].uv.x = temp.vertexData[3].uv.x;
-		vertexData[2].uv.x = temp.vertexData[0].uv.x;
-		vertexData[3].uv.x = temp.vertexData[1].uv.x;
+			vertexData[0].uv.x = temp.vertexData[2].uv.x;
+			vertexData[1].uv.x = temp.vertexData[3].uv.x;
+			vertexData[2].uv.x = temp.vertexData[0].uv.x;
+			vertexData[3].uv.x = temp.vertexData[1].uv.x;
 		}
 		else
 		{
-		vertexData[0].uv.y = temp.vertexData[2].uv.y;
-		vertexData[1].uv.y = temp.vertexData[3].uv.y;
-		vertexData[2].uv.y = temp.vertexData[0].uv.y;
-		vertexData[3].uv.y = temp.vertexData[1].uv.y;
+			vertexData[0].uv.y = temp.vertexData[2].uv.y;
+			vertexData[1].uv.y = temp.vertexData[3].uv.y;
+			vertexData[2].uv.y = temp.vertexData[0].uv.y;
+			vertexData[3].uv.y = temp.vertexData[1].uv.y;
 		}
+	}
 
+	void Sprite::SetColor(UInt8 index, const Color32& color)
+	{
+		vertexData[index].color = color;
+	}
+
+	void Sprite::SetUV(UInt8 index, const Vector2& uv)
+	{
+		vertexData[index].uv = uv;
+	}
+
+	void Sprite::SetPosition(UInt8 index, const Vector2& positon)
+	{
+		vertexData[index].position.x = positon.x;
+		vertexData[index].position.y = positon.y;
 	}
 }
