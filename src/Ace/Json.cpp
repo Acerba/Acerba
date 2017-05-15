@@ -9,9 +9,9 @@ namespace ace
 	}
 
 
-	bool Json::Parse(const Path& path)
+	bool Json::Parse(const File& file)
 	{
-		File f(path);
+		File f = file;
 		auto data = f.ReadAll();
 		auto* d = data.get();
 		std::string str;
@@ -23,6 +23,14 @@ namespace ace
 		}
 		
 		document.Parse(str.c_str());
+		return !document.HasParseError();
+	}
+
+	bool Json::ParseString(const std::string& string)
+	{
+		std::string str = string;
+
+		document.Parse(str.c_str);
 		return !document.HasParseError();
 	}
 
