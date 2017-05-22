@@ -17,3 +17,7 @@
 #include <Ace/Platform.h>
 #include <Ace/Touch.h>
 #include <Ace/Accelerometer.h>
+#include <Ace/UserInterface.h>
+#include <Ace/Camera.h>
+#include <Ace/StandardMaterial.h>
+#include <Ace/Log.h>

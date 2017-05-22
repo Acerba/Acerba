@@ -49,6 +49,7 @@ namespace ace
 
     Material& GetTargetMaterial(Material& material, const Camera& camera,  UInt32 offset = 0u, UInt32 count = 64u)
     {
+        // TODO: Projection.
         //material.Uniform("VP", camera.GetVPMatrix());
         material.Uniform("M", matrix.data() + offset, count);
         return material;
@@ -94,7 +95,7 @@ namespace ace
             for (UInt32 i = 0; i < times; ++i)
             {
                 const UInt32 elementsCount = 64u < (indexCount - (i * 64u)) ? 64u : (indexCount - (i * 64u));
-                GraphicsDevice::Draw(GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera, 64u * i, elementsCount), 0u, 64u * 6u, m_indexTable + (elementsCount * 6u * i)); //  + (i * maxCount)
+                GraphicsDevice::Draw(GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera, 64u * i, elementsCount), 0u, elementsCount * 6u, m_indexTable + (elementsCount * 6u * i)); //  + (i * maxCount)
             }
 
            // const UInt32 index6 = indexCount * 6u;
