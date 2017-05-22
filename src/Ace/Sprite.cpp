@@ -73,16 +73,16 @@ namespace ace
 
 	void Sprite::UVRect(const Rect& uv)
 	{
-			vertexData[0].uv.x = uv.x;
+			vertexData[1].uv.x = uv.x;
 			vertexData[0].uv.y = uv.y;
 			
-			vertexData[1].uv.x = uv.x + uv.width;
+			vertexData[0].uv.x = uv.x + uv.width;
 			vertexData[1].uv.y = uv.y;
 
-			vertexData[2].uv.x = uv.x + uv.width;
+			vertexData[3].uv.x = uv.x + uv.width;
 			vertexData[2].uv.y = uv.y + uv.height;
 
-			vertexData[3].uv.x = uv.x;
+			vertexData[2].uv.x = uv.x;
 			vertexData[3].uv.y = uv.y + uv.height;
 	}
 

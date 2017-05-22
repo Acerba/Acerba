@@ -33,19 +33,6 @@ namespace ace
 
 		return std::end(s_numbers) == result ? size : std::distance(std::begin(s_numbers), result);
 
-
-//		for (UInt32 i = 0u; i < size; ++i)
-//		{
-//			for (UInt32 c = 0u; c < 10; ++c)
-//			{
-//				if (name[i] == s_numbers[c])
-//				{
-//					return i;
-//				}
-//			}
-//		}
-//
-//		return size;
 	}
 
 
@@ -87,6 +74,8 @@ namespace ace
 
 			m_animations[index].frames.emplace_back(sprite);
 
+			m_spriteSheet = sheet.image;
+
 			// 1. Parse Sprite Name (no index)
 			// 2. Group Sprites by Name. (+ index) 
 			// 3. Store Groups (animations) inside vector
@@ -115,20 +104,7 @@ namespace ace
 
 				break;
 
-
-				//if ((itr.currentTime += Time::DeltaTime()) > (static_cast<float>(itr.loopSpeed) / 1.f))
-				//{
-				//	itr.currentTime = 0.f;
-				//	if (++itr.currentFrame >= itr.frames.size())
-				//	{
-				//		itr.currentFrame = 0u;
-				//	}
-				//
-				//	//TODO: command for drawing frame somewhere
-				//
-				//	itr.currentFrame;
-				//
-				//}
+				//TODO: command for drawing frame somewhere	?? is this still valid?
 			}
 		}
 	}
@@ -140,17 +116,17 @@ namespace ace
 			return;
 		}
 
-		//for (auto& itr : m_animations)
-		//{
-		//	sprite.UVRect(itr.frames[0].rect);
-		//
-		//}
-
 		//Update UV
-		sprite.UVRect(m_currentAnimation->frames[m_currentAnimation->currentFrame].rect);
+		Rect uv = m_currentAnimation->frames[m_currentAnimation->currentFrame].rect;
+		uv.x /= m_spriteSheet.w;
+		uv.width /= m_spriteSheet.w;
+		uv.y /= m_spriteSheet.h;
+		uv.height /= m_spriteSheet.h;
+		
+		sprite.UVRect(uv);
 
 		//Update sprite Size
-		sprite.Scale(Vector2(m_currentAnimation->frames[m_currentAnimation->currentFrame].rect.width, m_currentAnimation->frames[m_currentAnimation->currentFrame].rect.height));
+		//sprite.Scale(Vector2(m_currentAnimation->frames[m_currentAnimation->currentFrame].rect.width, m_currentAnimation->frames[m_currentAnimation->currentFrame].rect.height));
 		
 		// TODO: Update Sprite UV, Sprite Size
 	}
@@ -169,7 +145,6 @@ namespace ace
 				m_currentAnimation->currentTime = 0.f;
 				if (++m_currentAnimation->currentFrame >= m_currentAnimation->frames.size())
 				{
-					//m_currentAnimation->currentFrame = 0u;
 					//Check if animation is at end
 					if (&m_currentAnimation->frames[m_currentAnimation->currentFrame] == &*m_currentAnimation->frames.end())
 					{

@@ -11,7 +11,7 @@ namespace ace
 
 	bool Json::Parse(const File& file)
 	{
-		auto* data = file.ReadAll().get();
+		auto& data = file.ReadAll();
         std::string str;
 
         //Would this work instead of loop
@@ -20,7 +20,7 @@ namespace ace
 		str.reserve(file.Size());
 		for (UInt32 i = 0u; i < file.Size(); ++i)
 		{
-			str.push_back(data[i]);
+			str.push_back(data.get()[i]);
 		}
 		
 		document.Parse(str.c_str());
