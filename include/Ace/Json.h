@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Ace\File.h>
-#include <rapidjson\reader.h>
-#include <rapidjson\writer.h>
-#include <rapidjson\stringbuffer.h>
-#include <rapidjson\document.h>
+#include <Ace/File.h>
+#include <rapidjson/reader.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/document.h>
 
 namespace ace
 {

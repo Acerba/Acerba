@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Ace\Vector2.h>
-#include <Ace\IntTypes.h>
+#include <Ace/Vector2.h>
+#include <Ace/IntTypes.h>
 
 
 namespace ace

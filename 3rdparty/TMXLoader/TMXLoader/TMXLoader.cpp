@@ -20,6 +20,7 @@
 #include "TMXLoader.h"
 #include "AndroidHelper.h"
 
+#include <cstring> // strcmp, strlen
 
 TMXLoader::TMXLoader()
 {

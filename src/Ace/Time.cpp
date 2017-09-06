@@ -1,5 +1,5 @@
-#include"ace\Time.h"
-#include"SDL_timer.h"
+#include <Ace/Time.h>
+#include <SDL_timer.h>
 
 
 namespace ace

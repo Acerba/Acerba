@@ -18,7 +18,8 @@ namespace ace
 
     public:
 
-        Entity(Entity&&);
+        Entity(Entity&&) = default;
+        Entity& operator=(const Entity&) = default;
 
         /**
         @brief Default constructor.

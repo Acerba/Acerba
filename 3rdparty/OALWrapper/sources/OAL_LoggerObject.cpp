@@ -21,6 +21,7 @@
 
 #include <SDL_log.h>
 
+#include <cstring> // strlen
 
 using namespace std;
 

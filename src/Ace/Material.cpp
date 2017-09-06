@@ -2,6 +2,12 @@
 #include <Ace/GraphicsDevice.h>
 #include <Ace/GLMaterialImpl.h>
 
+#include <Ace/Platform.h>
+
+#if ACE_LINUX
+	#include <cstring> // strcpy
+#endif
+
 namespace ace
 {
 	Material::Material(MaterialImpl* impl) : Graphics(impl)

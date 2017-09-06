@@ -5,6 +5,8 @@
 	//#include <SDL_main.h>
 #elif defined(_WIN32)
 	#define ACE_WIN 1
+#else
+	#define ACE_LINUX 1
 #endif
 
 #if defined (_DEBUG)

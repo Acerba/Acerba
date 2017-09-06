@@ -1,4 +1,4 @@
-#include <ace/Json.h>
+#include <Ace/Json.h>
 
 namespace ace
 {
@@ -11,7 +11,7 @@ namespace ace
 
 	bool Json::Parse(const File& file)
 	{
-		auto& data = file.ReadAll();
+		auto data = file.ReadAll();
         std::string str;
 
         //Would this work instead of loop

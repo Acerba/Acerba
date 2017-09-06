@@ -4,7 +4,7 @@ namespace ace
 {
     namespace math
     {
-		const float PI = 3.14f;
+		static const float PI = 3.141592654f;
 
 		inline float Rad(float deg)
 		{

@@ -31,12 +31,12 @@ namespace ace
 				break;
 
 			case SDL_MOUSEMOTION: 
-				EventManager<MouseEvent>::Broadcast({ MouseEventType::Motion, event.motion.which, 0, event.motion.state, 0, event.motion.x, event.motion.y, event.motion.xrel, event.motion.yrel, 0 });
+				EventManager<MouseEvent>::Broadcast({ MouseEventType::Motion, event.motion.which, 0, static_cast<UInt8>(event.motion.state), 0, event.motion.x, event.motion.y, event.motion.xrel, event.motion.yrel, 0 });
 				break;
 
 			case SDL_MOUSEBUTTONUP:
 			case SDL_MOUSEBUTTONDOWN:
-				EventManager<MouseEvent>::Broadcast({ i == SDL_MOUSEBUTTONDOWN ? MouseEventType::Pressed : MouseEventType::Released, event.button.which, event.button.state, event.button.clicks, event.button.x, event.button.y, 0, 0, 0});
+				EventManager<MouseEvent>::Broadcast({ i == SDL_MOUSEBUTTONDOWN ? MouseEventType::Pressed : MouseEventType::Released, event.button.which, static_cast<UInt8>(event.button.state), static_cast<UInt8>(event.button.clicks), static_cast<UInt8>(event.button.x), static_cast<UInt8>(event.button.y), 0, 0, 0});
 				break;
 
 			case SDL_MOUSEWHEEL:
@@ -44,12 +44,12 @@ namespace ace
 				break;
 
 			case SDL_FINGERMOTION:
-				EventManager<TouchEvent>::Broadcast({ TouchEventType::Motion, event.tfinger.fingerId, event.tfinger.x, event.tfinger.y, event.tfinger.dx, event.tfinger.dy, event.tfinger.pressure});
+				EventManager<TouchEvent>::Broadcast({ TouchEventType::Motion, static_cast<UInt8>(event.tfinger.fingerId), event.tfinger.x, event.tfinger.y, event.tfinger.dx, event.tfinger.dy, event.tfinger.pressure});
 				break;
 
 			case SDL_FINGERDOWN:
 			case SDL_FINGERUP:
-				EventManager<TouchEvent>::Broadcast({ i == SDL_FINGERDOWN ? TouchEventType::Pressed : TouchEventType::Released, event.tfinger.fingerId, event.tfinger.x, event.tfinger.y, event.tfinger.dx, event.tfinger.dy, event.tfinger.pressure });
+				EventManager<TouchEvent>::Broadcast({ i == SDL_FINGERDOWN ? TouchEventType::Pressed : TouchEventType::Released, static_cast<UInt8>(event.tfinger.fingerId), event.tfinger.x, event.tfinger.y, event.tfinger.dx, event.tfinger.dy, event.tfinger.pressure });
 				break;
 
 			case SDL_JOYAXISMOTION:

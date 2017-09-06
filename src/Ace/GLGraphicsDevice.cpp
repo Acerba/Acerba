@@ -216,12 +216,14 @@ namespace ace
 		ACE_ASSERT(h != 0, "Texture height must be more than zero, %i", h);
 
 
-		#if ACE_ANDROID
-			static const UInt32 GLFormat[] = { 0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT, GL_DEPTH24_STENCIL8_OES };
-			static const UInt32 GLFormatType[] = { 0, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_FLOAT };
-		#else
+	
+
+		#if ACE_WIN
 			static const UInt32 GLFormat[] = { 0, GL_RED, GL_RG, GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT, GL_DEPTH24_STENCIL8 };
 			static const UInt32 GLFormatType[] = { 0, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_FLOAT, GL_UNSIGNED_INT_24_8 };
+		#else
+            static const UInt32 GLFormat[] = { 0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT, GL_DEPTH24_STENCIL8_OES };
+            static const UInt32 GLFormatType[] = { 0, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_FLOAT };
 		#endif
 
 		glBindTexture(GL_TEXTURE_2D, texture->textureID);
