@@ -126,10 +126,15 @@ if(WIN32 AND ACERBA_MOVELIBS)
 	set(RENAME_LIBS vorbis.lib vorbisenc.lib vorbisfile.lib)
 
 	foreach(LIB ${RENAME_LIBS})
+		
+		if(EXISTS "${PROJECT_BINARY_DIR}/Libs/Debug/${LIB}")
+		
 		add_custom_command(TARGET acerba PRE_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/Libs/Debug/${LIB}" "${PROJECT_BINARY_DIR}/lib${LIB}")
+			
+		endif()
+		
 	endforeach() 
-
 
 	add_custom_command(TARGET acerba PRE_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/Libs/Debug/SDL2.lib" "${PROJECT_BINARY_DIR}/SDL2.lib")
