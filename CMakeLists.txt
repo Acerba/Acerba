@@ -123,17 +123,16 @@ SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY
 
 if(WIN32 AND ACERBA_MOVELIBS)
 
-	set(RENAME_LIBS vorbis.lib vorbisenc.lib vorbisfile.lib)
+	set(RENAME_LIBS vorbis.lib vorbisfile.lib)
 
 	foreach(LIB ${RENAME_LIBS})
 		
-		if(EXISTS "${PROJECT_BINARY_DIR}/Libs/Debug/${LIB}")
 		
 		add_custom_command(TARGET acerba PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/Libs/Debug/${LIB}" "${PROJECT_BINARY_DIR}/lib${LIB}")
-			
-		endif()
-		
+			COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/Libs/Debug/${LIB}" "${PROJECT_BINARY_DIR}/lib${LIB}"
+			DEPENDS "${PROJECT_BINARY_DIR}/Libs/Debug/${LIB}"
+			)
+					
 	endforeach() 
 
 	add_custom_command(TARGET acerba PRE_BUILD
