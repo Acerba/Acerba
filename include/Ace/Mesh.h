@@ -9,8 +9,8 @@ namespace ace
 	*/
 	struct Mesh
 	{
-		Buffer vertexBuffer;
-		Buffer indexBuffer;
+		VertexBuffer vertexBuffer;
+		IndexBuffer indexBuffer;
 
 		/**
 			@brief Default Constructor

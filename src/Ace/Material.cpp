@@ -1,6 +1,5 @@
 #include <Ace/Material.h>
 #include <Ace/GraphicsDevice.h>
-#include <Ace/GLMaterialImpl.h>
 
 #include <Ace/Platform.h>
 
@@ -80,8 +79,7 @@ namespace ace
 	void Material::Uniform(const char* name, const Matrix4& value) const
 	{
 		GraphicsDevice::Uniform(*this, name, &value.array, UniformType::Mat4, 1);
-	}
-	
+	}	
 
 	void Material::Uniform(const char* name, const UInt32* values, UInt32 count) const
 	{

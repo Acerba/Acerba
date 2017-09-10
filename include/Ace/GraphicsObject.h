@@ -7,7 +7,12 @@ namespace ace
 	template <typename Impl>
 	class GraphicsObject
 	{
+	public:
+		typedef void(*DestructorFunc)(Impl*);
+
 	private:
+
+		static DestructorFunc s_destructor;
 
 		inline void HandleInit() const
 		{
@@ -39,7 +44,10 @@ namespace ace
 
 		~GraphicsObject()
 		{
-
+			if (m_impl.use_count() <= 1)
+			{
+				s_destructor(m_impl.get());
+			}
 		}
 
 		inline Impl* operator->()

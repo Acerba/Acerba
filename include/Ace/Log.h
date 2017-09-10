@@ -19,7 +19,6 @@ namespace ace
         static void Log(const Priority priority, const char* message ...);
 
         static void LogError(const char* message ...);
-
         static void LogInfo(const char* message ...);
     };
 

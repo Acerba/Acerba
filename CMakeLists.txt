@@ -136,8 +136,9 @@ if(WIN32 AND ACERBA_MOVELIBS)
 	endforeach() 
 
 	add_custom_command(TARGET acerba PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/Libs/Debug/SDL2.lib" "${PROJECT_BINARY_DIR}/SDL2.lib")
+		COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/Libs/Debug/SDL2.lib" "${PROJECT_BINARY_DIR}/SDL2.lib"
+		COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/Libs/Debug/SDL2.lib" "${PROJECT_BINARY_DIR}/SDL.lib"
+		DEPENDS "{PROJECT_BINARY_DIR}/Libs/Debug/SDL2.lib"
+	)
 
-	add_custom_command(TARGET acerba PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_BINARY_DIR}/Libs/Debug/SDL2.lib" "${PROJECT_BINARY_DIR}/SDL.lib")
 endif()

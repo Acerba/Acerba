@@ -17,6 +17,23 @@
 
 namespace ace
 {
+	template <typename Impl>
+	inline void DestructorPtr(Impl* impl)
+	{
+		impl->~Impl();
+	}
+
+	// Initialize destructor function pointers.
+
+	Buffer::DestructorFunc Buffer::s_destructor = DestructorPtr;
+	Shader::DestructorFunc Shader::s_destructor = DestructorPtr;
+	Material::DestructorFunc Material::s_destructor = DestructorPtr;
+	Texture::DestructorFunc Texture::s_destructor = DestructorPtr;
+	Framebuffer::DestructorFunc Framebuffer::s_destructor = DestructorPtr;
+	
+
+	// OpenGL
+
 	static const UInt32 GLBufferTargets[] = {GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER};
 	static const UInt32 GLBufferUsage[] = {GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_STREAM_DRAW};
 	static const UInt32 GLShaderTypes[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
@@ -121,8 +138,7 @@ namespace ace
 
 	Buffer GraphicsDevice::CreateBuffer(BufferType type)
 	{
-		Buffer buffer(new BufferImpl());
-		buffer.type = type;
+		Buffer buffer(new BufferImpl(), type);
 		return buffer;
 	}
 

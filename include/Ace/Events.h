@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Ace/IntTypes.h>
+#include <Ace/Types.h>
 
 namespace ace
 {
@@ -46,10 +46,8 @@ namespace ace
 	{
 		TouchEventType type;
 		UInt32 fingerID;
-		float x;
-		float y;
-		float dx;
-		float dy;
+		Vector2 position;
+		Vector2 direction;
 		float pressure;
 	};
 
@@ -64,19 +62,38 @@ namespace ace
 	{
 		MouseEventType type;
 		UInt32 which;
-		UInt8 button;
-		UInt8 state;
-		UInt8 clicks;
-		Int32 x;
-		Int32 y;
-		Int32 xRel;
-		Int32 yRel;
-		UInt32 direction;
+
+		Vector2 position;
+
+		union
+		{
+			struct
+			{
+				UInt8 state;  // Merge	(enum?)
+				float xrel;
+				float yrel;
+
+			} Motion;
+
+			struct
+			{
+				UInt32 scroll;
+			} Wheel;
+
+			struct
+			{
+				UInt8 button; // Merge	(enum?)
+				UInt8 state;  // Merge	(enum?)
+				UInt8 clicks;
+
+			} Button;
+		};
+		
 	};
 
 	struct AccelerometerEvent
 	{
-		UInt8 axis;
+		UInt8 axis; // Enum?
 		Int16 value;
 	};
 

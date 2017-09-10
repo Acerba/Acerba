@@ -1,5 +1,4 @@
 #include <Ace/Framebuffer.h>
-#include <Ace/GLFramebbuferImpl.h> 
 
 namespace ace
 {

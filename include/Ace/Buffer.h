@@ -21,12 +21,22 @@ namespace ace
 	/**
 	@brief Vertex Attribute Sizes
 	*/
-	static const UInt32 vertexAttributeSizes[] = { sizeof(Vector4), sizeof(Vector2), sizeof(Color32) };
+	static const UInt32 vertexAttributeSizes[] = 
+	{ 
+		sizeof(Vector4), 
+		sizeof(Vector2), 
+		sizeof(Color32) 
+	};
 
 	/**
 	@brief Vertex Attribute Names
 	*/
-	static const char* vertexAttributeNames[] = {"a_position", "a_uv", "a_color"};
+	static const char* vertexAttributeNames[] = 
+	{
+		"a_position", 
+		"a_uv", 
+		"a_color"
+	};
 
 	/**
 	@brief Vertex Structure
@@ -58,21 +68,33 @@ namespace ace
 		Streaming
 	};
 
-	// TODO: Dynamic Buffer? -> Stores buffer data inside a vector.
-
 	/**
-	@brief Graphics Buffer
+	@brief Generic Graphics Buffer
 	*/
 	struct Buffer : public GraphicsObject<struct BufferImpl>
 	{
-		BufferType type;
+		const BufferType type;
 		UInt32 size;
 
-		Buffer(BufferType type = BufferType::Vertex);
-
-		Buffer(BufferImpl* impl);
+		Buffer(BufferImpl* impl, BufferType type);
 
 	protected:
 		virtual void Init() const;
+	};
+
+	/**
+	@brief Vertex Buffer
+	*/
+	struct VertexBuffer : public Buffer
+	{
+		VertexBuffer(BufferImpl* impl = nullptr);
+	};
+
+	/**
+	@brief Index Buffer
+	*/
+	struct IndexBuffer : public Buffer
+	{
+		IndexBuffer(BufferImpl* impl = nullptr);
 	};
 }

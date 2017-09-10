@@ -1,6 +1,5 @@
 #include <Ace/Shader.h>
 #include <Ace/GraphicsDevice.h>
-#include <Ace/GLShaderImpl.h>
 
 namespace ace
 {

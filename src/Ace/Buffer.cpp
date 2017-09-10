@@ -1,14 +1,18 @@
 #include <Ace/Buffer.h>
-#include <Ace/GLBufferImpl.h>
 
 namespace ace
 {
-	Buffer::Buffer(BufferType type) : Graphics(nullptr), type(type), size(0)
+	Buffer::Buffer(BufferImpl* impl, BufferType type) : Graphics(impl), size(0), type(type)
 	{
 
 	}
 
-	Buffer::Buffer(BufferImpl* impl) : Graphics(impl), size(0)
+	VertexBuffer::VertexBuffer(BufferImpl* impl) : Buffer(impl, BufferType::Vertex)
+	{
+
+	}
+
+	IndexBuffer::IndexBuffer(BufferImpl* impl) : Buffer(impl, BufferType::Vertex)
 	{
 
 	}
