@@ -74,9 +74,9 @@ set(OGG_SOURCES
     src/framing.c
 )
 
-if(MSVC)
-    list(APPEND OGG_SOURCES win32/ogg.def)
-endif()
+#if(MSVC)
+#    list(APPEND OGG_SOURCES win32/ogg.def)
+#endif()
 
 if(BUILD_FRAMEWORK)
     set(BUILD_SHARED_LIBS TRUE)

@@ -57,11 +57,11 @@ set(VORBISENC_SOURCES
     vorbisenc.c
 )
 
-if(MSVC)
-    list(APPEND VORBIS_SOURCES ../win32/vorbis.def)
-    list(APPEND VORBISENC_SOURCES ../win32/vorbisenc.def)
-    list(APPEND VORBISFILE_SOURCES ../win32/vorbisfile.def)
-endif()
+#if(MSVC)
+#    list(APPEND VORBIS_SOURCES ../win32/vorbis.def)
+#    list(APPEND VORBISENC_SOURCES ../win32/vorbisenc.def)
+#    list(APPEND VORBISFILE_SOURCES ../win32/vorbisfile.def)
+#endif()
 
 include_directories(../include)
 include_directories(.)
