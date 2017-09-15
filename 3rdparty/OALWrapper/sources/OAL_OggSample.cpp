@@ -13,6 +13,9 @@
 	Derived class for containing Ogg Vorbis Sample data 
 */
 
+// Modified: Acerba: Added include <cstring>
+// Modified: Acerba: Added static_cast to CreateFromBuffer
+
 #include "OALWrapper/OAL_OggSample.h"
 #include "OALWrapper/OAL_Buffer.h"
 #include <cstdlib>
