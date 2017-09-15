@@ -142,6 +142,22 @@ namespace ace
         }
 
         template <typename CompType>
+        const ComponentHandle<CompType>* Get(UInt32 index = 0u) const
+        {
+            const UInt32 ID = EntityManager::ComponentID::GetID<CompType>();
+            EntityManager::ComponentBaseHandle* current = m_first;
+
+            while (current)
+            {
+                if (current->componentID == ID && index-- == 0u)
+                    return static_cast<ComponentHandle<CompType>*>(current);
+
+                current = current->next;
+            }
+            return nullptr;
+        }
+
+        template <typename CompType>
         std::vector<ComponentHandle<CompType>*> Components()
         {
             const UInt32 ID = EntityManager::ComponentID::GetID<CompType>();

@@ -19,6 +19,7 @@ namespace ace
 	private:
 
 		std::shared_ptr<WindowImpl> m_windowImpl;
+        Color m_colour;
 
 	public:
 
@@ -59,7 +60,12 @@ namespace ace
 		/**
 			@brief Clears the window
 		*/
-		void Clear(const Color32& color);
+		void Clear(const Color32* colour = nullptr);
+
+        /**
+            @brief Sets clear colour for the window
+        */
+        void SetClearColour(const Color& colour);
 
 		/**
 			@return Window size

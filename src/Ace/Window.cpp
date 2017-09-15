@@ -25,7 +25,9 @@ namespace ace
 		}
     }
 
-    Window::Window(const char* title, UInt16 w, UInt16 h) : m_windowImpl(new Window::WindowImpl(title, w, h))
+    Window::Window(const char* title, UInt16 w, UInt16 h) :
+        m_windowImpl(new Window::WindowImpl(title, w, h)),
+        m_colour(255u, 255u, 255u, 0u)
     {
 		if (g_currentWindow == nullptr)
 		{
@@ -49,9 +51,14 @@ namespace ace
         }
     }
 
-    void Window::Clear(const Color32& color)
+    void Window::Clear(const Color32* colour)
     {
-        GraphicsDevice::Clear(color);
+        GraphicsDevice::Clear(colour ? *colour : m_colour);
+    }
+
+    void Window::SetClearColour(const Color& colour)
+    {
+        m_colour = colour;
     }
 
     void Window::Present()

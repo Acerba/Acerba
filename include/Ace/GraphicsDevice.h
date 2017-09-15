@@ -129,7 +129,7 @@ namespace ace
 			@brief Draw Entity using Sprite Component
 			@param[in] entity
 		*/
-		static void Draw(class Entity& entity);
+		static void Draw(const class Entity& entity);
 
 
 		/**

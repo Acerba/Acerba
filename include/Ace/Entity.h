@@ -120,6 +120,19 @@ namespace ace
             return Entity(m_handle->GetChild(index));
         }
 
+        /**
+        @brief Retrieves constant the index'th child of this
+        @param[in] index Index of the child. Defaults to first child.
+        @see ChildCount
+        @return Entity built from child. Internally same as actual child.
+        @warning Check for validity with bool() operator after return.
+        */
+        const Entity GetChild(const UInt32 index = 0u) const
+        {
+            //Check for validity with bool() after this
+            return Entity(m_handle->GetChild(index));
+        }
+
 
         /**
         @brief Removes target and all its children.
@@ -174,6 +187,18 @@ namespace ace
         */
         template <typename CompType>
         inline EntityManager::ComponentHandle<CompType>* GetComponent(const UInt32 index = 0u)
+        {
+            return m_handle->Get<CompType>(index);
+        }
+
+        /**
+        @brief Retrieves constant index'th component pointer of type 'CompType'. First component by default.
+        @param[in] index Index of the component. Valid if smaller than count.
+        @see ComponentCount()
+        @return Component pointer. Nullptr if index is invalid.
+        */
+        template <typename CompType>
+        inline const EntityManager::ComponentHandle<CompType>* GetComponent(const UInt32 index = 0u) const
         {
             return m_handle->Get<CompType>(index);
         }

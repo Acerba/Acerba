@@ -446,9 +446,9 @@ namespace ace
 		Draw(mesh.GetElements(), mesh.GetIndicies());
 	}
 
-	void GraphicsDevice::Draw(Entity& entity)
+	void GraphicsDevice::Draw(const Entity& entity)
 	{
-		EntityManager::ComponentHandle<Sprite>* sprite = entity.GetComponent<Sprite>();
+		const EntityManager::ComponentHandle<Sprite>* sprite = entity.GetComponent<Sprite>();
 
 		if (sprite != nullptr)
 		{

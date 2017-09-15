@@ -20,6 +20,8 @@ namespace ace
 
         void ComputeMatrices(Entity& entity, const math::Matrix4& parentModel);
 
+        void DrawEntities(const Entity& entity) const;
+
 
         ACE_DISABLE_COPY(Scene)
 
@@ -48,8 +50,10 @@ namespace ace
         */
         Entity& GetRoot();
 
+        void Draw() const;
 
         void Update();
+
 
 
     };

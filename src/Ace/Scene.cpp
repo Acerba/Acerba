@@ -2,6 +2,7 @@
 
 #include <Ace/Entity.h>
 #include <Ace/Matrix4.h>
+#include <Ace/GraphicsDevice.h>
 
 namespace ace
 {
@@ -14,11 +15,21 @@ namespace ace
             Matrix4::Translation(entity->transform.position))
             * parentModel;
 
-        for (UInt32 i = 0u; i < entity.ChildCount(); ++i)
+        const UInt32 count = entity.ChildCount();
+        for (UInt32 i = 0u; i < count; ++i)
 		{
-			Entity child = entity.GetChild(i);
-			ComputeMatrices(child, entity->transform.model);
+			ComputeMatrices(entity.GetChild(i), entity->transform.model);
 		}
+    }
+
+    void Scene::DrawEntities(const Entity& entity) const
+    {
+        GraphicsDevice::Draw(entity);
+        const UInt32 count = entity->ChildCount();
+        for (UInt32 i = 0u; i < count; ++i)
+        {
+            DrawEntities(entity.GetChild(i));
+        }
     }
 
 
@@ -50,6 +61,13 @@ namespace ace
         return *m_root;
     }
 
+    void Scene::Draw() const
+    {
+        if (m_root)
+        {
+            DrawEntities(*m_root);
+        }
+    }
 
     void Scene::Update()
     {

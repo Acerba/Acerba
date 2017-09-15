@@ -112,6 +112,23 @@ namespace ace
         static EntityManager& DefaultManager();
         static EntityHandle* Entity(EntityManager& manager = DefaultManager());
 
+        template <typename CompType>
+        using UpdateCallback = void(*)(CompType&);
+
+        template <typename CompType>
+        bool SetUpdateCallback(UpdateCallback<CompType> callback)
+        {
+            for (auto itr = m_componentPools.begin(); itr != m_componentPools.end();)
+            {
+                if (auto* pool = dynamic_cast<ComponentPool<CompType>*>(*itr))
+                {
+                    pool->SetUpdateCallback(callback);
+                    return true;
+                }
+            }
+            return false;
+        }
+
 		static void Update();
 
         /**
