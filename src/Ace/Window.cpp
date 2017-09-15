@@ -27,7 +27,7 @@ namespace ace
 
     Window::Window(const char* title, UInt16 w, UInt16 h) :
         m_windowImpl(new Window::WindowImpl(title, w, h)),
-        m_colour(255u, 255u, 255u, 0u)
+        m_color(127u, 127u, 127u, 0u)
     {
 		if (g_currentWindow == nullptr)
 		{
@@ -53,12 +53,12 @@ namespace ace
 
     void Window::Clear(const Color32* colour)
     {
-        GraphicsDevice::Clear(colour ? *colour : m_colour);
+        GraphicsDevice::Clear(colour ? *colour : m_color);
     }
 
-    void Window::SetClearColor(const Color& colour)
+    void Window::SetClearColor(const Color& color)
     {
-        m_colour = colour;
+        m_color = color;
     }
 
     void Window::Present()

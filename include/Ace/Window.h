@@ -19,7 +19,7 @@ namespace ace
 	private:
 
 		std::shared_ptr<WindowImpl> m_windowImpl;
-        Color m_colour;
+        Color m_color;
 
 	public:
 
