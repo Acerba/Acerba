@@ -15,6 +15,7 @@
 #include <Ace/Assert.h>
 
 #include <Ace/StandardMaterial.h>
+#include <Ace/Entity.h>
 
 namespace ace
 {
@@ -443,6 +444,16 @@ namespace ace
 		SetBuffer(mesh.indexBuffer);
 
 		Draw(mesh.GetElements(), mesh.GetIndicies());
+	}
+
+	void GraphicsDevice::Draw(Entity& entity)
+	{
+		EntityManager::ComponentHandle<Sprite>* sprite = entity.GetComponent<Sprite>();
+
+		if (sprite != nullptr)
+		{
+			Draw(**sprite);
+		}
 	}
 
 	void GraphicsDevice::Draw(const Sprite& sprite)

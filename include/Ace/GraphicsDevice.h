@@ -125,6 +125,12 @@ namespace ace
 		*/
 		static void Draw(const Mesh& mesh);
 
+		/**
+			@brief Draw Entity using Sprite Component
+			@param[in] entity
+		*/
+		static void Draw(class Entity& entity);
+
 
 		/**
 			@brief CreateBuffer
