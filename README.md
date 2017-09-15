@@ -14,4 +14,4 @@
       - Try **Generate** Project again using **CMake** and then the Build Solution.
       - **IF** failed again, Check [**Visual Studio 2015 bug**](https://github.com/Acerba/Acerba/blob/master/docs/MSB3073_fix_illustration.pdf)
 
-Note: Acerba requires OpenAL files and we are going to automate this problem ASAP.
+# [FAQ](https://github.com/Acerba/Acerba/wiki)
