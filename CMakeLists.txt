@@ -5,16 +5,20 @@ include("cmake/ProjectBuild.cmake" REQUIRED)
 
 set(ACERBA_MOVELIBS TRUE CACHE BOOL "" )
 set(ACERBA_BUILD_EXAMPLE FALSE CACHE BOOL "")
+set(ACERBA_DEBUG FALSE CACHE BOOL "")
 
 BuildBegin()
-
-
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
 
 #list( APPEND CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
+
+
+if(ACERBA_DEBUG)
+#TODO: ProjectBuild
+add_definitions(-DACE_DEBUG)
+endif()
 
 add_subdirectory(${ACERBA_SOURCE_DIR}/3rdparty)
 
@@ -45,6 +49,8 @@ if(ANDROID)
 	set(DEFINES ANDROID GL_GLEXT_PROTOTYPES)
 	set(LIBS SDL2 android log openal OALWrapper dl GLESv1_CM GLESv2 imgui TMXLoader)
 endif()
+
+
 
 if(ANDROID)
 	BuildLibrary(acerba SHARED)

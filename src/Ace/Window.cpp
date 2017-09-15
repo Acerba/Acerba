@@ -56,7 +56,7 @@ namespace ace
         GraphicsDevice::Clear(colour ? *colour : m_colour);
     }
 
-    void Window::SetClearColour(const Color& colour)
+    void Window::SetClearColor(const Color& colour)
     {
         m_colour = colour;
     }

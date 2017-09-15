@@ -61,12 +61,15 @@ void iOAL_LoggerObject::LogMsg(const string& asIDStr, eOAL_LogVerbose aVerbose, 
 		return;
 	}
 
+	#ifdef ACE_DEBUG
+
 	va_list ap;
 	va_start(ap, asMessage);
 	SDL_LogMessageV(SDL_LOG_CATEGORY_TEST, SDL_LOG_PRIORITY_INFO, asMessage, ap);
 	va_end(ap);
 
-    
+	#endif
+
 	//switch(aType)
 	//{
 	//case eOAL_LogMsg_Command:

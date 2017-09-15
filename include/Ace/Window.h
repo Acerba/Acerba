@@ -65,7 +65,7 @@ namespace ace
         /**
             @brief Sets clear colour for the window
         */
-        void SetClearColour(const Color& colour);
+        void SetClearColor(const Color& colour);
 
 		/**
 			@return Window size
