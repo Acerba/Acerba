@@ -4,6 +4,7 @@ project(ACERBA)
 include("cmake/ProjectBuild.cmake" REQUIRED)
 
 set(ACERBA_MOVELIBS TRUE CACHE BOOL "" )
+set(ACERBA_BUILD_EXAMPLE FALSE CACHE BOOL "")
 
 BuildBegin()
 
@@ -43,7 +44,6 @@ endif()
 if(ANDROID)
 	set(DEFINES ANDROID GL_GLEXT_PROTOTYPES)
 	set(LIBS SDL2 android log openal OALWrapper dl GLESv1_CM GLESv2 imgui TMXLoader)
-
 endif()
 
 if(ANDROID)
@@ -55,11 +55,9 @@ endif()
 
 #file(GLOB ACERBA_SRC ${ACERBA_SOURCE_DIR}/src/Ace/*.cpp ${ACERBA_SOURCE_DIR}/include/Ace/*)
 #add_library(acerba STATIC ${ACERBA_SRC})
-
 # -> Add all include directories. (List variable?)
 #target_include_directories(acerba PUBLIC ${ACERBA_SOURCE_DIR}/include ${ACERBA_SOURCE_DIR}/3rdparty/SDL2/include ${ACERBA_SOURCE_DIR}/3rdparty/Khronos ${ACERBA_SOURCE_DIR}/3rdparty/gl3w/include/ ${ACERBA_SOURCE_DIR}/3rdparty/stb/ 
 #${ACERBA_SOURCE_DIR}/3rdparty/OALWrapper/include/)
-
 # Check library names.
 # -> Use List variable for all used libraries?
 #target_link_libraries(acerba PUBLIC SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper)
@@ -67,21 +65,21 @@ endif()
 
 
 # Example Program
-# -> Add CMake option
+if(ACERBA_BUILD_EXAMPLE)
 
-file(GLOB SOURCES ${ACERBA_SOURCE_DIR}/example/main.cpp)
-set(LIBS acerba OALWrapper)
+	file(GLOB SOURCES ${ACERBA_SOURCE_DIR}/example/main.cpp)
+	set(LIBS acerba OALWrapper)
 
-if(ANDROID OR PB_ANDROID)
+	if(ANDROID OR PB_ANDROID)
 
-	#list(APPEND SOURCES "${ACERBA_SOURCE_DIR}/3rdparty/SDL2/src/main/android/SDL_android_main.c")
-	list(APPEND LIBS openal)	
-	BuildApplication(main) # libmain.so -> SDL2 Activity
+		#list(APPEND SOURCES "${ACERBA_SOURCE_DIR}/3rdparty/SDL2/src/main/android/SDL_android_main.c")
+		list(APPEND LIBS openal)	
+		BuildApplication(main) # libmain.so -> SDL2 Activity
 
-else()
-	BuildApplication(example)
+	else()
+		BuildApplication(example)
+	endif()
 endif()
-
 
 if(PB_MAIN)
 	if(PB_ANDROID)
@@ -93,12 +91,6 @@ if(PB_MAIN)
 			COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_BINARY_DIR}/android/acerba/libs/" "${PROJECT_BINARY_DIR}/android/libs/")
 	endif()
 endif()
-
-
-#file(GLOB EXAMPLE_SRC ${ACERBA_SOURCE_DIR}/example/*)
-#add_executable(example ${EXAMPLE_SRC})
-
-#target_link_libraries(example PUBLIC acerba)
 
 SET (ACERBA_BUILD_ROOT
    ${CMAKE_BINARY_DIR}
@@ -126,13 +118,15 @@ SET (ACERBA_ARCHIVE_OUTPUT_DIRECTORY
    
 
 # Set DLL directory
-SET (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ACERBA_LIBRARY_OUTPUT_DIRECTORY})
+SET (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ACERBA_LIBRARY_OUTPUT_DIRECTORY} CACHE PATH "")
 
 # Set Exe directory
-SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ACERBA_RUNTIME_OUTPUT_DIRECTORY})
+SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ACERBA_RUNTIME_OUTPUT_DIRECTORY} CACHE PATH "")
 
 # Set LIB directory
-SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ACERBA_ARCHIVE_OUTPUT_DIRECTORY})
+SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ACERBA_ARCHIVE_OUTPUT_DIRECTORY} CACHE PATH "")
+
+message(STATUS ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 
 if(WIN32 AND ACERBA_MOVELIBS)
 
