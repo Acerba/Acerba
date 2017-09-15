@@ -19,19 +19,35 @@
 
 namespace ace
 {
+	static bool s_glstatus = false;
+
+	void SetGLStatus(bool ok)
+	{
+		s_glstatus = ok;
+	}
+
 	template <typename Impl>
 	inline void DestructorPtr(Impl* impl)
 	{
-		impl->~Impl();
+		if (s_glstatus)
+		{
+			impl->~Impl();
+		}
 	}
 
 	// Initialize destructor function pointers.
 
-	Buffer::DestructorFunc Buffer::s_destructor = DestructorPtr;
-	Shader::DestructorFunc Shader::s_destructor = DestructorPtr;
-	Material::DestructorFunc Material::s_destructor = DestructorPtr;
-	Texture::DestructorFunc Texture::s_destructor = DestructorPtr;
-	Framebuffer::DestructorFunc Framebuffer::s_destructor = DestructorPtr;
+	template<> GraphicsObject<BufferImpl>::DestructorFunc        GraphicsObject<BufferImpl>::s_destructor =        DestructorPtr<BufferImpl>;
+	template<> GraphicsObject<ShaderImpl>::DestructorFunc        GraphicsObject<ShaderImpl>::s_destructor =        DestructorPtr<ShaderImpl>;
+	template<> GraphicsObject<MaterialImpl>::DestructorFunc      GraphicsObject<MaterialImpl>::s_destructor =      DestructorPtr<MaterialImpl>;
+	template<> GraphicsObject<TextureImpl>::DestructorFunc       GraphicsObject<TextureImpl>::s_destructor =       DestructorPtr<TextureImpl>;
+	template<> GraphicsObject<FramebufferImpl>::DestructorFunc   GraphicsObject<FramebufferImpl>::s_destructor =   DestructorPtr<FramebufferImpl>;
+
+	// Buffer::DestructorFunc Buffer::s_destructor = DestructorPtr<Buffer>;
+	// Shader::DestructorFunc Shader::s_destructor = DestructorPtr;
+	// Material::DestructorFunc Material::s_destructor = DestructorPtr;
+	// Texture::DestructorFunc Texture::s_destructor = DestructorPtr;
+	// Framebuffer::DestructorFunc Framebuffer::s_destructor = DestructorPtr;
 
 	const Material* GetMaterialPtr(const Material* mat = nullptr)
 	{

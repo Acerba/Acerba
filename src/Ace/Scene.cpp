@@ -17,9 +17,10 @@ namespace ace
 
         const UInt32 count = entity.ChildCount();
         for (UInt32 i = 0u; i < count; ++i)
-		{
-			ComputeMatrices(entity.GetChild(i), entity->transform.model);
-		}
+        {
+            Entity child = entity.GetChild(i);
+            ComputeMatrices(child, entity->transform.model);
+        }
     }
 
     void Scene::DrawEntities(const Entity& entity) const
@@ -28,7 +29,8 @@ namespace ace
         const UInt32 count = entity->ChildCount();
         for (UInt32 i = 0u; i < count; ++i)
         {
-            DrawEntities(entity.GetChild(i));
+            const Entity& child = entity.GetChild(i);
+            DrawEntities(child);
         }
     }
 

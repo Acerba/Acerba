@@ -37,7 +37,7 @@ namespace ace
 
 		typedef GraphicsObject Graphics;
 
-		GraphicsObject(Impl* impl) : m_impl(impl)
+		GraphicsObject(Impl* impl) : m_impl(impl, s_destructor)
 		{
 
 		}

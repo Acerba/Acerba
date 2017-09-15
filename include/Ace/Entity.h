@@ -173,7 +173,7 @@ namespace ace
         @param[in, out] component Pointer to component to remove. Invalid after this function.
         */
         template <typename CompType>
-        inline void RemoveComponent(EntityManager::ComponentBaseHandle* component = nullptr)
+        inline void RemoveComponent(EntityManager::ComponentHandle<CompType>* component = nullptr)
         {
             m_handle->Remove<CompType>(component);
         }

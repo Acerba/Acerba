@@ -15,6 +15,8 @@ namespace ace
 {
 	void InitGraphicsDevice();
 
+	void SetGLStatus(bool ok);
+
 	struct Window::WindowImpl : public EventBase<Event::SDLEventArg>
 	{
 		SDL_Window* sdlWindow;
@@ -34,7 +36,11 @@ namespace ace
 
 			if (gl3wInit())
 			{
-
+				SetGLStatus(false);
+			}
+			else
+			{
+				SetGLStatus(true);
 			}
 
 			if (!gl3wIsSupported(3, 0))

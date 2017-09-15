@@ -25,7 +25,6 @@ namespace ace
 				float array[4];
 			};
 
-			
 
 			Vector4(float x = 0.f, float y = 0.f, float z = 0.f, float w = 0.f) : x(x), y(y), z(z), w(w) {}
 
@@ -33,7 +32,7 @@ namespace ace
 			@return Lenght
 			*/
 
-			float Lenght()
+			float Lenght() const
 			{
 				return Sqrt(x*x + y*y + z*z + w*w);
 			}
@@ -105,7 +104,7 @@ namespace ace
 
 			float Dot(const Vector4& vec1) const
 			{
-				return{ x * vec1.x + y * vec1.y + z * vec1.z + w * vec1.w};
+				return x * vec1.x + y * vec1.y + z * vec1.z + w * vec1.w;
 			}
 
 

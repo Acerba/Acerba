@@ -51,9 +51,9 @@ namespace ace
         }
     }
 
-    void Window::Clear(const Color32* colour)
+    void Window::Clear(const Color32* color)
     {
-        GraphicsDevice::Clear(colour ? *colour : m_color);
+        GraphicsDevice::Clear(color ? *color : m_color.operator Color32());
     }
 
     void Window::SetClearColor(const Color& color)

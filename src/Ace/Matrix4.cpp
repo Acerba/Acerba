@@ -119,7 +119,7 @@ namespace ace
         }
 
 
-        Matrix4 Matrix4::operator*(float s)const
+        Matrix4 Matrix4::operator*(float s) const
         {
             Matrix4 mat = *this;
 

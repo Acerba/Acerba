@@ -18,29 +18,31 @@ namespace ace
 
 	Sprite::Sprite(float deg) : Sprite()
 	{
+		const math::Matrix4 rot(math::Matrix4::RotationZ(deg));
 		for (auto& i : vertexData)
 		{
-			i.position = math::Matrix4::RotationZ(deg) * i.position;
+			i.position = rot * i.position;
 		}
 	}
 
     Sprite::Sprite(const Vertex(&data)[4]) :
-        vertexData({ data[0], data[1], data[2], data[3] })
+        vertexData{{data[0], data[1], data[2], data[3]}}
     {
 		
     }
 
     Sprite::Sprite(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4) :
-        vertexData({ v1, v2, v3, v4 })
+        vertexData{{ v1, v2, v3, v4 }}
     {
 
     }
 
 	void Sprite::Rotate(float deg)
 	{
+		const math::Matrix4 rot(math::Matrix4::RotationZ(deg));
 		for (auto& i : vertexData)
 		{
-			i.position = math::Matrix4::RotationZ(deg) * i.position;
+			i.position = rot * i.position;
 		}
 	}
 

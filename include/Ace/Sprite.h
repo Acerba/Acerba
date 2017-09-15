@@ -11,7 +11,7 @@ namespace ace
     {
     public:
 
-		static const UInt32 size = 4;
+		static const UInt8 size = 4u;
 
 		std::array<Vertex, size> vertexData;
 

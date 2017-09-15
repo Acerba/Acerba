@@ -22,7 +22,7 @@ namespace ace
 			@return Lenght
 			*/
 
-			float Lenght()
+			float Lenght() const
 			{
 				return Sqrt(x*x + y*y);
 			}
@@ -86,7 +86,7 @@ namespace ace
 
 			float Cross(const Vector2& vec1) const
 			{
-				return{ x * vec1.y - y * vec1.x};
+				return x * vec1.y - y * vec1.x;
 			}
 
 			/**
@@ -96,7 +96,7 @@ namespace ace
 
 			float Dot(const Vector2& vec1) const
 			{
-				return{ x * vec1.x + y * vec1.y };
+				return x * vec1.x + y * vec1.y;
 			}
 		};
 	}

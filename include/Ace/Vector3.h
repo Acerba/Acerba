@@ -30,10 +30,10 @@ namespace ace
 			Vector3(float x = 0.f, float y = 0.f, float z = 0.f) : x(x), y(y), z(z) {}
 			
 			/**
-			@return Lenght
+			@return Length
 			*/
 
-			float Length()
+			float Length() const
 			{
 				return Sqrt(x*x + y*y + z*z);
 			}
@@ -42,16 +42,13 @@ namespace ace
 			@return Normalized vector
 			*/
 
-			Vector3 Normalize()
+			Vector3 Normalize() const
 			{
 				Vector3 v = *this;
-
-                const float l = v.Length();
-
-				for (UInt32 i = 0u; i < 3u; ++i)
-				{
-					v.array[i] /= l;
-				}
+				const float l = v.Length();
+				v.x /= l;
+				v.y /= l;
+				v.z /= l;
 				return v;
 			}
 
@@ -136,7 +133,7 @@ namespace ace
 
 			float Dot(const Vector3& vec1) const
 			{
-				return{ x * vec1.x + y * vec1.y + z * vec1.z};
+				return x * vec1.x + y * vec1.y + z * vec1.z;
 			}
 
 			float& operator[](UInt8 index)
@@ -144,7 +141,7 @@ namespace ace
 				return array[index];
 			}
 
-			float operator[](UInt8 index)const
+			float operator[](UInt8 index) const
 			{
 				return array[index];
 			}
