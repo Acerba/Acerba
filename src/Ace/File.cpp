@@ -93,13 +93,9 @@ namespace ace
 
 		UInt32 text_len = SDL_strlen(text);
 
-		if (SDL_RWwrite(m_fileImpl->rwops, text, text_len, 1) != text_len)
+		if (SDL_RWwrite(m_fileImpl->rwops, text, 1, text_len) != text_len)
 		{
 			Logger::LogError("Couldn't fully write string");
-		}
-		else
-		{
-			printf("\nWrote %d 1-byte blocks \n", text_len);
 		}
 
 		SDL_RWseek(m_fileImpl->rwops, 0, RW_SEEK_SET);
