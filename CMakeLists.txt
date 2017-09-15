@@ -38,7 +38,7 @@ set(INCLUDES
 if (UNIX)
     set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui TMXLoader openal)
 else ()
-    set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui TMXLoader ${ACERBA_SOURCE_DIR}/3rdparty/AL/OpenAL32.lib)
+    set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui TMXLoader OpenAL32.dll)
 endif()
 
 if(ANDROID)
@@ -127,5 +127,12 @@ if(WIN32 AND ACERBA_MOVELIBS)
 		DEPENDS "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/Debug/SDL2.lib"
 		WORKING_DIRECTORY ${ACERBA_BUILD_ROOT}
 	)
+
+	add_custom_command(TARGET acerba PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy "${ACERBA_SOURCE_DIR}/3rdparty/AL/OpenAL32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug/OpenAL32.dll"
+		DEPENDS "${ACERBA_SOURCE_DIR}/3rdparty/AL/OpenAL32.dll"
+		WORKING_DIRECTORY ${ACERBA_BUILD_ROOT}
+	)
+
 
 endif()
