@@ -38,7 +38,7 @@ set(INCLUDES
 if (UNIX)
     set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui TMXLoader openal)
 else ()
-    set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui TMXLoader OpenAL32.dll)
+    set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui TMXLoader ${ACERBA_SOURCE_DIR}/3rdparty/AL/OpenAL32.lib)
 endif()
 
 if(ANDROID)
