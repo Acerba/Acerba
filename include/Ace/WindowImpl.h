@@ -13,6 +13,8 @@
 
 namespace ace
 {
+	void InitGraphicsDevice();
+
 	struct Window::WindowImpl : public EventBase<Event::SDLEventArg>
 	{
 		SDL_Window* sdlWindow;
@@ -42,6 +44,7 @@ namespace ace
 
 			#endif
 
+			InitGraphicsDevice();
 		}
 
 		~WindowImpl()

@@ -95,31 +95,35 @@ namespace ace
 		*/
 		static void Scissor(Int32 x, Int32 y, UInt32 width, UInt32 height);
 
+
+		/**
+			@brief Set Material
+			@param[in] Material
+		*/
+		static void SetMaterial(const Material& material);
+
 		/**
 		@brief Draw using Sprites
 		@see SetVertexBuffer
-		@param[in] material
 		@param[in] sprite
 		*/
-		static void Draw(Material& material, const Sprite& sprite);
+		static void Draw(const Sprite& sprite);
 
 		/**
 			@brief Draw using Buffers
 			@see SetBuffer
 			@see SetVertexBuffer
-			@param[in] material
 			@param[in] elements
 			@param[in] indicies
 			@param[in] indexTable
 		*/
-		static void Draw(Material& material, UInt32 elements, UInt32 indicies, const UInt32* indexTable = nullptr);
+		static void Draw(UInt32 elements, UInt32 indicies, const UInt32* indexTable = nullptr);
 
 		/**
 			@brief Draw using Mesh
-			@param[in] material
 			@param[in] mesh
 		*/
-		static void Draw(Material& material, const Mesh& mesh);
+		static void Draw(const Mesh& mesh);
 
 
 		/**
@@ -216,7 +220,7 @@ namespace ace
 			@param[in,out] material
 			@param[in] texture
 		*/
-		static void SetTexture(Material&, const Texture&, const char* name, UInt8 id);
+		static void SetTexture(const Texture&, const char* name, UInt8 id);
 
 		/**
 			@brief Uniform
@@ -226,7 +230,7 @@ namespace ace
 			@param[in] uniform Uniform Type
 			@param[in] elements Count
 		*/
-		static void Uniform(const Material& material, const char* name, const void* data, UniformType uniform, UInt32 elements = 1);
+		static void Uniform(const char* name, const void* data, UniformType uniform, UInt32 elements = 1);
 
 		/**
 			@brief Create Framebuffer
@@ -238,7 +242,7 @@ namespace ace
 
 	private:
 
-		static void SetMaterialFlags(Material& flags);
-		static void SetTextureFlags(Texture& flags);
+		static void SetMaterialFlags(const Material& flags);
+		static void SetTextureFlags(const Texture& flags);
 	};
 }

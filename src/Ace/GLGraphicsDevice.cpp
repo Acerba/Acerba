@@ -14,6 +14,7 @@
 #include <Ace/Platform.h>
 #include <Ace/Assert.h>
 
+#include <Ace/StandardMaterial.h>
 
 namespace ace
 {
@@ -30,7 +31,31 @@ namespace ace
 	Material::DestructorFunc Material::s_destructor = DestructorPtr;
 	Texture::DestructorFunc Texture::s_destructor = DestructorPtr;
 	Framebuffer::DestructorFunc Framebuffer::s_destructor = DestructorPtr;
-	
+
+	const Material* GetMaterialPtr(const Material* mat = nullptr)
+	{
+		static const Material* s_materialPtr;
+
+		if (mat != nullptr)
+		{
+			s_materialPtr = mat;
+		}
+
+		return s_materialPtr;
+	}
+
+
+	// TODO: GraphicsDeviceImpl
+	void InitGraphicsDevice()
+	{
+		static StandardMaterial s_standardMaterial;
+		GetMaterialPtr(&s_standardMaterial);
+	}
+
+	void GraphicsDevice::SetMaterial(const Material& material)
+	{
+		GetMaterialPtr(&material);
+	}
 
 	// OpenGL
 
@@ -116,8 +141,6 @@ namespace ace
 	void GraphicsDevice::Present(Window& window)
 	{
 		SDL_GL_SwapWindow((*window)->sdlWindow);
-
-
 	}
 
 	void GraphicsDevice::Viewport(UInt32 w, UInt32 h)
@@ -231,9 +254,6 @@ namespace ace
 		ACE_ASSERT(w != 0, "Texture width must be more than zero, %i", w);
 		ACE_ASSERT(h != 0, "Texture height must be more than zero, %i", h);
 
-
-	
-
 		#if ACE_WIN
 			static const UInt32 GLFormat[] = { 0, GL_RED, GL_RG, GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT, GL_DEPTH24_STENCIL8 };
 			static const UInt32 GLFormatType[] = { 0, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_FLOAT, GL_UNSIGNED_INT_24_8 };
@@ -253,20 +273,20 @@ namespace ace
 	}
 
 
-	void GraphicsDevice::SetTexture(Material& material, const Texture& texture, const char* name, UInt8 id)
+	void GraphicsDevice::SetTexture(const Texture& texture, const char* name, UInt8 id)
 	{
 		//if (!material.textures[id])
 		//{
 		//	material.AddTexture(texture, name, id);
 		//}
 
-		ACE_ASSERT(material, "Material is not initialized.", "");
+		ACE_ASSERT(GetMaterialPtr(), "Material is not initialized.", "");
 		//ACE_ASSERT(texture, "Texture is not initialized.", "");
 
-		glUseProgram(material->materialID);
+		glUseProgram((*GetMaterialPtr())->materialID);
 		glBindTexture(GL_TEXTURE_2D, texture->textureID);
 		glActiveTexture(GL_TEXTURE0 + id);
-		glUniform1i(glGetUniformLocation(material->materialID, name), id);
+		glUniform1i(glGetUniformLocation((*GetMaterialPtr())->materialID, name), id);
 	}
 
 	Shader GraphicsDevice::CreateShader(const char* source, ShaderType type)
@@ -356,10 +376,10 @@ namespace ace
 		return material;
 	}
 
-	void GraphicsDevice::Uniform(const Material& material, const char* name, const void* data, UniformType uniform, UInt32 elements)
+	void GraphicsDevice::Uniform(const char* name, const void* data, UniformType uniform, UInt32 elements)
 	{
-		glUseProgram(material->materialID);
-		UInt32 location = glGetUniformLocation(material->materialID, name);
+		glUseProgram((*GetMaterialPtr())->materialID);
+		UInt32 location = glGetUniformLocation((*GetMaterialPtr())->materialID, name);
 
 		switch (uniform)
 		{
@@ -396,13 +416,14 @@ namespace ace
 
 	}
 
-	void GraphicsDevice::Draw(Material& material, UInt32 elements, UInt32 indicies, const UInt32* indexTable)
+	void GraphicsDevice::Draw(UInt32 elements, UInt32 indicies, const UInt32* indexTable)
 	{
-		material.Apply();
-		CheckGL();
-		glUseProgram(material->materialID);
+		const_cast<ace::Material*>(GetMaterialPtr())->Apply();
 
-		SetMaterialFlags(material);
+		CheckGL();
+		glUseProgram((*GetMaterialPtr())->materialID);
+
+		SetMaterialFlags(*GetMaterialPtr());
 
 		if (indicies == 0)
 		{
@@ -412,20 +433,19 @@ namespace ace
 		{
 			glDrawElements(GL_TRIANGLES, indicies, GL_UNSIGNED_INT, indexTable == nullptr ? 0 : indexTable);
 		}
-
 	}
 
-	void GraphicsDevice::Draw(Material& material, const Mesh& mesh)
+	void GraphicsDevice::Draw(const Mesh& mesh)
 	{
 		Enable(true, Features::Blend | Features::Depth);
 
 		SetBuffer(mesh.vertexBuffer);
 		SetBuffer(mesh.indexBuffer);
 
-		Draw(material, mesh.GetElements(), mesh.GetIndicies());
+		Draw(mesh.GetElements(), mesh.GetIndicies());
 	}
 
-	void GraphicsDevice::Draw(Material& material, const Sprite& sprite)
+	void GraphicsDevice::Draw(const Sprite& sprite)
 	{
 		static const UInt32 indexTable[] = {
 			0,
@@ -440,10 +460,10 @@ namespace ace
 		BufferData(s_spriteBuffer, 4, sprite.vertexData.data(), BufferUsage::Streaming);
 		SetVertexBuffer(s_spriteBuffer);
 
-		Draw(material, 0, 6, indexTable);
+		Draw(0, 6, indexTable);
 	}
 
-	void GraphicsDevice::SetMaterialFlags(Material& material)
+	void GraphicsDevice::SetMaterialFlags(const Material& material)
 	{
 		static const UInt32 GLBlendModes[] = {
 			GL_ZERO, 
@@ -503,12 +523,12 @@ namespace ace
 		{
 			if (material.textures[i])
 			{
-				SetTexture(material, material.textures[i], material.textureNames[i], i);
+				SetTexture(material.textures[i], material.textureNames[i], i);
 			}
 		}
 	}
 
-	void GraphicsDevice::SetTextureFlags(Texture& texture)
+	void GraphicsDevice::SetTextureFlags(const Texture& texture)
 	{
 		static const UInt32 GLFilters[] = {
 			GL_NEAREST,

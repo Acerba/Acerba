@@ -95,7 +95,8 @@ namespace ace
             for (UInt32 i = 0; i < times; ++i)
             {
                 const UInt32 elementsCount = 64u < (indexCount - (i * 64u)) ? 64u : (indexCount - (i * 64u));
-                GraphicsDevice::Draw(GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera, 64u * i, elementsCount), 0u, elementsCount * 6u, m_indexTable + (elementsCount * 6u * i)); //  + (i * maxCount)
+				GraphicsDevice::SetMaterial(GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera, 64u * i, elementsCount));
+                GraphicsDevice::Draw( 0u, elementsCount * 6u, m_indexTable + (elementsCount * 6u * i)); //  + (i * maxCount)
             }
 
            // const UInt32 index6 = indexCount * 6u;

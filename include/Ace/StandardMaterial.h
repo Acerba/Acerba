@@ -42,7 +42,7 @@ namespace ace
 			Uniform("Rotation", math::Matrix2::Rotation(angle));
 			Uniform("Model", model);
 
-			GraphicsDevice::SetTexture(*this, diffuse, "Diffuse", 0);
+			GraphicsDevice::SetTexture(diffuse, "Diffuse", 0);
 		}
 
 	protected:
