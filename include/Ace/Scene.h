@@ -5,7 +5,6 @@
 namespace ace
 {
     class Entity;
-    class EntityManager;
     namespace math
     {
         class Matrix4;
@@ -17,12 +16,6 @@ namespace ace
 
         Entity* m_root;
 
-
-        void ComputeMatrices(Entity& entity, const math::Matrix4& parentModel);
-
-        void DrawEntities(const Entity& entity) const;
-
-
         ACE_DISABLE_COPY(Scene)
 
     public:
@@ -31,7 +24,7 @@ namespace ace
             @brief Scene constructor.
             @param[in, out] rootManager EntityManager to handle this scene. Uses DefaultManger by default.
         */
-        Scene(EntityManager* rootManager = nullptr);
+        Scene(class EntityManager* rootManager = nullptr);
 
         /**
             @brief Scene destructor.
@@ -50,8 +43,16 @@ namespace ace
         */
         Entity& GetRoot();
 
-        void Draw() const;
+        /**
+            @brief Draw the world and all its children from the perspective of the camera
+            @param[in] camera Camera from which to draw
+            @param[in] material Override all children materials
+         */
+        void Draw(const class Camera& camera, const class Material* material = nullptr) const;
 
+        /**
+            @brief Update relative positions
+         */
         void Update();
 
 

@@ -468,7 +468,7 @@ namespace ace
 
 		if (sprite != nullptr)
 		{
-			Draw(**sprite);
+			Draw(*(sprite->operator->()));
 		}
 	}
 

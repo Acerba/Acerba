@@ -39,17 +39,15 @@ set(INCLUDES
     ${ACERBA_SOURCE_DIR}/3rdparty/TMXLoader/TMXLoader
 )
 
-if (UNIX)
+if (ANDROID)
+    set(DEFINES ANDROID GL_GLEXT_PROTOTYPES)
+    set(LIBS SDL2 android log openal OALWrapper dl GLESv1_CM GLESv2 imgui TMXLoader)
+elseif (UNIX)
+    set(DEFINES UNIX GL_GLEXT_PROTOTYPES)
     set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui TMXLoader openal)
-else ()
+else()
     set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui TMXLoader ${ACERBA_SOURCE_DIR}/3rdparty/AL/OpenAL32.lib)
 endif()
-
-if(ANDROID)
-	set(DEFINES ANDROID GL_GLEXT_PROTOTYPES)
-	set(LIBS SDL2 android log openal OALWrapper dl GLESv1_CM GLESv2 imgui TMXLoader)
-endif()
-
 
 
 if(ANDROID)

@@ -47,7 +47,7 @@ namespace ace
     }
 
 
-    Material& GetTargetMaterial(Material& material, const Camera& camera,  UInt32 offset = 0u, UInt32 count = 64u)
+    const Material& GetTargetMaterial(const Material& material, const Camera& camera,  UInt32 offset = 0u, UInt32 count = 64u)
     {
         // TODO: Projection.
         //material.Uniform("VP", camera.GetVPMatrix());
@@ -56,7 +56,7 @@ namespace ace
     }
 
 
-    void SpriteManager::DrawImpl(const Scene& scene, const Camera& camera, Material* customMaterial)
+    void SpriteManager::DrawImpl(const Scene& scene, const Camera& camera, const Material* customMaterial)
     {
         static const UInt32 maxCount = 64u;
 
@@ -71,7 +71,7 @@ namespace ace
 
         //TODO: Change loop and both Draw-functions params to const if GraphicsDevice::Draw material accepts const
         
-        for (auto& itr : groups)
+        for (const auto& itr : groups)
         {
             const UInt32 indexCount = itr.end - itr.start;
             GraphicsDevice::BufferData(m_buffer, indexCount * 4, m_sprites[itr.start].vertexData.data(), BufferUsage::Streaming);
@@ -95,7 +95,7 @@ namespace ace
             for (UInt32 i = 0; i < times; ++i)
             {
                 const UInt32 elementsCount = 64u < (indexCount - (i * 64u)) ? 64u : (indexCount - (i * 64u));
-				GraphicsDevice::SetMaterial(GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera, 64u * i, elementsCount));
+                GraphicsDevice::SetMaterial(GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera, 64u * i, elementsCount));
                 GraphicsDevice::Draw( 0u, elementsCount * 6u, m_indexTable + (elementsCount * 6u * i)); //  + (i * maxCount)
             }
 
@@ -265,7 +265,7 @@ namespace ace
     }
 
 
-    void SpriteManager::Draw(const Scene& scene, const Camera& camera, Material* material)
+    void SpriteManager::Draw(const Scene& scene, const Camera& camera, const Material* material)
     {
         GetInstance().DrawImpl(scene, camera, material);
     }

@@ -109,15 +109,27 @@ namespace ace
         }
 
 
+
+        // inline operator CompType*()
+        // {
+        //     return &ComponentPool<CompType>::GetPool().m_components[index];
+        // }
+        // inline operator const CompType*() const
+        // {
+        //     return &ComponentPool<CompType>::GetPool().m_components[index];
+        // }
+
         /**
-        @brief Casts the component pointer to its own type.
-        @return Returns the component pointer in its own type.
+            @brief Returns a pointer to the underlying component constant.
         */
-        inline operator CompType*()
+        inline const CompType* operator->() const
         {
             return &ComponentPool<CompType>::GetPool().m_components[index];
         }
-        inline operator const CompType*() const
+        /**
+            @brief Returns a pointer to the underlying component.
+        */
+        inline CompType* operator->()
         {
             return &ComponentPool<CompType>::GetPool().m_components[index];
         }

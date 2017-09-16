@@ -3,11 +3,12 @@
 #include <Ace/Entity.h>
 #include <Ace/Matrix4.h>
 #include <Ace/GraphicsDevice.h>
+#include <Ace/SpriteManager.h>
 
 namespace ace
 {
 
-    void Scene::ComputeMatrices(Entity& entity, const math::Matrix4& parentModel)
+    void ComputeMatrices(Entity& entity, const math::Matrix4& parentModel)
     {
         entity->transform.model =
             (Matrix4::Scale(entity->transform.scale.x, entity->transform.scale.y, entity->transform.scale.z) *
@@ -20,17 +21,6 @@ namespace ace
         {
             Entity child = entity.GetChild(i);
             ComputeMatrices(child, entity->transform.model);
-        }
-    }
-
-    void Scene::DrawEntities(const Entity& entity) const
-    {
-        GraphicsDevice::Draw(entity);
-        const UInt32 count = entity->ChildCount();
-        for (UInt32 i = 0u; i < count; ++i)
-        {
-            const Entity& child = entity.GetChild(i);
-            DrawEntities(child);
         }
     }
 
@@ -63,12 +53,9 @@ namespace ace
         return *m_root;
     }
 
-    void Scene::Draw() const
+    void Scene::Draw(const class Camera& camera, const class Material* material) const
     {
-        if (m_root)
-        {
-            DrawEntities(*m_root);
-        }
+        SpriteManager::Draw(*this, camera, material);
     }
 
     void Scene::Update()

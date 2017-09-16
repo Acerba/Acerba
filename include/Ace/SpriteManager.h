@@ -36,7 +36,7 @@ namespace ace
 
         ~SpriteManager();
 
-        void DrawImpl(const Scene& scene, const Camera& camera, Material* material);
+        void DrawImpl(const Scene& scene, const Camera& camera, const Material* material);
 
         static SpriteManager& GetInstance();
 
@@ -56,7 +56,7 @@ namespace ace
         @param[in] scene Target scene whose children to draw.
         @param[in] material Pointer to a material to use instead of the entities own materials. Uses entities materials by default.
         */
-        static void Draw(const Scene& scene, const Camera& camera, Material* material = nullptr);
+        static void Draw(const Scene& scene, const Camera& camera, const Material* material = nullptr);
 
     };
 
