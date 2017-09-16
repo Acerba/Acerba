@@ -53,7 +53,7 @@ namespace ace
         return *m_root;
     }
 
-    void Scene::Draw(const class Camera& camera, const class Material* material) const
+    void Scene::Draw(const Camera& camera, const Material* material) const
     {
         SpriteManager::Draw(*this, camera, material);
     }

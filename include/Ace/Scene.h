@@ -48,7 +48,7 @@ namespace ace
             @param[in] camera Camera from which to draw
             @param[in] material Override all children materials
          */
-        void Draw(const class Camera& camera, const class Material* material = nullptr) const;
+        void Draw(const class Camera& camera, const struct Material* material = nullptr) const;
 
         /**
             @brief Update relative positions
