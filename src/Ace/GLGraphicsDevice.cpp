@@ -29,7 +29,7 @@ namespace ace
 	template <typename Impl>
 	inline void DestructorPtr(Impl* impl)
 	{
-		if (s_glstatus)
+		if (s_glstatus && impl != nullptr)
 		{
 			impl->~Impl();
 		}
