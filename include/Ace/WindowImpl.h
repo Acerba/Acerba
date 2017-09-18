@@ -50,7 +50,8 @@ namespace ace
 
 			#endif
 
-			InitGraphicsDevice();
+			// Sometimes OpenGL is not initalized, when called. (causes crash)
+			//InitGraphicsDevice();
 		}
 
 		~WindowImpl()
