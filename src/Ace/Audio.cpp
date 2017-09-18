@@ -56,7 +56,7 @@ namespace ace
 		}
 	};
 
-	
+
 	IAudioSample::IAudioSample(IAudioSample::AudioClipImpl* impl) : impl(impl)
 	{
 
@@ -74,7 +74,7 @@ namespace ace
 
 		file.Read(buffer, pos);
 
-		cOAL_Sample* sample =  OAL_Sample_LoadFromBuffer(buffer, pos);
+		cOAL_Sample* sample = OAL_Sample_LoadFromBuffer(buffer, pos);
 
 		if (sample == nullptr)
 		{
@@ -116,9 +116,9 @@ namespace ace
 		this->loop = loop;
 	}
 
-	AudioStream::AudioStream() : IAudioSample(nullptr) 
+	AudioStream::AudioStream() : IAudioSample(nullptr)
 	{
-	
+
 	}
 
 	AudioStream::AudioStream(const File& file, float volume, bool isPaused, bool loop) : IAudioSample(new AudioClipImpl(LoadStream(file)))
@@ -136,16 +136,28 @@ namespace ace
 			return;
 		}
 
-		if(!externalInit)
+		g_isAudioRunning = true;
+
+
+		if (!externalInit)
 		{
 
 			cOAL_Init_Params oal_parms;
 
-			ACE_ASSERT(OAL_Init(oal_parms), "Audio initializing failed!", "");				
+			//ACE_ASSERT(OAL_Init(oal_parms), "Audio initializing failed!", "");
+
+			if (!OAL_Init(oal_parms))
+			{
+				std::string error = OAL_GetALCErrorString();
+				Logger::LogError("Audio initialization failed: %s", error.c_str());
+				g_isAudioRunning = false;
+			}
 		}
 
-		g_isAudioRunning = true;
-		g_audioThread = SDL_CreateThread(AudioUpdate, "Audio", nullptr);
+		if (g_isAudioRunning)
+		{
+			g_audioThread = SDL_CreateThread(AudioUpdate, "Audio", nullptr);
+		}
 	}
 
 	void Audio::Quit()
@@ -178,7 +190,7 @@ namespace ace
 	}
 
 
-    void AudioClip::Play()
+	void AudioClip::Play()
 	{
 		Audio::PlayAudio(*this);
 	}
@@ -218,7 +230,7 @@ namespace ace
 
 				OAL_Source_SetPaused(stream->id, false);
 			}
-			
+
 		}
 		else
 		{
@@ -256,7 +268,7 @@ namespace ace
 	{
 		OAL_Source_SetGain((*this)->id, volume);
 	}
-	
+
 	float IAudioSample::GetVolume()
 	{
 		return OAL_Source_GetGain((*this)->id);
@@ -281,7 +293,7 @@ namespace ace
 	//{
 	//	OAL_Source_SetPriority((*this)->id, priority);
 	//}
-	
+
 	//UInt32 AudioClip::GetPriority()
 	//{
 	//	return OAL_Source_GetPriority((*this)->id);
@@ -347,7 +359,7 @@ namespace ace
 			effects[i] = nullptr;
 		}
 	}
-	
+
 	void Audio::AddEffect(IAudioEffect* effect)
 	{
 		Audio& audio = Audio::GetAudio();
@@ -368,29 +380,29 @@ namespace ace
 	void Audio::Update()
 	{
 		Audio& audio = Audio::GetAudio();
-		
+
 		for (UInt32 i = 0u; i < audio.effects.size(); ++i)
 		{
 			if (audio.effects[i] == nullptr)
 			{
 				continue;
 			}
-		
+
 			float normalized = audio.effects[i]->time / audio.effects[i]->duration;
-		
+
 			if (normalized > 1)
 			{
 				delete audio.effects[i];
 				audio.effects[i] = nullptr;
 				continue;
 			}
-		
+
 			// TODO: Check that effect clip is playing.
-		
+
 			audio.effects[i]->Effect(normalized);
-			audio.effects[i]->time += Time::DeltaTime(); 
+			audio.effects[i]->time += Time::DeltaTime();
 		}
-		
+
 		for (UInt32 i = 0u; i < audio.clips.size(); ++i)
 		{
 			if (!OAL_Source_IsPlaying(audio.clips[i]->id))
