@@ -10,7 +10,7 @@ namespace ace
     namespace math
     {
 
-        class Matrix4
+        class Matrix4 final
         {
         public:
 

@@ -10,7 +10,7 @@ namespace ace
 	namespace math
 	{
 
-		class Matrix3
+		class Matrix3 final
 		{
 		public:
 
@@ -96,7 +96,7 @@ namespace ace
 				return rows[index];
 			}
 
-			Vector3 operator[](UInt8 index)const
+			Vector3 operator[](UInt8 index) const
 			{
 				return rows[index];
 			}
@@ -106,7 +106,7 @@ namespace ace
 				return data[r][c];
 			}
 
-			float operator()(UInt8 r, UInt8 c)const
+			float operator()(UInt8 r, UInt8 c) const
 			{
 				return data[r][c];
 			}

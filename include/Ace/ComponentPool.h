@@ -17,7 +17,7 @@ namespace ace
         virtual void Reserve(const UInt32 size) = 0;
         virtual UInt32 Size() const = 0;
 
-		virtual void Update() = 0;
+        virtual void Update() = 0;
 
     protected:
 
@@ -58,44 +58,43 @@ namespace ace
         {
             m_update = callback;
         }
-		
 
-        virtual const void* Data() const
+        const void* Data() const final override
         {
             return m_components.data();
         }
 
-        virtual void* Get(const UInt32 index)
+        void* Get(const UInt32 index) final override
         {
             return &m_components.at(index);
         }
 
-        virtual const void* Get(const UInt32 index) const
+        const void* Get(const UInt32 index) const final override
         {
             return &m_components.at(index);
         }
 
-        virtual void Reserve(const UInt32 size)
+        void Reserve(const UInt32 size) final override
         {
             m_components.reserve(size);
             m_handles.reserve(size);
         }
 
-        virtual UInt32 Size() const
+        UInt32 Size() const final override
         {
             return m_components.size();
         }
 
-		virtual void Update()
-		{
-			if (m_update)
-			{
-				for (UInt32 i = 0; i < m_components.size(); ++i)
-				{
-					m_update(m_components[i]);
-				}
-			}
-		}
+        void Update() final override
+        {
+            if (m_update)
+            {
+                for (UInt32 i = 0; i < m_components.size(); ++i)
+                {
+                    m_update(m_components[i]);
+                }
+            }
+        }
 
         static ComponentPool& GetPool()
         {

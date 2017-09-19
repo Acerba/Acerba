@@ -34,10 +34,10 @@ namespace ace
 
 
         /**
-            @brief Marks target as a child of this and this as a parent of target.
-            @param[in, out] target Will be child of this. Must be valid pointer.
+            @brief Marks child as a child of this and this as a parent of child.
+            @param[in, out] child Will be child of this. Must be valid pointer.
         */
-        void AddChild(EntityHandle* target);
+        void AddChild(EntityHandle* child);
 
 
         /**

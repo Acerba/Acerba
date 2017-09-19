@@ -52,15 +52,15 @@ namespace ace
     }
 
 
-    void EntityManager::EntityHandle::AddChild(EntityHandle* target)
+    void EntityManager::EntityHandle::AddChild(EntityHandle* child)
     {
-        if (!target)
+        if (!child)
             return;
         // TODO: fix removal
         // auto* root = GetRoot();
-        // root->RemoveChild(target);
-        target->m_parent = this;
-        m_children.emplace_front(target);
+        // root->RemoveChild(child);
+        child->m_parent = this;
+        m_children.emplace_front(child);
     }
 
 

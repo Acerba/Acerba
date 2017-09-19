@@ -80,12 +80,12 @@ namespace ace
 
 
         /**
-        @brief Marks target as a child of this and this as a parent of target.
-        @param[in, out] target Will be child of this. Must be valid pointer.
+        @brief Marks child as a child of this and this as a parent of child.
+        @param[in, out] child Will be child of this.
         */
-        void AddChild(Entity& target)
+        void AddChild(Entity& child)
         {
-            m_handle->AddChild(target.m_handle);
+            m_handle->AddChild(child.m_handle);
         }
 
 
@@ -178,6 +178,15 @@ namespace ace
             m_handle->Remove<CompType>(component);
         }
 
+        /**
+            @brief Sets this as a child of parent
+            @param[in, out] parent New parent of this.
+        */
+        void SetParent(Entity& parent)
+        {
+            parent.AddChild(*this);
+        }
+
 
         /**
         @brief Retrieves index'th component pointer of type 'CompType'. First component by default.
@@ -235,7 +244,7 @@ namespace ace
         */
         inline void Destroy()
         {
-            EntityManager::DestroyEntity(m_handle, *m_handle->manager);
+            if (m_handle) EntityManager::DestroyEntity(m_handle, *m_handle->manager);
         }
 
 

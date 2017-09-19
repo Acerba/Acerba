@@ -9,7 +9,7 @@ namespace ace
 	namespace math
 	{
 
-		class Matrix2
+		class Matrix2 final
 		{
 		public:
 
@@ -74,21 +74,47 @@ namespace ace
 			
 
 
+			/**
+				@brief Retrieve indexth row of the matrix by reference.
+				@param[in] index Index of the row.
+				@warning Undefined behaviour if index >= dimension of the matrix.
+				@return Row by reference.
+			*/
 			Vector2& operator[](UInt8 index)
 			{
 				return rows[index];
 			}
 
-			Vector2 operator[](UInt8 index)const
+			/**
+				@brief Retrieve indexth row of the matrix.
+				@param[in] index Index of the row.
+				@warning Undefined behaviour if index >= dimension of the matrix.
+				@return Row by value.
+			*/
+			Vector2 operator[](UInt8 index) const
 			{
 				return rows[index];
 			}
 
+			/**
+				@brief Retrieve reference to the value in the coordinates of the row-major matrix.
+				@param[in] r Row index.
+				@param[in] c Column index.
+				@warning Undefined behaviour if either argument >= dimension of the matrix.
+				@return Value by reference.
+			*/
 			float& operator()(UInt8 r, UInt8 c)
 			{
 				return data[r][c];
 			}
 
+			/**
+				@brief Retrieve value in the coordinates of the row-major matrix.
+				@param[in] r Row index.
+				@param[in] c Column index.
+				@warning Undefined behaviour if either argument >= dimension of the matrix.
+				@return Value.
+			*/
 			float operator()(UInt8 r, UInt8 c)const
 			{
 				return data[r][c];

@@ -11,7 +11,7 @@ namespace ace
     }
     
 
-    class Scene
+    class Scene final
     {
 
         Entity* m_root;

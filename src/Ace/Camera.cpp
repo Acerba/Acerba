@@ -9,13 +9,13 @@ namespace ace
         //Move(-10);
     }
 
-    const Entity& Camera::GetCamera() const
+    const Entity& Camera::GetEntity() const
     {
         return m_camera;
     }
 
 
-    Entity& Camera::GetCamera()
+    Entity& Camera::GetEntity()
     {
         return m_camera;
     }
@@ -31,14 +31,9 @@ namespace ace
         m_view = Matrix4::LookAt(m_camera->transform.position, target, up);
     }
 
-	void Camera::MakeOrtho(float left, float right, float bottom, float top, float znear, float zfar)
+    void Camera::MakeOrtho(float left, float right, float bottom, float top, float znear, float zfar)
     {
         m_proj = Matrix4::Ortho(left, right, bottom, top, znear, zfar);
-    }
-	
-    void Camera::Move(const float z)
-    {
-        m_camera->transform.position.z += z;
     }
 
     void Camera::Move(const Vector3& v)
@@ -46,19 +41,14 @@ namespace ace
         m_camera->transform.position += v;
     }
 
-    void Camera::SetParent(Entity& parent)
-    {
-        parent.AddChild(m_camera);
-    }
-
-	void Camera::SetPosition(const Vector3& v)
+    void Camera::SetPosition(const Vector3& v)
     {
         m_camera->transform.position = v;
     }
 
-	Transform& Camera::GetTransform()
-	{
-		return m_camera->transform;
-	}
+    Transform& Camera::GetTransform()
+    {
+        return m_camera->transform;
+    }
 
 }

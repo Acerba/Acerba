@@ -112,15 +112,23 @@ namespace ace
         static EntityManager& DefaultManager();
         static EntityHandle* Entity(EntityManager& manager = DefaultManager());
 
+        /**
+            @brief Update function signature.
+        */
         template <typename CompType>
         using UpdateCallback = void(*)(CompType&);
 
+        /**
+            @brief Set custom update function for all components of CompType.
+            @param[in] callback Function to set as an update function. Gets called when entities are updated. See UpdateCallback
+            @return False if no components of the desired type have been created before. True otherwise.
+        */
         template <typename CompType>
         bool SetUpdateCallback(UpdateCallback<CompType> callback)
         {
-            for (auto itr = m_componentPools.begin(); itr != m_componentPools.end();)
+            for (auto itr = m_componentPools.begin(); itr != m_componentPools.end(); ++itr)
             {
-                if (auto* pool = dynamic_cast<ComponentPool<CompType>*>(*itr))
+                if (ComponentPool<CompType>* pool = dynamic_cast<ComponentPool<CompType>*>(*itr))
                 {
                     pool->SetUpdateCallback(callback);
                     return true;
@@ -129,7 +137,10 @@ namespace ace
             return false;
         }
 
-		static void Update();
+        /**
+            @brief Update all component pools and contained components.
+        */
+        static void Update();
 
         /**
         @brief Executes 'function' for all components of 'PrimaryComponent' type, where they share a common owner entity with 'SecondaryType'.
@@ -139,7 +150,7 @@ namespace ace
         Pointer to the 'SecondaryComponent' is passed in as the third argument.
         */
         template <typename PrimaryComponent, typename SecondaryComponent, typename Function>
-		static void ForEach(Function function);
+        static void ForEach(Function function);
 
 
         /**
@@ -149,7 +160,7 @@ namespace ace
         Pointer of the component is passed in as the second argument to the function.
         */
         template <typename CompType, typename Function>
-		static void ForEach(Function function);
+        static void ForEach(Function function);
 
 
         /**
@@ -160,7 +171,7 @@ namespace ace
         template <typename Function>
         inline static void ForEach(Function function, EntityManager& manager = DefaultManager())
         {
-			for (UInt32 i = 0u; i < manager.m_entities.size(); ++i)
+            for (UInt32 i = 0u; i < manager.m_entities.size(); ++i)
             {
                 function(manager.m_entities[i]);
             }
