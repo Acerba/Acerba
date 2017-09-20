@@ -44,10 +44,7 @@ namespace ace
 
 		~GraphicsObject()
 		{
-			if (m_impl && m_impl.use_count() <= 1)
-			{
-				s_destructor(m_impl.get());
-			}
+
 		}
 
 		inline Impl* operator->()

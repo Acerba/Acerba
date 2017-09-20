@@ -9,18 +9,6 @@
 
 #include <SDL_thread.h>
 
-
-//#include <OALWrapper/OAL_Device.h>
-//#include <OALWrapper/OAL_Source.h>
-//#include <OALWrapper/OAL_OggSample.h>
-//#include <OALWrapper/OAL_WAVSample.h>
-//#include <OALWrapper/OAL_OggStream.h>
-//#include <OALWrapper/OAL_CustomStream.h>
-//#include <OALWrapper/OAL_SourceManager.h>
-//
-//#include <OALWrapper/OAL_Filter.h>
-//#include <OALWrapper/OAL_Helper.h>
-
 namespace ace
 {
 	static SDL_Thread* g_audioThread;
@@ -69,6 +57,12 @@ namespace ace
 
 	static cOAL_Sample* LoadSample(const File& file)
 	{
+		// returns nullptr if audio is not initialized.
+		if (!g_isAudioRunning || !File::Exists(file.path))
+		{
+			return nullptr;
+		}
+
 		UInt32 pos = file.Size();
 		UInt8* buffer = new UInt8[pos];
 
@@ -87,6 +81,12 @@ namespace ace
 
 	static cOAL_Stream* LoadStream(const File& file)
 	{
+		// returns nullptr if audio is not initialized.
+		if (!g_isAudioRunning || !File::Exists(file.path))
+		{
+			return nullptr;
+		}
+		
 		UInt32 pos = file.Size();
 		UInt8* buffer = new UInt8[pos];
 
@@ -164,18 +164,21 @@ namespace ace
 	{
 		if (g_isAudioRunning)
 		{
-
 			g_isAudioRunning = false;
 			SDL_WaitThread(g_audioThread, nullptr);
 			g_audioThread = nullptr;
 
 			OAL_Close();
 		}
-
 	}
 
 	bool Audio::Update(const AudioClip& clip)
 	{
+		if(!g_isAudioRunning)
+		{
+			return false;
+		}
+		
 		if (clip->id != -1)
 		{
 			return false;
@@ -185,19 +188,22 @@ namespace ace
 	}
 
 	void AudioStream::Play()
-	{
+	{		
 		Audio::PlayAudio(*this);
 	}
 
-
 	void AudioClip::Play()
-	{
+	{		
 		Audio::PlayAudio(*this);
 	}
 
 	void Audio::PlayAudio(AudioClip& clip)
 	{
-		//printf("Channels : %d\nFrequency : %d\n", clip->clip->GetChannels(), clip->clip->GetFrequency());
+		if(!g_isAudioRunning || clip.impl == nullptr)
+		{
+			return;
+		}
+		
 		if (clip.impl->sample)
 		{
 			clip.impl->id = OAL_Sample_Play(OAL_FREE, clip.impl->sample, clip.volume, clip.ispaused, 0);
@@ -215,7 +221,11 @@ namespace ace
 
 	void Audio::PlayAudio(AudioStream& stream)
 	{
-
+		if (!g_isAudioRunning || stream.impl == nullptr)
+		{
+			return;
+		}
+		
 		if (stream.impl->stream)
 		{
 			if (stream.impl->id != -1)
@@ -240,52 +250,102 @@ namespace ace
 
 	void Audio::PauseAudio(AudioClip& clip)
 	{
+		if (!g_isAudioRunning || clip.impl == nullptr)
+		{
+			return;
+		}
+		
 		clip.ispaused = !clip.ispaused;
 		PauseAudio(clip, clip.ispaused);
 	}
 
 	void Audio::PauseAudio(AudioClip& clip, bool pause)
 	{
+		if (!g_isAudioRunning || clip.impl == nullptr)
+		{
+			return;
+		}
+		
 		OAL_Source_SetPaused(clip->id, pause);
 	}
 
 	void Audio::StopAudio(const AudioClip& clip)
 	{
+		if (!g_isAudioRunning || clip.impl == nullptr)
+		{
+			return;
+		}
+		
 		OAL_Source_Stop(clip->id);
 	}
 
 	void Audio::StopAll()
 	{
+		if(!g_isAudioRunning)
+		{
+			return;
+		}
+		
 		OAL_Source_Stop(OAL_ALL);
 	}
 
 	void Audio::SetMasterVolume(float volume)
 	{
+		if(!g_isAudioRunning)
+		{
+			return;
+		}
+		
 		OAL_Listener_SetMasterVolume(volume);
 	}
 
 	void IAudioSample::SetVolume(float volume)
 	{
+		if(!g_isAudioRunning)
+		{
+			return;
+		}
+		
 		OAL_Source_SetGain((*this)->id, volume);
 	}
 
 	float IAudioSample::GetVolume()
 	{
+		if(!g_isAudioRunning)
+		{
+			return 0;
+		}
+		
 		return OAL_Source_GetGain((*this)->id);
 	}
 
 	void IAudioSample::SetPitch(float pitch)
 	{
+		if(!g_isAudioRunning)
+		{
+			return;
+		}
+		
 		OAL_Source_SetPitch((*this)->id, pitch);
 	}
 
 	float IAudioSample::GetPitch()
 	{
+		if(!g_isAudioRunning)
+		{
+			return 0;
+		}
+		
 		return OAL_Source_GetPitch((*this)->id);
 	}
 
 	void IAudioSample::SetLoop(bool loop)
 	{
+		if(!g_isAudioRunning)
+		{
+			return;
+		}
+		
 		OAL_Source_SetLoop((*this)->id, loop);
 	}
 
@@ -301,36 +361,71 @@ namespace ace
 
 	void IAudioSample::SetElapsedTime(double time)
 	{
+		if(!g_isAudioRunning)
+		{
+			return;
+		}
+		
 		OAL_Source_SetElapsedTime((*this)->id, time);
 	}
 
 	double IAudioSample::GetElapsedTime()
 	{
+		if(!g_isAudioRunning)
+		{
+			return 0;
+		}
+		
 		return OAL_Source_GetElapsedTime((*this)->id);
 	}
 
 	double IAudioSample::GetTotalTime()
 	{
+		if(!g_isAudioRunning)
+		{
+			return 0;
+		}
+		
 		return OAL_Source_GetTotalTime((*this)->id);
 	}
 
 	bool IAudioSample::IsPlaying()
 	{
+		if(!g_isAudioRunning)
+		{
+			return false;
+		}
+		
 		return OAL_Source_IsPlaying((*this)->id);
 	}
 
 	void IAudioSample::SetPosition(math::Vector3 position)
 	{
+		if(!g_isAudioRunning)
+		{
+			return;
+		}
+		
 		OAL_Source_SetPosition((*this)->id, position.array);
 	}
 
 	void IAudioSample::SetVelocity(math::Vector3 velocity)
 	{
+		if(!g_isAudioRunning)
+		{
+			return;
+		}
+		
 		OAL_Source_SetPosition((*this)->id, velocity.array);
 	}
 
 	void AudioClip::Fade(float duration, float endVolume)
 	{
+		if(!g_isAudioRunning)
+		{
+			return;
+		}
+		
 		FadeEffect* fade = new FadeEffect(*this, duration, volume, endVolume);
 		Audio::AddEffect(fade);
 	}
@@ -362,6 +457,11 @@ namespace ace
 
 	void Audio::AddEffect(IAudioEffect* effect)
 	{
+		if(!g_isAudioRunning)
+		{
+			return;
+		}
+		
 		Audio& audio = Audio::GetAudio();
 
 		audio.effects.push_back(effect);
@@ -369,16 +469,31 @@ namespace ace
 
 	void Audio::PlayAudioAtPosition(const AudioClip& Clip, math::Vector3 pos)
 	{
+		if(!g_isAudioRunning)
+		{
+			return;
+		}
+		
 		OAL_Source_SetPosition(Clip->id, pos.array);
 	}
 
 	void Audio::SetAttributes(math::Vector3 apPos, math::Vector3 apVel, math::Vector3 apForward, math::Vector3 apUpward)
 	{
+		if(!g_isAudioRunning)
+		{
+			return;
+		}
+		
 		OAL_Listener_SetAttributes(apPos.array, apVel.array, apForward.array, apUpward.array);
 	}
 
 	void Audio::Update()
 	{
+		if(!g_isAudioRunning)
+		{
+			return;
+		}
+		
 		Audio& audio = Audio::GetAudio();
 
 		for (UInt32 i = 0u; i < audio.effects.size(); ++i)

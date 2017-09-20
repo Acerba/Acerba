@@ -31,7 +31,8 @@ namespace ace
 	{
 		if (s_glstatus && impl != nullptr)
 		{
-			impl->~Impl();
+			delete impl;
+			impl = nullptr;
 		}
 	}
 
@@ -43,15 +44,10 @@ namespace ace
 	template<> GraphicsObject<TextureImpl>::DestructorFunc       GraphicsObject<TextureImpl>::s_destructor =       DestructorPtr<TextureImpl>;
 	template<> GraphicsObject<FramebufferImpl>::DestructorFunc   GraphicsObject<FramebufferImpl>::s_destructor =   DestructorPtr<FramebufferImpl>;
 
-	// Buffer::DestructorFunc Buffer::s_destructor = DestructorPtr<Buffer>;
-	// Shader::DestructorFunc Shader::s_destructor = DestructorPtr;
-	// Material::DestructorFunc Material::s_destructor = DestructorPtr;
-	// Texture::DestructorFunc Texture::s_destructor = DestructorPtr;
-	// Framebuffer::DestructorFunc Framebuffer::s_destructor = DestructorPtr;
 
 	const Material* GetMaterialPtr(const Material* mat = nullptr)
 	{
-		static const Material* s_materialPtr;
+		static const Material* s_materialPtr = nullptr;
 
 		if (mat != nullptr)
 		{
@@ -435,10 +431,10 @@ namespace ace
 
 	void GraphicsDevice::Draw(UInt32 elements, UInt32 indicies, const UInt32* indexTable)
 	{
+		glUseProgram((*GetMaterialPtr())->materialID);
 		const_cast<ace::Material*>(GetMaterialPtr())->Apply();
 
 		CheckGL();
-		glUseProgram((*GetMaterialPtr())->materialID);
 
 		SetMaterialFlags(*GetMaterialPtr());
 
