@@ -12,7 +12,6 @@
    - Build Solution
    - **IF** something failed 
       - Try **Generate** Project again using **CMake** and then the Build Solution.
-      - **IF** failed again, Check [**Visual Studio 2015 bug**](https://github.com/Acerba/Acerba/blob/master/docs/MSB3073_fix_illustration.pdf)
 
 # [FAQ](https://github.com/Acerba/Acerba/wiki)
 # [Presentation](https://github.com/Acerba/Acerba/blob/master/docs/AcerbaTech.pdf)
