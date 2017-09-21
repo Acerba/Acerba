@@ -51,6 +51,16 @@ namespace ace
         */
         void MakeOrtho(float left, float right, float bottom, float top, float znear, float zfar);
 
+
+		/**
+			@brief Make orthogonal projection.
+			@param[in] horizontal clipping plane.
+			@param[in] vertical clipping plane.
+			@param[in] znear Near Z-axis clipping plane.
+			@param[in] zfar Far Z-axis clipping plane.
+		*/
+		void MakeOrtho(float horizontal, float vertical, float znear, float zfar);
+
         /**
             @brief Move the camera.
             @param[in] distance Distance to move the camera.

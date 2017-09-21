@@ -193,25 +193,32 @@ namespace ace
         {
             Matrix4 ortho(1);
 
-            ortho[0].x = -2.f / (right - left);
-            ortho[0].y = 0.f;
-            ortho[0].z = 0.f;
-            ortho[0].w = -(right + left) / (right - left);
+			ortho(0, 0) = static_cast<float>(2) / (right - left);
+			ortho(1, 1) = static_cast<float>(2) / (top - bottom);
+			ortho(2, 2) = -static_cast<float>(2) / (zfar - znear);
+			ortho(3, 0) = -(right + left) / (right - left);
+			ortho(3, 1) = -(top + bottom) / (top - bottom);
+			ortho(3, 2) = -(zfar + znear) / (zfar - znear);
 
-            ortho[1].x = 0.f;
-            ortho[1].y = 2.f / (top - bottom);
-            ortho[1].z = 0.f;
-            ortho[1].w = -(top + bottom) / (top - bottom);
-
-            ortho[2].x = 0.f;
-            ortho[2].y = 0.f;
-            ortho[2].z = 2.f / (zfar - znear);
-            ortho[2].w = -(zfar + znear) / (zfar - znear);
-
-            ortho[3].x = -1.f;
-            ortho[3].y = +1.f;
-            ortho[3].z = 0.f;
-            ortho[3].w = 1.f;
+			//ortho[0].x = -2.f / (right - left);
+			//ortho[0].y = 0.f;
+			//ortho[0].z = 0.f;
+			//ortho[0].w = -(right + left) / (right - left);
+			//	
+			//ortho[1].x = 0.f;
+			//ortho[1].y = 2.f / (top - bottom);
+			//ortho[1].z = 0.f;
+			//ortho[1].w = -(top + bottom) / (top - bottom);
+			//	
+			//ortho[2].x = 0.f;
+			//ortho[2].y = 0.f;
+			//ortho[2].z = 2.f / (zfar - znear);
+			//ortho[2].w = -(zfar + znear) / (zfar - znear);
+			//	
+			//ortho[3].x = -1.f;
+			//ortho[3].y = +1.f;
+			//ortho[3].z = 0.f;
+			//ortho[3].w = 1.f;
 
             return ortho;
         }

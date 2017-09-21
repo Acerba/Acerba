@@ -50,7 +50,7 @@ namespace ace
     const Material& GetTargetMaterial(const Material& material, const Camera& camera,  UInt32 offset = 0u, UInt32 count = 64u)
     {
         // TODO: Projection.
-        //material.Uniform("VP", camera.GetVPMatrix());
+        material.Uniform("VP", camera.GetMatrix());
         material.Uniform("M", matrix.data() + offset, count);
         return material;
     }

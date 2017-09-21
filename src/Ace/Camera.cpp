@@ -6,7 +6,10 @@ namespace ace
     Camera::Camera(EntityManager& manager) :
         m_camera(manager)
     {
-        //Move(-10);
+		m_camera->transform.position = Vector3(0, 0, 1);
+        //Move(1);
+		MakeOrtho(1, 1, 0, 100);
+		LookAt(Vector3(0));
     }
 
     const Entity& Camera::GetEntity() const
@@ -20,21 +23,25 @@ namespace ace
         return m_camera;
     }
 
-
     Matrix4 Camera::GetMatrix() const
     {
-        return m_proj * m_view;
+		return m_view * m_proj;
     }
 
     void Camera::LookAt(const Vector3& target, const Vector3& up)
     {
-        m_view = Matrix4::LookAt(m_camera->transform.position, target, up);
+		m_view = Matrix4::LookAt(m_camera->transform.position, target, up);
     }
 
     void Camera::MakeOrtho(float left, float right, float bottom, float top, float znear, float zfar)
     {
         m_proj = Matrix4::Ortho(left, right, bottom, top, znear, zfar);
     }
+
+	void Camera::MakeOrtho(float horizontal, float vertical, float znear, float zfar)
+	{
+		m_proj = Matrix4::Ortho(-horizontal, horizontal, -vertical, vertical, znear, zfar);
+	}
 
     void Camera::Move(const Vector3& v)
     {
