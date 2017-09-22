@@ -37,7 +37,7 @@ int main()
 	else
 	{
 		//Print error message
-		printf("Error, file does not exists");
+		printf("Error, file does not exists\n");
 	}
 
 	//File should not exist so we make a new one
@@ -46,12 +46,12 @@ int main()
 
 	//Make a text to write (two methods)
 	//Make a constant char
-	char* textToWrite = { "This is one way to write the file. " };
+	char* textToWrite = { "This is one way to write the file. \n" };
 
 	//Write the text in const char, or..
 	writeTextFile.Write(textToWrite);
 	//write it straight
-	writeTextFile.Write("This is also a way to write the file.");
+	writeTextFile.Write("This is also a way to write the file.\n");
 
 	//Here we load an imagefile to memory
 	//Check if file exists (You can use the method before to shorten this, or you can do it the hard way)
