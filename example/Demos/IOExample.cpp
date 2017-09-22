@@ -10,9 +10,9 @@ int main()
 
 	//For this demo we have one long path, so we shorten it
 	//One for reading existing file
-	ace::Path readTextPath = "../../../example/Demos/IOExampleFiles/ReadTestTextFile.txt";
+	ace::Path readTextPath = "assets/ReadTestTextFile.txt";
 	//One for creating a new file and re-writing it
-	ace::Path writeTextPath = "../../../example/Demos/IOExampleFiles/WriteTestTextFile.txt";
+	ace::Path writeTextPath = "assets/WriteTestTextFile.txt";
 
 	////////////////////
 	/*	ATTENTION
@@ -37,7 +37,7 @@ int main()
 	else
 	{
 		//Print error message
-		printf("Error, file does not exists\n");
+		printf("Error, file does not exist\n");
 	}
 
 	//File should not exist so we make a new one
@@ -55,10 +55,10 @@ int main()
 
 	//Here we load an imagefile to memory
 	//Check if file exists (You can use the method before to shorten this, or you can do it the hard way)
-	if (ace::File::Exists("../../../example/Demos/IOExampleFiles/TestImageFile.png"))
+	if (ace::File::Exists("assets/TestImageFile.png"))
 	{
 		//Load image file
-		ace::Image testImage(ace::File("../../../example/Demos/IOExampleFiles/TestImageFile.png"));
+		ace::Image testImage(ace::File("assets/TestImageFile.png"));
 
 		//But we have no window to show it, that will be done in other example/demo
 	}

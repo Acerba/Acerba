@@ -12,16 +12,16 @@ int main(int, char**)
 	ace::Texture exampleTexture;
 
 	// Try to find the file
-	if (ace::File::Exists("../../../example/Demos/GraphicsDeviceExampleFiles/TestImageFile.png"))
+	if (ace::File::Exists("assets/TestImageFile.png"))
 	{
 		// Create an image and bind it to the texture
-		exampleTexture = ace::Image(ace::File("../../../example/Demos/GraphicsDeviceExampleFiles/TestImageFile.png"));
+		exampleTexture = ace::Image(ace::File("assets/TestImageFile.png"));
 	}
 
 	// Load vertex and fragment shaders
 	ace::Shader fragment, vertex;
-	vertex.Load({ "vertex.vert" }, ace::ShaderType::Vertex);
-	fragment.Load({ "fragment.frag" }, ace::ShaderType::Fragment);
+	vertex.Load({ "assets/vertex.vert" }, ace::ShaderType::Vertex);
+	fragment.Load({ "assets/fragment.frag" }, ace::ShaderType::Fragment);
 
 	// Material loading
 	ace::Material material(vertex, fragment);
