@@ -1,48 +1,41 @@
-#include <Ace/Module.h>
-#include <Ace/Audio.h>
-#include <Ace/Time.h>
+//Audio demo
+#include <Ace\Ace.h>
 
 int main(int, char**)
 {
+	//Initialize ACE-engine
 	ace::Init();
-	
 
-	ace::AudioClip ExapmleSound;
+	//Create window (Name, Width, Height)
+	ace::Window window("Title", 800, 600);
+
+	//Create AudioClip
+	ace::AudioClip ExampleSound;
+	ace::Path AudioClip = "assets/blop.ogg";
+	//Bool for using audio (optional)
 	bool useAudio = false;
-	float volume = 0.5f;
-	bool loop = false;
+	//Loading Audiosample to AudioClip
+	if (ace::File::Exists(AudioClip))
+	{
+		useAudio = true;
+		ExampleSound = ace::AudioClip({ AudioClip });
+	}
 
-	//Loading Audiosample
+	//Loop that goes on forever while window is open
+	while (window)
+	{
+		//Engine update
+		ace::Update();
 
-	if (ace::File::Exists("ExampleSound.wav"))
+		//Play sound when A is pressed
+		if (ace::Keyboard::KeyPressed(ace::KeyCode::A))
 		{
-			useAudio = true;
-			ExapmleSound = ace::AudioClip({"ExampleSound.wav"}, volume, loop);
+			if (useAudio)
+			{
+				ace::Audio::PlayAudio(ExampleSound);
+				ace::Time::Delay(100);
+			}
 		}
 
-	// Playing audio once (Loop set to false)
-	ace::Audio::PlayAudio(ExapmleSound);
-
-	//setting the volume for all audio samples
-	ace::Audio::SetMasterVolume(0.3f);
-
-	//setting the volume of specific audio sample
-	ExapmleSound.SetVolume(1.0f);
-
-	
-	// Playing a sound on loop until timer is done
-	ExapmleSound.SetLoop(true);
-	ace::Audio::PlayAudio(ExapmleSound);
-	ace::Time::WaitTime wait(200.0f);
-
-	while (wait.IsDone() == true)
-	{
-		
 	}
-	ace::Audio::StopAudio(ExapmleSound);
-
-
-	//TODO Effect examples
-
-	return 0;
 }
