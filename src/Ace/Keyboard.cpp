@@ -7,60 +7,6 @@
 
 namespace ace
 {
-	KeyCode Keyboard::GetKey()
-	{
-		const UInt8 *state = SDL_GetKeyboardState(NULL);
-
-		if (state[SDL_SCANCODE_W])
-		{
-			return KeyCode::W;
-		}
-		if (state[SDL_SCANCODE_A])
-		{
-			return KeyCode::A;
-		}
-		if (state[SDL_SCANCODE_S])
-		{
-			return KeyCode::S;
-		}
-		if (state[SDL_SCANCODE_D])
-		{
-			return KeyCode::D;
-		}
-		if (state[SDL_SCANCODE_1])
-		{
-			return KeyCode::One;
-		}
-		if (state[SDL_SCANCODE_2])
-		{
-			return KeyCode::Two;
-		}
-		if (state[SDL_SCANCODE_3])
-		{
-			return KeyCode::Three;
-		}
-		if (state[SDL_SCANCODE_4])
-		{
-			return KeyCode::Four;
-		}
-		if (state[SDL_SCANCODE_F1])
-		{
-			return KeyCode::F1;
-		}
-		if (state[SDL_SCANCODE_F2])
-		{
-			return KeyCode::F2;
-		}
-		if (state[SDL_SCANCODE_F3])
-		{
-			return KeyCode::F3;
-		}
-		if (state[SDL_SCANCODE_F4])
-		{
-			return KeyCode::F4;
-		}
-		return KeyCode::Invalid;
-	}
 	KeyMod Keyboard::GetMod()
 	{
 		SDL_Keymod *mod = new SDL_Keymod;
@@ -95,4 +41,51 @@ namespace ace
 		}
 		return KeyMod::Invalid;
 	}
+
+	bool Keyboard::KeyPressed(KeyCode code)
+	{
+		const UInt8 *state = SDL_GetKeyboardState(NULL);
+		int SDL_SCAN = 0;
+		switch (code)
+		{
+		case KeyCode::W:
+			SDL_SCAN = 26;
+			break;
+		case KeyCode::A:
+			SDL_SCAN = 4;
+			break;
+		case KeyCode::S:
+			SDL_SCAN = 22;
+			break;
+		case KeyCode::D:
+			SDL_SCAN = 7;
+			break;
+		case KeyCode::One:
+			SDL_SCAN = 30;
+			break;
+		case KeyCode::Two:
+			SDL_SCAN = 31;
+			break;
+		case KeyCode::Three:
+			SDL_SCAN = 32;
+			break;
+		case KeyCode::Four:
+			SDL_SCAN = 33;
+			break;
+		case KeyCode::F1:
+			SDL_SCAN = 58;
+			break;
+		case KeyCode::F2:
+			SDL_SCAN = 59;
+			break;
+		case KeyCode::F3:
+			SDL_SCAN = 60;
+			break;
+		case KeyCode::F4:
+			SDL_SCAN = 61;
+			break;
+		}
+		return state[SDL_SCAN];
+	}
+
 }

@@ -33,6 +33,7 @@ namespace ace
 			@return KeyMod
 		*/
 		static KeyMod GetMod();
+		static bool KeyPressed(KeyCode code);
 
 	};
 }
