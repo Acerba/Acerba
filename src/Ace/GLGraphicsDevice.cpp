@@ -63,6 +63,8 @@ namespace ace
 	{
 		static StandardMaterial s_standardMaterial;
 		GetMaterialPtr(&s_standardMaterial);
+
+        GraphicsDevice::Enable(true, Features::Blend);
 	}
 
 	void GraphicsDevice::SetMaterial(const Material& material)

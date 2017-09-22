@@ -4,6 +4,7 @@
 #include <Ace/TextureFlags.h>
 
 #include <Ace/GraphicsObject.h>
+#include <Ace/Types.h>
 
 namespace ace
 {
@@ -13,6 +14,8 @@ namespace ace
 	struct Texture : public GraphicsObject<struct TextureImpl>
 	{
 		TextureFlags flags;
+        Vector2 size;
+        float scale;
 
 		/**
 			@brief Default Constructor
@@ -41,7 +44,7 @@ namespace ace
 			@param[in] format PixelFormat
 			@return True if parameters are valid.
 		*/
-		bool Create(const UInt8* pixels, UInt32 width, UInt32 height, PixelFormat format);
+		bool Create(const UInt8* pixels, UInt32 width, UInt32 height, PixelFormat format, float pixelScale = 1000);
 
 	protected:
 		virtual void Init() const;

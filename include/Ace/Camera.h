@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Ace/Entity.h>
+#include <Ace/Material.h>
+#include <Ace/Window.h>
 
 namespace ace
 {
@@ -11,6 +13,8 @@ namespace ace
 
         Matrix4 m_proj;
         Matrix4 m_view;
+
+        Vector4 m_orthoSize;
 
     public:
 
@@ -72,6 +76,10 @@ namespace ace
             @param[in] position New position for the camera.
         */
         void SetPosition(const Vector3& position);
+
+
+        void Update(const Window& window);
+        void Apply(Material& material);
 
         /**
             @brief Shorthand for retrieving the underlying Entity transform.

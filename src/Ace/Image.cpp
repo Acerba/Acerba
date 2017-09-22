@@ -96,12 +96,12 @@ namespace ace
 		pixels[2 + 15 * 4] = 255;
 		pixels[3 + 15 * 4] = 255;
 
-		return Image(pixels, w, h, PixelFormat::RGBA);
+		return Image(pixels, w, h, PixelFormat::RGBA, 10);
 	}
 
 	//Loads image from file
 	//Image PixelFormat: Gray, Gray Alpha, RGB, RGBA
-	Image::Image(const ace::File& p_file)
+	Image::Image(const ace::File& p_file, float scale) : scale(scale)
 	{
 		if (!p_file)
 		{
@@ -119,7 +119,7 @@ namespace ace
 	}
 
 	//Loads image where is only pixeldata
-	Image::Image(UInt8* pixels, Int32 w, Int32 h, PixelFormat format) : m_pixels(pixels), w(w), h(h), format(format)
+	Image::Image(UInt8* pixels, Int32 w, Int32 h, PixelFormat format, float scale) : m_pixels(pixels), w(w), h(h), format(format), scale(scale)
 	{
 		
 	}
@@ -130,7 +130,7 @@ namespace ace
 		format(PixelFormat::RGBA),
 		w(1),
 		h(1),
-		m_pixels(nullptr)
+		m_pixels(nullptr), scale(10)
 	{ 
 		UInt8* pixels = new UInt8[4]
 		{

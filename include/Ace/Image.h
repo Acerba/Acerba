@@ -34,7 +34,7 @@ namespace ace
 			@param[in] PixelFormat PixelFormat of the target image file
 			@see PixelFormat
 		*/
-		Image(const ace::File &file);
+		Image(const ace::File &file, float scale = 1000);
 
 		/**
 			@brief Load image with only pixeldata
@@ -44,7 +44,7 @@ namespace ace
 			@param[in] PixelFormat PixelFormat of the target image file
 			@see PixelFormat
 		*/
-		Image(UInt8* pixels, Int32 w, Int32 h, PixelFormat);
+		Image(UInt8* pixels, Int32 w, Int32 h, PixelFormat, float scale = 1000);
 		
 		/**
 			@brief Image with colored pixels
@@ -57,6 +57,7 @@ namespace ace
 		int w;
 		int h;
 		PixelFormat format;
+        float scale;
 	
 		/**
 			@brief Returns pointer to pixeldata

@@ -41,6 +41,11 @@ namespace ace
 	void Camera::MakeOrtho(float horizontal, float vertical, float znear, float zfar)
 	{
 		m_proj = Matrix4::Ortho(-horizontal, horizontal, -vertical, vertical, znear, zfar);
+       
+        m_orthoSize.x = horizontal; 
+        m_orthoSize.y = vertical;
+        m_orthoSize.z = znear;
+        m_orthoSize.w = zfar;
 	}
 
     void Camera::Move(const Vector3& v)
@@ -56,6 +61,18 @@ namespace ace
     Transform& Camera::GetTransform()
     {
         return m_camera->transform;
+    }
+
+    void Camera::Apply(Material& material)
+    {
+        material.Uniform("VP", GetMatrix());
+    }
+
+    void Camera::Update(const Window& window)
+    {
+        float ratio = window.GetSize().x / window.GetSize().y;
+        m_proj = Matrix4::Ortho(-m_orthoSize.x * ratio, m_orthoSize.x * ratio, -m_orthoSize.y, m_orthoSize.y, m_orthoSize.z, m_orthoSize.w);
+
     }
 
 }
