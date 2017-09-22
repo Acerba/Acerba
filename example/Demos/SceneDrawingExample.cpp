@@ -35,7 +35,7 @@ int main(int, char**)
     ace::Camera myCamera;
 
     // Set world root as the parent of myCamera
-    myCamera.SetParent(myWorld.GetRoot());
+    myCamera.GetEntity().SetParent(myWorld.GetRoot());
 
 
     // ENTITY
@@ -50,7 +50,7 @@ int main(int, char**)
     myEntity.AddComponent<ace::Material>(myMaterial);
 
     // Add entity as a child of the camera
-    myCamera.GetCamera().AddChild(myEntity);
+    myCamera.GetEntity().AddChild(myEntity);
 
 
 
@@ -82,7 +82,7 @@ int main(int, char**)
         myWorld.Update();
 
         // Draw the world and all its children
-        ace::SpriteManager::Draw(myWorld, myCamera, &myMaterial);
+        myWorld.Draw(myCamera);
 
         // Refresh the window
         myWindow.Present();
