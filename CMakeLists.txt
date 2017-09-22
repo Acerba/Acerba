@@ -123,6 +123,15 @@ if(WIN32 AND ACERBA_MOVELIBS)
 			WORKING_DIRECTORY ${ACERBA_BUILD_ROOT}
 		)
 		
+		if(EXISTS ${ACERBA_BUILD_ROOT}/acerba)
+			# build/acerba
+			add_custom_command(TARGET acerba PRE_BUILD		
+				DEPENDS ${ACERBA_BUILD_ROOT}/acerba	
+				COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE_DIR:acerba>/${LIB} "${ACERBA_BUILD_ROOT}/acerba/lib${LIB}"
+				WORKING_DIRECTORY ${ACERBA_BUILD_ROOT}
+			)
+		endif()
+		
 	endforeach() 
 
 	add_custom_command(TARGET acerba PRE_BUILD
@@ -131,6 +140,16 @@ if(WIN32 AND ACERBA_MOVELIBS)
 		DEPENDS $<TARGET_FILE_DIR:acerba>/SDL2.lib
 		WORKING_DIRECTORY ${ACERBA_BUILD_ROOT}
 	)
+
+	if(EXISTS ${ACERBA_BUILD_ROOT}/acerba)
+		# build/acerba
+		add_custom_command(TARGET acerba PRE_BUILD	
+			DEPENDS ${ACERBA_BUILD_ROOT}/acerba	
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE_DIR:acerba>/SDL2.lib "${ACERBA_BUILD_ROOT}/acerba/SDL2.lib"
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE_DIR:acerba>/SDL2.lib "${ACERBA_BUILD_ROOT}/acerba/SDL.lib"
+			WORKING_DIRECTORY ${ACERBA_BUILD_ROOT}
+		)
+	endif()
 
 	add_custom_command(TARGET acerba PRE_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy "${ACERBA_SOURCE_DIR}/3rdparty/AL/OpenAL32.dll" $<TARGET_FILE_DIR:SDL2>/OpenAL32.dll
