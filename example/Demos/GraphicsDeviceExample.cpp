@@ -23,24 +23,31 @@ int main(int, char**)
         exampleTexture = ace::Image::MissingFile();
     }
 
+    ace::GraphicsDevice::Enable(true, ace::Features::Blend);
 
     // Material loading
     ace::StandardMaterial material;
     material.flags.cullingMode = ace::CullingMode::Both;
 
+    ace::Camera camera;
+
     // Creating a sprite
     ace::Sprite exampleSprite;
+    exampleSprite.Scale(exampleTexture, 1.0f);
 
     while (window)
     {
         window.Clear();
         ace::Update();
 
+        camera.Update(window); // Updates aspect ratio.
+        camera.Apply(material); // Updates material projection and view matrices.
+
         // Drawing sprite
         //First is position for material, second is scaling for material
-        material.position = ace::Vector2(0, 0);
-        material.scale = ace::Vector2(2.0f, 1.0f);
-        
+        //material.position = ace::Vector2(0, 0);
+        // material.scale = ace::Vector2(2.0f, 1.0f);
+
         // Set texture to GraphicsDevice
         material.diffuse = exampleTexture;
 
