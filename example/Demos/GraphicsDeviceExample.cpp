@@ -12,10 +12,10 @@ int main(int, char**)
 	ace::Texture exampleTexture;
 
 	// Try to find the file
-	if (ace::File::Exists("TestImageFile.png"))
+	if (ace::File::Exists("../../../example/Demos/GraphicsDeviceExampleFiles/TestImageFile.png"))
 	{
 		// Create an image and bind it to the texture
-		exampleTexture = ace::Image(ace::File("TestImageFile.png"));
+		exampleTexture = ace::Image(ace::File("../../../example/Demos/GraphicsDeviceExampleFiles/TestImageFile.png"));
 	}
 
 	// Load vertex and fragment shaders
