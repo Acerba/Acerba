@@ -26,14 +26,13 @@ namespace ace
 			@brief Returns the pressed key.
 			@return KeyCode
 		*/
-		static KeyCode GetKey();
-
+		static bool KeyPressed(KeyCode code);
 		/**
 			@brief Returns the pressed modifier.
 			@return KeyMod
 		*/
 		static KeyMod GetMod();
-		static bool KeyPressed(KeyCode code);
+
 
 	};
 }
