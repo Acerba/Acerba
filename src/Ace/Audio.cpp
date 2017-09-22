@@ -47,12 +47,12 @@ namespace ace
 		{
 			if (stream)
 			{
-				delete stream;
+				OAL_Stream_Unload(stream);
 				stream = nullptr;
 			}
 			if (sample)
 			{
-				delete sample;
+				OAL_Sample_Unload(sample);
 				sample = nullptr;
 			}
 		}
