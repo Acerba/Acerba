@@ -1,58 +1,60 @@
-#include <Ace\Ace.h>
+#include <Ace/Ace.h>
+#include <Ace/StandardMaterial.h>
 
 // This demo uses direct calls to GraphicsDevice to draw.
 
 int main(int, char**)
 {
-	ace::Init();
+    ace::Init();
 
-	ace::Window window("GraphicsDemo", 800, 600);
+    ace::Window window("GraphicsDemo", 800, 600);
 
-	// Create empty texture
-	ace::Texture exampleTexture;
+    // Create empty texture
+    ace::Texture exampleTexture;
 
-	// Try to find the file
-	if (ace::File::Exists("assets/TestImageFile.png"))
-	{
-		// Create an image and bind it to the texture
-		exampleTexture = ace::Image(ace::File("assets/TestImageFile.png"));
-	}
-
-	// Load vertex and fragment shaders
-	ace::Shader fragment, vertex;
-	vertex.Load({ "assets/vertex.vert" }, ace::ShaderType::Vertex);
-	fragment.Load({ "assets/fragment.frag" }, ace::ShaderType::Fragment);
-
-	// Material loading
-	ace::Material material(vertex, fragment);
-	material.flags.cullingMode = ace::CullingMode::Both;
+    // Try to find the file
+    if (ace::File::Exists("../../../example/Demos/GraphicsDeviceExampleFiles/TestImageFile.png"))
+    {
+        // Create an image and bind it to the texture
+        exampleTexture = ace::Image(ace::File("../../../example/Demos/GraphicsDeviceExampleFiles/TestImageFile.png"));
+    }
+    else
+    {
+        exampleTexture = ace::Image::MissingFile();
+    }
 
 
-	// Creating a sprite
-	ace::Sprite exampleSprite;
+    // Material loading
+    ace::StandardMaterial material;
+    material.flags.cullingMode = ace::CullingMode::Both;
 
-	while (window)
-	{
-		window.Clear();
-		ace::Update();
+    // Creating a sprite
+    ace::Sprite exampleSprite;
 
-		// Drawing sprite
-		//First is position for material, second is scaling for material
-		material.Uniform("position", ace::Vector2(0.0f, 0.0f));
-		material.Uniform("scale", ace::Vector2(1.0f, 1.0f));
+    while (window)
+    {
+        window.Clear();
+        ace::Update();
 
-		// Set texture to GraphicsDevice
-		ace::GraphicsDevice::SetTexture(exampleTexture, "Texture", 0);
+        // Drawing sprite
+        //First is position for material, second is scaling for material
+        material.position = ace::Vector2(0, 0);
+        material.scale = ace::Vector2(2.0f, 1.0f);
+        
+        // Set texture to GraphicsDevice
+        material.diffuse = exampleTexture;
 
-		// Draw the graphisDevice, uses testure from the bound texture
-		ace::GraphicsDevice::Draw(exampleSprite);
+        ace::GraphicsDevice::SetMaterial(material);
 
-		// Refrresh the screen
-		window.Present();
-	}
+        // Draw the graphisDevice, uses testure from the bound texture
+        ace::GraphicsDevice::Draw(exampleSprite);
 
-	// Shutdown Acerba
-	ace::Quit();
+        // Refrresh the screen
+        window.Present();
+    }
 
-	return 0;
+    // Shutdown Acerba
+    ace::Quit();
+
+    return 0;
 }
