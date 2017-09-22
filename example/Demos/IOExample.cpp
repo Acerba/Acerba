@@ -63,4 +63,8 @@ int main()
 		//But we have no window to show it, that will be done in other example/demo
 	}
 
+	// Shutdown ACE-engine
+	ace::Quit();
+
+	return 0;
 }

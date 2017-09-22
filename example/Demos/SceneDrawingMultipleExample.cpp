@@ -1,107 +1,108 @@
+//SceneDrawingMultipleEntites Demo
 // Include all necessary modules
 #include <Ace/Ace.h>
 
 int main(int, char**) {
-    // Initialize Acerba
-    ace::Init();
+	// Initialize Acerba
+	ace::Init();
 
-    // Create window
-    ace::Window window("Scene_demo", 1024u, 768u);
+	// Create window
+	ace::Window window("Scene_demo", 1024u, 768u);
 
-    // Number of entities in scene
-    const ace::UInt8 EC = 10u;
+	// Number of entities in scene
+	const ace::UInt8 EC = 10u;
 
-    // Container for entities
-    std::array<ace::Entity, EC> entities;
+	// Container for entities
+	std::array<ace::Entity, EC> entities;
 
-    // Create a timer
-    ace::Time timer;
+	// Create a timer
+	ace::Time timer;
 
-    // Create a scene
-    ace::Scene world;
+	// Create a scene
+	ace::Scene world;
 
-    // Create a sprite
-    ace::Sprite sprite;
+	// Create a sprite
+	ace::Sprite sprite;
 
-    // Create a material
-    ace::StandardMaterial mat;
-    
-    // Change sprite colour
-    sprite.Colorize(ace::Color32(0.5f, 0.5f, 0.5f, 1.f));
+	// Create a material
+	ace::StandardMaterial mat;
 
-    // Create a camera
-    ace::Camera camera;
+	// Change sprite colour
+	sprite.Colorize(ace::Color32(0.5f, 0.5f, 0.5f, 1.f));
 
-    // Set world root as parent of camera
-    camera.SetParent(world.GetRoot());
+	// Create a camera
+	ace::Camera camera;
 
-    // Take camera reference so we don't have to get it every time
-    ace::Entity& cam = camera.GetCamera();
+	// Set world root as parent of camera
+	camera.GetEntity().SetParent(world.GetRoot());
 
-    // Create entities
-    for (ace::UInt8 i = 0u; i < EC; ++i) {
+	// Take camera reference so we don't have to get it every time
+	ace::Entity& cam = camera.GetEntity();
 
-        // Create an entity
-        entities[i] = ace::Entity();
+	// Create entities
+	for (ace::UInt8 i = 0u; i < EC; ++i) {
 
-        // Change position
-        entities[i]->transform.position = ace::Vector3(-0.9f + 0.2f*i, 0.f, 0.f);
+		// Create an entity
+		entities[i] = ace::Entity();
 
-        // Scale to 20%
-        entities[i]->transform.scale = ace::Vector3(0.2f, 0.2f, 1.f);
+		// Change position
+		entities[i]->transform.position = ace::Vector3(-0.9f + 0.2f*i, 0.f, 0.f);
 
-        // Add Sprite to entity
-        entities[i].AddComponent(sprite);
+		// Scale to 20%
+		entities[i]->transform.scale = ace::Vector3(0.2f, 0.2f, 1.f);
 
-        // Add material to entity
-        entities[i].AddComponent<ace::Material>(mat);
+		// Add Sprite to entity
+		entities[i].AddComponent(sprite);
 
-        // Add entity as a child of camera
-        cam.AddChild(entities[i]);
-    }
+		// Add material to entity
+		entities[i].AddComponent<ace::Material>(mat);
 
-    // Total time elapsed, used in color calculation
-    float total = 0.f;
+		// Add entity as a child of camera
+		cam.AddChild(entities[i]);
+	}
 
-    // While window is open
-    while (window) {
+	// Total time elapsed, used in color calculation
+	float total = 0.f;
 
-        // Clear window
-        window.Clear();
+	// While window is open
+	while (window) {
 
-        // Update Acerba systems
-        ace::Update();
+		// Clear window
+		window.Clear();
 
-        // Get time between updates
-        total += timer.DeltaTime();
+		// Update Acerba systems
+		ace::Update();
 
-        // For all entities
-        for (ace::UInt8 i = 0u; i < EC; ++i) {
+		// Get time between updates
+		total += timer.DeltaTime();
 
-            // Change position for each component
-            entities[i]->transform.position.y = ace::math::Sin(total*(i + 1u)*0.05f);
+		// For all entities
+		for (ace::UInt8 i = 0u; i < EC; ++i) {
 
-            // Calculate new color
-            const float color = (i + 1u) * total * 0.01f;
+			// Change position for each component
+			entities[i]->transform.position.y = ace::math::Sin(total*(i + 1u)*0.05f);
 
-            // Change colour for each component
-            (*entities[i].GetComponent<ace::Sprite>())->Colorize(
-                ace::Color32(color, color, color, 1.f)
-            );
-        }
+			// Calculate new color
+			const float color = (i + 1u) * total * 0.01f;
 
-        // Update scene
-        world.Update();
+			// Change colour for each component
+			(*entities[i].GetComponent<ace::Sprite>())->Colorize(
+				ace::Color32(color, color, color, 1.f)
+			);
+		}
 
-        // Draw scene
-        world.Draw(camera);
+		// Update scene
+		world.Update();
 
-        // Refresh screen
-        window.Present();
-    }
+		// Draw scene
+		world.Draw(camera);
 
-    // Shutdown Acerba
-    ace::Quit();
+		// Refresh screen
+		window.Present();
+	}
 
-    return 0;
+	// Shutdown Acerba
+	ace::Quit();
+
+	return 0;
 }

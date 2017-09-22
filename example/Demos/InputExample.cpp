@@ -56,4 +56,8 @@ int main()
 		window.Present();
 	}
 
+	// Shutdown ACE-engine
+	ace::Quit();
+
+	return 0;
 }
