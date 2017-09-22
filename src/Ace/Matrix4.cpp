@@ -22,7 +22,7 @@ namespace ace
 
         float Matrix4::Determinant() const
         {
-            Matrix4 m = *this;
+            const Matrix4& m = *this;
 
             return
                 m(0, 3) * m(1, 2) * m(2, 1) * m(3, 0) - m(0, 2) * m(1, 3) * m(2, 1) * m(3, 0) -
@@ -98,16 +98,17 @@ namespace ace
 
         Matrix4 Matrix4::Adjunct() const
         {
-            Matrix4 adj = Cofactor().Transpose();
-            return adj;
+            return Cofactor().Transpose();
         }
 
         Matrix4 Matrix4::operator*(const Matrix4& m) const
         {
-            return Matrix4(Vector4(rows[0].x*m(0, 0) + rows[0].y*m(1, 0) + rows[0].z*m(2, 0) + rows[0].w*m(3, 0), rows[0].x*m(0, 1) + rows[0].y*m(1, 1) + rows[0].z*m(2, 1) + rows[0].w*m(3, 1), rows[0].x*m(0, 2) + rows[0].y*m(1, 2) + rows[0].z*m(2, 2) + rows[0].w*m(3, 2), rows[0].x*m(0, 3) + rows[0].y*m(1, 3) + rows[0].z*m(2, 3) + rows[0].w*m(3, 3)),
+            return Matrix4(
+                Vector4(rows[0].x*m(0, 0) + rows[0].y*m(1, 0) + rows[0].z*m(2, 0) + rows[0].w*m(3, 0), rows[0].x*m(0, 1) + rows[0].y*m(1, 1) + rows[0].z*m(2, 1) + rows[0].w*m(3, 1), rows[0].x*m(0, 2) + rows[0].y*m(1, 2) + rows[0].z*m(2, 2) + rows[0].w*m(3, 2), rows[0].x*m(0, 3) + rows[0].y*m(1, 3) + rows[0].z*m(2, 3) + rows[0].w*m(3, 3)),
                 Vector4(rows[1].x*m(0, 0) + rows[1].y*m(1, 0) + rows[1].z*m(2, 0) + rows[1].w*m(3, 0), rows[1].x*m(0, 1) + rows[1].y*m(1, 1) + rows[1].z*m(2, 1) + rows[1].w*m(3, 1), rows[1].x*m(0, 2) + rows[1].y*m(1, 2) + rows[1].z*m(2, 2) + rows[1].w*m(3, 2), rows[1].x*m(0, 3) + rows[1].y*m(1, 3) + rows[1].z*m(2, 3) + rows[1].w*m(3, 3)),
                 Vector4(rows[2].x*m(0, 0) + rows[2].y*m(1, 0) + rows[2].z*m(2, 0) + rows[2].w*m(3, 0), rows[2].x*m(0, 1) + rows[2].y*m(1, 1) + rows[2].z*m(2, 1) + rows[2].w*m(3, 1), rows[2].x*m(0, 2) + rows[2].y*m(1, 2) + rows[2].z*m(2, 2) + rows[2].w*m(3, 2), rows[2].x*m(0, 3) + rows[2].y*m(1, 3) + rows[2].z*m(2, 3) + rows[2].w*m(3, 3)),
-                Vector4(rows[3].x*m(0, 0) + rows[3].y*m(1, 0) + rows[3].z*m(2, 0) + rows[3].w*m(3, 0), rows[3].x*m(0, 1) + rows[3].y*m(1, 1) + rows[3].z*m(2, 1) + rows[3].w*m(3, 1), rows[3].x*m(0, 2) + rows[3].y*m(1, 2) + rows[3].z*m(2, 2) + rows[3].w*m(3, 2), rows[3].x*m(0, 3) + rows[3].y*m(1, 3) + rows[3].z*m(2, 3) + rows[3].w*m(3, 3)));
+                Vector4(rows[3].x*m(0, 0) + rows[3].y*m(1, 0) + rows[3].z*m(2, 0) + rows[3].w*m(3, 0), rows[3].x*m(0, 1) + rows[3].y*m(1, 1) + rows[3].z*m(2, 1) + rows[3].w*m(3, 1), rows[3].x*m(0, 2) + rows[3].y*m(1, 2) + rows[3].z*m(2, 2) + rows[3].w*m(3, 2), rows[3].x*m(0, 3) + rows[3].y*m(1, 3) + rows[3].z*m(2, 3) + rows[3].w*m(3, 3))
+            );
         }
 
         Vector4 Matrix4::operator*(const Vector4& o) const
