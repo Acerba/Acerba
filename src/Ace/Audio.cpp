@@ -42,6 +42,20 @@ namespace ace
 		{
 
 		}
+
+		~AudioClipImpl()
+		{
+			if (stream)
+			{
+				delete stream;
+				stream = nullptr;
+			}
+			if (sample)
+			{
+				delete sample;
+				sample = nullptr;
+			}
+		}
 	};
 
 
@@ -52,7 +66,7 @@ namespace ace
 
 	IAudioSample::AudioClipImpl* IAudioSample::operator->() const
 	{
-		return impl.get();
+		return impl ? impl.get() : nullptr;
 	}
 
 	static cOAL_Sample* LoadSample(const File& file)
@@ -459,6 +473,7 @@ namespace ace
 	{
 		if(!g_isAudioRunning)
 		{
+			delete effect;
 			return;
 		}
 		
