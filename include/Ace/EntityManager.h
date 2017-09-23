@@ -118,6 +118,9 @@ namespace ace
         template <typename CompType>
         using UpdateCallback = void(*)(CompType&);
 
+        template <typename CompType>
+        using UpdateEntityCallback = void(*)(CompType&, EntityHandle*);
+
         /**
             @brief Set custom update function for all components of CompType.
             @param[in] callback Function to set as an update function. Gets called when entities are updated. See UpdateCallback
@@ -125,6 +128,20 @@ namespace ace
         */
         template <typename CompType>
         bool SetUpdateCallback(UpdateCallback<CompType> callback)
+        {
+            for (auto itr = m_componentPools.begin(); itr != m_componentPools.end(); ++itr)
+            {
+                if (ComponentPool<CompType>* pool = dynamic_cast<ComponentPool<CompType>*>(*itr))
+                {
+                    pool->SetUpdateCallback(callback);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        template <typename CompType>
+        bool SetUpdateCallback(UpdateEntityCallback<CompType> callback)
         {
             for (auto itr = m_componentPools.begin(); itr != m_componentPools.end(); ++itr)
             {
@@ -239,6 +256,6 @@ namespace ace
 
     };
 
-
+    typedef EntityManager::EntityHandle EntityHandle;
 
 }

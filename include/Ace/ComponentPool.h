@@ -50,6 +50,7 @@ namespace ace
         std::vector<EntityManager::ComponentHandle<CompType>*> m_handles;
 
         EntityManager::UpdateCallback<CompType> m_update;
+        EntityManager::UpdateEntityCallback<CompType> m_entityUpdate;
 
 
     public:
@@ -57,6 +58,11 @@ namespace ace
         inline void SetUpdateCallback(EntityManager::UpdateCallback<CompType> callback)
         {
             m_update = callback;
+        }
+
+        inline void SetUpdateCallback(EntityManager::UpdateEntityCallback<CompType> callback)
+        {
+            m_entityUpdate = callback;
         }
 
         const void* Data() const final override
@@ -92,6 +98,14 @@ namespace ace
                 for (UInt32 i = 0; i < m_components.size(); ++i)
                 {
                     m_update(m_components[i]);
+                }
+            }
+
+            if (m_entityUpdate)
+            {
+                for (UInt32 i = 0; i < m_handles.size(); ++i)
+                {
+                    m_entityUpdate(*(CompType*)m_handles[i]->Get(), m_handles[i]->entity);
                 }
             }
         }
@@ -178,7 +192,8 @@ namespace ace
             BasePool(EntityManager::ComponentID(EntityManager::ComponentID::GetID<CompType>())),
             m_components(),
             m_handles(),
-            m_update(nullptr)
+            m_update(nullptr),
+            m_entityUpdate(nullptr)
         {
             RegisterPool(this);
         }
