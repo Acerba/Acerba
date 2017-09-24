@@ -36,7 +36,8 @@ inline enumName operator~(enumName rhs) \
 ///Disable copy-ctors for a class
 #define ACE_DISABLE_COPY(className) \
     private: \
-    className(const className&)=delete; \
     className(className&&)=delete; \
-    className operator=(const className&)=delete;
+    className(const className&)=delete; \
+    className& operator=(className&&)=delete; \
+    className& operator=(const className&)=delete;
 
