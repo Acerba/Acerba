@@ -112,7 +112,7 @@ namespace ace
     bool Rectangle::IsColliding(const Vector2& point) const
     {
         const Vector2 pos = m_position + m_extents;
-        const Vector2 neg = m_position + m_extents.Inverse();
+        const Vector2 neg = m_position + m_extents.Invert();
         return IsInTriangle(
             point,
             pos,
@@ -128,7 +128,7 @@ namespace ace
 
 
     Triangle::Triangle(const Vector2& position, const Vector2 (&extents)[3u]) :
-        Collidable2D(position), m_extents(extents)
+        Collidable2D(position), m_extents{ extents[0], extents[1], extents[2] }
     {
 
     }
