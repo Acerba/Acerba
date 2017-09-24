@@ -462,11 +462,9 @@ namespace ace
 
 	void GraphicsDevice::Draw(const Entity& entity)
 	{
-		const EntityManager::ComponentHandle<Sprite>* sprite = entity.GetComponent<Sprite>();
-
-		if (sprite != nullptr)
+		if (const EntityManager::ComponentHandle<Sprite>* sprite = entity.GetComponent<Sprite>())
 		{
-			Draw(*(sprite->operator->()));
+			Draw(**sprite);
 		}
 	}
 

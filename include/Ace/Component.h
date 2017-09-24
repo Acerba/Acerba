@@ -110,14 +110,14 @@ namespace ace
 
 
 
-        // inline operator CompType*()
-        // {
-        //     return &ComponentPool<CompType>::GetPool().m_components[index];
-        // }
-        // inline operator const CompType*() const
-        // {
-        //     return &ComponentPool<CompType>::GetPool().m_components[index];
-        // }
+        inline operator const CompType*() const
+        {
+            return this->operator->();
+        }
+        inline operator CompType*()
+        {
+            return this->operator->();
+        }
 
         /**
             @brief Returns a pointer to the underlying component constant.
