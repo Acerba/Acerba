@@ -64,6 +64,18 @@ namespace ace
 			@return Dot product
 			*/
 			float Dot(const Vector4& v) const;
+
+			/**
+			@param[in] a Vector4
+			@param[in] b Vector4
+			@return Dot product
+			*/
+			static float Dot(const Vector4& a, const Vector4& b);
+
+			/**
+			@return Returns vector with each element sign changed.
+			*/
+			Vector4 Invert() const;
 			
 			float& operator[](UInt8 index);
 			

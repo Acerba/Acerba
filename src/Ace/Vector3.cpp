@@ -90,9 +90,24 @@ namespace ace
             };
         }
 
+        Vector3 Vector3::Cross(const Vector3& a, const Vector3& b)
+        {
+            return a.Cross(b);
+        }
+
         float Vector3::Dot(const Vector3& v) const
         {
             return x * v.x + y * v.y + z * v.z;
+        }
+
+        float Vector3::Dot(const Vector3& a, const Vector3& b)
+        {
+            return a.Dot(b);
+        }
+
+        Vector3 Vector3::Invert() const
+        {
+            return { -x, -y, -z };
         }
 
         float& Vector3::operator[](UInt8 index)

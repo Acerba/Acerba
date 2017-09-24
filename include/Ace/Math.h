@@ -35,26 +35,29 @@ namespace ace
 
 
 
-		float Rand(float min, float max);
 		float Abs(float);
-	    float Pow(float base, float exp);
-		float Sqrt(float);
-		float Sin(float);
-		float Cos(float);
-		float Tan(float);
-		float Asin(float);
 		float Acos(float);
+		float Asin(float);
 		float Atan(float);
 		float Ceil(float);
-		float Floor(float);
+		float Cos(float);
+		float Cosh(float);
 		float Exp(float);
-		float Round(float);
+		float Floor(float);
+		float Fmod(float, float);
 		float Log(float);
 		float Log10(float);
-		float Fmod(float, float);
+		float Max(float, float);
+		float Min(float, float);
+		float Pow(float base, float exp);
+		float Rand(float min, float max);
 		float Root(float base, float exp);
+		float Round(float);
+		bool SameSign(float, float);
+		float Sin(float);
 		float Sinh(float);
-		float Cosh(float);
+		float Sqrt(float);
+		float Tan(float);
 		float Tanh(float);
     }
 }

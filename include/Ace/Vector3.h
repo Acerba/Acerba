@@ -64,16 +64,35 @@ namespace ace
 			inline operator Vector2() const;
 			
 			/**
-			@param[in] Vector3
+			@param[in] v Vector3
 			@return Cross product
 			*/
-			Vector3 Cross(const Vector3& vec1) const;
+			Vector3 Cross(const Vector3& v) const;
+
+			/**
+			@param[in] a Vector3
+			@param[in] b Vector3
+			@return Cross product
+			*/
+			static Vector3 Cross(const Vector3& a, const Vector3& b);
 			
 			/**
-			@param[in] Vector3
+			@param[in] v Vector3
 			@return Dot product
 			*/
-			float Dot(const Vector3& vec1) const;
+			float Dot(const Vector3& v) const;
+
+			/**
+			@param[in] a Vector3
+			@param[in] b Vector3
+			@return Dot product
+			*/
+			static float Dot(const Vector3& a, const Vector3& b);
+
+			/**
+			@return Returns vector with each element sign changed.
+			*/
+			Vector3 Invert() const;
 			
 			float& operator[](UInt8 index);
 			

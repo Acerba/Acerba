@@ -77,9 +77,24 @@ namespace ace
             return x * v.y - y * v.x;
         }
 
+        float Vector2::Cross(const Vector2& a, const Vector2& b)
+        {
+            return a.Cross(b);
+        }
+
         float Vector2::Dot(const Vector2& v) const
         {
             return x * v.x + y * v.y;
+        }
+
+        float Vector2::Dot(const Vector2& a, const Vector2& b)
+        {
+            return a.Dot(b);
+        }
+
+        Vector2 Vector2::Invert() const
+        {
+            return { -x, -y };
         }
     }
 }

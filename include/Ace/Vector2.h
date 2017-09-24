@@ -54,10 +54,29 @@ namespace ace
 			float Cross(const Vector2& v) const;
 			
 			/**
+			@param[in] a Vector2
+			@param[in] b Vector2
+			@return Cross product
+			*/
+			static float Cross(const Vector2& a, const Vector2& b);
+
+			/**
 			@param[in] v Vector2
 			@return Dot product
 			*/
 			float Dot(const Vector2& v) const;
+
+			/**
+			@param[in] a Vector2
+			@param[in] b Vector2
+			@return Dot product
+			*/
+			static float Dot(const Vector2& a, const Vector2& b);
+
+			/**
+			@return Returns vector with each element sign changed.
+			*/
+			Vector2 Invert() const;
 		};
 	}
 }

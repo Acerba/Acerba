@@ -85,6 +85,16 @@ namespace ace
             return x * v.x + y * v.y + z * v.z + w * v.w;
         }
 
+        float Vector4::Dot(const Vector4& a, const Vector4& b)
+        {
+            return a.Dot(b);
+        }
+
+        Vector4 Vector4::Invert() const
+        {
+            return { -x, -y, -z, -w };
+        }
+
         float& Vector4::operator[](UInt8 index)
         {
             return array[index];
