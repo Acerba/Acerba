@@ -1,103 +1,63 @@
 #pragma once
 
-#include <Ace/Math.h>
-
-
-
 namespace ace
 {
 	namespace math
 	{
-
 		class Vector2
 		{
 		public:
-
+			
 			float x;
 			float y;
-
-			Vector2(float x = 0.f, float y = 0.f) : x(x), y(y) {}
-
-			/**
-			@return Lenght
-			*/
-
-			float Lenght() const
-			{
-				return Sqrt(x*x + y*y);
-			}
-
-			Vector2 operator+(const Vector2& vec1) const
-			{
-				return{ x + vec1.x, y + vec1.y };
-			}
-		    
-			Vector2& operator+=(const Vector2& vec1)
-			{
-				x += vec1.x;
-				y += vec1.y;
-
-				return *this;
-			}
-
-			Vector2 operator-(const Vector2& vec1) const
-			{
-				return{ x - vec1.x, y - vec1.y };
-			}
-
-			Vector2& operator-=(const Vector2& vec1)
-			{
-				x -= vec1.x;
-				y -= vec1.y;
-
-				return *this;
-			}
-
-			Vector2 operator*(float scalar) const
-			{
-				return{ x * scalar, y *scalar};
-			}
-
-			Vector2& operator*=(float scalar)
-			{
-				x *= scalar;
-				y *= scalar;
-
-				return *this;
-			}
 			
-			Vector2 operator/(float scalar) const
-			{
-				return{ x / scalar, y / scalar};
-			}
-
-			Vector2& operator/=(float scalar)
-			{
-				x /= scalar;
-				y /= scalar;
-
-				return *this;
-			}
+			/**
+			@brief Constructor
+			*/
+			Vector2(float x = 0.f, float y = 0.f);
+			
+			/**
+			@return Length
+			*/
+			float Length() const;
+			
+			/**
+			@return Squared length
+			*/
+			float LengthSquared() const;
 
 			/**
-			@param[in] Vector2
+			@return Normalized vector
+			*/
+			Vector2 Normalize() const;
+			
+			Vector2 operator+(const Vector2& v) const;
+			
+			Vector2& operator+=(const Vector2& v);
+			
+			Vector2 operator-(const Vector2& v) const;
+			
+			Vector2& operator-=(const Vector2& v);
+			
+			Vector2 operator*(float scalar) const;
+			
+			Vector2& operator*=(float scalar);
+			
+			Vector2 operator/(float scalar) const;
+			
+			Vector2& operator/=(float scalar);
+			
+			/**
+			@param[in] v Vector2
 			@return Cross product
 			*/
-
-			float Cross(const Vector2& vec1) const
-			{
-				return x * vec1.y - y * vec1.x;
-			}
-
+			float Cross(const Vector2& v) const;
+			
 			/**
-			@param[in] Vector2
+			@param[in] v Vector2
 			@return Dot product
 			*/
-
-			float Dot(const Vector2& vec1) const
-			{
-				return x * vec1.x + y * vec1.y;
-			}
+			float Dot(const Vector2& v) const;
 		};
 	}
 }

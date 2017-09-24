@@ -3,7 +3,6 @@
 #include <Ace/Vector2.h>
 #include <Ace/IntTypes.h>
 
-
 namespace ace
 {
 	namespace math
@@ -67,10 +66,10 @@ namespace ace
 			*/
 			static Matrix2 Scale(float x, float y);
 			/**
-			@param[in] a Rotation in degrees
+			@param[in] deg Rotation in degrees
 			@return Rotation matrix
 			*/
-			static Matrix2 Rotation(float a);
+			static Matrix2 Rotation(float deg);
 			
 
 

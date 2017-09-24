@@ -1,19 +1,17 @@
 #pragma once
 
-#include <Ace/Math.h>
 #include <Ace/IntTypes.h>
 #include <Ace/Vector2.h>
-
 
 namespace ace
 {
 	namespace math
 	{
-
+		
 		class Vector3
 		{
 		public:
-
+			
 			union
 			{
 				struct
@@ -22,129 +20,64 @@ namespace ace
 					float y;
 					float z;
 				};
-
+				
 				float array[3];
 			};
-
-
-			Vector3(float x = 0.f, float y = 0.f, float z = 0.f) : x(x), y(y), z(z) {}
+			
+			
+			/**
+			@brief Constructor
+			*/
+			Vector3(float x = 0.f, float y = 0.f, float z = 0.f);
 			
 			/**
 			@return Length
 			*/
-
-			float Length() const
-			{
-				return Sqrt(x*x + y*y + z*z);
-			}
-
+			float Length() const;
+			
+			/**
+			@return Squared length
+			*/
+			float LengthSquared() const;
+			
 			/**
 			@return Normalized vector
 			*/
-
-			Vector3 Normalize() const
-			{
-				Vector3 v = *this;
-				const float l = v.Length();
-				v.x /= l;
-				v.y /= l;
-				v.z /= l;
-				return v;
-			}
-
-
-			Vector3 operator+(const Vector3& vec1) const
-			{
-				return{ x + vec1.x, y + vec1.y, z + vec1.z};
-			}
-
-			Vector3& operator+=(const Vector3& vec1)
-			{
-				x += vec1.x;
-				y += vec1.y;
-				z += vec1.z;
-
-				return *this;
-			}
-
-			Vector3 operator-(const Vector3& vec1) const
-			{
-				return{ x - vec1.x, y - vec1.y, z - vec1.z};
-			}
-
-			Vector3& operator-=(const Vector3& vec1)
-			{
-				x -= vec1.x;
-				y -= vec1.y;
-				z -= vec1.z;
-
-				return *this;
-			}
-
-			Vector3 operator*(float scalar) const
-			{
-				return{ x * scalar, y *scalar, z *scalar};
-			}
-
-			Vector3& operator*=(float scalar)
-			{
-				x *= scalar;
-				y *= scalar;
-				z *= scalar;
-
-				return *this;
-			}
-
-			Vector3 operator/(float scalar) const
-			{
-				return{ x / scalar, y / scalar, z / scalar};
-			}
-
-			Vector3& operator/=(float scalar)
-			{
-				x /= scalar;
-				y /= scalar;
-				z /= scalar;
-
-				return *this;
-			}
-
-			inline operator Vector2()const
-			{
-				return Vector2(x, y);
-			}
-
+			Vector3 Normalize() const;
+			
+			Vector3 operator+(const Vector3& v) const;
+			
+			Vector3& operator+=(const Vector3& v);
+			
+			Vector3 operator-(const Vector3& v) const;
+			
+			Vector3& operator-=(const Vector3& v);
+			
+			Vector3 operator*(float scalar) const;
+			
+			Vector3& operator*=(float scalar);
+			
+			Vector3 operator/(float scalar) const;
+			
+			Vector3& operator/=(float scalar);
+			
+			inline operator Vector2() const;
+			
 			/**
 			@param[in] Vector3
 			@return Cross product
 			*/
-
-			Vector3 Cross(const Vector3& vec1) const
-			{
-				return{y * vec1.z - z * vec1.y,
-					   z * vec1.x - x * vec1.z, 
-					   x * vec1.y - y * vec1.x};
-			}
-
+			Vector3 Cross(const Vector3& vec1) const;
+			
 			/**
 			@param[in] Vector3
 			@return Dot product
 			*/
-
-			float Dot(const Vector3& vec1) const
-			{
-				return x * vec1.x + y * vec1.y + z * vec1.z;
-			}
-
-			float& operator[](UInt8 index)
-			{
-				return array[index];
-			}
-
-			float operator[](UInt8 index) const
-			{
-				return array[index];
-			}
+			float Dot(const Vector3& vec1) const;
+			
+			float& operator[](UInt8 index);
+			
+			float operator[](UInt8 index) const;
 		};
 	}
 }

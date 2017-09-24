@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Ace/Vector3.h>
-#include <Ace/Vector2.h>
 #include <Ace/IntTypes.h>
 
 
@@ -9,6 +8,8 @@ namespace ace
 {
 	namespace math
 	{
+
+		class Vector2;
 
 		class Matrix3 final
 		{
@@ -74,20 +75,20 @@ namespace ace
 			*/
 			static Matrix3 Translation(const Vector2& t);
 			/**
-			@param[in] a Rotation in degrees
+			@param[in] deg Rotation in degrees
 			@return RotationX matrix
 			*/
-			static Matrix3 RotationX(float a);
+			static Matrix3 RotationX(float deg);
 			/**
-			@param[in] a Rotation in degrees
+			@param[in] deg Rotation in degrees
 			@return RotationY matrix
 			*/
-			static Matrix3 RotationY(float a);
+			static Matrix3 RotationY(float deg);
 			/**
-			@param[in] a Rotation in degrees
+			@param[in] deg Rotation in degrees
 			@return RotationZ matrix 
 			*/
-			static Matrix3 RotationZ(float a);
+			static Matrix3 RotationZ(float deg);
 			
 
 

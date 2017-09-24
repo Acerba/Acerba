@@ -1,4 +1,5 @@
 #include <Ace/Matrix4.h>
+#include <Ace/Math.h>
 
 namespace ace
 {
@@ -66,7 +67,7 @@ namespace ace
 
         Matrix4 Matrix4::Inverse() const
         {
-            return Adjunct() * (1 / Determinant());
+            return Adjunct() * (1.f / Determinant());
         }
 
         Matrix4 Matrix4::Cofactor() const
@@ -113,10 +114,12 @@ namespace ace
 
         Vector4 Matrix4::operator*(const Vector4& o) const
         {
-            return Vector4(rows[0].x * o.x + rows[0].y * o.y + rows[0].z * o.z + rows[0].w * o.w,
+            return Vector4(
+                rows[0].x * o.x + rows[0].y * o.y + rows[0].z * o.z + rows[0].w * o.w,
                 rows[1].x * o.x + rows[1].y * o.y + rows[1].z * o.z + rows[1].w * o.w,
                 rows[2].x * o.x + rows[2].y * o.y + rows[2].z * o.z + rows[2].w * o.w,
-                rows[3].x * o.x + rows[3].y * o.y + rows[3].z * o.z + rows[3].w * o.w);
+                rows[3].x * o.x + rows[3].y * o.y + rows[3].z * o.z + rows[3].w * o.w
+            );
         }
 
 
@@ -139,64 +142,64 @@ namespace ace
 
         Matrix4 Matrix4::Scale(float x, float y, float z)
         {
-            Vector4 r1(x, 0.f, 0.f, 0.f);
-            Vector4 r2(0.f, y, 0.f, 0.f);
-            Vector4 r3(0.f, 0.f, z, 0.f);
-            Vector4 r4(0.f, 0.f, 0.f, 1.f);
-
-            return Matrix4(r1, r2, r3, r4);
+            return Matrix4(
+                Vector4(x, 0.f, 0.f, 0.f),
+                Vector4(0.f, y, 0.f, 0.f),
+                Vector4(0.f, 0.f, z, 0.f),
+                Vector4(0.f, 0.f, 0.f, 1.f)
+            );
         }
 
         Matrix4 Matrix4::Translation(const Vector3& t)
         {
-            Vector4 r1(1.f, 0.f, 0.f, 0.f);
-            Vector4 r2(0.f, 1.f, 0.f, 0.f);
-            Vector4 r3(0.f, 0.f, 1.f, 0.f);
-            Vector4 r4(t.x, t.y, t.z, 1.f);
-
-            return Matrix4(r1, r2, r3, r4);
+            return Matrix4(
+                Vector4(1.f, 0.f, 0.f, 0.f),
+                Vector4(0.f, 1.f, 0.f, 0.f),
+                Vector4(0.f, 0.f, 1.f, 0.f),
+                Vector4(t.x, t.y, t.z, 1.f)
+            );
         }
 
         Matrix4 Matrix4::RotationX(float a)
         {
             a = Rad(a);
-            Vector4 r1(1.f, 0.f, 0.f, 0.f);
-            Vector4 r2(0.f, Cos(a), -Sin(a), 0.f);
-            Vector4 r3(0.f, Sin(a), Cos(a), 0.f);
-            Vector4 r4(0.f, 0.f, 0.f, 1.f);
-
-            return Matrix4(r1, r2, r3, r4);
+            return Matrix4(
+                Vector4(1.f, 0.f, 0.f, 0.f),
+                Vector4(0.f, Cos(a), -Sin(a), 0.f),
+                Vector4(0.f, Sin(a), Cos(a), 0.f),
+                Vector4(0.f, 0.f, 0.f, 1.f)
+            );
         }
 
         Matrix4 Matrix4::RotationZ(float a)
         {
             a = Rad(a);
-            Vector4 r1(Cos(a), -Sin(a), 0.f, 0.f);
-            Vector4 r2(Sin(a), Cos(a), 0.f, 0.f);
-            Vector4 r3(0.f, 0.f, 1.f, 0.f);
-            Vector4 r4(0.f, 0.f, 0.f, 1.f);
-
-            return Matrix4(r1, r2, r3, r4);
+            return Matrix4(
+                Vector4(Cos(a), -Sin(a), 0.f, 0.f),
+                Vector4(Sin(a), Cos(a), 0.f, 0.f),
+                Vector4(0.f, 0.f, 1.f, 0.f),
+                Vector4(0.f, 0.f, 0.f, 1.f)
+            );
         }
 
         Matrix4 Matrix4::RotationY(float a)
         {
             a = Rad(a);
-            Vector4 r1(Cos(a), 0.f, Sin(a), 0.f);
-            Vector4 r2(0.f, 1.f, 0.f, 0.f);
-            Vector4 r3(-Sin(a), 0.f, Cos(a), 0.f);
-            Vector4 r4(0.f, 0.f, 0.f, 1.f);
-
-            return Matrix4(r1, r2, r3, r4);
+            return Matrix4(
+                Vector4(Cos(a), 0.f, Sin(a), 0.f),
+                Vector4(0.f, 1.f, 0.f, 0.f),
+                Vector4(-Sin(a), 0.f, Cos(a), 0.f),
+                Vector4(0.f, 0.f, 0.f, 1.f)
+            );
         }
 
         Matrix4 Matrix4::Ortho(float left, float right, float bottom, float top, float znear, float zfar)
         {
             Matrix4 ortho(1);
 
-			ortho(0, 0) = static_cast<float>(2) / (right - left);
-			ortho(1, 1) = static_cast<float>(2) / (top - bottom);
-			ortho(2, 2) = -static_cast<float>(2) / (zfar - znear);
+			ortho(0, 0) = 2.f / (right - left);
+			ortho(1, 1) = 2.f / (top - bottom);
+			ortho(2, 2) = -2.f / (zfar - znear);
 			ortho(3, 0) = -(right + left) / (right - left);
 			ortho(3, 1) = -(top + bottom) / (top - bottom);
 			ortho(3, 2) = -(zfar + znear) / (zfar - znear);

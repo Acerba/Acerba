@@ -60,11 +60,11 @@ int main(int, char**)
     // While window is active
     while (myWindow) {
 
-        // Update Acerba systems
-        ace::Update();
-
         // Clear the window
         myWindow.Clear();
+
+        // Update Acerba systems
+        ace::Update();
 
         // Get reference to the x-axis position
         float& x = myEntity->transform.position.x;

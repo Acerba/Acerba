@@ -6,11 +6,23 @@ namespace ace
     {
 		static const float PI = 3.141592654f;
 
+		static const float epsilon = 0.0001f;
+
+		/**
+		@brief Convert degrees to radians
+		@param[in] deg Degrees
+		@return radians
+		*/
 		inline float Rad(float deg)
 		{
 			return deg / 180.0f * PI;
 		}
 
+		/**
+		@brief Convert radians to degrees
+		@param[in] rad Radians
+		@return degrees
+		*/
 		inline float Deg(float rad)
 		{
 			return rad / PI * 180.0f;
