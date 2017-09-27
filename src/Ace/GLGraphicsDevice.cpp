@@ -17,6 +17,8 @@
 #include <Ace/StandardMaterial.h>
 #include <Ace/Entity.h>
 
+#include <Ace/UniformImpl.h>
+
 namespace ace
 {
 	static bool s_glstatus = false;
@@ -391,10 +393,33 @@ namespace ace
 		return material;
 	}
 
-	void GraphicsDevice::Uniform(const char* name, const void* data, UniformType uniform, UInt32 elements)
+
+    void GraphicsDevice::Uniform(const char* name, const void* data, UniformType uniform, UInt32 elements)
+    {
+        UniformData::AddUniform(name, uniform, data, elements);
+    }
+
+    void GraphicsDevice::SetUniforms()
+    {
+        UInt32 count = 0;
+        const UniformData* uniforms = UniformData::GetUniforms(count);
+
+        for (UInt32 i = 0; i < count; ++i)
+        {
+            ApplyUniform(uniforms[i].name, uniforms[i].data, uniforms[i].type, uniforms[i].count);
+        }
+
+    }
+
+	void GraphicsDevice::ApplyUniform(const char* name, const void* data, UniformType uniform, UInt32 elements)
 	{
-		glUseProgram((*GetMaterialPtr())->materialID);
+		//glUseProgram((*GetMaterialPtr())->materialID);
 		UInt32 location = glGetUniformLocation((*GetMaterialPtr())->materialID, name);
+
+        if (location == -1)
+        {
+            return;
+        }
 
 		switch (uniform)
 		{
@@ -426,8 +451,8 @@ namespace ace
 			glUniformMatrix4fv(location, elements, false, static_cast<const math::Matrix4*>(data)->array);
 			break;
 		}
-		
-		glUseProgram(0);
+        
+		//glUseProgram(0);
 
 	}
 
@@ -437,6 +462,8 @@ namespace ace
 		const_cast<ace::Material*>(GetMaterialPtr())->Apply();
 
 		CheckGL();
+
+        SetUniforms();
 
 		SetMaterialFlags(*GetMaterialPtr());
 

@@ -5,26 +5,12 @@
 #include <Ace/MaterialFlags.h>
 #include <Ace/GraphicsObject.h>
 #include <Ace/Texture.h>
+#include <Ace/Uniform.h>
 
 #include <vector>
 
 namespace ace
 {
-	/**
-	@brief Uniform Types
-	*/
-	enum class UniformType
-	{
-		Int32,
-		UInt32,
-		Float,
-		Vec2,
-		Vec3,
-		Vec4,
-		Mat2,
-		Mat3,
-		Mat4,
-	};
 
 	/**
 	@brief Graphics Material
