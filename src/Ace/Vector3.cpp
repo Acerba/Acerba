@@ -76,7 +76,7 @@ namespace ace
             return *this;
         }
 
-        inline Vector3::operator Vector2()const
+        Vector3::operator Vector2() const
         {
             return Vector2(x, y);
         }
