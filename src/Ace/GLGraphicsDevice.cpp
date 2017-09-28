@@ -64,14 +64,17 @@ namespace ace
 	void InitGraphicsDevice()
 	{
 		static StandardMaterial s_standardMaterial;
-		GetMaterialPtr(&s_standardMaterial);
-
+        GraphicsDevice::SetMaterial(s_standardMaterial);
         GraphicsDevice::Enable(true, Features::Blend);
+
+        Material::Uniform("M", math::Matrix4::Identity());
+        Material::Uniform("VP", math::Matrix4::Identity());
 	}
 
 	void GraphicsDevice::SetMaterial(const Material& material)
 	{
 		GetMaterialPtr(&material);
+        glUseProgram(material->materialID);
 	}
 
 	// OpenGL
@@ -303,7 +306,8 @@ namespace ace
 		glUseProgram((*GetMaterialPtr())->materialID);
 		glBindTexture(GL_TEXTURE_2D, texture->textureID);
 		glActiveTexture(GL_TEXTURE0 + id);
-		glUniform1i(glGetUniformLocation((*GetMaterialPtr())->materialID, name), id);
+        Uniform(name, &id, UniformType::Int32, 1);
+		//glUniform1i(glGetUniformLocation((*GetMaterialPtr())->materialID, name), id);
 	}
 
 	Shader GraphicsDevice::CreateShader(const char* source, ShaderType type)
@@ -462,9 +466,7 @@ namespace ace
 		const_cast<ace::Material*>(GetMaterialPtr())->Apply();
 
 		CheckGL();
-
         SetUniforms();
-
 		SetMaterialFlags(*GetMaterialPtr());
 
 		if (indicies == 0)

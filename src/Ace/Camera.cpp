@@ -63,9 +63,9 @@ namespace ace
         return m_camera->transform;
     }
 
-    void Camera::Apply(Material& material)
+    void Camera::Apply()
     {
-        material.Uniform("VP", GetMatrix());
+        Material::Uniform("VP", GetMatrix());
     }
 
     void Camera::Update(const Window& window)

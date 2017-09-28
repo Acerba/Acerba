@@ -61,7 +61,7 @@ namespace ace
 			
 			Vector3& operator/=(float scalar);
 			
-			inline operator Vector2() const;
+			operator Vector2() const;
 			
 			/**
 			@param[in] v Vector3

@@ -79,7 +79,7 @@ namespace ace
 
 
         void Update(const Window& window);
-        void Apply(Material& material);
+        void Apply();
 
         /**
             @brief Shorthand for retrieving the underlying Entity transform.
