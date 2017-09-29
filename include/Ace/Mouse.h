@@ -27,6 +27,8 @@ namespace ace
 		*/
 		static Vector2 GetPosition();
 
+		static Vector2 GetWorldPosition(ace::Camera camera);
+
 		/**
 			@brief Returns the pressed mouse button.
 			@return MouseButton
