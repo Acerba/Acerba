@@ -103,11 +103,20 @@ namespace ace
 		static void SetMaterial(const Material& material);
 
 		/**
-		@brief Draw using Sprites
-		@see SetVertexBuffer
-		@param[in] sprite
+			@brief Draw using Sprites
+			@see SetVertexBuffer
+			@param[in] sprite
 		*/
 		static void Draw(const Sprite& sprite);
+
+		/** TODO
+			@brief Draw using Sprites
+			@see SetVertexBuffer
+			@param[in] sprite pointer
+			@param[in] count of sprites
+		*/
+		//static void Draw(const Sprite* sprites, UInt32 counts);
+
 
 		/**
 			@brief Draw using Buffers
@@ -118,6 +127,15 @@ namespace ace
 			@param[in] indexTable
 		*/
 		static void Draw(UInt32 elements, UInt32 indicies, const UInt32* indexTable = nullptr);
+
+		/**
+			@brief Draw using Buffers
+			@param[in] buffer
+			@param[in] elements
+			@param[in] indicies
+			@param[in] indexTable
+		*/
+		static void Draw(const Buffer& buffer, UInt32 elements, UInt32 indicies, const UInt32* indexTable = nullptr);
 
 		/**
 			@brief Draw using Mesh

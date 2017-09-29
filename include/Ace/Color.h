@@ -7,9 +7,12 @@ namespace ace
 	struct Color32;
 	struct Color;
 
-
 	struct Color
 	{
+		static const UInt32 Red = 0xFF000000U;
+		static const UInt32 Green = 0x00FF0000U;
+		static const UInt32 Blue = 0x0000FF00U;
+
 		UInt8 r, g, b, a;
 
 		Color(UInt8 r = 0, UInt8 g = 0, UInt8 b = 0, UInt8 a = 0) : r(r), g(g), b(b), a(a)
@@ -52,10 +55,14 @@ namespace ace
 
 	struct Color32
 	{
+		static const UInt32 Red = 0xFF000000U;
+		static const UInt32 Green = 0x00FF0000U;
+		static const UInt32 Blue = 0x0000FF00U;
+
 		float r, g, b, a;
 		Color32(float r = 0, float g = 0, float b = 0, float a = 0) : r(r), g(g), b(b), a(a)
 		{
-
+			
 		}
 
 		Color32(UInt32 hex)
