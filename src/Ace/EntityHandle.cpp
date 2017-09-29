@@ -86,6 +86,10 @@ namespace ace
         return (itr == m_children.end() ? nullptr : *itr);
     }
 
+	EntityManager::EntityHandle* EntityManager::EntityHandle::GetParent()
+	{
+		return m_parent;
+	}
 
     EntityManager::EntityHandle* EntityManager::EntityHandle::GetRoot()
     {

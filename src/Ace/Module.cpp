@@ -5,6 +5,7 @@
 #include <Ace/Event.h>
 #include <Ace/Time.h>
 #include <Ace/Platform.h>
+#include <Ace/Camera.h>
 
 #include <SDL.h>
 
@@ -48,6 +49,7 @@ namespace ace
             Event::Update();
 			Time::Update();
 			EntityManager::Update();
+			Camera::UpdateMainCamera();
         }
 
         void Quit()
