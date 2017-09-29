@@ -1,4 +1,6 @@
 #include <Ace/Vector4.h>
+#include <Ace/Vector3.h>
+#include <Ace/Vector2.h>
 #include <Ace/Math.h>
 
 namespace ace
@@ -104,5 +106,16 @@ namespace ace
         {
             return array[index];
         }
+
+		Vector4::operator Vector2() const
+		{
+			return Vector2(x, y);
+		}
+
+		Vector4::operator Vector3() const
+		{
+			return Vector3(x, y, z);
+		}
+
     }
 }

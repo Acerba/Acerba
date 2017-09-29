@@ -63,7 +63,7 @@ namespace ace
             @return Returns root
         */
         EntityHandle* GetRoot();
-
+		EntityHandle* GetParent();
 
         /**
             @brief Removes target and all its children.

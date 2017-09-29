@@ -3,50 +3,38 @@
 #include <Ace/Entity.h>
 #include <Ace/Material.h>
 #include <Ace/Window.h>
+#include <Ace/EventManager.h>
+#include <Ace/Events.h>
 
 namespace ace
 {
 
-    class Camera final
+    class Camera : public EventBase<WindowEvent>
     {
         Entity m_entity;
+
         Matrix4 m_proj;
         Matrix4 m_view;
         Matrix4 m_vp; // v * p
-        Vector3 m_ortho; // +-xy, zn, zf
+
+        Vector4 m_ortho; // +-xy, zn, zf
         Vector3 m_up;
 
         void LookAt();
+		void Ortho(const Vector4& size, float aspect = 1.0f);
 
         Vector4 m_orthoSize;
+		float m_aspectRatio;
 
     public:
+
+		static void UpdateMainCamera();
 
         /**
             @brief Constructor.
             @param[in, out] manager EntityManager who handles this entity. Defaults to DefaultManager.
         */
         Camera(EntityManager& manager = EntityManager::DefaultManager());
-
-        /**
-            @brief Constructor.
-            @param[in] position Position of the camera.
-            @param[in] target LookAt target of the camera.
-            @param[in] size Clipping planes.
-                x: +-horizontal and +- vertical clipping plane.
-                y: Near Z-axis clipping plane.
-                z: Far Z-axis clipping plane.
-                Defaults to [1, 0, 100].
-            @param[in] up Vector pointing up in the world. Defaults to [0, 1, 0].
-            @param[in, out] manager EntityManager who handles this entity. Defaults to DefaultManager.
-        */
-        Camera(
-            const Vector3& position,
-            const Vector3& target,
-            const Vector3& size = Vector3(1.f, 0.f, 100.f),
-            const Vector3& up = Vector3(0.f, 1.f, 0.f),
-            EntityManager& manager = EntityManager::DefaultManager()
-        );
 
         /**
             @brief Retrieve the contained entity.
@@ -77,39 +65,19 @@ namespace ace
         /**
             @brief Turn the camera to look at a target.
             @param[in] target New target position to look at.
-            @param[in] up Pointer to a up-vector. Defaults to [0, 1, 0].
         */
-        void LookAt(const Vector3& target, const Vector3* up = nullptr);
-
-        /**
-            @brief Make orthogonal projection.
-            @param[in] left Left clipping plane.
-            @param[in] right Right clipping plane.
-            @param[in] bottom Bottom clipping plane.
-            @param[in] top Top clipping plane.
-            @param[in] znear Near Z-axis clipping plane.
-            @param[in] zfar Far Z-axis clipping plane.
-        */
-        void MakeOrtho(float left, float right, float bottom, float top, float znear, float zfar);
-
+        void LookAt(const Vector3& target);
 
         /**
             @brief Make orthogonal projection.
             @param[in] horizontal Horizontal clipping plane.
             @param[in] vertical Vertical clipping plane.
             @param[in] znear Near Z-axis clipping plane.
-        @param[in] zfar Far Z-axis clipping plane.
+			@param[in] zfar Far Z-axis clipping plane.
         */
-        void MakeOrtho(float horizontal, float vertical, float znear, float zfar);
-        
-        /**
-            @brief Make orthogonal projection.
-            @param[in] sizes
-                x: +-horizontal and +- vertical clipping plane.
-                y: Near Z-axis clipping plane.
-                z: Far Z-axis clipping plane.
-        */
-        void MakeOrtho(const Vector3& sizes);
+        void Ortho(float horizontal, float vertical, float znear, float zfar);
+
+
 
         /**
             @brief Move the camera.
@@ -122,9 +90,12 @@ namespace ace
             @param[in] position New position for the camera.
         */
         void SetPosition(const Vector3& position);
+		Vector3 GetPosition() const;
+
+		Vector4 GetOrtho() const;
+		Vector2 GetSize() const;
 
 
-        void Update(const Window& window);
         void Apply();
 
         /**
@@ -137,6 +108,8 @@ namespace ace
             @brief Update the camera transformations and matrices.
         */
         void Update();
+
+		virtual void OnEvent(WindowEvent windowEvent);
 
     };
 }

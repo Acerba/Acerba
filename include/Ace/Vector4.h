@@ -6,6 +6,9 @@ namespace ace
 {
 	namespace math
 	{
+		class Vector2;
+		class Vector3;
+
 		class Vector4
 		{
 		public:
@@ -80,6 +83,10 @@ namespace ace
 			float& operator[](UInt8 index);
 			
 			float operator[](UInt8 index) const;
+
+			operator Vector2() const;
+			operator Vector3() const;
+			
 		};
 	}
 }

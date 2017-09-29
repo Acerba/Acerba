@@ -2,49 +2,53 @@
 
 namespace ace
 {
+	inline Camera* GetCamera(Camera* camera = nullptr)
+	{
+		static Camera* s_camera = nullptr;
 
-        // Entity m_entity;
-        // Matrix4 m_proj;
-        // Matrix4 m_view;
-        // Matrix4 m_vp;
-        // Vector3 m_up;
-        // float m_size;
+		if (camera != nullptr)
+		{
+			s_camera = camera;
+		}
 
-    Camera::Camera(EntityManager& manager) :
+		return s_camera;
+	}
+
+	void Camera::UpdateMainCamera()
+	{
+		Camera* camera = GetCamera();
+
+		if (camera != nullptr)
+		{
+			camera->Update();
+		}
+	}
+
+
+	Camera::Camera(EntityManager& manager) :
         m_entity(manager),
         m_proj(),
         m_view(),
         m_vp(),
-        m_ortho(1.f, 0.f, 100.f),
-        m_up(0.f, 1.f, 0.f)
+        m_ortho(1.f, 1.f, 0.0f, 100.f),
+        m_up(0.f, 1.f, 0.f),
+		m_aspectRatio(1.0f)
     {
         m_entity->transform.position = Vector3(0.f, 0.f, 1.f);
-        MakeOrtho(m_ortho);
-        LookAt(Vector3(0));
-        Update();
-    }
+        Ortho(m_ortho);
+        LookAt(Vector3(0.0f, 0.0f, 0.0f));
 
-    Camera::Camera(
-        const Vector3& position,
-        const Vector3& target,
-        const Vector3& size,
-        const Vector3& up,
-        EntityManager& manager
-    ) :
-        m_entity(manager),
-        m_proj(Matrix4::Ortho(-size.x, size.x, -size.x, size.x, size.y, size.z)),
-        m_view(Matrix4::LookAt(position, target, up)),
-        m_vp(m_view * m_proj),
-        m_ortho(size),
-        m_up(up)
-    {
-        m_entity->transform.position = position;
+		if (GetCamera() == nullptr)
+		{
+			Apply();
+		}
     }
 
     const Entity& Camera::GetEntity() const
     {
         return m_entity;
     }
+
     Entity& Camera::GetEntity()
     {
         return m_entity;
@@ -66,52 +70,121 @@ namespace ace
 
     void Camera::LookAt()
     {
-        // TODO:
-        // m_view = Matrix4::LookAt(m_entity->transform.position, WHAT, m_up);
+		// !TEMP! // !TEMP! // !TEMP! // !TEMP! // !TEMP! // !TEMP! //
+
+		// From: A
+		// To: E
+		// Topic: Scene Matrix calculations
+		// Message:	Hey, it seems that scene doesn't update camera's transform for some reason automatically.
+		//			So for this case this is handle manually as you can see it. Please fix it when you can.	
+
+		EntityHandle* parent = m_entity->GetParent();
+
+		if (parent != nullptr)
+		{
+			parent->transform.model =
+				(Matrix4::Scale(parent->transform.scale.x, parent->transform.scale.y, parent->transform.scale.z) *
+					parent->transform.rotation.ToMatrix4() *
+					Matrix4::Translation(parent->transform.position));
+		}
+
+		m_entity->transform.model =
+			(Matrix4::Scale(m_entity->transform.scale.x, m_entity->transform.scale.y, m_entity->transform.scale.z) *
+				m_entity->transform.rotation.ToMatrix4() *
+				Matrix4::Translation(m_entity->transform.position)) * (parent != nullptr ? parent->transform.model : Matrix4::Identity());
+
+
+		// !TEMP! // !TEMP! // !TEMP! // !TEMP! // !TEMP! // !TEMP! //
+
+		Vector3 direction = m_entity->transform.model * m_entity->transform.rotation.ToMatrix4() * Vector4(0, 0, 1, 1);
+		Vector3 position = m_entity->transform.model.Transpose() * Vector4(0,0,0,1);
+
+         m_view = Matrix4::LookAt(position, position - Vector3(direction.x, direction.y, direction.z), m_up);
     }
 
-    void Camera::LookAt(const Vector3& target, const Vector3* up)
+	void Camera::Ortho(const Vector4& size, float aspect)
+	{
+		m_proj = Matrix4::Ortho(-size.x * aspect, size.x * aspect, -size.y, size.y, size.z, size.w);
+	}
+
+	void Camera::LookAt(const Vector3& target)
+	{
+		m_entity->transform.rotation = Quaternion::LookAt((m_entity->transform.position - target), m_up);
+		LookAt();
+	}
+
+    void Camera::Ortho(float horizontal, float vertical, float znear, float zfar)
     {
-        m_view = Matrix4::LookAt(m_entity->transform.position, target, up ? *up : m_up);
+		m_ortho.x = horizontal;
+		m_ortho.y = vertical;
+		m_ortho.z = znear;
+		m_ortho.w = zfar;
+
+		Ortho(m_ortho, m_aspectRatio);
     }
 
-
-    void Camera::MakeOrtho(float left, float right, float bottom, float top, float znear, float zfar)
-    {
-        m_proj = Matrix4::Ortho(left, right, bottom, top, znear, zfar);
-    }
-    void Camera::MakeOrtho(float horizontal, float vertical, float znear, float zfar)
-    {
-        MakeOrtho(-horizontal, horizontal, -vertical, vertical, znear, zfar);
-    }
-    void Camera::MakeOrtho(const Vector3& sizes)
-    {
-        MakeOrtho(-sizes.x, sizes.x, -sizes.x, sizes.x, sizes.y, sizes.z);
-    }
-
-
+	void Camera::SetUp(const Vector3& up)
+	{
+		m_up = up;
+	}
+	
     void Camera::Move(const Vector3& distance)
     {
         m_entity->transform.position += distance;
     }
-
 
     void Camera::SetPosition(const Vector3& position)
     {
         m_entity->transform.position = position;
     }
 
+	Vector3 Camera::GetPosition() const
+	{
+		return m_entity->transform.position;
+	}
 
-    void Camera::SetUp(const Vector3& up)
-    {
-        m_up = up;
-    }
+	Vector4 Camera::GetOrtho() const
+	{
+		return m_ortho;
+	}
 
+	Vector2 Camera::GetSize() const
+	{
+		return Vector2(m_ortho.x, m_ortho.y);
+	}
 
     void Camera::Update()
     {
-        LookAt();
-        MakeOrtho(m_ortho);
-        m_vp = m_view * m_proj;
+		if (GetCamera() == this)
+		{
+			LookAt();
+			m_vp = m_view * m_proj;
+			Material::Uniform("VP", m_vp);
+		}
     }
+
+	void Camera::Apply()
+	{
+		Window* window = Window::GetCurrent();
+
+		if (window != nullptr)
+		{
+			m_aspectRatio = window->GetSize().x / static_cast<float>(window->GetSize().y);
+		}
+
+		Ortho(m_ortho, m_aspectRatio);
+
+		GetCamera(this);
+		Update();
+	}
+
+	void Camera::OnEvent(WindowEvent windowEvent)
+	{
+		if (windowEvent.type == WindowEventType::Resised || windowEvent.type == WindowEventType::SizeChanged)
+		{
+			// Aspect ratio.
+			m_aspectRatio = windowEvent.data1 / static_cast<float>(windowEvent.data2);
+			Ortho(m_ortho, m_aspectRatio);
+		}
+	}
 }

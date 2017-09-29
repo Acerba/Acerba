@@ -16,7 +16,10 @@ namespace ace
             Vector3 vector;
             float scalar;
 
-            Quaternion(const Vector3& vector = Vector3(), float scalar = 0.f);
+			static Quaternion Identity();
+
+			Quaternion(const Quaternion& quaternation = Identity());
+            Quaternion(const Vector3& vector, float scalar);
 
 			/**
 			@brief Calculate quaternion using euler angles
@@ -26,6 +29,8 @@ namespace ace
 			@return Rotated quaternion
 			*/
 			static Quaternion Euler(float xDegree, float yDegree, float zDegree);
+			
+			static Quaternion LookAt(const Vector3& forward, const Vector3& up = Vector3(0.0f,1.0f,0.0f));
 
 			Quaternion operator*(const Quaternion& q1) const;
 

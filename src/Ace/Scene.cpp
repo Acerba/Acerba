@@ -11,10 +11,9 @@ namespace ace
     void ComputeMatrices(Entity& entity, const math::Matrix4& parentModel)
     {
         entity->transform.model =
-            (Matrix4::Scale(entity->transform.scale.x, entity->transform.scale.y, entity->transform.scale.z) *
-            entity->transform.rotation.ToMatrix4() *
-            Matrix4::Translation(entity->transform.position))
-            * parentModel;
+           (Matrix4::Scale(entity->transform.scale.x, entity->transform.scale.y, entity->transform.scale.z) *
+           entity->transform.rotation.ToMatrix4() *
+           Matrix4::Translation(entity->transform.position)) * parentModel;
 
         const UInt32 count = entity.ChildCount();
         for (UInt32 i = 0u; i < count; ++i)
