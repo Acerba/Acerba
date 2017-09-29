@@ -34,6 +34,11 @@ void myUpdateFunc(MyComponent& comp)
     std::cout << comp.getMessage() << " says 'Hello' from free function.\n";
 }
 
+void myEntityUpdateFunc(MyComponent& comp, ace::EntityHandle* handle)
+{
+    std::cout << "Entity Handle: " << comp.getMessage() << " says 'Hello' from free function.\n";
+}
+
 int main(int, char**)
 {
     // Initialize Acerba
@@ -50,6 +55,7 @@ int main(int, char**)
 
     // Set a custom update function
     myEntity->manager->SetUpdateCallback(myUpdateFunc);
+    myEntity->manager->SetUpdateCallback(myEntityUpdateFunc); // Sets EntityHandle Callback.
 
     // Update the entity
     ace::Update();

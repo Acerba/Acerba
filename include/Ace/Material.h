@@ -5,26 +5,12 @@
 #include <Ace/MaterialFlags.h>
 #include <Ace/GraphicsObject.h>
 #include <Ace/Texture.h>
+#include <Ace/Uniform.h>
 
 #include <vector>
 
 namespace ace
 {
-	/**
-	@brief Uniform Types
-	*/
-	enum class UniformType
-	{
-		Int32,
-		UInt32,
-		Float,
-		Vec2,
-		Vec3,
-		Vec4,
-		Mat2,
-		Mat3,
-		Mat4,
-	};
 
 	/**
 	@brief Graphics Material
@@ -59,36 +45,36 @@ namespace ace
 
 		void AddTexture(const Texture& texture, const char* name, UInt8 id);
 
-		void Uniform(const char* name, const UInt32&) const;
-		void Uniform(const char* name, const Int32&) const;
-		void Uniform(const char* name, const float&) const;
-
-		void Uniform(const char* name, const Vector2&) const;
-		void Uniform(const char* name, const Vector3&) const;
-		void Uniform(const char* name, const Vector4&) const;
-		void Uniform(const char* name, const Color32&) const;
-
-		void Uniform(const char* name, const Matrix2&) const;
-		void Uniform(const char* name, const Matrix3&) const;
-		void Uniform(const char* name, const Matrix4&) const;
-
-		void Uniform(const char* name, const UInt32*, UInt32 count) const;
-		void Uniform(const char* name, const Int32*, UInt32 count) const;
-		void Uniform(const char* name, const float*, UInt32 count) const;
-
-		void Uniform(const char* name, const Vector2*, UInt32 count) const;
-		void Uniform(const char* name, const Vector3*, UInt32 count) const;
-		void Uniform(const char* name, const Vector4*, UInt32 count) const;
-		void Uniform(const char* name, const Color32*, UInt32 count) const;
-
-		void Uniform(const char* name, const Matrix2* , UInt32 count) const;
-		void Uniform(const char* name, const Matrix3* , UInt32 count) const;
-		void Uniform(const char* name, const Matrix4* , UInt32 count) const;
+		static void Uniform(const char* name, const UInt32&);
+		static void Uniform(const char* name, const Int32&);
+		static void Uniform(const char* name, const float&);
+         
+		static void Uniform(const char* name, const Vector2&);
+		static void Uniform(const char* name, const Vector3&);
+		static void Uniform(const char* name, const Vector4&);
+		static void Uniform(const char* name, const Color32&);
+         
+		static void Uniform(const char* name, const Matrix2&);
+		static void Uniform(const char* name, const Matrix3&);
+		static void Uniform(const char* name, const Matrix4&);
+         
+		static void Uniform(const char* name, const UInt32*, UInt32 count);
+		static void Uniform(const char* name, const Int32*, UInt32 count);
+		static void Uniform(const char* name, const float*, UInt32 count);
+         
+		static void Uniform(const char* name, const Vector2*, UInt32 count);
+		static void Uniform(const char* name, const Vector3*, UInt32 count);
+		static void Uniform(const char* name, const Vector4*, UInt32 count);
+		static void Uniform(const char* name, const Color32*, UInt32 count);
+         
+		static void Uniform(const char* name, const Matrix2* , UInt32 count);
+		static void Uniform(const char* name, const Matrix3* , UInt32 count);
+		static void Uniform(const char* name, const Matrix4* , UInt32 count);
 
 		/**
 			@brief
 		*/
-		inline virtual void Apply()
+		inline virtual void Apply() const
 		{
 
 		}

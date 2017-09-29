@@ -1,9 +1,9 @@
-// stb_truetype.h lisääminen
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb_truetype.h>
 
 #include <Ace/Font.h>
 #include <Ace/GraphicsDevice.h>
+#include <Ace/Math.h>
 
 namespace ace
 {
@@ -189,7 +189,7 @@ namespace ace
 			Int32 character = text_to_print[i];
 			Int32 nextCharacter = text_to_print[i + 1];
 
-			// Checking characters if they contain  Å, å, Ä, ä, Ö, or ö
+			// Checking characters if they contain  ï¿½, ï¿½, ï¿½, ï¿½, ï¿½, or ï¿½
 			if (character < 0)
 			{
 				character = character + 256;
@@ -284,7 +284,7 @@ namespace ace
 				continue;
 			}
 
-			// Checking characters if they contain  Å, å, Ä, ä, Ö, or ö
+			// Checking characters if they contain  ï¿½, ï¿½, ï¿½, ï¿½, ï¿½, or ï¿½
 			Int32 character = text[i];
 			if (character < 0)
 			{

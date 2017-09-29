@@ -34,14 +34,14 @@ namespace ace
 
 		}
 
-		inline virtual void Apply()
+		inline virtual void Apply() const
 		{
 			Uniform("Color", color);
 			Uniform("Scale", scale);
 			Uniform("Position", position);
 			Uniform("Rotation", math::Matrix2::Rotation(angle));
 			Uniform("Model", model);
-
+            GraphicsDevice::SetMaterial(*this);
 			GraphicsDevice::SetTexture(diffuse, "Diffuse", 0);
 		}
 
@@ -104,11 +104,6 @@ namespace ace
 			{
 				diffuse.Create(Image(Color(255, 255, 255, 255)));
 			}
-
-
-			Uniform("M", math::Matrix4::Identity());
-			Uniform("VP", math::Matrix4::Identity());
-
 		}
 	};
 }

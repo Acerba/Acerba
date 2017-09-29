@@ -3,12 +3,12 @@
 
 namespace ace
 {
-	Texture::Texture(TextureImpl* impl) : Graphics(impl)
+	Texture::Texture(TextureImpl* impl) : Graphics(impl), size(), scale(1)
 	{
 
 	}
 
-	Texture::Texture(const Image& image) : Graphics(nullptr)
+	Texture::Texture(const Image& image) : Graphics(nullptr), size(), scale(1)
 	{
 		Create(image);
 	}
@@ -20,17 +20,20 @@ namespace ace
 
 	bool Texture::Create(const Image& image)
 	{
-		return Create(image.GetPixelData(), image.w, image.h, image.format);
+		return Create(image.GetPixelData(), image.w, image.h, image.format, image.scale);
 	}
 
-	bool Texture::Create(const UInt8* pixels, UInt32 w, UInt32 h, PixelFormat format)
+	bool Texture::Create(const UInt8* pixels, UInt32 w, UInt32 h, PixelFormat format, float pixelScale)
 	{
 		if (!(*this) && !(*this = GraphicsDevice::CreateTexture()))
 		{
 			return false;
 		}
 
-		GraphicsDevice::UpdateTexture(*this, pixels, w, h, format);
+		GraphicsDevice::UpdateTexture(*this, pixels, w, h, format); 
+        scale = pixelScale;
+        size.x = w;
+        size.y = h;
 		return true;
 	}
 }

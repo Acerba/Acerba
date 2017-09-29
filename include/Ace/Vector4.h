@@ -1,13 +1,11 @@
 #pragma once
 
-#include <Ace/Math.h>
 #include <Ace/IntTypes.h>
 
 namespace ace
 {
 	namespace math
 	{
-
 		class Vector4
 		{
 		public:
@@ -25,99 +23,63 @@ namespace ace
 				float array[4];
 			};
 
-
-			Vector4(float x = 0.f, float y = 0.f, float z = 0.f, float w = 0.f) : x(x), y(y), z(z), w(w) {}
-
 			/**
-			@return Lenght
+			@brief Constructor
 			*/
-
-			float Lenght() const
-			{
-				return Sqrt(x*x + y*y + z*z + w*w);
-			}
-
-			Vector4 operator+(const Vector4& vec1) const
-			{
-				return{ x + vec1.x, y + vec1.y, z + vec1.z, w + vec1.w };
-			}
-
-			Vector4& operator+=(const Vector4& vec1)
-			{
-				x += vec1.x;
-				y += vec1.y;
-				z += vec1.z;
-				w += vec1.w;
-
-				return *this;
-			}
-
-			Vector4 operator-(const Vector4& vec1) const
-			{
-				return{ x - vec1.x, y - vec1.y, z - vec1.z, w - vec1.w };
-			}
-
-			Vector4& operator-=(const Vector4& vec1)
-			{
-				x -= vec1.x;
-				y -= vec1.y;
-				z -= vec1.z;
-				w -= vec1.w;
-
-				return *this;
-			}
-
-			Vector4 operator*(float scalar) const
-			{
-				return{ x * scalar, y *scalar, z *scalar, w *scalar};
-			}
-
-			Vector4& operator*=(float scalar)
-			{
-				x *= scalar;
-				y *= scalar;
-				z *= scalar;
-				w *= scalar;
-
-				return *this;
-			}
-
-			Vector4 operator/(float scalar) const
-			{
-				return{ x / scalar, y / scalar, z / scalar, w / scalar};
-			}
-
-			Vector4& operator/=(float scalar)
-			{
-				x /= scalar;
-				y /= scalar;
-				z /= scalar;
-				z /= scalar;
-
-				return *this;
-			}
+			Vector4(float x = 0.f, float y = 0.f, float z = 0.f, float w = 0.f);
 
 			/**
-			@param[in] Vector4
+			@return Length
+			*/
+			float Length() const;
+
+			/**
+			@return Squared length
+			*/
+			float LengthSquared() const;
+
+			/**
+			@return Normalized vector
+			*/
+			Vector4 Normalize() const;
+			
+			Vector4 operator+(const Vector4& v) const;
+			
+			Vector4& operator+=(const Vector4& v);
+			
+			Vector4 operator-(const Vector4& v) const;
+			
+			Vector4& operator-=(const Vector4& v);
+			
+			Vector4 operator*(float scalar) const;
+			
+			Vector4& operator*=(float scalar);
+			
+			Vector4 operator/(float scalar) const;
+			
+			Vector4& operator/=(float scalar);
+			
+			/**
+			@param[in] v Vector4
 			@return Dot product
 			*/
+			float Dot(const Vector4& v) const;
 
-			float Dot(const Vector4& vec1) const
-			{
-				return x * vec1.x + y * vec1.y + z * vec1.z + w * vec1.w;
-			}
+			/**
+			@param[in] a Vector4
+			@param[in] b Vector4
+			@return Dot product
+			*/
+			static float Dot(const Vector4& a, const Vector4& b);
 
-
-			float& operator[](UInt8 index)
-			{
-				return array[index];
-			}
-
-			float operator[](UInt8 index)const
-			{
-				return array[index];
-			}
-
+			/**
+			@return Returns vector with each element sign changed.
+			*/
+			Vector4 Invert() const;
+			
+			float& operator[](UInt8 index);
+			
+			float operator[](UInt8 index) const;
 		};
 	}
 }

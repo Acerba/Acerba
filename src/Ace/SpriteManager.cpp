@@ -7,6 +7,7 @@
 #include <Ace/EntityHandle.h>
 #include <Ace/EntityManager.h>
 #include <Ace/GraphicsDevice.h>
+#include <Ace/Math.h>
 #include <Ace/Transform.h>
 
 #include <algorithm>

@@ -1,6 +1,7 @@
 #include <Ace/Sprite.h>
 #include <Ace/Math.h>
 
+
 namespace ace
 {
 
@@ -48,12 +49,21 @@ namespace ace
 
 	void Sprite::Scale(const Vector2& scale)
 	{
-		for (auto& i : vertexData)
-		{
-			i.position.x *= scale.x;
-			i.position.y *= scale.y;
-		}
+        for (int i = 0; i < Sprite::size; ++i)
+        {
+            vertexData[i].position.x = triangle[i].position.x * scale.x;
+            vertexData[i].position.y = triangle[i].position.y * scale.y;
+        }
 	}
+
+    void Sprite::Scale(const Texture& texture, float scale)
+    {
+        for (int i  = 0; i < Sprite::size; ++i)
+        {
+            vertexData[i].position.x = triangle[i].position.x * scale * texture.size.x / texture.scale;
+            vertexData[i].position.y = triangle[i].position.y * scale * texture.size.y / texture.scale;
+        }
+    }
 
 	void Sprite::Move(const Vector3& pos)
 	{

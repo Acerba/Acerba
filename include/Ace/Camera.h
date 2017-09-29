@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Ace/Entity.h>
+#include <Ace/Material.h>
+#include <Ace/Window.h>
 
 namespace ace
 {
@@ -15,6 +17,8 @@ namespace ace
         Vector3 m_up;
 
         void LookAt();
+
+        Vector4 m_orthoSize;
 
     public:
 
@@ -118,6 +122,10 @@ namespace ace
             @param[in] position New position for the camera.
         */
         void SetPosition(const Vector3& position);
+
+
+        void Update(const Window& window);
+        void Apply();
 
         /**
             @brief Set the up-vector of the camera.

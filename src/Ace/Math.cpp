@@ -1,5 +1,9 @@
 #include <Ace/Math.h>
+#include <Ace/IntTypes.h>
 
+#include <algorithm> // std::generate_n
+#include <array>
+#include <functional> // std::ref
 #include <math.h>
 #include <random>
 
@@ -7,45 +11,36 @@ namespace ace
 {
 	namespace math
 	{
+
+		std::mt19937& GetWarmEngine()
+		{
+			static std::mt19937 engine;
+			static bool warm = false;
+			if (!warm)
+			{
+				std::random_device device;
+				std::array<Int32, 624u> data;
+				std::generate_n(data.data(), data.size(), std::ref(device));
+				std::seed_seq seed(data.begin(), data.end());
+				engine.seed(seed);
+				warm = true;
+			}
+			return engine;
+		}
+
 		float Abs(float a)
 		{
-			return a > 0.f ? a : -a;
-			//return abs(a);
-		}
-
-		float Pow(float a, float b)
-		{
-			return pow(a,b);
-		}
-
-		float Sqrt(float a)
-		{
-			return sqrt(a);
-		}
-
-		float Sin(float a)
-		{
-			return sin(a);
-		}
-
-		float Cos(float a)
-		{
-			return cos(a);
-		}
-
-		float Tan(float a)
-		{
-			return tan(a);
-		}
-
-		float Asin(float a)
-		{
-			return asin(a);
+			return a >= 0.f ? a : -a;
 		}
 
 		float Acos(float a)
 		{
 			return acos(a);
+		}
+
+		float Asin(float a)
+		{
+			return asin(a);
 		}
 
 		float Atan(float a)
@@ -58,9 +53,14 @@ namespace ace
 			return ceil(a);
 		}
 
-		float Floor(float a)
+		float Cos(float a)
 		{
-			return floor(a);
+			return cos(a);
+		}
+
+		float Cosh(float a)
+		{
+			return cosh(a);
 		}
 
 		float Exp(float a)
@@ -68,9 +68,14 @@ namespace ace
 			return exp(a);
 		}
 
-		float Round(float a)
+		float Floor(float a)
 		{
-			return round(a);
+			return floor(a);
+		}
+
+		float Fmod(float a, float b)
+		{
+			return fmod(a,b);
 		}
 
 		float Log(float a)
@@ -83,9 +88,27 @@ namespace ace
 			return log10(a);
 		}
 
-		float Fmod(float a, float b)
+		float Max(float a, float b)
 		{
-			return fmod(a,b);
+			return a < b ? b : a;
+		}
+
+		float Min(float a, float b)
+		{
+			return a < b ? a : b;
+		}
+
+		float Pow(float a, float b)
+		{
+			return pow(a,b);
+		}
+
+		float Rand(float min, float max)
+		{
+			return std::uniform_real_distribution<float>(
+				Min(min, max),
+				Max(min, max)
+			)(GetWarmEngine());
 		}
 
 		float Root(float a, float b)
@@ -93,27 +116,39 @@ namespace ace
 			return pow(a, 1 / b);
 		}
 
+		float Round(float a)
+		{
+			return round(a);
+		}
+
+		bool SameSign(float a, float b)
+		{
+			return (a <= 0.f && b <= 0.f) || (a >= 0.f && b >= 0.f);
+		}
+
+		float Sin(float a)
+		{
+			return sin(a);
+		}
+
 		float Sinh(float a)
 		{
 			return sinh(a);
 		}
 
-		float Cosh(float a)
+		float Sqrt(float a)
 		{
-			return cosh(a);
+			return sqrt(a);
+		}
+
+		float Tan(float a)
+		{
+			return tan(a);
 		}
 
 		float Tanh(float a)
 		{
 			return tanh(a);
-		}
-
-		float rand(float min, float max)
-		{
-			static std::random_device rd;
-			std::mt19937 gen(rd());
-			std::uniform_real_distribution<float>dis(min, max);
-			return dis(gen);
 		}
 
 	}

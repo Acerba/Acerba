@@ -39,6 +39,13 @@ set(INCLUDES
     ${ACERBA_SOURCE_DIR}/3rdparty/TMXLoader/TMXLoader
 )
 
+set(ACERBA_INDLUCES 
+    ${ACERBA_SOURCE_DIR}/3rdparty/rapidjson/include
+    ${ACERBA_SOURCE_DIR}/3rdparty/imgui/include
+    ${ACERBA_SOURCE_DIR}/3rdparty/TMXLoader/TMXLoader
+    CACHE INTERNAL ""
+)
+
 if (ANDROID)
     set(DEFINES ANDROID GL_GLEXT_PROTOTYPES)
     set(LIBS SDL2 android log openal OALWrapper dl GLESv1_CM GLESv2 imgui TMXLoader)
