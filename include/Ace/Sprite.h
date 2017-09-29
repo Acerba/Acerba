@@ -4,6 +4,8 @@
 #include <Ace/Rect.h>
 #include <Ace/Texture.h>
 
+#include <Ace/SpriteSheet.h>
+
 #include <array>
 
 namespace ace
@@ -42,8 +44,10 @@ namespace ace
 		@param[in] scale New size in Vector2
 		*/
 		void Scale(const Vector2& scale);
-
         void Scale(const Texture& texture, float scale = 1);
+
+		void SetSprite(const SpriteSheet::SpriteData* sprite);
+		void SetSprite(const SpriteSheet::SpriteData* sprite, float scale);
 
 		/**
 		@Brief Move sprite from current location to new location
@@ -58,10 +62,10 @@ namespace ace
 		void Colorize(const Color32& color);
 
 		/**
-		@brief Set UV for sprite
-		@param[in] uv Rectangle shape 
+			@brief Set Texcoords for sprite
+			@param[in] texture coordinates
 		*/
-		void UVRect(const Rect& uv);
+		void Texcoord(const Rect& uv);
 		// Set UV Rect. (Better method name?) 
 		
 		

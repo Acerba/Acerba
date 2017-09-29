@@ -7,7 +7,7 @@ namespace ace
 	class Path
 	{
 	public:
-		Path(std::string p);
+		Path(std::string p, bool isAbsolute = false);
 		Path(const char* c);
 		~Path();
 		

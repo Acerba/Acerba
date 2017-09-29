@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Ace/Types.h>
+#include <Ace/Camera.h>
 
 namespace ace
 {

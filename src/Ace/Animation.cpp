@@ -117,13 +117,7 @@ namespace ace
 		}
 
 		//Update UV
-		Rect uv = m_currentAnimation->frames[m_currentAnimation->currentFrame].rect;
-		uv.x /= m_spriteSheet.w;
-		uv.width /= m_spriteSheet.w;
-		uv.y /= m_spriteSheet.h;
-		uv.height /= m_spriteSheet.h;
-		
-		sprite.UVRect(uv);
+		sprite.Texcoord(m_currentAnimation->frames[m_currentAnimation->currentFrame].texcoord);
 
 		//Update sprite Size
 		//sprite.Scale(Vector2(m_currentAnimation->frames[m_currentAnimation->currentFrame].rect.width, m_currentAnimation->frames[m_currentAnimation->currentFrame].rect.height));
@@ -137,8 +131,6 @@ namespace ace
 		{
 			return;
 		}
-
-
 
 		if (m_currentAnimation->currentTime >= event.delta)
 		{

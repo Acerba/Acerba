@@ -27,7 +27,7 @@ namespace ace
 
     Window::Window(const char* title, UInt16 w, UInt16 h) :
         m_windowImpl(new Window::WindowImpl(title, w, h)),
-        m_color(127u, 127u, 127u, 0u)
+        m_color(0.5f, 0.5f, 0.5f, 0.0f)
     {
 		if (g_currentWindow == nullptr)
 		{

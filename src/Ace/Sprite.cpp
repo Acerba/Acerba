@@ -38,6 +38,29 @@ namespace ace
 
     }
 
+
+	void Sprite::SetSprite(const SpriteSheet::SpriteData* sprite)
+	{
+		if (sprite == nullptr)
+		{
+			return;
+		}
+
+		Texcoord(sprite->texcoord);
+	}
+
+	void Sprite::SetSprite(const SpriteSheet::SpriteData* sprite, float scale)
+	{
+		if (sprite == nullptr)
+		{
+			return;
+		}
+
+		Texcoord(sprite->texcoord);
+		Scale(Vector2(sprite->location.width / 1000.0f, sprite->location.height / 1000.0f) * scale);
+
+	}
+
 	void Sprite::Rotate(float deg)
 	{
 		const math::Matrix4 rot(math::Matrix4::RotationZ(deg));
@@ -83,7 +106,7 @@ namespace ace
 		}
 	}
 
-	void Sprite::UVRect(const Rect& uv)
+	void Sprite::Texcoord(const Rect& uv)
 	{
 			vertexData[1].uv.x = uv.x;
 			vertexData[0].uv.y = uv.y;
