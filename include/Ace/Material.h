@@ -17,7 +17,19 @@ namespace ace
 	*/
 	struct Material : public GraphicsObject<struct MaterialImpl>
 	{
-		
+        struct MaterialProperties
+        {
+            virtual ~MaterialProperties()
+            {
+
+            }
+
+            inline virtual void Apply(const Material& material) const
+            {
+
+            }
+        };
+
 		MaterialFlags flags;
 		
 		static const UInt32 MAX_TEXTURES = 4;
@@ -29,13 +41,13 @@ namespace ace
 			@brief Defautl Constructor
 			Creates an empty material.
 		*/
-		Material(MaterialImpl* impl = nullptr);
+		Material(MaterialImpl* impl = nullptr, MaterialProperties* properties = nullptr);
 
 		/**
 			@brief Initialization Constructor
 			Creates material from vertex and fragment shaders.
 		*/
-		Material(const Shader& vertex, const Shader& fragment);
+		Material(const Shader& vertex, const Shader& fragment, MaterialProperties* properties = nullptr);
 
 		/**
 			@brief Create Material from vertex and fragment shader.
@@ -71,15 +83,46 @@ namespace ace
 		static void Uniform(const char* name, const Matrix3* , UInt32 count);
 		static void Uniform(const char* name, const Matrix4* , UInt32 count);
 
-		/**
-			@brief
-		*/
-		inline virtual void Apply() const
-		{
-
-		}
-
 	protected:
+
+        std::shared_ptr<MaterialProperties> m_properties;
 		virtual void Init() const;
+
+    public:
+
+        /**
+        @brief
+        */
+        inline void Apply() const
+        {
+            if (m_properties)
+            {
+                m_properties->Apply(*this);
+            }
+        }
+
+        inline void SetProperties(MaterialProperties* properties)
+        {
+            m_properties.reset(properties);
+        }
 	};
+
+    template <typename Properties>
+    struct MaterialPropertyWrapper : public Material
+    {
+        MaterialPropertyWrapper(MaterialImpl* impl = nullptr, Material::MaterialProperties* properties = nullptr) : Material(impl, properties)
+        {
+
+        }
+
+        inline Properties* operator->()
+        {
+            return static_cast<Properties*>(m_properties.get());
+        }
+
+        inline const Properties* operator->() const
+        {
+            return static_cast<Properties*>(m_properties.get());
+        }
+    };
 }

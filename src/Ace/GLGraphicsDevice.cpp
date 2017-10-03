@@ -348,7 +348,7 @@ namespace ace
 	{
 		Material material(new MaterialImpl());
 
-		ACE_ASSERT(vertex, "Vertex shader is not initialized or valid.", "");
+        ACE_ASSERT(vertex, "Vertex shader is not initialized or valid.", "");
 		ACE_ASSERT(fragment, "Fragment shader is not initialized or valid.", "");
 
 		if (vertex)
