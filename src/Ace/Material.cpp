@@ -9,12 +9,12 @@
 
 namespace ace
 {
-	Material::Material(MaterialImpl* impl) : Graphics(impl)
+	Material::Material(MaterialImpl* impl, MaterialProperties* properties) : Graphics(impl), m_properties(properties)
 	{
 
 	}
 
-	Material::Material(const Shader& vertex, const Shader& fragment) : Graphics(nullptr)
+	Material::Material(const Shader& vertex, const Shader& fragment, MaterialProperties* properties) : Graphics(nullptr), m_properties(properties)
 	{
 		Init(vertex, fragment);
 	}

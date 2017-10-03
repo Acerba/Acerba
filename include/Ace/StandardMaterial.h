@@ -10,20 +10,40 @@
 
 namespace ace
 {
-	class StandardMaterial : public Material
+    struct StandardMaterialProperties : public Material::MaterialProperties
+    {
+        Color32 color;
+        Vector2 scale, position;
+
+        float angle;
+
+        math::Matrix4 model;
+
+        mutable Texture diffuse;
+
+        StandardMaterialProperties() : model(math::Matrix4::Identity()), color(0xFFFFFFFF), scale(1, 1), position(0, 0), angle(0)
+        {
+
+        }
+
+
+        inline virtual void Apply(const Material& material) const
+        {
+            material.Uniform("Color", color);
+            material.Uniform("Scale", scale);
+            material.Uniform("Position", position);
+            material.Uniform("Rotation", math::Matrix2::Rotation(angle));
+            material.Uniform("Model", model);
+            GraphicsDevice::SetMaterial(material);
+            GraphicsDevice::SetTexture(diffuse, "Diffuse", 0);
+        }
+    };
+
+	class StandardMaterial : public MaterialPropertyWrapper<StandardMaterialProperties>
 	{
 	public:
 
-		Color32 color;
-		Vector2 scale, position;
-		
-		float angle;
-
-		math::Matrix4 model;
-
-		mutable Texture diffuse;
-
-		StandardMaterial() : Material(nullptr), model(math::Matrix4::Identity()), color(0xFFFFFFFF), scale(1, 1), position(0, 0), angle(0)
+		StandardMaterial() : MaterialPropertyWrapper(nullptr, new StandardMaterialProperties())
 		{
 			Init();
 			Apply();
@@ -31,19 +51,9 @@ namespace ace
 
 		~StandardMaterial()
 		{
-
+            
 		}
 
-		inline virtual void Apply() const
-		{
-			Uniform("Color", color);
-			Uniform("Scale", scale);
-			Uniform("Position", position);
-			Uniform("Rotation", math::Matrix2::Rotation(angle));
-			Uniform("Model", model);
-            GraphicsDevice::SetMaterial(*this);
-			GraphicsDevice::SetTexture(diffuse, "Diffuse", 0);
-		}
 
 	protected:
 
@@ -100,9 +110,9 @@ namespace ace
 
 			InitImpl(GraphicsDevice::CreateMaterial(vert, frag));
 			
-			if (!diffuse)
+			if (!(*this)->diffuse)
 			{
-				diffuse.Create(Image(Color(255, 255, 255, 255)));
+                (*this)->diffuse.Create(Image(Color(255, 255, 255, 255)));
 			}
 		}
 	};
