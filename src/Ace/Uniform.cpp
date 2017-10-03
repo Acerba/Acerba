@@ -1,6 +1,8 @@
 #include <Ace/UniformImpl.h>
-#include <vector>
+
+#include <cstdlib> // linux malloc & free
 #include <string.h>
+#include <vector>
 
 namespace ace
 {
