@@ -70,36 +70,9 @@ namespace ace
 
     void Camera::LookAt()
     {
-		// !TEMP! // !TEMP! // !TEMP! // !TEMP! // !TEMP! // !TEMP! //
-
-		// From: A
-		// To: E
-		// Topic: Scene Matrix calculations
-		// Message:	Hey, it seems that scene doesn't update camera's transform for some reason automatically.
-		//			So for this case this is handle manually as you can see it. Please fix it when you can.	
-
-		EntityHandle* parent = m_entity->GetParent();
-
-		if (parent != nullptr)
-		{
-			parent->transform.model =
-				(Matrix4::Scale(parent->transform.scale.x, parent->transform.scale.y, parent->transform.scale.z) *
-					parent->transform.rotation.ToMatrix4() *
-					Matrix4::Translation(parent->transform.position));
-		}
-
-		m_entity->transform.model =
-			(Matrix4::Scale(m_entity->transform.scale.x, m_entity->transform.scale.y, m_entity->transform.scale.z) *
-				m_entity->transform.rotation.ToMatrix4() *
-				Matrix4::Translation(m_entity->transform.position)) * (parent != nullptr ? parent->transform.model : Matrix4::Identity());
-
-
-		// !TEMP! // !TEMP! // !TEMP! // !TEMP! // !TEMP! // !TEMP! //
-
-		Vector3 direction = m_entity->transform.model * m_entity->transform.rotation.ToMatrix4() * Vector4(0, 0, 1, 1);
-		Vector3 position = m_entity->transform.model.Transpose() * Vector4(0,0,0,1);
-
-         m_view = Matrix4::LookAt(position, position - Vector3(direction.x, direction.y, direction.z), m_up);
+        const Vector3 position = m_entity->transform.model.Transpose() * Vector4(0,0,0,1);
+        const Vector3 direction = m_entity->transform.model * m_entity->transform.rotation.ToMatrix4() * Vector4(0, 0, 1, 1);
+        m_view = Matrix4::LookAt(position, position - direction, m_up);
     }
 
 	void Camera::Ortho(const Vector4& size, float aspect)
@@ -180,10 +153,10 @@ namespace ace
 
 	void Camera::OnEvent(WindowEvent windowEvent)
 	{
-		if (windowEvent.type == WindowEventType::Resised || windowEvent.type == WindowEventType::SizeChanged)
+		if (windowEvent.type == WindowEventType::Resized || windowEvent.type == WindowEventType::SizeChanged)
 		{
 			// Aspect ratio.
-			m_aspectRatio = windowEvent.data1 / static_cast<float>(windowEvent.data2);
+			m_aspectRatio = static_cast<float>(windowEvent.data1) / static_cast<float>(windowEvent.data2);
 			Ortho(m_ortho, m_aspectRatio);
 		}
 	}
