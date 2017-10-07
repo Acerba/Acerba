@@ -5,11 +5,26 @@
 #include <Ace/GraphicsDevice.h>
 #include <Ace/SpriteManager.h>
 
+#include <Ace/Platform.h>
+
+#if ACE_DEBUG
+    #include <Ace/Log.h>
+#endif
+
 namespace ace
 {
 
     void ComputeMatrices(Entity& entity, const math::Matrix4& parentModel)
     {
+        if (!entity)
+        {
+            #if ACE_DEBUG
+                Logger::LogDebug("ComputeMatrices null entity");
+            #endif
+
+            return;
+        }
+
         entity->transform.model =
            (Matrix4::Scale(entity->transform.scale.x, entity->transform.scale.y, entity->transform.scale.z) *
            entity->transform.rotation.ToMatrix4() *

@@ -390,8 +390,15 @@ namespace ace
             Int32 last_array_buffer; glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
             Int32 last_element_array_buffer; glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
             //Int32 last_vertex_array; glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
+
+        #if ACE_LINUX
+            Int32 last_blend_src; glGetIntegerv(GL_BLEND, &last_blend_src);
+            Int32 last_blend_dst; glGetIntegerv(GL_BLEND_DST_RGB, &last_blend_dst);
+        #else
             Int32 last_blend_src; glGetIntegerv(GL_BLEND_SRC, &last_blend_src);
             Int32 last_blend_dst; glGetIntegerv(GL_BLEND_DST, &last_blend_dst);
+        #endif
+
             Int32 last_blend_equation_rgb; glGetIntegerv(GL_BLEND_EQUATION_RGB, &last_blend_equation_rgb);
             Int32 last_blend_equation_alpha; glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &last_blend_equation_alpha);
             Int32 last_viewport[4]; glGetIntegerv(GL_VIEWPORT, last_viewport);

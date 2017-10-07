@@ -2,6 +2,11 @@
 
 #include <Ace/IntTypes.h>
 #include <Ace/Vector2.h>
+#include <Ace/Platform.h>
+
+#if ACE_DEBUG
+	#include <Ace/Log.h>
+#endif
 
 namespace ace
 {
@@ -97,6 +102,14 @@ namespace ace
 			float& operator[](UInt8 index);
 			
 			float operator[](UInt8 index) const;
+
+			#if ACE_DEBUG
+				void Log(const char* msg = nullptr) const
+				{
+					Logger::LogDebug(msg, x, y, z);
+				}
+			#endif
+
 		};
 	}
 }
