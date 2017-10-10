@@ -11,7 +11,10 @@ namespace ace
 
 
 
-
+    void LogDebug(const float f, const char* msg)
+    {
+        Logger::LogDebug("%s: %f", msg, f);
+    }
 
     void LogDebug(const Matrix2& m, const char* msg)
     {

@@ -18,6 +18,7 @@ namespace ace
     }
     class Transform;
 
+    void LogDebug(const float, const char* msg = nullptr);
     void LogDebug(const math::Matrix2&, const char* msg = nullptr);
     void LogDebug(const math::Matrix3&, const char* msg = nullptr);
     void LogDebug(const math::Matrix4&, const char* msg = nullptr);

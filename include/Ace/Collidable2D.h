@@ -1,6 +1,9 @@
 #pragma once
 
+#include <Ace/IntTypes.h>
 #include <Ace/Types.h>
+
+#include <vector>
 
 namespace ace
 {
@@ -10,11 +13,22 @@ namespace ace
 
     class Collidable2D
     {
+    public:
+        // TEMP find && replace once finished
+        using CVT = Vector2;
     protected:
         // Quaternion m_rotation;
-        Vector2 m_position;
+        CVT m_position;
     public:
-        Collidable2D(const Vector2& position);
+
+        enum class Axis : UInt8
+        {
+            X = 0, Pitch = 0,
+            Y = 1, Yaw = 1,
+            Z = 2, Roll = 2
+        };
+
+        Collidable2D(const CVT& position);
         virtual ~Collidable2D() = 0;
 
         /**
@@ -22,7 +36,7 @@ namespace ace
         @param[in] point Point in same coordinate system as the Collidable to check.
         @return True if the point is inside or touching the Collidable.
         */
-        virtual bool IsColliding(const Vector2& point) const = 0;
+        virtual bool IsColliding(const CVT& point) const = 0;
 
         /**
         @brief Checks if the Collidables are touching.
@@ -34,41 +48,59 @@ namespace ace
         template <typename A, typename B>
         static bool IsColliding(const A& a, const B& b);
 
-        inline const Vector2& GetPosition() const
+        inline const CVT& GetPosition() const
         {
             return m_position;
         }
 
+        virtual std::vector<CVT> GetVertices() const = 0;
+
         // virtual void Rotate()
     };
 
-    class Circle : public Collidable2D
+    class Circle final : public Collidable2D
     {
         float m_radius;
     public:
-        Circle(const Vector2& position, const float radius);
-        bool IsColliding(const Vector2& point) const override;
+        Circle(const CVT& position, const float radius);
+        bool IsColliding(const CVT& point) const override;
 
         inline float GetRadius() const
         {
             return m_radius;
         }
+
+        std::vector<CVT> GetVertices() const final override;
     };
 
-    class Rectangle : public Collidable2D
+    class Rectangle final : public Collidable2D
     {
-        Vector2 m_extents;
+        CVT m_extents;
     public:
-        Rectangle(const Vector2& position, const Vector2& extents);
-        bool IsColliding(const Vector2& point) const override;
+        Rectangle(const CVT& position, const CVT& extents);
+        bool IsColliding(const CVT& point) const override;
+
+        inline const CVT& GetExtents() const
+        {
+            return m_extents;
+        }
+
+        std::vector<CVT> GetVertices() const final override;
     };
 
-    class Triangle : public Collidable2D
+    class Triangle final : public Collidable2D
     {
-        Vector2 m_extents[3u];
+        CVT m_extents[3u];
     public:
-        Triangle(const Vector2& position, const Vector2 (&extents)[3u]);
-        bool IsColliding(const Vector2& point) const override;
+        Triangle(const CVT& position, const CVT (&extents)[3u]);
+        bool IsColliding(const CVT& point) const override;
+
+        inline const CVT(&GetExtents() const)[3u]
+        {
+            return m_extents;
+        }
+
+        std::vector<CVT> GetVertices() const final override;
     };
 
 }

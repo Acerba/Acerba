@@ -41,6 +41,10 @@ namespace ace
             return min <= value && value <= max;
         }
         float Ceil(float);
+        inline float Clamp(float value, float min, float max)
+        {
+            return min <= value ? (value <= max ? value : max) : min;
+        }
         float Cos(float);
         float Cosh(float);
         float Exp(float);

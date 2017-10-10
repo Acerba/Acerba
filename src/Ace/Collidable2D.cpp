@@ -2,6 +2,11 @@
 #include <Ace/Math.h>
 #include <Ace/Log.h>
 
+#include <array>
+#include <vector>
+
+#include <Ace/Debugger.h>
+
 namespace ace
 {
 
@@ -29,6 +34,201 @@ namespace ace
     }
 
 
+
+
+
+    // TEMP
+    using CVT = Collidable2D::CVT;
+
+    std::vector<CVT> GetNormals(const Collidable2D& c)
+    {
+        const std::vector<CVT> vertices(c.GetVertices());
+        const UInt8 size = static_cast<UInt8>(vertices.size());
+        std::vector<CVT> normals(size);
+        for (UInt8 i = 0u; i < size; ++i)
+        {
+            // TODO: direction checks, normalization?
+
+            const CVT vertex((vertices[i] - vertices[(i + 1u) < size ? (i + 1u) : 0u]).Normalize());
+
+            normals[i].x = -vertex.y;
+            normals[i].y = vertex.x;
+            //normals[i].x = -vertices[i].y;
+            //normals[i].y = vertices[i].x;
+            //LogDebug(vertices[i], "GetNormals Vertex");
+            //LogDebug(normals[i], "GetNormals Normal");
+        }
+        return normals;
+    }
+
+    // Project a onto b
+    CVT ProjectVector(const CVT& a, const CVT& b)
+    {
+        //const CVT bn(b.Normalize());
+        //return bn * CVT::Dot(a, bn);
+        return b * (CVT::Dot(a, b) / b.LengthSquared());
+    }
+
+    /*
+    void ProjectVectors(CVT& min, CVT& max, const CVT& target, const Collidable2D& c)
+    {
+        const std::vector<CVT> points(c.GetVertices());
+        const CVT centerProj(ProjectVector(c.GetPosition(), target));
+        const UInt8 size = points.size();
+        if (size == 1u) // Circle
+        {
+            min = max = centerProj;
+            const float radius = dynamic_cast<const Circle*>(&c)->GetRadius();
+            CVT curProj(ProjectVector(points[0] + radius, target));
+            if (curProj < min) min = curProj;
+            if (max < curProj) max = curProj;
+            curProj = ProjectVector(points[0] - radius, target);
+            if (curProj < min) min = curProj;
+            if (max < curProj) max = curProj;
+        }
+        else // Other shapes
+        {
+            min = max = ProjectVector(points[0], target);
+            for (UInt8 i = 1u; i < size; ++i)
+            {
+                const CVT curProj(ProjectVector(points[i], target));
+                if (curProj < min) min = curProj;
+                if (max < curProj) max = curProj;
+            }
+        }
+    }
+    */
+
+    /*
+    bool ProjectVectors(const CVT& normal, const Collidable2D& a, const Collidable2D& b)
+    {
+        float maxA = 0.f;
+        const CVT centerProjA(ProjectVector(a.GetPosition(), normal));
+        const std::vector<CVT> pointsA(a.GetVertices());
+        if (pointsA.empty()) // A is a Circle
+        {
+            maxA = ProjectVector(
+                (b.GetPosition() - centerProjA).Normalize() * dynamic_cast<const Circle*>(&a)->GetRadius(),
+                normal
+            ) - centerProjA).LengthSquared();
+        }
+        else // Other shapes A
+        {
+            for (const auto& itr : pointsA)
+            {
+                const float curLength = ProjectVector(itr, normal).LengthSquared();
+                if (curLength > maxA) maxA = curLength;
+            }
+        }
+
+        float maxB = 0.f;
+        const CVT centerProjB(ProjectVector(a.GetPosition(), normal));
+        const std::vector<CVT> pointsB(b.GetVertices());
+        if (pointsB.empty()) // B is a Circle
+        {
+            maxB = ProjectVector(
+                (a.GetPosition() - centerProjB).Normalize() * dynamic_cast<const Circle*>(&b)->GetRadius(),
+                normal
+            ) - centerProjB).LengthSquared();
+        }
+        else // Other shapes
+        {
+            for (const auto& itr : pointsB)
+            {
+                const float curLength = ProjectVector(itr, normal).LengthSquared();
+                if (curLength > maxB) maxB = curLength;
+            }
+        }
+
+        // False if separated
+        return (centerProjA - centerProjB).LengthSquared() < (maxA + maxB);
+    }
+    */
+
+    float ProjectVectors(const CVT& normal, const Collidable2D& a, const Collidable2D& b)
+    {
+        const std::vector<CVT> points(a.GetVertices());
+        if (points.empty()) // Circle
+        {
+            const CVT centerProj(ProjectVector(a.GetPosition(), normal));
+            return (ProjectVector(
+                (b.GetPosition() - centerProj).Normalize() * dynamic_cast<const Circle*>(&a)->GetRadius(),
+                normal
+            ) - centerProj).LengthSquared();
+        }
+        else // Other shapes
+        {
+            float max = 0.f;
+            for (const auto& itr : points)
+            {
+                const float curLength = ProjectVector(itr, normal).LengthSquared();
+                LogDebug(curLength, "curLength");
+                if (curLength > max) max = curLength;
+            }
+            return max;
+        }
+    }
+
+    bool SATImpl(const Collidable2D& a, const Collidable2D& b)
+    {
+        LogDebug(a.GetPosition(), "A center");
+        LogDebug(b.GetPosition(), "B center");
+        for (const auto& n : GetNormals(a))
+        {
+            LogDebug(n, "Normal");
+            auto maxA = ProjectVectors(n, a, b);
+            auto maxB = ProjectVectors(n, b, a);
+            auto centers = ProjectVector(a.GetPosition() - b.GetPosition(), n).LengthSquared();
+            //auto centers = (ProjectVector(a.GetPosition(), n) - ProjectVector(b.GetPosition(), n)).LengthSquared();
+            LogDebug(maxA, "maxA");
+            LogDebug(maxB, "maxB");
+            LogDebug(centers, "centers");
+            // True if separated
+            if ((maxA + maxB) < centers) continue;
+            else return true;
+            //if (maxProjB < minProjA || maxProjA < minProjB) continue; // Separated
+            //else return true; // Not separated
+
+            // TODO: old
+            //axis.Normalize();
+            //const Type overlap = b1.ProjectToAxis(axis) + b2.ProjectToAxis(axis) - math::Abs(Dot(toCenter, axis));
+            //if (overlap < static_cast<Type>(0))
+            //return false;
+
+        }
+        return false;
+    }
+
+    bool SAT(const Collidable2D& a, const Collidable2D& b)
+    {
+        return SATImpl(a, b) || SATImpl(b, a);
+    }
+
+    /*
+    Vektor<3u, Type> GetAxis(const AXIS axis) const
+    {
+        MV_ASSERT(axis != AXIS::Invalid, "Invalid axis in PrimitiveBox GetAxis");
+        const UInt32 ax = static_cast<UInt32>(axis);
+        return Vektor<3u, Type>(
+            this->transform[(ax * 4u)],
+            this->transform[(ax * 4u)+1u],
+            this->transform[(ax * 4u)+2u]
+        );
+    }
+    Type GetHalfSize (AXIS axis)
+    {
+        return math::Abs((max[static_cast<UInt8>(axis)]-min[static_cast<UInt8>(axis)]) * static_cast<Type>(0.5f));
+    }
+    Type ProjectToAxis(const Vektor<3u, Type>& axis) const
+    {
+        return
+            this->GetHalfSize(AXIS::X) * math::Abs(Dot(axis, GetAxis(AXIS::X))) +
+            this->GetHalfSize(AXIS::Y) * math::Abs(Dot(axis, GetAxis(AXIS::Y))) +
+            this->GetHalfSize(AXIS::Z) * math::Abs(Dot(axis, GetAxis(AXIS::Z)));
+    }
+    */
+
+
     Collidable2D::Collidable2D(const Vector2& position) :
         m_position(position)
         // m_rotation()
@@ -41,17 +241,21 @@ namespace ace
 
     }
 
+
     // Same
 
     // C-C
     template<> bool Collidable2D::IsColliding<Circle, Circle>(const Circle& a, const Circle& b)
     {
-        return (a.GetPosition() - b.GetPosition()).Length() <= (a.GetRadius() + b.GetRadius());
+        //return (a.GetPosition() - b.GetPosition()).Length() <= (a.GetRadius() + b.GetRadius());
+        // TODO: is this valid way to bypass sqrt
+        const float r = a.GetRadius() + b.GetRadius();
+        return (a.GetPosition() - b.GetPosition()).LengthSquared() <= (r * r);
     }
     // R-R
     template<> bool Collidable2D::IsColliding<Rectangle, Rectangle>(const Rectangle& a, const Rectangle& b)
     {
-        return false;
+        return SAT(a, b);
     }
     // T-T
     template<> bool Collidable2D::IsColliding<Triangle, Triangle>(const Triangle& a, const Triangle& b)
@@ -104,6 +308,11 @@ namespace ace
         return (d.x*d.x + d.y*d.y) <= (m_radius * m_radius);
     }
 
+    std::vector<CVT> Circle::GetVertices() const
+    {
+        return { };
+    }
+
 
     Rectangle::Rectangle(const Vector2& position, const Vector2& extents) :
         Collidable2D(position), m_extents(extents)
@@ -128,6 +337,18 @@ namespace ace
         );
     }
 
+    std::vector<CVT> Rectangle::GetVertices() const
+    {
+        const CVT& ex = GetExtents();
+        const CVT& pos = GetPosition();
+        return {
+            pos + CVT{-ex.x, -ex.y},
+            pos + CVT{ ex.x, -ex.y},
+            pos + ex,
+            pos + CVT{-ex.x,  ex.y}
+        };
+    }
+
 
     Triangle::Triangle(const Vector2& position, const Vector2 (&extents)[3u]) :
         Collidable2D(position), m_extents{ extents[0], extents[1], extents[2] }
@@ -143,6 +364,17 @@ namespace ace
             m_position + m_extents[1],
             m_position + m_extents[2]
         );
+    }
+
+    std::vector<CVT> Triangle::GetVertices() const
+    {
+        const auto& ex = GetExtents();
+        const CVT& pos = GetPosition();
+        return {
+            pos + ex[0],
+            pos + ex[1],
+            pos + ex[2]
+        };
     }
 
 }
