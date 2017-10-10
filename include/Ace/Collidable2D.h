@@ -34,6 +34,11 @@ namespace ace
         template <typename A, typename B>
         static bool IsColliding(const A& a, const B& b);
 
+        inline const Vector2& GetPosition() const
+        {
+            return m_position;
+        }
+
         // virtual void Rotate()
     };
 
@@ -43,6 +48,11 @@ namespace ace
     public:
         Circle(const Vector2& position, const float radius);
         bool IsColliding(const Vector2& point) const override;
+
+        inline float GetRadius() const
+        {
+            return m_radius;
+        }
     };
 
     class Rectangle : public Collidable2D

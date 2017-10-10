@@ -28,11 +28,6 @@ namespace ace
 			return engine;
 		}
 
-		float Abs(float a)
-		{
-			return a >= 0.f ? a : -a;
-		}
-
 		float Acos(float a)
 		{
 			return acos(a);
@@ -88,16 +83,6 @@ namespace ace
 			return log10(a);
 		}
 
-		float Max(float a, float b)
-		{
-			return a < b ? b : a;
-		}
-
-		float Min(float a, float b)
-		{
-			return a < b ? a : b;
-		}
-
 		float Pow(float a, float b)
 		{
 			return pow(a,b);
@@ -119,11 +104,6 @@ namespace ace
 		float Round(float a)
 		{
 			return round(a);
-		}
-
-		bool SameSign(float a, float b)
-		{
-			return (a <= 0.f && b <= 0.f) || (a >= 0.f && b >= 0.f);
 		}
 
 		float Sin(float a)

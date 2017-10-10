@@ -1,5 +1,6 @@
 #include <Ace/Collidable2D.h>
 #include <Ace/Math.h>
+#include <Ace/Log.h>
 
 namespace ace
 {
@@ -45,7 +46,7 @@ namespace ace
     // C-C
     template<> bool Collidable2D::IsColliding<Circle, Circle>(const Circle& a, const Circle& b)
     {
-        return false;
+        return (a.GetPosition() - b.GetPosition()).Length() <= (a.GetRadius() + b.GetRadius());
     }
     // R-R
     template<> bool Collidable2D::IsColliding<Rectangle, Rectangle>(const Rectangle& a, const Rectangle& b)
@@ -91,9 +92,10 @@ namespace ace
     }
 
     Circle::Circle(const Vector2& position, const float radius) :
-        Collidable2D(position), m_radius(radius)
+        Collidable2D(position), m_radius(math::Abs(radius))
     {
-
+        if (math::IsNearEpsilon(radius))
+            Logger::Log(Logger::Priority::Warning, "Collidable2D: Circle: Radius near epsilon: %f", radius);
     }
 
     bool Circle::IsColliding(const Vector2& point) const

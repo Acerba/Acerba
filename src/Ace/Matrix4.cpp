@@ -1,4 +1,5 @@
 #include <Ace/Matrix4.h>
+#include <Ace/Vector3.h>
 #include <Ace/Math.h>
 
 namespace ace
