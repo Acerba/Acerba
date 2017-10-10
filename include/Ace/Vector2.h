@@ -1,5 +1,11 @@
 #pragma once
 
+#include <Ace/Platform.h>
+
+#if ACE_DEBUG
+	#include <Ace/Log.h>
+#endif
+
 namespace ace
 {
 	namespace math
@@ -77,6 +83,13 @@ namespace ace
 			@return Returns vector with each element sign changed.
 			*/
 			Vector2 Invert() const;
+
+			#if ACE_DEBUG
+				void Log(const char* msg = nullptr) const
+				{
+					Logger::LogDebug(msg, x, y);
+				}
+			#endif
 		};
 	}
 }

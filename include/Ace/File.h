@@ -2,7 +2,7 @@
 
 #include <Ace/IntTypes.h>
 #include <Ace/Path.h>
-#include <memory>
+#include <Ace/SmartPtr.h>
 
 namespace ace
 {
@@ -50,7 +50,7 @@ namespace ace
 		*/
 		std::shared_ptr<char> ReadAllText() const;
 
-		//TODO: Error handler loggerilla, sekä muu palautus kuin true
+		//TODO: Error handler loggerilla, sekï¿½ muu palautus kuin true
 		/**
 			@brief Write text to end of a file
 			@param[in,out] buffer Pointer to file where data will be taken from

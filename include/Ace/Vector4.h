@@ -1,6 +1,11 @@
 #pragma once
 
 #include <Ace/IntTypes.h>
+#include <Ace/Platform.h>
+
+#if ACE_DEBUG
+	#include <Ace/Log.h>
+#endif
 
 namespace ace
 {
@@ -86,6 +91,13 @@ namespace ace
 
 			operator Vector2() const;
 			operator Vector3() const;
+
+			#if ACE_DEBUG
+				void Log(const char* msg = nullptr) const
+				{
+					Logger::LogDebug(msg, x, y, z, w);
+				}
+			#endif
 			
 		};
 	}

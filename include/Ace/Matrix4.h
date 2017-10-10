@@ -3,7 +3,11 @@
 #include <Ace/Vector4.h>
 #include <Ace/Vector3.h>
 #include <Ace/IntTypes.h>
+#include <Ace/Platform.h>
 
+#if ACE_DEBUG
+    #include <Ace/Log.h>
+#endif
 
 namespace ace
 {
@@ -126,6 +130,21 @@ namespace ace
             {
                 return data[r][c];
             }
+
+            #if ACE_DEBUG
+
+            void Log(const char* msg = nullptr) const
+            {
+                Logger::LogDebug(
+                    msg,
+                    array[0],array[1],array[2],array[3],
+                    array[4],array[5],array[6],array[7],
+                    array[8],array[9],array[10],array[11],
+                    array[12],array[13],array[14],array[15]
+                );
+            }
+
+            #endif
 
         };
 

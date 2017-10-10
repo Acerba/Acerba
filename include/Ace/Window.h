@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Ace/IntTypes.h>
+#include <Ace/SmartPtr.h>
 #include <Ace/Types.h>
 
-#include <memory>
 
 namespace ace
 {

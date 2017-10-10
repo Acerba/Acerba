@@ -4,6 +4,11 @@
 #include <Ace/Matrix2.h>
 #include <Ace/Matrix3.h>
 #include <Ace/Matrix4.h>
+#include <Ace/Platform.h>
+
+#if ACE_DEBUG
+	#include <Ace/Log.h>
+#endif
 
 namespace ace
 {
@@ -61,6 +66,13 @@ namespace ace
 			@return matrix4
 			*/
 			Matrix4 ToMatrix4() const;
+
+			#if ACE_DEBUG
+				void Log(const char* msg = nullptr) const
+				{
+					Logger::LogDebug(msg, "S: ", scalar, "V: ", vector.x, vector.y, vector.z);
+				}
+			#endif
         };
     }
 }
