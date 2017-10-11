@@ -12,6 +12,7 @@
 #include <Ace/Framebuffer.h>
 
 #include <Ace/Sprite.h>
+#include <Ace/Drawable.h>
 
 namespace ace
 {
@@ -149,6 +150,8 @@ namespace ace
 		*/
 		static void Draw(const class Entity& entity);
 
+
+        static void Draw(const Drawable& drawable);
 
 		/**
 			@brief CreateBuffer

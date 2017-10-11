@@ -29,6 +29,12 @@ namespace ace
 
 	}
 
+
+    SpriteSheet::SpriteSheet(const Image& image) : image(image)
+    {
+
+    }
+
 	SpriteSheet::SpriteSheet(const Path& path) : image(nullptr, 0, 0, PixelFormat::Unknown)
 	{
 		Json Jameson;
@@ -70,12 +76,7 @@ namespace ace
 				float w = root["sprites"][i]["w"].GetUint();
 				float h = root["sprites"][i]["h"].GetUint();
 					
-				Data.SpriteName = spriteName;
-
-				Data.location = Rect(x, y, w, h);
-				Data.texcoord = Rect(x / image.w, y / image.h, w / image.w, h / image.h);
-
-				sprites.push_back(Data);
+                AddSprite(spriteName, Rect(x / image.w, y / image.h, w / image.w, h / image.h));
 			}
 		}
 		else
@@ -86,8 +87,15 @@ namespace ace
 
 	SpriteSheet::~SpriteSheet()
 	{
-		
+
 	}
+
+    void SpriteSheet::AddSprite(std::string name, const Rect& location)
+    {
+        SpriteData data{ name, location };
+        data.texcoord = Rect(location.x / image.w, location.y / image.h, location.width / image.w, location.height / image.h);
+        sprites.push_back(data);
+    }
 
 	UInt32 SpriteSheet::GetSpriteCount() const
 	{

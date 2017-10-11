@@ -525,6 +525,29 @@ namespace ace
 		Draw(0, 6, indexTable);
 	}
 
+    void GraphicsDevice::Draw(const Drawable& drawable)
+    {
+        static const Drawable* s_current = nullptr;
+
+        if (s_current == &drawable)
+        {
+            // Blocks Recursion...
+            return;
+        }
+
+        if (s_current == nullptr)
+        {
+            s_current = &drawable;
+        }
+
+        drawable.Draw();
+
+        if (s_current == &drawable)
+        {
+            s_current = nullptr;
+        }
+    }
+
 	void GraphicsDevice::SetMaterialFlags(const Material& material)
 	{
 		static const UInt32 GLBlendModes[] = {

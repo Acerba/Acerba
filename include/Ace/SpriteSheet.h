@@ -28,16 +28,15 @@ namespace ace
 			*/
 			std::string SpriteName;
 
+            /**
+            @brief sprite location
+            */
+            Rect location;
+
 			/**
 				@brief texcoord Sprite's texture coordinates
 			*/
 			Rect texcoord;
-
-			/**
-				@brief sprite location
-			*/
-			Rect location;
-
 		};
 
 		SpriteSheet();
@@ -48,6 +47,7 @@ namespace ace
 			@param[in] jsonName Json file name
 		*/
 		SpriteSheet(const Path& path);
+        SpriteSheet(const Image& image);
 		~SpriteSheet();
 
 		/**
@@ -73,6 +73,13 @@ namespace ace
 		*/
 		const SpriteData* GetSprite(UInt32 index) const;
 		SpriteData* GetSprite(UInt32 index);
+
+        /**
+            @brief Adds Sprite to SpriteSheet
+            @param[in] name, unique name of sprite
+            @param[in] location, (non normalized) location of sprite
+        */
+        void AddSprite(std::string name, const Rect& location);
 
 	private:
 		std::vector<SpriteData> sprites;
