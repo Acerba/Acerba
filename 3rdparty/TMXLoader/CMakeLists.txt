@@ -1,8 +1,0 @@
-cmake_minimum_required(VERSION 2.8)
-
-project(TMXLOADER)
-
-set(INCLUDES ${TMXLOADER_SOURCE_DIR}/TMXLoader ${TMXLOADER_SOURCE_DIR}/TMXLoader/RapidXML)
-file(GLOB SOURCES ${TMXLOADER_SOURCE_DIR}/TMXLoader/*)
-
-BuildLibrary(TMXLoader STATIC)

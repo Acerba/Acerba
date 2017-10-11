@@ -11,7 +11,7 @@ BuildBegin()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 #list( APPEND CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 
 
@@ -25,6 +25,14 @@ add_subdirectory(${ACERBA_SOURCE_DIR}/3rdparty)
 find_package(OpenGL)
 
 file(GLOB SOURCES ${ACERBA_SOURCE_DIR}/src/Ace/*.cpp ${ACERBA_SOURCE_DIR}/include/Ace/*)
+set(ACERBA_INDLUCES 
+    ${ACERBA_SOURCE_DIR}/3rdparty/rapidjson/include
+    ${ACERBA_SOURCE_DIR}/3rdparty/imgui/include
+    ${ACERBA_SOURCE_DIR}/3rdparty/TMXLite/include
+    CACHE INTERNAL ""
+)
+
+
 set(INCLUDES
     ${ACERBA_SOURCE_DIR}/include
     ${ACERBA_SOURCE_DIR}/3rdparty/SDL2/include
@@ -32,28 +40,20 @@ set(INCLUDES
     ${ACERBA_SOURCE_DIR}/3rdparty/gl3w/include/
     ${ACERBA_SOURCE_DIR}/3rdparty/stb/
     ${ACERBA_SOURCE_DIR}/3rdparty/OALWrapper/include/
-    ${ACERBA_SOURCE_DIR}/3rdparty/rapidjson/include
     ${ACERBA_SOURCE_DIR}/3rdparty/vorbis/include
     ${ACERBA_SOURCE_DIR}/3rdparty/ogg/include
-    ${ACERBA_SOURCE_DIR}/3rdparty/imgui/include
-    ${ACERBA_SOURCE_DIR}/3rdparty/TMXLoader/TMXLoader
+    ${ACERBA_INDLUCES}
 )
 
-set(ACERBA_INDLUCES 
-    ${ACERBA_SOURCE_DIR}/3rdparty/rapidjson/include
-    ${ACERBA_SOURCE_DIR}/3rdparty/imgui/include
-    ${ACERBA_SOURCE_DIR}/3rdparty/TMXLoader/TMXLoader
-    CACHE INTERNAL ""
-)
 
 if (ANDROID)
     set(DEFINES ANDROID GL_GLEXT_PROTOTYPES)
-    set(LIBS SDL2 android log openal OALWrapper dl GLESv1_CM GLESv2 imgui TMXLoader)
+    set(LIBS SDL2 android log openal OALWrapper dl GLESv1_CM GLESv2 imgui tmxlite)
 elseif (UNIX)
     set(DEFINES UNIX GL_GLEXT_PROTOTYPES)
-    set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui TMXLoader openal)
-else()
-    set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui TMXLoader ${ACERBA_SOURCE_DIR}/3rdparty/AL/OpenAL32.lib)
+    set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui tmxlite openal)
+else() 
+    set(LIBS SDL2 SDL2main gl3w ${OPENGL_gl_LIBRARY} OALWrapper imgui tmxlite ${ACERBA_SOURCE_DIR}/3rdparty/AL/OpenAL32.lib)
 endif()
 
 
