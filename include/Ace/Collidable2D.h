@@ -32,23 +32,25 @@ namespace ace
         virtual ~Collidable2D() = 0;
 
         /**
-        @brief Checks if the point is in or on the Collidable.
-        @param[in] point Point in same coordinate system as the Collidable to check.
-        @return True if the point is inside or touching the Collidable.
+            @brief Checks if the point is in or on the Collidable.
+            @param[in] point Point in same coordinate system as the Collidable to check.
+            @return True if the point is inside or touching the Collidable.
         */
         virtual bool IsColliding(const CVT& point) const = 0;
 
         /**
-        @brief Checks if the Collidables are touching.
-        @param[in] a An object derived from Collidable2D.
-        @param[in] b An object derived from Collidable2D.
-        @warning Requires specializations if using custom Collidables.
-        @return True if the Collidables are touching or overlapping.
+            @brief Checks if the Collidables are touching.
+            @param[in] a An object derived from Collidable2D.
+            @param[in] b An object derived from Collidable2D.
+            @return True if the Collidables are touching or overlapping.
         */
-        template <typename A, typename B>
-        static bool IsColliding(const A& a, const B& b);
+        static bool IsColliding(const Collidable2D& a, const Collidable2D& b);
 
         inline const CVT& GetPosition() const
+        {
+            return m_position;
+        }
+        inline CVT& GetPosition()
         {
             return m_position;
         }
