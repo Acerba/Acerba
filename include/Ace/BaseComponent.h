@@ -1,16 +1,17 @@
 #pragma once
 
+#include <Ace/EntityHandle.h>
+
 namespace ace
 {
-
-    class Entity;
     class Transform;
+    class Entity;
 
     struct BaseComponent
     {
-        BaseComponent(const Entity& entity);
+        BaseComponent(Entity& entity);
 
-        const Entity* entity;
-        const Transform* transform;
+        EntityHandle* const entity;
+        Transform* const  transform;
     };
 }

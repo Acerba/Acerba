@@ -3,8 +3,8 @@
 
 namespace ace
 {
-    BaseComponent::BaseComponent(const Entity& entity) :
-        entity(&entity), transform(&entity->transform)
+    BaseComponent::BaseComponent(Entity& entity) :
+        entity(entity), transform(&entity->transform)
     {
 
     }

@@ -213,10 +213,24 @@ namespace ace
         {
             return m_handle;
         }
+
         inline EntityManager::EntityHandle* operator->()
         {
             return m_handle;
         }
+
+
+
+        inline operator EntityManager::EntityHandle*() const
+        {
+            return m_handle;
+        }
+
+        inline operator EntityManager::EntityHandle*()
+        {
+            return m_handle;
+        }
+
 
         /**
         @brief Checks whether the entity is valid.
