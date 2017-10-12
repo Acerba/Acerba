@@ -8,4 +8,9 @@ namespace ace
     {
 
     }
+
+    void BaseComponent::operator=(const BaseComponent& base)
+    {
+
+    }
 }

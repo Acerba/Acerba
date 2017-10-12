@@ -9,9 +9,12 @@ namespace ace
 
     struct BaseComponent
     {
+        EntityHandle* const entity;
+        Transform* const transform;
+
         BaseComponent(Entity& entity);
 
-        EntityHandle* const entity;
-        Transform* const  transform;
+        void operator=(const BaseComponent& base);
+
     };
 }
