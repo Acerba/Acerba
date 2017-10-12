@@ -49,7 +49,7 @@ namespace ace
 		Texcoord(sprite->texcoord);
 	}
 
-	void Sprite::SetSprite(const SpriteSheet::SpriteData* sprite, float scale)
+	void Sprite::SetSprite(const SpriteSheet::SpriteData* sprite, float scale, float base)
 	{
 		if (sprite == nullptr)
 		{
@@ -57,7 +57,7 @@ namespace ace
 		}
 
 		Texcoord(sprite->texcoord);
-		Scale(Vector2(sprite->location.width / 1000.0f, sprite->location.height / 1000.0f) * scale);
+		Scale(Vector2(sprite->location.width / base, sprite->location.height / base) * scale);
 
 	}
 

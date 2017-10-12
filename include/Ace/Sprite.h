@@ -47,7 +47,7 @@ namespace ace
         void Scale(const Texture& texture, float scale = 1);
 
 		void SetSprite(const SpriteSheet::SpriteData* sprite);
-		void SetSprite(const SpriteSheet::SpriteData* sprite, float scale);
+		void SetSprite(const SpriteSheet::SpriteData* sprite, float scale, float base = 1000.0f);
 
 		/**
 		@Brief Move sprite from current location to new location
