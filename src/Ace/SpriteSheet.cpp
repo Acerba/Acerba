@@ -76,7 +76,7 @@ namespace ace
 				float w = root["sprites"][i]["w"].GetUint();
 				float h = root["sprites"][i]["h"].GetUint();
 					
-                AddSprite(spriteName, Rect(x / image.w, y / image.h, w / image.w, h / image.h));
+                AddSprite(spriteName, Rect(x, y, w, h));
 			}
 		}
 		else
