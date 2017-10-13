@@ -105,7 +105,7 @@ namespace ace
 			}
 		}
 
-        void CreateLayers(float scale, const Vector3& pivot, ReadTilemap callback)
+        void CreateLayers(float scale, const Vector3& pivot, ReadTilemap callback, void* arg)
         {
             UInt32 col = map.getTileCount().x, row = map.getTileCount().y;
             tmx::Vector2u tileSize = map.getTileSize();
@@ -155,7 +155,7 @@ namespace ace
 
 						if (callback != nullptr)
 						{
-							callback(sprite, tile.ID, i);
+							callback(sprite, tile.ID, i, arg);
 						}
 
                         layer.tiles.push_back(sprite);
@@ -168,10 +168,10 @@ namespace ace
         }
     };
 
-    Tilemap::Tilemap(const Path& map, float scale, const Vector3& pivot, ReadTilemap callback) : Drawable(), m_tiledImpl(new TiledImpl(map))
+    Tilemap::Tilemap(const Path& map, float scale, const Vector3& pivot, ReadTilemap callback, void* arg) : Drawable(), m_tiledImpl(new TiledImpl(map))
     {
         tileset = m_tiledImpl->GetTileset();
-        m_tiledImpl->CreateLayers(scale, pivot, callback);
+        m_tiledImpl->CreateLayers(scale, pivot, callback, arg);
     }
 
     Tilemap::~Tilemap()

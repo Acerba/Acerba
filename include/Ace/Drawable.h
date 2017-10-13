@@ -31,7 +31,7 @@ namespace ace
     {
     public:
 
-		typedef void(*ReadTilemap)(Sprite& sprite, UInt32 id, UInt32 layer);
+		typedef void(*ReadTilemap)(Sprite& sprite, UInt32 id, UInt32 layer, void* arg);
 
         struct TileLayer : public Drawable
         {
@@ -49,7 +49,7 @@ namespace ace
 
         Texture tileset;
 
-        Tilemap(const Path& map, float scale = 1.0, const Vector3& pivot = Vector3(0.5, 0.5, 0), ReadTilemap callback = nullptr);
+        Tilemap(const Path& map, float scale = 1.0, const Vector3& pivot = Vector3(0.5, 0.5, 0), ReadTilemap callback = nullptr, void* arg = nullptr);
         ~Tilemap();
 
         UInt32 LayersCount() const;
