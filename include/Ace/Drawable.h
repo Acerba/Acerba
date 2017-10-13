@@ -10,6 +10,11 @@
 #include <memory>
 #include <vector>
 
+
+
+// TEMP
+#include <tmxlite/Map.hpp>
+
 namespace ace
 {
     struct Drawable
@@ -25,6 +30,8 @@ namespace ace
     class Tilemap : public Drawable
     {
     public:
+
+		typedef void(*ReadTilemap)(Sprite& sprite, UInt32 id, UInt32 layer, void* arg);
 
         struct TileLayer : public Drawable
         {
@@ -42,7 +49,7 @@ namespace ace
 
         Texture tileset;
 
-        Tilemap(const Path& map, float scale = 1.0, const Vector3& pivot = Vector3(0.5, 0.5, 0));
+        Tilemap(const Path& map, float scale = 1.0, const Vector3& pivot = Vector3(0.5, 0.5, 0), ReadTilemap callback = nullptr, void* arg = nullptr);
         ~Tilemap();
 
         UInt32 LayersCount() const;
@@ -52,5 +59,7 @@ namespace ace
         const SpriteSheet& GetSpriteSheet() const;
 
         virtual void Draw() const;
+
+		tmx::Map& GetMap();
     };
 }

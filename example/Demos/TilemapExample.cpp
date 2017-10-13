@@ -4,7 +4,17 @@
 
 #include <Ace/Ace.h>
 
-int main(int, char**) 
+void TileCallback(ace::Sprite& sprite, ace::UInt32 ID, ace::UInt32 layer, void* data)
+{
+	ace::Vector3 center = sprite.GetCenter();
+	printf("%i %i: (%.1f %.1f %.1f)\n", layer, ID, center.x, center.y, center.z);
+
+	// tileCount
+	++(*static_cast<ace::UInt32*>(data));
+
+}
+
+int main(int, char**)
 {
 	// Initialize Acerba
 	ace::Init();
@@ -12,17 +22,21 @@ int main(int, char**)
 	// Create window
 	ace::Window window("Tilemap_demo", 1024u, 768u);
 
+	ace::UInt32 tileCount = 0;
 
 	// REQUIRES: map.tmx file!
 	// Loads tilemap
-	ace::Tilemap tilemap("Assets/map.tmx", 1.0f, ace::Vector3(0.5,0.5,0));
+	ace::Tilemap tilemap("Assets/map.tmx", 1.0f, ace::Vector3(0.5, 0.5, 0));
+
+	// Loads tilemap with callback
+	//ace::Tilemap tilemap("Assets/map.tmx", 1.0f, ace::Vector3(0.5, 0.5, 0), TileCallback, &tileCount);
 
 	// Create a material
 	ace::StandardMaterial tilemapMaterial;
 
 	// Sets tilemap texture
 	tilemapMaterial->diffuse = tilemap.tileset;
-	
+
 	// Sets tilemap material
 	ace::GraphicsDevice::SetMaterial(tilemapMaterial);
 

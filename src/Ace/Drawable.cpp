@@ -105,7 +105,7 @@ namespace ace
 			}
 		}
 
-        void CreateLayers(float scale, const Vector3& pivot)
+        void CreateLayers(float scale, const Vector3& pivot, ReadTilemap callback, void* arg)
         {
             UInt32 col = map.getTileCount().x, row = map.getTileCount().y;
             tmx::Vector2u tileSize = map.getTileSize();
@@ -136,20 +136,14 @@ namespace ace
                         if (tile.ID == 0)
                             continue;
                         
-						// TODO: Position (Offset)
 						Vector2 pos(x, y);
 	
-						// Texcoord or SetSprite...
-						// TODO: Scale
-						//sprite.SetSprite(sheet.GetSprite(tile.ID), 10.0f);
-
 						// Begin
 						Sprite sprite = begin(pos);
 
 						// Update
 						// TODO: Flip
 						sprite.SetSprite(sheet.GetSprite(tile.ID), realScale, sheet.image.scale);
-						//sprite.Texcoord(sheet.GetSprite(tile.ID)->texcoord);
 
                         sprite.Move(Vector3(pos.x * scale, (row- pos.y) * scale, i));
 
@@ -159,6 +153,10 @@ namespace ace
 
 						sprite.Move(Vector3(offset.x * -pivot.x * scale, offset.y * -pivot.y * scale, pivot.z));
 
+						if (callback != nullptr)
+						{
+							callback(sprite, tile.ID, i, arg);
+						}
 
                         layer.tiles.push_back(sprite);
                     }
@@ -170,10 +168,10 @@ namespace ace
         }
     };
 
-    Tilemap::Tilemap(const Path& map, float scale, const Vector3& pivot) : Drawable(), m_tiledImpl(new TiledImpl(map))
+    Tilemap::Tilemap(const Path& map, float scale, const Vector3& pivot, ReadTilemap callback, void* arg) : Drawable(), m_tiledImpl(new TiledImpl(map))
     {
         tileset = m_tiledImpl->GetTileset();
-        m_tiledImpl->CreateLayers(scale, pivot);
+        m_tiledImpl->CreateLayers(scale, pivot, callback, arg);
     }
 
     Tilemap::~Tilemap()
@@ -222,4 +220,9 @@ namespace ace
             GraphicsDevice::Draw(tiles[i]);
         }
     }
+
+	tmx::Map& Tilemap::GetMap()
+	{
+		return m_tiledImpl->map;
+	}
 }

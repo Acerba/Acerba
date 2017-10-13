@@ -29,13 +29,13 @@ set(ACERBA_INDLUCES
     ${ACERBA_SOURCE_DIR}/3rdparty/rapidjson/include
     ${ACERBA_SOURCE_DIR}/3rdparty/imgui/include
     ${ACERBA_SOURCE_DIR}/3rdparty/TMXLite/include
+    ${ACERBA_SOURCE_DIR}/3rdparty/SDL2/include
     CACHE INTERNAL ""
 )
 
 
 set(INCLUDES
     ${ACERBA_SOURCE_DIR}/include
-    ${ACERBA_SOURCE_DIR}/3rdparty/SDL2/include
     ${ACERBA_SOURCE_DIR}/3rdparty/Khronos
     ${ACERBA_SOURCE_DIR}/3rdparty/gl3w/include/
     ${ACERBA_SOURCE_DIR}/3rdparty/stb/

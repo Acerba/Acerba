@@ -106,6 +106,11 @@ namespace ace
 		void SetScale(const Vector2& scale);
 		void SetScale(const Texture& texture, float scale = 1);
 
+		/**
+			@return Sprites local position.
+		*/
+		Vector3 GetCenter() const;
+
 		void SetInstanceID(UInt8 id);
     };
 
