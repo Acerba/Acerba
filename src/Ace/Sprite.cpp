@@ -183,4 +183,16 @@ namespace ace
 			vertexData[i].position.y = triangle[i].position.y * scale * texture.size.y / texture.scale;
 		}
 	}
+
+	Vector3 Sprite::GetCenter() const
+	{
+		Vector3 position;
+
+		for (Int32 i = 0; i < Sprite::size; ++i)
+		{
+			position += vertexData[i].position;
+		}
+
+		return position / Sprite::size;
+	}
 }
