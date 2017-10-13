@@ -25,32 +25,32 @@ int main()
 		ace::Update();
 
 		//Close window by pressing F1
-		if (ace::Keyboard::KeyPressed(ace::KeyCode::F1))
+		if (ace::Keyboard::GetKey("F1"))
 		{
 			ace::Time::Delay(100);
 			window.Close();
 		}
 
 		//Change window color by pressing A
-		if (ace::Keyboard::KeyPressed(ace::KeyCode::A))
+		if (ace::Keyboard::GetKey("A"))
 		{
 			window.SetClearColor(Red); 
 		}
 
 		//Change window color by pressing W
-		if (ace::Keyboard::KeyPressed(ace::KeyCode::W))
+		if (ace::Keyboard::GetKey("W"))
 		{
 			window.SetClearColor(Green);
 		}
 
 		//Change window color by pressing S
-		if (ace::Keyboard::KeyPressed(ace::KeyCode::S))
+		if (ace::Keyboard::GetKey("S"))
 		{
 			window.SetClearColor(Blue);
 		}
 
 		//Change window color by pressing D
-		if (ace::Keyboard::KeyPressed(ace::KeyCode::D))
+		if (ace::Keyboard::GetKey("D"))
 		{
 			window.SetClearColor(White);
 		}
