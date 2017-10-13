@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 13.10.2017
+
+### Added
+
+- Drawable base
+- Tilemap support
+
+### Changed
+
+- Spritesheet
+- Keyboards
+- Materials & Uniforms, reworked
+- BaseComponent, fixed constants
+- Path, added operators and absolute path
 
 ## 29.09.2017
 ### Added
