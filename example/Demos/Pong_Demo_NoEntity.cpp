@@ -36,9 +36,9 @@ void FlipSprite(ace::Sprite& sprite)
 //	This will draw sprites
 void drawSprite(ace::Sprite& sprite, ace::StandardMaterial& material, ace::Texture& texture, const ace::Vector2& position, const ace::Vector2& scale)
 {
-	material.position = position;
-	material.scale = scale;
-	material.diffuse = texture;
+	material->position = position;
+	material->scale = scale;
+	material->diffuse = texture;
 	ace::GraphicsDevice::Draw(sprite);
 }
 
@@ -125,11 +125,11 @@ int main(int, char**)
 	ace::Sprite s_Enemy(90.0f);
 	ace::Sprite s_Player(90.0f);
 
-	//	Change enemy sprite size to maximize difficulty
-	s_Enemy.vertexData[0].uv.y /= 2.0f;
-	s_Enemy.vertexData[1].uv.y /= 2.0f;
-	s_Enemy.vertexData[2].uv.y /= 2.0f;
-	s_Enemy.vertexData[3].uv.y /= 2.0f;
+	//	Turn enemy sprite towards center
+	s_Enemy.vertexData[0].uv.y *= 0.5f;
+	s_Enemy.vertexData[1].uv.y *= 0.5f;
+	s_Enemy.vertexData[3].uv.y *= 0.5f;
+	s_Enemy.vertexData[2].uv.y *= 0.5f;
 
 	//	Add and load animation
 	ace::Animation ani_Number(ss_Numbers);
@@ -142,7 +142,7 @@ int main(int, char**)
 	ace::Texture tex_Number(ss_Numbers.image);
 
 	//	Load standart material
-	ace::StandardMaterial mat_Standart;
+	ace::StandardMaterial mat_Standard;
 
 	//	Create and load font
 	ace::Font font_Arial(ace::File("assets/arial.ttf"));
@@ -199,7 +199,7 @@ int main(int, char**)
 		ace::Update();
 
 		//	Exit command in F1 button
-		if (ace::Keyboard::KeyPressed(ace::KeyCode::F1))
+		if (ace::Keyboard::GetKey("F1"))
 		{
 			//	Add small delay and close window
 			ace::Time::Delay(100);
@@ -284,7 +284,7 @@ int main(int, char**)
 			yMove = -yMove;
 		}
 
-		//	Make ball movement logic
+		//	Make ball movement logic on X-axis
 		if (isBallMovingRight)
 		{
 			vec2_BallPos += ace::Vector2{ xMove, yMove };
@@ -314,7 +314,7 @@ int main(int, char**)
 		}
 
 		//	Create losing condition
-		if (vec2_BallPos.x > 0.95f)
+		if (vec2_BallPos.x >= 0.9f)
 		{
 			//	Stop ball movement
 			xMove = 0.0f;
@@ -327,7 +327,7 @@ int main(int, char**)
 			}
 
 			//	Add delay
-			ace::Time::Delay(1000);
+			ace::Time::Delay(2250);
 
 			//Close window and exit while loop
 			window.Close();
@@ -361,6 +361,7 @@ int main(int, char**)
 				vec2_PlayerPos.y = -0.74f;
 			}
 		}
+
 		//	If current device is android, use this preset
 #elif ACE_ANDROID
 
@@ -388,35 +389,29 @@ int main(int, char**)
 		//	Clear window 
 		window.Clear();
 
-		//	Draw number "animation" (actually sprite)
-		drawSprite(s_Number, mat_Standart, tex_Number, { 0.f,0.f }, { 1.f,1.f });
+		//	Draw number "animation"
+		drawSprite(s_Number, mat_Standard, tex_Number, { 0.f,0.f }, { 0.5f,0.5f });
 
 		//	Draw enemy, player and ball
-		drawSprite(s_Enemy, mat_Standart, tex_Enemy, vec2_EnemyPos, { 0.2f,2.0f });
-		drawSprite(s_Player, mat_Standart, tex_Player, vec2_PlayerPos, { 0.2f,0.5f });
-		drawSprite(s_Ball, mat_Standart, tex_Ball, vec2_BallPos, { 0.2f,0.2f });
+		drawSprite(s_Enemy, mat_Standard, tex_Enemy, vec2_EnemyPos, { 0.2f,2.0f });
+		drawSprite(s_Player, mat_Standard, tex_Player, vec2_PlayerPos, { 0.2f,0.5f });
+		drawSprite(s_Ball, mat_Standard, tex_Ball, vec2_BallPos, { 0.2f,0.2f });
 
 		//	Draw score text and score
-
-
-		mat_Standart.position = vec2_ScorePos;
-		mat_Standart.scale = ace::Vector2{ 0.01f,0.01f };
-		mat_Standart.diffuse = tex_FontSheet;
+		mat_Standard->position = vec2_ScorePos;
+		mat_Standard->scale = ace::Vector2{ 0.01f,0.01f };
+		mat_Standard->diffuse = tex_FontSheet;
 		ace::GraphicsDevice::SetBuffer(buf_Text);
 		ace::Int32 TextBufferSize = buf_Text.size / (ScoreWord)* (i % (ScoreWord)+1);
 		ace::GraphicsDevice::Draw(TextBufferSize * 6, 0);
 
-		mat_Standart.position = vec2_ScorePos - ace::Vector2{ 0,0.2f };
-		mat_Standart.scale = ace::Vector2{ 0.01f,0.01f };
-		mat_Standart.diffuse = tex_FontSheet;
+		mat_Standard->position = vec2_ScorePos - ace::Vector2{ 0,0.2f };
+		mat_Standard->scale = ace::Vector2{ 0.01f,0.01f };
+		mat_Standard->diffuse = tex_FontSheet;
 		ace::GraphicsDevice::SetBuffer(buf_Score);
 		ScoreWord = str_Score.size();
 		TextBufferSize = buf_Score.size / (ScoreWord)* (i % (ScoreWord)+1);
 		ace::GraphicsDevice::Draw(TextBufferSize * 6, 0);
-
-		//Debug Stuff
-		//std::cout << vec2_BallPos.x << "   " << vec2_BallPos.y << "\n";
-		std::cout << xMove << "  " << yMove << "\n";
 
 		//	Window updating
 		window.Present();

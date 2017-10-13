@@ -43,7 +43,7 @@ namespace ace
 																//TODO: Is this correct way to tell this??
 		/**
 			@brief Play animation
-			@param[in] animationName Name of the anmiation/frame			
+			@param[in] animationName Name of the animiation/frame			
 		*/
 		void PlayAnimation(const std::string& animationName);
 
