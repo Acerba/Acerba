@@ -1,6 +1,8 @@
 #include <Ace/Drawable.h>
 #include <Ace/GraphicsDevice.h>
 
+#include <Ace/Math.h>
+
 #include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
 
@@ -61,13 +63,59 @@ namespace ace
             return nullptr;
         }
 
-        void CreateLayers()
-        {
+		typedef Sprite(*SpriteBeginCallback)(Vector2& position);
+		typedef void(*SpriteEndCallback)(Sprite& sprite, Vector2& pivot);
 
+		static Sprite BeginSprite(Vector2& position)
+		{
+			return Sprite();
+		}
+
+		static void EndSprite(Sprite& sprite, Vector2& pivot)
+		{
+			pivot.x *= 0.8f;
+			pivot.y *= 1.15f;
+		}
+
+		static Sprite BeginSpriteIsometric(Vector2& position)
+		{
+			position *= 0.7f;
+			return Sprite(45);
+		}
+
+		static void EndSpriteIsometric(Sprite& sprite, Vector2& pivot)
+		{
+			pivot.x *= 1.4f;
+			pivot.y *= 0.6f;
+			sprite.Rotate(-45);
+		}
+
+		static void GetSpriteCallback(const tmx::Orientation& orientation, SpriteBeginCallback& begin, SpriteEndCallback& end)
+		{
+			switch (orientation)
+			{
+			case tmx::Orientation::Isometric:
+				begin = BeginSpriteIsometric;
+				end = EndSpriteIsometric;
+				break;
+
+			default:
+				begin = BeginSprite;
+				end = EndSprite;
+			}
+		}
+
+        void CreateLayers(float scale, const Vector3& pivot)
+        {
             UInt32 col = map.getTileCount().x, row = map.getTileCount().y;
             tmx::Vector2u tileSize = map.getTileSize();
 
-            for (Int32 i = 0; i < map.getLayers().size(); ++i)
+			SpriteBeginCallback begin = nullptr;
+			SpriteEndCallback end = nullptr;
+
+			GetSpriteCallback(map.getOrientation(), begin, end);
+
+			for (Int32 i = 0; i < map.getLayers().size(); ++i)
             {
                 TileLayer layer;
                 tmx::TileLayer* tileLayer = dynamic_cast<tmx::TileLayer*>(map.getLayers()[i].get());
@@ -77,28 +125,41 @@ namespace ace
                     continue;
                 }
 
-                const float SCALE = 10.0f;
+				float realScale = scale * math::Max(tileSize.x, tileSize.y);
 
                 for (Int32 y = 0; y < row; ++y)
                 {
                     for (Int32 x = 0; x < col; ++x)
                     {
-                        Sprite sprite;
                         const tmx::TileLayer::Tile& tile = tileLayer->getTiles()[x + y * col];
 
-                        // TODO: Position (Offset)
                         if (tile.ID == 0)
                             continue;
                         
-                        // Texcoord or SetSprite...
-                        // TODO: Scale
-                        sprite.Texcoord(sheet.GetSprite(tile.ID)->texcoord);
-                        //sprite.SetSprite(sheet.GetSprite(tile.ID), 10.0f);
+						// TODO: Position (Offset)
+						Vector2 pos(x, y);
+	
+						// Texcoord or SetSprite...
+						// TODO: Scale
+						//sprite.SetSprite(sheet.GetSprite(tile.ID), 10.0f);
+
+						// Begin
+						Sprite sprite = begin(pos);
+
+						// Update
+						// TODO: Flip
+						sprite.SetSprite(sheet.GetSprite(tile.ID), realScale, sheet.image.scale);
+						//sprite.Texcoord(sheet.GetSprite(tile.ID)->texcoord);
+
+                        sprite.Move(Vector3(pos.x * scale, (row- pos.y) * scale, i));
+
+						// End
+						Vector2 offset(col, row);
+						end(sprite, offset);
+
+						sprite.Move(Vector3(offset.x * -pivot.x * scale, offset.y * -pivot.y * scale, pivot.z));
 
 
-                        // TODO: Flip
-
-                        sprite.Move(Vector3(x, (row-y), 0));
                         layer.tiles.push_back(sprite);
                     }
                 }
@@ -109,10 +170,10 @@ namespace ace
         }
     };
 
-    Tilemap::Tilemap(const Path& map) : Drawable(), m_tiledImpl(new TiledImpl(map))
+    Tilemap::Tilemap(const Path& map, float scale, const Vector3& pivot) : Drawable(), m_tiledImpl(new TiledImpl(map))
     {
         tileset = m_tiledImpl->GetTileset();
-        m_tiledImpl->CreateLayers();
+        m_tiledImpl->CreateLayers(scale, pivot);
     }
 
     Tilemap::~Tilemap()

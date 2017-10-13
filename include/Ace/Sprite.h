@@ -102,6 +102,10 @@ namespace ace
 		*/
 		void SetPosition(UInt8 index, const Vector2& position);
 
+
+		void SetScale(const Vector2& scale);
+		void SetScale(const Texture& texture, float scale = 1);
+
 		void SetInstanceID(UInt8 id);
     };
 

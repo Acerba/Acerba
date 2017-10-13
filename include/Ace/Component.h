@@ -52,7 +52,8 @@ namespace ace
         {
             static CompType Clone(void* comp)
             {
-                return **static_cast<Type*>(comp);
+				// Memory Copy?
+                return static_cast<Type*>(comp);
             }
         };
 

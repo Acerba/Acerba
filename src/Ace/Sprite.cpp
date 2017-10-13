@@ -74,8 +74,8 @@ namespace ace
 	{
         for (int i = 0; i < Sprite::size; ++i)
         {
-            vertexData[i].position.x = triangle[i].position.x * scale.x;
-            vertexData[i].position.y = triangle[i].position.y * scale.y;
+            vertexData[i].position.x = vertexData[i].position.x * scale.x;
+            vertexData[i].position.y = vertexData[i].position.y * scale.y;
         }
 	}
 
@@ -83,8 +83,8 @@ namespace ace
     {
         for (int i  = 0; i < Sprite::size; ++i)
         {
-            vertexData[i].position.x = triangle[i].position.x * scale * texture.size.x / texture.scale;
-            vertexData[i].position.y = triangle[i].position.y * scale * texture.size.y / texture.scale;
+            vertexData[i].position.x = vertexData[i].position.x * scale * texture.size.x / texture.scale;
+            vertexData[i].position.y = vertexData[i].position.y * scale * texture.size.y / texture.scale;
         }
     }
 
@@ -165,4 +165,22 @@ namespace ace
 		vertexData[3].position.w = id;
 	}
 
+
+	void Sprite::SetScale(const Vector2& scale)
+	{
+		for (int i = 0; i < Sprite::size; ++i)
+		{
+			vertexData[i].position.x = triangle[i].position.x * scale.x;
+			vertexData[i].position.y = triangle[i].position.y * scale.y;
+		}
+	}
+
+	void Sprite::SetScale(const Texture& texture, float scale)
+	{
+		for (int i = 0; i < Sprite::size; ++i)
+		{
+			vertexData[i].position.x = triangle[i].position.x * scale * texture.size.x / texture.scale;
+			vertexData[i].position.y = triangle[i].position.y * scale * texture.size.y / texture.scale;
+		}
+	}
 }
