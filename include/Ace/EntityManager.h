@@ -118,6 +118,9 @@ namespace ace
         template <typename CompType>
         using UpdateCallback = void(*)(CompType&);
 
+        template <typename CompType>
+        using UpdateEntityCallback = void(*)(CompType&, EntityHandle*);
+
         /**
             @brief Set custom update function for all components of CompType.
             @param[in] callback Function to set as an update function. Gets called when entities are updated. See UpdateCallback
@@ -137,11 +140,38 @@ namespace ace
             return false;
         }
 
+        template <typename CompType>
+        bool SetUpdateCallback(UpdateEntityCallback<CompType> callback)
+        {
+            for (auto itr = m_componentPools.begin(); itr != m_componentPools.end(); ++itr)
+            {
+                if (ComponentPool<CompType>* pool = dynamic_cast<ComponentPool<CompType>*>(*itr))
+                {
+                    pool->SetUpdateCallback(callback);
+                    return true;
+                }
+            }
+            return false;
+        }
+
         /**
             @brief Update all component pools and contained components.
         */
         static void Update();
 
+         
+        template <typename CompType>
+        static bool SetDefaultUpdateCallback(UpdateCallback<CompType> callback, EntityManager& manager = DefaultManager())
+        {
+            return manager.SetUpdateCallback(callback);
+        }
+
+        template <typename CompType>
+        static bool SetDefaultUpdateCallback(UpdateEntityCallback<CompType> callback, EntityManager& manager = DefaultManager())
+        {
+            return manager.SetUpdateCallback(callback);
+        }
+ 
         /**
         @brief Executes 'function' for all components of 'PrimaryComponent' type, where they share a common owner entity with 'SecondaryType'.
         @param[in, out] function Function to execute.
@@ -239,6 +269,6 @@ namespace ace
 
     };
 
-
+    typedef EntityManager::EntityHandle EntityHandle;
 
 }

@@ -5,16 +5,30 @@
 #include <Ace/GraphicsDevice.h>
 #include <Ace/SpriteManager.h>
 
+#include <Ace/Platform.h>
+
+#if ACE_DEBUG
+    #include <Ace/Log.h>
+#endif
+
 namespace ace
 {
 
     void ComputeMatrices(Entity& entity, const math::Matrix4& parentModel)
     {
+        if (!entity)
+        {
+            #if ACE_DEBUG
+                Logger::LogDebug("ComputeMatrices null entity");
+            #endif
+
+            return;
+        }
+
         entity->transform.model =
-            (Matrix4::Scale(entity->transform.scale.x, entity->transform.scale.y, entity->transform.scale.z) *
-            entity->transform.rotation.ToMatrix4() *
-            Matrix4::Translation(entity->transform.position))
-            * parentModel;
+           (Matrix4::Scale(entity->transform.scale.x, entity->transform.scale.y, entity->transform.scale.z) *
+           entity->transform.rotation.ToMatrix4() *
+           Matrix4::Translation(entity->transform.position)) * parentModel;
 
         const UInt32 count = entity.ChildCount();
         for (UInt32 i = 0u; i < count; ++i)

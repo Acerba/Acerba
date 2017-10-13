@@ -34,7 +34,7 @@ namespace ace
         }
 
         manager.m_entities.erase(manager.m_entities.begin() + index);
-        entity->Destroy();
+        entity->DestroyComponents();
         delete entity;
         entity = nullptr;
     }

@@ -12,8 +12,6 @@
 
 int main(int, char**)
 {
-    static const ace::Color clearColor(127u, 127u, 127u, 0u);
-
     //Initialize Acerba
     ace::Init();
 
@@ -33,7 +31,7 @@ int main(int, char**)
         ace::Update();
 
         //Clear window
-        window.Clear(clearColor);
+        window.Clear();
 
         //UI begins
         //All UI groups must be between this and EndUI functions

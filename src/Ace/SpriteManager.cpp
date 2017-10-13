@@ -7,6 +7,7 @@
 #include <Ace/EntityHandle.h>
 #include <Ace/EntityManager.h>
 #include <Ace/GraphicsDevice.h>
+#include <Ace/Math.h>
 #include <Ace/Transform.h>
 
 #include <algorithm>
@@ -183,8 +184,10 @@ namespace ace
         //Find all entities that have both material and sprite
         for (UInt32 i = 0u; i < primaryPool.m_components.size(); ++i)
         {
-            if (primaryPool.m_handles[i]->entity->Count() > 1u && (secondary = primaryPool.m_handles[i]->entity->Get<Sprite>()) != nullptr)
-            {
+            if (
+                primaryPool.m_handles[i]->entity->ComponentCount() > 1u &&
+                (secondary = primaryPool.m_handles[i]->entity->GetComponentHandle<Sprite>()) != nullptr
+            ) {
                 bool added = false;
                 UInt32 start = 0u;
 

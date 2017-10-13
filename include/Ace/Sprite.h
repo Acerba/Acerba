@@ -2,6 +2,8 @@
 
 #include <Ace/Buffer.h>
 #include <Ace/Rect.h>
+#include <Ace/Texture.h>
+
 #include <array>
 
 namespace ace
@@ -40,6 +42,8 @@ namespace ace
 		@param[in] scale New size in Vector2
 		*/
 		void Scale(const Vector2& scale);
+
+        void Scale(const Texture& texture, float scale = 1);
 
 		/**
 		@Brief Move sprite from current location to new location

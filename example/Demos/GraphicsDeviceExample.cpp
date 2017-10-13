@@ -1,58 +1,67 @@
-#include <Ace\Ace.h>
+#include <Ace/Ace.h>
+#include <Ace/StandardMaterial.h>
 
 // This demo uses direct calls to GraphicsDevice to draw.
 
 int main(int, char**)
 {
-	ace::Init();
+    ace::Init();
 
-	ace::Window window("GraphicsDemo", 800, 600);
+    ace::Window window("GraphicsDemo", 800, 600);
 
-	// Create empty texture
-	ace::Texture exampleTexture;
+    // Create empty texture
+    ace::Texture exampleTexture;
 
-	// Try to find the file
-	if (ace::File::Exists("assets/TestImageFile.png"))
-	{
-		// Create an image and bind it to the texture
-		exampleTexture = ace::Image(ace::File("assets/TestImageFile.png"));
-	}
+    // Try to find the file
+    if (ace::File::Exists("../../../example/Demos/GraphicsDeviceExampleFiles/TestImageFile.png"))
+    {
+        // Create an image and bind it to the texture
+        exampleTexture = ace::Image(ace::File("../../../example/Demos/GraphicsDeviceExampleFiles/TestImageFile.png"));
+    }
+    else
+    {
+        exampleTexture = ace::Image::MissingFile();
+    }
 
-	// Load vertex and fragment shaders
-	ace::Shader fragment, vertex;
-	vertex.Load({ "assets/vertex.vert" }, ace::ShaderType::Vertex);
-	fragment.Load({ "assets/fragment.frag" }, ace::ShaderType::Fragment);
+    ace::GraphicsDevice::Enable(true, ace::Features::Blend);
 
-	// Material loading
-	ace::Material material(vertex, fragment);
-	material.flags.cullingMode = ace::CullingMode::Both;
+    // Material loading
+    ace::StandardMaterial material;
+    material.flags.cullingMode = ace::CullingMode::Both;
 
+    ace::Camera camera;
 
-	// Creating a sprite
-	ace::Sprite exampleSprite;
+    // Creating a sprite
+    ace::Sprite exampleSprite;
+    exampleSprite.Scale(exampleTexture, 1.0f);
 
-	while (window)
-	{
-		window.Clear();
-		ace::Update();
+    while (window)
+    {
+        window.Clear();
+        ace::Update();
 
-		// Drawing sprite
-		//First is position for material, second is scaling for material
-		material.Uniform("position", ace::Vector2(0.0f, 0.0f));
-		material.Uniform("scale", ace::Vector2(1.0f, 1.0f));
+        camera.Update(window); // Updates aspect ratio.
+        camera.Apply(material); // Updates material projection and view matrices.
 
-		// Set texture to GraphicsDevice
-		ace::GraphicsDevice::SetTexture(exampleTexture, "Texture", 0);
+        // Drawing sprite
+        //First is position for material, second is scaling for material
+        //material.position = ace::Vector2(0, 0);
+        // material.scale = ace::Vector2(2.0f, 1.0f);
 
-		// Draw the graphisDevice, uses testure from the bound texture
-		ace::GraphicsDevice::Draw(exampleSprite);
+        // Set texture to GraphicsDevice
+        material.diffuse = exampleTexture;
 
-		// Refrresh the screen
-		window.Present();
-	}
+        ace::GraphicsDevice::SetMaterial(material);
 
-	// Shutdown Acerba
-	ace::Quit();
+        // Draw the graphisDevice, uses testure from the bound texture
+        ace::GraphicsDevice::Draw(exampleSprite);
 
-	return 0;
+        // Refrresh the screen
+        window.Present();
+    }
+
+    // Shutdown Acerba
+    ace::Quit();
+
+    return 0;
 }

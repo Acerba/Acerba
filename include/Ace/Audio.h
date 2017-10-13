@@ -3,11 +3,11 @@
 #include <Ace/Vector3.h>
 #include <Ace/File.h>
 #include <Ace/Math.h>
+#include <Ace/SmartPtr.h>
 
 #include <Ace/Macros.h>
 
 #include <vector>
-#include <memory>
 
 namespace ace
 {

@@ -1,4 +1,5 @@
 #include <Ace/Matrix2.h>
+#include <Ace/Math.h>
 
 namespace ace
 {
@@ -20,10 +21,8 @@ namespace ace
 
 		float Matrix2::Determinant() const
 		{
-			Matrix2 m = *this;
-
-			return
-				m(0, 1)*m(1, 0) - m(1, 1)*m(0, 0);
+			const Matrix2& m = *this;
+			return m(0, 1)*m(1, 0) - m(1, 1)*m(0, 0);
 		}
 
 		Matrix2 Matrix2::Transpose() const
@@ -58,33 +57,32 @@ namespace ace
 
 		Matrix2 Matrix2::Adjunct() const
 		{
-			Matrix2 adj = Cofactor().Transpose();
-			return adj;
+			return Cofactor().Transpose();
 		}
 
 		Matrix2 Matrix2::operator*(const Matrix2& m) const
 		{
 			return Matrix2(
 				Vector2(rows[0].x*m(0, 0) + rows[0].y*m(1, 0), rows[0].x*m(0, 1) + rows[0].y*m(1, 1)),
-				Vector2(rows[1].x*m(0, 0) + rows[1].y*m(1, 0), rows[1].x*m(0, 1) + rows[1].y*m(1, 1)));
+				Vector2(rows[1].x*m(0, 0) + rows[1].y*m(1, 0), rows[1].x*m(0, 1) + rows[1].y*m(1, 1))
+			);
 		}
 
 		Vector2 Matrix2::operator*(const Vector2& o) const
 		{
 			return Vector2(
 				rows[0].x * o.x + rows[0].y * o.y,
-				rows[1].x * o.x + rows[1].y * o.y);
+				rows[1].x * o.x + rows[1].y * o.y
+			);
 		}
 
-		Matrix2 Matrix2::operator*(float s)const
+		Matrix2 Matrix2::operator*(float s) const
 		{
 			Matrix2 mat = *this;
-
 			for (int i = 0; i < 4; ++i)
 			{
 				mat.array[i] *= s;
 			}
-
 			return mat;
 		}
 
@@ -95,21 +93,20 @@ namespace ace
 
 		Matrix2 Matrix2::Scale(float x, float y)
 		{
-			Vector2 r1(x, 0.f);
-			Vector2 r2(0.f, y);
-			
-
-			return Matrix2(r1, r2);
+			return Matrix2(
+				Vector2(x, 0.f),
+				Vector2(0.f, y)
+			);
 		}
 
 
 		Matrix2 Matrix2::Rotation(float a)
 		{
 			a = Rad(a);
-			Vector2 r1(Cos(a), -Sin(a));
-			Vector2 r2(Sin(a), Cos(a));
-
-			return Matrix2(r1, r2);
+			return Matrix2(
+				Vector2(Cos(a), -Sin(a)),
+				Vector2(Sin(a), Cos(a))
+			);
 		}
 	}
 }

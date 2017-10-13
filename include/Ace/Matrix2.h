@@ -2,7 +2,11 @@
 
 #include <Ace/Vector2.h>
 #include <Ace/IntTypes.h>
+#include <Ace/Platform.h>
 
+#if ACE_DEBUG
+	#include <Ace/Log.h>
+#endif
 
 namespace ace
 {
@@ -67,10 +71,10 @@ namespace ace
 			*/
 			static Matrix2 Scale(float x, float y);
 			/**
-			@param[in] a Rotation in degrees
+			@param[in] deg Rotation in degrees
 			@return Rotation matrix
 			*/
-			static Matrix2 Rotation(float a);
+			static Matrix2 Rotation(float deg);
 			
 
 
@@ -119,6 +123,17 @@ namespace ace
 			{
 				return data[r][c];
 			}
+
+			#if ACE_DEBUG
+				void Log(const char* msg = nullptr) const
+				{
+					Logger::LogDebug(
+						msg,
+						array[0], array[1],
+						array[2], array[3]
+					);
+				}
+			#endif
 
 
 		};

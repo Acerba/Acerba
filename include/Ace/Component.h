@@ -30,8 +30,8 @@ namespace ace
 
         virtual EntityManager::ComponentBaseHandle* Clone(EntityManager::EntityHandle* target, EntityManager::EntityHandle* other) = 0;
         virtual void Delete() = 0;
-        virtual void* Get() = 0;
         virtual const void* Get() const = 0;
+        virtual void* Get() = 0;
     };
 
 
@@ -44,15 +44,15 @@ namespace ace
         {
             static CompType Clone(void* comp)
             {
-				return *static_cast<Type*>(comp);
+                return *static_cast<Type*>(comp);
             }
         };
-		template <typename Type>
-		struct Cloner<Type*>
+        template <typename Type>
+        struct Cloner<Type*>
         {
             static CompType Clone(void* comp)
             {
-				return **static_cast<Type*>(comp);
+                return **static_cast<Type*>(comp);
             }
         };
 
@@ -65,7 +65,7 @@ namespace ace
 
         }
 
-        virtual ~ComponentHandle()
+        ~ComponentHandle()
         {
 
         }
@@ -77,7 +77,7 @@ namespace ace
         @param[in, out] other Owner entity of the original component.
         @return Returns component pointer owned by 'target'
         */
-        virtual EntityManager::ComponentBaseHandle* Clone(EntityManager::EntityHandle* target, EntityManager::EntityHandle* other)
+        EntityManager::ComponentBaseHandle* Clone(EntityManager::EntityHandle* target, EntityManager::EntityHandle* other) override
         {
             EntityManager::ComponentHandle<CompType>* cloned = new EntityManager::ComponentHandle<CompType>(target, EntityManager::ComponentPool<CompType>::GetIndex());
             EntityManager::ComponentPool<CompType>::Push(cloned, Cloner<CompType>::Clone(Get()));
@@ -88,47 +88,56 @@ namespace ace
         /**
         @brief Destroys this component.
         */
-        virtual void Delete()
+        void Delete() override
         {
             ComponentPool<CompType>::Pop(this);
         }
 
 
         /**
-        @brief Retrieves void pointer of component.
-        @see CompType*()
-        @return Returns component pointer as void pointer.
+        @return Retrieves a pointer to component as void*
         */
-        virtual void* Get()
+        const void* Get() const override
+        {
+           return &ComponentPool<CompType>::GetPool().m_components[index];
+        }
+        void* Get() override
         {
             return &ComponentPool<CompType>::GetPool().m_components[index];
         }
-        virtual const void* Get() const
-        {
-            return &ComponentPool<CompType>::GetPool().m_components[index];
-        }
-
-
-
-        // inline operator CompType*()
-        // {
-        //     return &ComponentPool<CompType>::GetPool().m_components[index];
-        // }
-        // inline operator const CompType*() const
-        // {
-        //     return &ComponentPool<CompType>::GetPool().m_components[index];
-        // }
 
         /**
-            @brief Returns a pointer to the underlying component constant.
+        @return Retrieves a reference to the component
+        */
+        inline const CompType& GetRef() const
+        {
+            return ComponentPool<CompType>::GetPool().m_components[index];
+        }
+        inline CompType& GetRef()
+        {
+            return ComponentPool<CompType>::GetPool().m_components[index];
+        }
+
+
+        /**
+        @return Retrieves a pointer to the component.
+        */
+        inline operator const CompType*() const
+        {
+            return &ComponentPool<CompType>::GetPool().m_components[index];
+        }
+        inline operator CompType*()
+        {
+            return &ComponentPool<CompType>::GetPool().m_components[index];
+        }
+
+        /**
+        @return Retrieves a pointer to the component.
         */
         inline const CompType* operator->() const
         {
             return &ComponentPool<CompType>::GetPool().m_components[index];
         }
-        /**
-            @brief Returns a pointer to the underlying component.
-        */
         inline CompType* operator->()
         {
             return &ComponentPool<CompType>::GetPool().m_components[index];
@@ -137,5 +146,7 @@ namespace ace
 
     };
 
+    template <typename CompType>
+    using ComponentHandle = EntityManager::ComponentHandle<CompType>;
 
 }

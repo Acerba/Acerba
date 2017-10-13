@@ -1,5 +1,6 @@
 #include <Ace/Matrix3.h>
-
+#include <Ace/Vector2.h>
+#include <Ace/Math.h>
 
 namespace ace
 {
@@ -22,8 +23,7 @@ namespace ace
 
         float Matrix3::Determinant() const
         {
-            Matrix3 m = *this;
-
+            const Matrix3& m = *this;
             return
                 m(0, 0) * (m(1, 1)*m(2, 2) - m(1, 2)*m(2, 1)) -
                 m(0, 1) * (m(1, 0)*m(2, 2) - m(1, 2)*m(2, 0)) +
@@ -50,7 +50,7 @@ namespace ace
 
         Matrix3 Matrix3::Inverse() const
         {
-            return Adjunct() * (1 / Determinant());
+            return Adjunct() * (1.f / Determinant());
         }
 
         Matrix3 Matrix3::Cofactor() const
@@ -75,25 +75,28 @@ namespace ace
 
         Matrix3 Matrix3::Adjunct() const
         {
-            Matrix3 adj = Cofactor().Transpose();
-            return adj;
+            return Cofactor().Transpose();
         }
 
         Matrix3 Matrix3::operator*(const Matrix3& m) const
         {
-            return Matrix3(Vector3(rows[0].x*m(0, 0) + rows[0].y*m(1, 0) + rows[0].z*m(2, 0), rows[0].x*m(0, 1) + rows[0].y*m(1, 1) + rows[0].z*m(2, 1), rows[0].x*m(0, 2) + rows[0].y*m(1, 2) + rows[0].z*m(2, 2)),
+            return Matrix3(
+                Vector3(rows[0].x*m(0, 0) + rows[0].y*m(1, 0) + rows[0].z*m(2, 0), rows[0].x*m(0, 1) + rows[0].y*m(1, 1) + rows[0].z*m(2, 1), rows[0].x*m(0, 2) + rows[0].y*m(1, 2) + rows[0].z*m(2, 2)),
                 Vector3(rows[1].x*m(0, 0) + rows[1].y*m(1, 0) + rows[1].z*m(2, 0), rows[1].x*m(0, 1) + rows[1].y*m(1, 1) + rows[1].z*m(2, 1), rows[1].x*m(0, 2) + rows[1].y*m(1, 2) + rows[1].z*m(2, 2)),
-                Vector3(rows[2].x*m(0, 0) + rows[2].y*m(1, 0) + rows[2].z*m(2, 0), rows[2].x*m(0, 1) + rows[2].y*m(1, 1) + rows[2].z*m(2, 1), rows[2].x*m(0, 2) + rows[2].y*m(1, 2) + rows[2].z*m(2, 2)));
+                Vector3(rows[2].x*m(0, 0) + rows[2].y*m(1, 0) + rows[2].z*m(2, 0), rows[2].x*m(0, 1) + rows[2].y*m(1, 1) + rows[2].z*m(2, 1), rows[2].x*m(0, 2) + rows[2].y*m(1, 2) + rows[2].z*m(2, 2))
+            );
         }
 
         Vector3 Matrix3::operator*(const Vector3& o) const
         {
-            return Vector3(rows[0].x * o.x + rows[0].y * o.y + rows[0].z * o.z,
+            return Vector3(
+                rows[0].x * o.x + rows[0].y * o.y + rows[0].z * o.z,
                 rows[1].x * o.x + rows[1].y * o.y + rows[1].z * o.z,
-                rows[2].x * o.x + rows[2].y * o.y + rows[2].z * o.z);
+                rows[2].x * o.x + rows[2].y * o.y + rows[2].z * o.z
+            );
         }
 
-        Matrix3 Matrix3::operator*(float s)const
+        Matrix3 Matrix3::operator*(float s) const
         {
             Matrix3 mat = *this;
 
@@ -113,50 +116,50 @@ namespace ace
 
         Matrix3 Matrix3::Scale(float x, float y, float z)
         {
-            Vector3 r1(x, 0.f, 0.f);
-            Vector3 r2(0.f, y, 0.f);
-            Vector3 r3(0.f, 0.f, z);
-
-            return Matrix3(r1, r2, r3);
+            return Matrix3(
+                Vector3(x, 0.f, 0.f),
+                Vector3(0.f, y, 0.f),
+                Vector3(0.f, 0.f, z)
+            );
         }
 
         Matrix3 Matrix3::Translation(const Vector2& t)
         {
-            Vector3 r1(1.f, 0.f, 0.f);
-            Vector3 r2(0.f, 1.f, 0.f);
-            Vector3 r3(t.x, t.y, 1.f);
-
-            return Matrix3(r1, r2, r3);
+            return Matrix3(
+                Vector3(1.f, 0.f, 0.f),
+                Vector3(0.f, 1.f, 0.f),
+                Vector3(t.x, t.y, 1.f)
+            );
         }
 
         Matrix3 Matrix3::RotationX(float a)
         {
             a = Rad(a);
-            Vector3 r1(1.f, 0.f, 0.f);
-            Vector3 r2(0.f, Cos(a), -Sin(a));
-            Vector3 r3(0.f, Sin(a), Cos(a));
-
-            return Matrix3(r1, r2, r3);
+            return Matrix3(
+                Vector3(1.f, 0.f, 0.f),
+                Vector3(0.f, Cos(a), -Sin(a)),
+                Vector3(0.f, Sin(a), Cos(a))
+            );
         }
 
         Matrix3 Matrix3::RotationZ(float a)
         {
             a = Rad(a);
-            Vector3 r1(Cos(a), -Sin(a), 0.f);
-            Vector3 r2(Sin(a), Cos(a), 0.f);
-            Vector3 r3(0.f, 0.f, 1.f);
-
-            return Matrix3(r1, r2, r3);
+            return Matrix3(
+                Vector3(Cos(a), -Sin(a), 0.f),
+                Vector3(Sin(a), Cos(a), 0.f),
+                Vector3(0.f, 0.f, 1.f)
+            );
         }
 
         Matrix3 Matrix3::RotationY(float a)
         {
             a = Rad(a);
-            Vector3 r1(Cos(a), 0.f, Sin(a));
-            Vector3 r2(0.f, 1.f, 0.f);
-            Vector3 r3(-Sin(a), 0.f, Cos(a));
-
-            return Matrix3(r1, r2, r3);
+            return Matrix3(
+                Vector3(Cos(a), 0.f, Sin(a)),
+                Vector3(0.f, 1.f, 0.f),
+                Vector3(-Sin(a), 0.f, Cos(a))
+            );
         }
     }
 }

@@ -17,6 +17,8 @@
 #include <Ace/StandardMaterial.h>
 #include <Ace/Entity.h>
 
+#include <Ace/UniformImpl.h>
+
 namespace ace
 {
 	static bool s_glstatus = false;
@@ -62,12 +64,17 @@ namespace ace
 	void InitGraphicsDevice()
 	{
 		static StandardMaterial s_standardMaterial;
-		GetMaterialPtr(&s_standardMaterial);
+        GraphicsDevice::SetMaterial(s_standardMaterial);
+        GraphicsDevice::Enable(true, Features::Blend);
+
+        Material::Uniform("M", math::Matrix4::Identity());
+        Material::Uniform("VP", math::Matrix4::Identity());
 	}
 
 	void GraphicsDevice::SetMaterial(const Material& material)
 	{
 		GetMaterialPtr(&material);
+        glUseProgram(material->materialID);
 	}
 
 	// OpenGL
@@ -299,7 +306,8 @@ namespace ace
 		glUseProgram((*GetMaterialPtr())->materialID);
 		glBindTexture(GL_TEXTURE_2D, texture->textureID);
 		glActiveTexture(GL_TEXTURE0 + id);
-		glUniform1i(glGetUniformLocation((*GetMaterialPtr())->materialID, name), id);
+        Uniform(name, &id, UniformType::Int32, 1);
+		//glUniform1i(glGetUniformLocation((*GetMaterialPtr())->materialID, name), id);
 	}
 
 	Shader GraphicsDevice::CreateShader(const char* source, ShaderType type)
@@ -340,7 +348,7 @@ namespace ace
 	{
 		Material material(new MaterialImpl());
 
-		ACE_ASSERT(vertex, "Vertex shader is not initialized or valid.", "");
+        ACE_ASSERT(vertex, "Vertex shader is not initialized or valid.", "");
 		ACE_ASSERT(fragment, "Fragment shader is not initialized or valid.", "");
 
 		if (vertex)
@@ -389,10 +397,33 @@ namespace ace
 		return material;
 	}
 
-	void GraphicsDevice::Uniform(const char* name, const void* data, UniformType uniform, UInt32 elements)
+
+    void GraphicsDevice::Uniform(const char* name, const void* data, UniformType uniform, UInt32 elements)
+    {
+        UniformData::AddUniform(name, uniform, data, elements);
+    }
+
+    void GraphicsDevice::SetUniforms()
+    {
+        UInt32 count = 0;
+        const UniformData* uniforms = UniformData::GetUniforms(count);
+
+        for (UInt32 i = 0; i < count; ++i)
+        {
+            ApplyUniform(uniforms[i].name, uniforms[i].data, uniforms[i].type, uniforms[i].count);
+        }
+
+    }
+
+	void GraphicsDevice::ApplyUniform(const char* name, const void* data, UniformType uniform, UInt32 elements)
 	{
-		glUseProgram((*GetMaterialPtr())->materialID);
+		//glUseProgram((*GetMaterialPtr())->materialID);
 		UInt32 location = glGetUniformLocation((*GetMaterialPtr())->materialID, name);
+
+        if (location == -1)
+        {
+            return;
+        }
 
 		switch (uniform)
 		{
@@ -424,8 +455,8 @@ namespace ace
 			glUniformMatrix4fv(location, elements, false, static_cast<const math::Matrix4*>(data)->array);
 			break;
 		}
-		
-		glUseProgram(0);
+        
+		//glUseProgram(0);
 
 	}
 
@@ -435,7 +466,7 @@ namespace ace
 		const_cast<ace::Material*>(GetMaterialPtr())->Apply();
 
 		CheckGL();
-
+        SetUniforms();
 		SetMaterialFlags(*GetMaterialPtr());
 
 		if (indicies == 0)
@@ -460,11 +491,9 @@ namespace ace
 
 	void GraphicsDevice::Draw(const Entity& entity)
 	{
-		const EntityManager::ComponentHandle<Sprite>* sprite = entity.GetComponent<Sprite>();
-
-		if (sprite != nullptr)
+		if (const EntityManager::ComponentHandle<Sprite>* sprite = entity.GetComponent<Sprite>())
 		{
-			Draw(*(sprite->operator->()));
+			Draw(**sprite);
 		}
 	}
 

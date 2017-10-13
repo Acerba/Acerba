@@ -248,6 +248,9 @@ namespace ace
 
 	private:
 
+        static void SetUniforms();
+        static void ApplyUniform(const char* name, const void* data, UniformType uniform, UInt32 elements = 1);
+
 		static void SetMaterialFlags(const Material& flags);
 		static void SetTextureFlags(const Texture& flags);
 	};

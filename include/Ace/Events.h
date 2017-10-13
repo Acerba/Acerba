@@ -19,7 +19,7 @@ namespace ace
 		Hidden,
 		Exposed,
 		Moved,
-		Resised,
+		Resized,
 		SizeChanged,
 		Minimised,
 		Maximised,

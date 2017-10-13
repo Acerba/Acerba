@@ -1,10 +1,10 @@
 #include <Ace/EntityHandle.h>
 
+#include <algorithm> // std::find
+
 namespace ace
 {
-
-
-    void EntityManager::EntityHandle::PushHandle(EntityManager::ComponentBaseHandle* handle)
+    void EntityManager::EntityHandle::PushComponentHandle(EntityManager::ComponentBaseHandle* handle)
     {
         if (!m_first && !m_last)
         {
@@ -19,7 +19,7 @@ namespace ace
     }
 
 
-    void EntityManager::EntityHandle::PopHandle(EntityManager::ComponentBaseHandle* handle)
+    void EntityManager::EntityHandle::PopComponentHandle(EntityManager::ComponentBaseHandle* handle)
     {
         if (m_first == m_last && m_first == handle)
         {
@@ -52,95 +52,6 @@ namespace ace
     }
 
 
-    void EntityManager::EntityHandle::AddChild(EntityHandle* child)
-    {
-        if (!child)
-            return;
-        // TODO: fix removal
-        // auto* root = GetRoot();
-        // root->RemoveChild(child);
-        child->m_parent = this;
-        m_children.emplace_front(child);
-    }
-
-
-    UInt32 EntityManager::EntityHandle::ChildCount() const
-    {
-        return static_cast<UInt32>(std::distance(m_children.begin(), m_children.end()));
-    }
-
-
-    UInt32 EntityManager::EntityHandle::ChildCountTotal() const
-    {
-        UInt32 count = ChildCount();
-        for (const auto& itr : m_children)
-            count += itr->ChildCountTotal();
-        return count;
-    }
-
-
-    EntityManager::EntityHandle* EntityManager::EntityHandle::GetChild(UInt32 index)
-    {
-        auto itr = m_children.begin();
-        std::advance(itr, index);
-        return (itr == m_children.end() ? nullptr : *itr);
-    }
-
-
-    EntityManager::EntityHandle* EntityManager::EntityHandle::GetRoot()
-    {
-        EntityHandle* parent = this;
-        while (parent->m_parent)
-        {
-            parent = parent->m_parent;
-        }
-        return parent;
-    }
-
-
-    void EntityManager::EntityHandle::RemoveChild(EntityHandle* target)
-    {
-        if (!target)
-            return;
-        if (!target->m_parent)
-            return;
-
-        target->m_parent->m_children.remove_if([&target](EntityHandle* handle){ return handle == target; });
-    }
-
-
-    void EntityManager::EntityHandle::Clone(EntityHandle* target, EntityHandle* other)
-    {
-        EntityManager::ComponentBaseHandle* otherCurrent = other->m_first;
-
-        while (otherCurrent)
-        {
-            target->PushHandle(otherCurrent->Clone(target, other));
-            otherCurrent = otherCurrent->next;
-        }
-    }
-
-
-    void EntityManager::EntityHandle::Destroy()
-    {
-        EntityManager::ComponentBaseHandle* current = m_first;
-        EntityManager::ComponentBaseHandle* temp = nullptr;
-
-        while (current)
-        {
-            temp = current;
-            current = current->next;
-            temp->Delete();
-        }
-    }
-
-
-    UInt32 EntityManager::EntityHandle::Count() const
-    {
-        return m_componentCount;
-    }
-
-
     EntityManager::EntityHandle::EntityHandle(EntityManager* manager) :
         transform(),
         manager(manager),
@@ -153,10 +64,113 @@ namespace ace
 
     }
 
-
     EntityManager::EntityHandle::~EntityHandle()
     {
+        // TODO: fix segfault
+        //this->RemoveAllChildren();
+    }
 
+
+    void EntityManager::EntityHandle::AddChild(EntityHandle* child)
+    {
+        if (!child) return;
+        if (child->m_parent)
+        {
+            child->m_parent->m_children.remove(child);
+        }
+        child->m_parent = this;
+        m_children.emplace_front(child);
+    }
+
+
+    UInt32 EntityManager::EntityHandle::ChildCountTotal() const
+    {
+        UInt32 count = ChildCount();
+        for (const auto& itr : m_children)
+            count += itr->ChildCountTotal();
+        return count;
+    }
+
+    EntityHandle* EntityManager::EntityHandle::Clone(const bool children, const bool components, EntityManager& manager)
+    {
+        EntityHandle* clone = manager.CreateEntity();
+
+        if (children)
+        {
+            for (auto& child : m_children)
+            {
+                clone->AddChild(child->Clone(children, components));
+            }
+        }
+
+        if (components)
+        {
+            EntityManager::ComponentBaseHandle* current = m_first;
+            while (current)
+            {
+                clone->PushComponentHandle(current->Clone(clone, this));
+                current = current->next;
+            }
+        }
+        return clone;
+    }
+
+    void EntityManager::EntityHandle::DestroyComponents()
+    {
+        EntityManager::ComponentBaseHandle* current = m_first;
+        EntityManager::ComponentBaseHandle* temp = nullptr;
+
+        while (current)
+        {
+            temp = current;
+            current = current->next;
+            temp->Delete();
+        }
+    }
+
+    EntityManager::EntityHandle* EntityManager::EntityHandle::GetChild(const UInt32 index)
+    {
+        if (index < ChildCount())
+        {
+            auto itr = m_children.begin();
+            std::advance(itr, index);
+            return *itr;
+        }
+        return nullptr;
+    }
+
+	EntityManager::EntityHandle* EntityManager::EntityHandle::GetParent()
+	{
+		return m_parent;
+	}
+
+    EntityManager::EntityHandle* EntityManager::EntityHandle::GetRoot()
+    {
+        EntityHandle* parent = this;
+        while (parent->m_parent)
+        {
+            parent = parent->m_parent;
+        }
+        return parent;
+    }
+
+
+    void EntityManager::EntityHandle::RemoveChildHandle(EntityHandle* child)
+    {
+        if (!child) return;
+        auto itr = std::find(m_children.begin(), m_children.end(), child);
+        if (itr == m_children.end()) return;
+        (*itr)->RemoveAllChildren();
+        m_children.remove(child); // Does NOT call dtor of child
+        child = nullptr;
+    }
+
+    void EntityManager::EntityHandle::RemoveAllChildren()
+    {
+        this->DestroyComponents();
+        for (auto& child : this->m_children)
+            this->RemoveChildHandle(child);
+        m_children.clear();
     }
 
 }
