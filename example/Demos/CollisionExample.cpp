@@ -2,13 +2,13 @@
 // Include all necessary modules
 #include <Ace/Ace.h>
 
-#include <Ace/Collidable2D.h>
+#include <Ace/Collidable.h>
 
 #include <Ace/Debugger.h>
 
 #include <iostream>
 
-void logC(const ace::Collidable2D& c, const char* msg = nullptr)
+void logC(const ace::Collidable& c, const char* msg = nullptr)
 {
     for (const auto& itr : c.GetVertices())
     {
@@ -31,13 +31,22 @@ int main(int, char**) {
     Rectangle r2(Vector2(0.999f, 3), Vector2(1, 1));
 
     Vector2 ex[3]{ {-1, -1}, {1, -1}, {1, 1} };
-    Triangle t1(Vector2(-4, 5), ex);
-    Circle c1(Vector2(-4.6, 5.6), 1);
+    Triangle t1(ex, Vector2(-4, 5));
+    Circle c1(1, Vector2(-4.6, 5.6));
 
-    logC(t1, "t1vert");
+    Circle c2(1.5f, Vector2(3.f, 5.f));
+    Vector2 ex2[3]{ {-1, -1}, {1, -1}, {1, 1} };
+    Triangle t2(ex2, Vector2(5, 4));// , Matrix2::Rotation(90.f));
+
+    logC(t1);
+    logC(t2, "t2vert");
+
+    std::cout << "collision: " << Collidable::IsColliding(t2, c2) << '\n';
+
+    //logC(t1, "t1vert");
     //logC(r1, "r1vert");
 
-    std::cout << "töks: " << Collidable2D::IsColliding(t1, c1) << '\n';
+    //std::cout << "töks: " << Collidable::IsColliding(t1, c1) << '\n';
 
     #else
 
@@ -149,7 +158,7 @@ int main(int, char**) {
             window.Close();
         }
 
-        if (ace::Collidable2D::IsColliding(rectAref, rectBref))
+        if (ace::Collidable::IsColliding(rectAref, rectBref))
         {
             static ace::Color col(1.f, 1.f, 1.f, 1.f);
 

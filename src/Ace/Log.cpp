@@ -25,6 +25,8 @@ namespace ace
 
     void _print(Logger::Priority priority, const char* message, va_list args)
     {
+        if (!message) return;
+
         static const UInt32 offset = 1u;
 
         const UInt32 prioritySize = strlen(Priorities[static_cast<UInt32>(priority)]);
