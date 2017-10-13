@@ -1,4 +1,5 @@
 #include <Ace/Vector2.h>
+#include <Ace/Matrix2.h>
 #include <Ace/Math.h>
 
 namespace ace
@@ -58,6 +59,23 @@ namespace ace
             x *= scalar;
             y *= scalar;
             return *this;
+        }
+
+        Vector2& Vector2::operator*=(const Matrix2& m)
+        {
+            x = (m(0, 0) * x) + (m(0, 1) * y);
+            y = (m(1, 0) * x) + (m(1, 1) * y);
+            return *this;
+        }
+        Vector2 operator*(Vector2 lhs, const Matrix2& rhs)
+        {
+            lhs *= rhs;
+            return lhs;
+        }
+        Vector2 operator*(const Matrix2& lhs, Vector2 rhs)
+        {
+            rhs *= lhs;
+            return rhs;
         }
 
         Vector2 Vector2::operator/(float scalar) const

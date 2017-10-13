@@ -126,6 +126,24 @@ namespace ace
     }
 
 
+
+
+    Collidable::Collidable(const Vector2& position, const Matrix2& rotation) :
+        m_aabb(), m_rotation(rotation), m_position(position)
+    {
+        
+    }
+
+    Collidable::~Collidable()
+    {
+        
+    }
+
+    // Vector2 Collidable::GetGlobalPosition() const
+    // {
+    //     return m_rotation * m_position;
+    // }
+
     bool Collidable::IsColliding(const Collidable& a, const Collidable& b)
     {
         const std::vector<Vector2> verticesA(a.GetVertices());
@@ -136,7 +154,7 @@ namespace ace
         if (normalsA.empty() && normalsB.empty()) // Both are circles
         {
             const float radius = static_cast<const Circle&>(a).GetRadius() + static_cast<const Circle&>(b).GetRadius();
-            return (a.GetGlobalPosition() - b.GetGlobalPosition()).LengthSquared() <= (radius * radius);
+            return (a.GetLocalPosition() - b.GetLocalPosition()).LengthSquared() <= (radius * radius);
         }
         else if (normalsA.empty()) // A is a circle
         {
@@ -153,17 +171,10 @@ namespace ace
         }
         return true; // No non-overlaps found, must be colliding
     }
-    
-    Collidable::Collidable(const Vector2& position, const Matrix2& rotation) :
-        m_rotation(rotation), m_position(position)
-    {
-        
-    }
-    
-    Collidable::~Collidable()
-    {
-        
-    }
+
+
+
+
 
     Circle::Circle(const float radius, const Vector2& position, const Matrix2& rotation) :
         Collidable(position, rotation), m_radius(math::Abs(radius))
@@ -174,13 +185,19 @@ namespace ace
 
     bool Circle::IsColliding(const Vector2& point) const
     {
-        return (point - GetGlobalPosition()).LengthSquared() <= (m_radius * m_radius);
+        return (point - m_position).LengthSquared() <= (m_radius * m_radius);
     }
 
     std::vector<Vector2> Circle::GetVertices() const
     {
         return { };
     }
+
+    void Circle::Rotate(float)
+    {
+        return;
+    }
+
 
     Rectangle::Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation) :
         Collidable(position, rotation), m_extents(extents)
@@ -214,8 +231,16 @@ namespace ace
             m_rotation * (m_position + Vector2{-m_extents.x,  m_extents.y})
         };
     }
-    
-    
+
+    void Rectangle::Rotate(float deg)
+    {
+        m_extents *= Matrix2::Rotation(deg);
+        m_rotation = Matrix2::Identity();
+    }
+
+
+
+
     Triangle::Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation) :
         Collidable(position, rotation), m_extents{ extents[0], extents[1], extents[2] }
     {
@@ -239,6 +264,13 @@ namespace ace
             m_position + (m_rotation * m_extents[1]),
             m_position + (m_rotation * m_extents[2])
         };
+    }
+
+    void Triangle::Rotate(float deg)
+    {
+        for (auto& itr : m_extents)
+            itr *= Matrix2::Rotation(deg);
+        m_rotation = Matrix2::Identity();
     }
     
 }

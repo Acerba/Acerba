@@ -29,6 +29,7 @@ namespace ace
 			Matrix2();
 			Matrix2(float identity);
 			Matrix2(const Vector2& v1, const Vector2& v2);
+			Matrix2(float a00, float a01, float a10, float a11);
 
 			/**
 			@return Determinant
@@ -50,9 +51,14 @@ namespace ace
 			@return Adjunct matrix
 			*/
 			Matrix2 Adjunct() const;
-			Matrix2 operator*(const Matrix2& m) const;
-			Vector2 operator*(const Vector2& o) const;
-			Matrix2 operator*(float scalar) const;
+
+			Matrix2& operator*=(const Matrix2& m);
+			friend Matrix2 operator*(Matrix2 lhs, const Matrix2& rhs);
+			//Vector2 operator*(const Vector2& o) const;
+
+			Matrix2& operator*=(float s);
+			friend Matrix2 operator*(Matrix2 lhs, float scalar);
+			
 
 
 			/**
