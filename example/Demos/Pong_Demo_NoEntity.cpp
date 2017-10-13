@@ -150,10 +150,10 @@ int main(int, char**)
 	ace::Image img_FontSheet = font_Arial.BakeFontSheet(920, 920, 64, 32, 255);
 	//	Create and load textbuffer
 	ace::Buffer buf_Text = ace::GraphicsDevice::CreateBuffer(ace::BufferType::Vertex);
-	font_Arial.GetTextBuffer(buf_Text, "Score", 0.25f);
+	font_Arial.GetTextBuffer(buf_Text, "Score: ", 0.25f);
 
 	//	Create score
-	ace::Int32 Score = 100;
+	ace::Int32 Score = 0;
 	//	Create Scoreposition
 	ace::Vector2 vec2_ScorePos = ace::Vector2{ 0.0f,0.9f };
 	//	Create scorebuffer
@@ -184,12 +184,12 @@ int main(int, char**)
 
 	//	Create ball moving abilities
 	float xMove = 0.01f;	//X-axis movement speed
-	float yMove = 0.001f;	//Y-axis movement speed
+	float yMove = 0.01f;	//Y-axis movement speed
 
-	float yMax = 0.05f;
-	float xMax = 0.4f;
+	float yMax = 0.025f;	//X-axis maximum speed
+	float xMax = 0.1f;		//Y-axis maximum speed
 
-	//	Play music before main loop
+							//	Play music before main loop
 	ace::Audio::PlayAudio(m_Music);
 
 	//	Game loop
@@ -211,7 +211,7 @@ int main(int, char**)
 		str_Score = std::to_string(Score);
 		font_Arial.GetTextBuffer(buf_Score, str_Score.c_str(), 0.25f);
 
-		//	Create ball movement
+		//	Create ball movement when hitting "enemy"
 		if (vec2_BallPos.x < -0.8f)
 		{
 			//	If ball is "hitting" enemy, flip it around
@@ -225,14 +225,13 @@ int main(int, char**)
 			}
 
 			//	If ball is moving under center line of Y-axis, move it down else move it up
-			if (yMove <= 0.0f)
-			{
-				yMove -= 0.001f;
-			}
-			else
+			if (yMove <= yMax)
 			{
 				yMove += 0.001f;
 			}
+
+			//Flip movement on Y-axis
+			yMove = -yMove;
 		}
 
 		//	Create ball hitting player logic
@@ -241,6 +240,7 @@ int main(int, char**)
 			//	Flip ball movement and sprite
 			FlipSprite(s_Ball);
 			isBallMovingRight = !isBallMovingRight;
+			isBallHittingPlayer = false;
 
 			//	Update animation for "counter"
 			if (animNumber == 4)
@@ -273,15 +273,15 @@ int main(int, char**)
 			{
 				ace::Audio::PlayAudio(sound_Dong);
 			}
+
+			//Flip movement on Y-axis
+			yMove = -yMove;
 		}
 
 		//	Make ball flip on Y-axis if hitting top or bottom
 		if (vec2_BallPos.y >= 0.95f || vec2_BallPos.y <= -0.95f)
 		{
-			if (yMove <= yMax)
-			{
-				yMove = -yMove;
-			}
+			yMove = -yMove;
 		}
 
 		//	Make ball movement logic
@@ -307,9 +307,9 @@ int main(int, char**)
 			isBallHittingPlayer = true;
 
 			//	Increase ball movement speed
-			if (xMove < 0.02f)
+			if (xMove < xMax)
 			{
-				xMove += 0.0001f;
+				xMove += 0.001f;
 			}
 		}
 
@@ -338,11 +338,11 @@ int main(int, char**)
 #if ACE_WIN
 
 		// Create player movement up
-		if (ace::Keyboard::KeyPressed(ace::KeyCode::W))
+		if (ace::Keyboard::GetKey("W"))
 		{
 			if (vec2_PlayerPos.y < 0.75f)
 			{
-				vec2_PlayerPos += ace::Vector2{ 0, 1.0f } *ace::Time::DeltaTime();
+				vec2_PlayerPos += ace::Vector2{ 0, 1.5f } *ace::Time::DeltaTime();
 			}
 			else
 			{
@@ -350,11 +350,11 @@ int main(int, char**)
 			}
 		}
 		// Create player movement down
-		if (ace::Keyboard::KeyPressed(ace::KeyCode::S))
+		if (ace::Keyboard::GetKey("S"))
 		{
 			if (vec2_PlayerPos.y > -0.75f)
 			{
-				vec2_PlayerPos += ace::Vector2{ 0, -1.0f } *ace::Time::DeltaTime();
+				vec2_PlayerPos += ace::Vector2{ 0, -1.5f } *ace::Time::DeltaTime();
 			}
 			else
 			{
@@ -388,10 +388,13 @@ int main(int, char**)
 		//	Clear window 
 		window.Clear();
 
-		//	Draw ball, enemy and player
-		drawSprite(s_Ball, mat_Standart, tex_Ball, vec2_BallPos, { 0.2f,0.2f });
-		drawSprite(s_Enemy, mat_Standart, tex_Enemy, vec2_EnemyPos, { 0.2f,0.2f });
+		//	Draw number "animation" (actually sprite)
+		drawSprite(s_Number, mat_Standart, tex_Number, { 0.f,0.f }, { 1.f,1.f });
+
+		//	Draw enemy, player and ball
+		drawSprite(s_Enemy, mat_Standart, tex_Enemy, vec2_EnemyPos, { 0.2f,2.0f });
 		drawSprite(s_Player, mat_Standart, tex_Player, vec2_PlayerPos, { 0.2f,0.5f });
+		drawSprite(s_Ball, mat_Standart, tex_Ball, vec2_BallPos, { 0.2f,0.2f });
 
 		//	Draw score text and score
 
@@ -410,6 +413,10 @@ int main(int, char**)
 		ScoreWord = str_Score.size();
 		TextBufferSize = buf_Score.size / (ScoreWord)* (i % (ScoreWord)+1);
 		ace::GraphicsDevice::Draw(TextBufferSize * 6, 0);
+
+		//Debug Stuff
+		//std::cout << vec2_BallPos.x << "   " << vec2_BallPos.y << "\n";
+		std::cout << xMove << "  " << yMove << "\n";
 
 		//	Window updating
 		window.Present();
