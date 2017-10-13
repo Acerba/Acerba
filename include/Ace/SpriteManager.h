@@ -33,9 +33,9 @@ namespace ace
 
 
         SpriteManager();
-
         ~SpriteManager();
 
+		void DrawDrawables(const Scene& scene, const Camera& camera, const Material* material);
         void DrawImpl(const Scene& scene, const Camera& camera, const Material* material);
 
         static SpriteManager& GetInstance();

@@ -1,0 +1,82 @@
+buildscript {
+
+    repositories {
+        //mavenCentral() // Enable if "jcenter()" doesn't work.
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.3'
+    }
+}
+
+apply plugin: 'android'
+
+android {
+
+    // SDK Version
+    compileSdkVersion 23
+    buildToolsVersion "25.0.0"
+
+    lintOptions {
+        abortOnError false
+    }
+
+    defaultConfig {
+
+        // Version Code
+        versionCode 1
+        versionName "1.0"
+
+        // SDK Version
+        minSdkVersion 15
+        targetSdkVersion 17
+    }
+
+    // 'Legacy' source directories
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+    }
+
+    signingConfigs {
+
+        // Remove commends for signing.
+
+        /*
+        release {
+            storeFile file('gradle.keystore') // Rename 'gradle.keystore'
+            storePassword 'storepassword'     // Set Store Password
+            keyAlias 'keyalias'               // Set Alias
+            keyPassword 'keypassword'         // Set Password
+        }
+        */
+    }
+
+    buildTypes {
+
+        debug {
+            applicationIdSuffix ".debug"
+        }
+
+        jnidebug {
+            initWith(buildTypes.debug)
+            applicationIdSuffix ".jnidebug"
+            jniDebuggable true
+        }
+
+        // Remove commends for signing.
+        /*
+        release {
+            signingConfig signingConfigs.release
+        }
+        */
+    }
+}

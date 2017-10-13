@@ -1,5 +1,4 @@
 #include <Ace/SpriteSheet.h>
-#include <Ace/File.h>
 #include <Ace/Path.h>
 #include <Ace/Json.h>
 #include <Ace/Assert.h>
@@ -24,13 +23,24 @@ namespace ace
 
 		return std::string(path, path + (fileTypePos + 1));
 	}
+	
+	SpriteSheet::SpriteSheet()
+	{
+
+	}
 
 
-	SpriteSheet::SpriteSheet(const char* jsonName) : image(nullptr, 0, 0, PixelFormat::Unknown)
+    SpriteSheet::SpriteSheet(const Image& image) : image(image)
+    {
+
+    }
+
+	SpriteSheet::SpriteSheet(const Path& path) : image(nullptr, 0, 0, PixelFormat::Unknown)
 	{
 		Json Jameson;
+		std::string jsonName = path.GetPath();
 
-		if (Jameson.Parse(Path(jsonName)))
+		if (Jameson.Parse(path))
 		{
 			SpriteData Data;
 
@@ -43,6 +53,10 @@ namespace ace
 			ACE_ASSERT(fileName != nullptr, "Jsonfile does not have valid name %s", jsonName);
 			
 			auto spritecount = root["sprites"].Size();
+
+			std::string path = ParsePath(jsonName.c_str());
+			File imageFile(Path(path + fileName, true));
+			image = Image(imageFile);
 			
 			for (int i = 0; i < spritecount; ++i)
 			{
@@ -57,22 +71,13 @@ namespace ace
 				const char* spriteName = root["sprites"][i]["name"].GetString();
 				ACE_ASSERT(spriteName != nullptr, "Sprite does not have valid name %s", jsonName);
 			
-				UInt16 X = root["sprites"][i]["x"].GetUint();
-				UInt16 Y = root["sprites"][i]["y"].GetUint();
-				UInt16 W = root["sprites"][i]["w"].GetUint();
-				UInt16 H = root["sprites"][i]["h"].GetUint();
-			
-			
-				Data.SpriteName = spriteName;
-				Data.rect = Rect(X, Y, W, H);
-				sprites.push_back(Data);
-			
+				float x = root["sprites"][i]["x"].GetUint();
+				float y = root["sprites"][i]["y"].GetUint();
+				float w = root["sprites"][i]["w"].GetUint();
+				float h = root["sprites"][i]["h"].GetUint();
+					
+                AddSprite(spriteName, Rect(x / image.w, y / image.h, w / image.w, h / image.h));
 			}
-			
-			std::string path = ParsePath(jsonName);
-			File imageFile(path + fileName);
-			image = Image(imageFile);
-
 		}
 		else
 		{
@@ -82,8 +87,15 @@ namespace ace
 
 	SpriteSheet::~SpriteSheet()
 	{
-		
+
 	}
+
+    void SpriteSheet::AddSprite(std::string name, const Rect& location)
+    {
+        SpriteData data{ name, location };
+        data.texcoord = Rect(location.x / image.w, location.y / image.h, location.width / image.w, location.height / image.h);
+        sprites.push_back(data);
+    }
 
 	UInt32 SpriteSheet::GetSpriteCount() const
 	{
@@ -116,7 +128,7 @@ namespace ace
 		return nullptr;
 	}
 
-	const SpriteSheet::SpriteData* SpriteSheet::GetSprite(const UInt32 index) const
+	const SpriteSheet::SpriteData* SpriteSheet::GetSprite(UInt32 index) const
 	{
 
 		if (index < sprites.size())
@@ -127,7 +139,7 @@ namespace ace
 		return nullptr;
 	}
 
-	SpriteSheet::SpriteData* SpriteSheet::GetSprite(const UInt32 index)
+	SpriteSheet::SpriteData* SpriteSheet::GetSprite(UInt32 index)
 	{
 
 		if (index < sprites.size())

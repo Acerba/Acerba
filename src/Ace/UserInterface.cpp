@@ -390,15 +390,8 @@ namespace ace
             Int32 last_array_buffer; glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
             Int32 last_element_array_buffer; glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
             //Int32 last_vertex_array; glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
-
-        #if ACE_LINUX
-            Int32 last_blend_src; glGetIntegerv(GL_BLEND, &last_blend_src);
-            Int32 last_blend_dst; glGetIntegerv(GL_BLEND_DST_RGB, &last_blend_dst);
-        #else
-            Int32 last_blend_src; glGetIntegerv(GL_BLEND_SRC, &last_blend_src);
-            Int32 last_blend_dst; glGetIntegerv(GL_BLEND_DST, &last_blend_dst);
-        #endif
-
+            //Int32 last_blend_src; glGetIntegerv(GL_BLEND_SRC, &last_blend_src);
+            //Int32 last_blend_dst; glGetIntegerv(GL_BLEND_DST, &last_blend_dst);
             Int32 last_blend_equation_rgb; glGetIntegerv(GL_BLEND_EQUATION_RGB, &last_blend_equation_rgb);
             Int32 last_blend_equation_alpha; glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &last_blend_equation_alpha);
             Int32 last_viewport[4]; glGetIntegerv(GL_VIEWPORT, last_viewport);
@@ -468,7 +461,7 @@ namespace ace
             glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
             glBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
-            glBlendFunc(last_blend_src, last_blend_dst);
+            //glBlendFunc(last_blend_src, last_blend_dst);
             if (last_enable_blend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
             if (last_enable_cull_face) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
             if (last_enable_depth_test) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
@@ -477,7 +470,7 @@ namespace ace
             glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
 
 
-
+ 
 
             //glBindBuffer(GL_ARRAY_BUFFER, 0);
             //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

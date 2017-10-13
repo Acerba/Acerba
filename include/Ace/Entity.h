@@ -191,9 +191,9 @@ namespace ace
             @param[in] size Target size to reserve to. No effect if current reserved size is same or larger.
         */
         template <typename CompType>
-        inline void ReserveComponents(const UInt32 size)
+        static inline void ReserveComponents(const UInt32 size)
         {
-            m_handle->ReserveComponents<CompType>(size);
+            EntityHandle::ReserveComponents<CompType>(size);
         }
 
         /**

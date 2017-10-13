@@ -1,14 +1,7 @@
 #pragma once
-
+#include <Ace/IntTypes.h>
 namespace ace
 {
-	enum class KeyCode
-	{
-		Invalid = 0,
-		W,  A ,   S,    D, ///< W, A, S, D Keycodes.
-		One, Two, Three, Four, ///< 1, 2, 3, 4 Keycodes.
-		F1,	  F2,   F3,   F4, ///< F1, F2, F3, F4 Keycodes.
-	};
 
 	enum class KeyMod
 	{
@@ -24,15 +17,14 @@ namespace ace
 
 		/**
 			@brief Returns the pressed key.
-			@return KeyCode
+			@return state[SDL_SCAN]
 		*/
-		static bool KeyPressed(KeyCode code);
+		static Int32 GetKey(const char* key);
 		/**
 			@brief Returns the pressed modifier.
 			@return KeyMod
 		*/
 		static KeyMod GetMod();
-
 
 	};
 }

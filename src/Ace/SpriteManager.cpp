@@ -16,51 +16,83 @@
 
 namespace ace
 {
-    std::vector<math::Matrix4> matrix;
+	std::vector<math::Matrix4> matrix;
 
 
-    SpriteManager::Group::Group(const Material& mat, const UInt32 begin) :
-        material(mat),
-        start(begin),
-        end(begin + 1u)
-    {
+	SpriteManager::Group::Group(const Material& mat, const UInt32 begin) :
+		material(mat),
+		start(begin),
+		end(begin + 1u)
+	{
 
-    }
-
-
-    SpriteManager::SpriteManager() :
-        m_sprites(),
-        m_buffer(GraphicsDevice::CreateBuffer(BufferType::Vertex)),
-        m_indexTable(nullptr),
-        m_size(0u)
-    {
-
-    }
+	}
 
 
-    SpriteManager::~SpriteManager()
-    {
-        if (m_indexTable)
-        {
-            delete[]m_indexTable;
-            m_indexTable = nullptr;
-        }
-    }
+	SpriteManager::SpriteManager() :
+		m_sprites(),
+		m_buffer(GraphicsDevice::CreateBuffer(BufferType::Vertex)),
+		m_indexTable(nullptr),
+		m_size(0u)
+	{
+
+	}
 
 
-    const Material& GetTargetMaterial(const Material& material, const Camera& camera,  UInt32 offset = 0u, UInt32 count = 64u)
-    {
-        // TODO: Projection.
-        material.Uniform("VP", camera.GetMatrix());
-        material.Uniform("M", matrix.data() + offset, count);
-        return material;
-    }
+	SpriteManager::~SpriteManager()
+	{
+		if (m_indexTable)
+		{
+			delete[]m_indexTable;
+			m_indexTable = nullptr;
+		}
+	}
 
+	const Material& GetTargetMaterial(const Material& material, const Camera& camera, const Matrix4& model)
+	{
+		material.Uniform("M", model);
+		return material;
+	}
+
+
+	const Material& GetTargetMaterial(const Material& material, const Camera& camera, UInt32 offset = 0u, UInt32 count = 64u)
+	{
+	   // material.Uniform("VP", camera.GetMatrix());
+		material.Uniform("M", matrix.data() + offset, count);
+		return material;
+	}
+
+
+	void SpriteManager::DrawDrawables(const Scene& scene, const Camera& camera, const Material* customMaterial)
+	{
+		EntityManager::ComponentPool<Material>& primaryPool = EntityManager::ComponentPool<Material>::GetPool();
+		EntityManager::ComponentPool<Drawable*>& secondaryPool = EntityManager::ComponentPool<Drawable*>::GetPool();
+		EntityManager::ComponentBaseHandle* secondary = nullptr;
+		Drawable* drawable = nullptr;
+
+		//Find all entities that have both material and sprite
+		for (UInt32 i = 0u; i < primaryPool.m_components.size(); ++i)
+		{
+			if (primaryPool.m_handles[i]->entity->ComponentCount() > 1u)
+			{
+				if ((secondary = primaryPool.m_handles[i]->entity->GetComponentHandle<Drawable*>()) == nullptr)
+				{
+					continue;
+				}
+
+				drawable = secondaryPool.m_components[secondary->index];
+
+				if (drawable != nullptr)
+				{
+					GraphicsDevice::SetMaterial(GetTargetMaterial(customMaterial ? *customMaterial : primaryPool.m_components[i], camera, secondary->entity->transform.model));
+					drawable->Draw();
+				}
+			}
+		}
+	}
 
     void SpriteManager::DrawImpl(const Scene& scene, const Camera& camera, const Material* customMaterial)
     {
         static const UInt32 maxCount = 64u;
-
         std::vector<Group> groups(Sort(scene));
 
         UInt32 count = 0u;
@@ -184,10 +216,9 @@ namespace ace
         //Find all entities that have both material and sprite
         for (UInt32 i = 0u; i < primaryPool.m_components.size(); ++i)
         {
-            if (
-                primaryPool.m_handles[i]->entity->ComponentCount() > 1u &&
-                (secondary = primaryPool.m_handles[i]->entity->GetComponentHandle<Sprite>()) != nullptr
-            ) {
+            if (primaryPool.m_handles[i]->entity->ComponentCount() > 1u &&
+                (secondary = primaryPool.m_handles[i]->entity->GetComponentHandle<Sprite>()) != nullptr) 
+			{
                 bool added = false;
                 UInt32 start = 0u;
 
@@ -229,10 +260,6 @@ namespace ace
             }
         }
 
-        // FIXME:
-        //groups[0].start = 0;
-        //groups[0].end = 2;
-
         m_sprites.reserve(sprites.size());
 
         //Sort spriteindices by Z-value and create sorted m_sprites
@@ -240,7 +267,6 @@ namespace ace
         {
             m_sprites.emplace_back(sprites[itr]);
         }
-        //m_sprites.insert(m_sprites.begin(), sprites.begin(), sprites.end());
 
         return groups;
     }
@@ -270,6 +296,7 @@ namespace ace
 
     void SpriteManager::Draw(const Scene& scene, const Camera& camera, const Material* material)
     {
+		GetInstance().DrawDrawables(scene, camera, material);
         GetInstance().DrawImpl(scene, camera, material);
     }
 

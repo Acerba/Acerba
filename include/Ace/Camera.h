@@ -94,7 +94,7 @@ namespace ace
 
 		Vector4 GetOrtho() const;
 		Vector2 GetSize() const;
-
+		float GetAspectRatio() const;
 
         void Apply();
 

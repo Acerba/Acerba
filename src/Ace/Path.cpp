@@ -5,13 +5,20 @@
 namespace ace
 {
 	//std::string constructor
-	Path::Path(std::string p)
+	Path::Path(std::string p, bool isAbsolute)
 	{
-		char *base_path = SDL_GetBasePath();
-		if (base_path)	
+		if (!isAbsolute)
 		{
-			m_data_path = base_path + p;
-			SDL_free(base_path);
+			char *base_path = SDL_GetBasePath();
+			if (base_path)
+			{
+				m_data_path = base_path + p;
+				SDL_free(base_path);
+			}
+			else
+			{
+				m_data_path = p;
+			}
 		}
 		else
 		{

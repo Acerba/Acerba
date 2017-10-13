@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Ace/Types.h>
+#include <Ace/Camera.h>
 
 namespace ace
 {
@@ -26,6 +27,8 @@ namespace ace
 			@return Position
 		*/
 		static Vector2 GetPosition();
+
+		static Vector2 GetWorldPosition(ace::Camera camera);
 
 		/**
 			@brief Returns the pressed mouse button.

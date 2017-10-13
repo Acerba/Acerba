@@ -126,6 +126,11 @@ namespace ace
 		return Vector2(m_ortho.x, m_ortho.y);
 	}
 
+	float Camera::GetAspectRatio() const
+	{
+		return m_aspectRatio;
+	}
+
     void Camera::Update()
     {
 		if (GetCamera() == this)

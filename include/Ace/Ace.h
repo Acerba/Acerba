@@ -1,4 +1,5 @@
 #include <Ace/Accelerometer.h>
+#include <Ace/Animation.h>
 #include <Ace/Audio.h>
 #include <Ace/BaseComponent.h>
 #include <Ace/Camera.h>
@@ -14,6 +15,7 @@
 #include <Ace/Platform.h>
 #include <Ace/Sprite.h>
 #include <Ace/SpriteManager.h>
+#include <Ace/SpriteSheet.h>
 #include <Ace/StandardMaterial.h>
 #include <Ace/Time.h>
 #include <Ace/Touch.h>

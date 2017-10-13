@@ -38,6 +38,29 @@ namespace ace
 
     }
 
+
+	void Sprite::SetSprite(const SpriteSheet::SpriteData* sprite)
+	{
+		if (sprite == nullptr)
+		{
+			return;
+		}
+
+		Texcoord(sprite->texcoord);
+	}
+
+	void Sprite::SetSprite(const SpriteSheet::SpriteData* sprite, float scale, float base)
+	{
+		if (sprite == nullptr)
+		{
+			return;
+		}
+
+		Texcoord(sprite->texcoord);
+		Scale(Vector2(sprite->location.width / base, sprite->location.height / base) * scale);
+
+	}
+
 	void Sprite::Rotate(float deg)
 	{
 		const math::Matrix4 rot(math::Matrix4::RotationZ(deg));
@@ -51,8 +74,8 @@ namespace ace
 	{
         for (int i = 0; i < Sprite::size; ++i)
         {
-            vertexData[i].position.x = triangle[i].position.x * scale.x;
-            vertexData[i].position.y = triangle[i].position.y * scale.y;
+            vertexData[i].position.x = vertexData[i].position.x * scale.x;
+            vertexData[i].position.y = vertexData[i].position.y * scale.y;
         }
 	}
 
@@ -60,8 +83,8 @@ namespace ace
     {
         for (int i  = 0; i < Sprite::size; ++i)
         {
-            vertexData[i].position.x = triangle[i].position.x * scale * texture.size.x / texture.scale;
-            vertexData[i].position.y = triangle[i].position.y * scale * texture.size.y / texture.scale;
+            vertexData[i].position.x = vertexData[i].position.x * scale * texture.size.x / texture.scale;
+            vertexData[i].position.y = vertexData[i].position.y * scale * texture.size.y / texture.scale;
         }
     }
 
@@ -83,7 +106,7 @@ namespace ace
 		}
 	}
 
-	void Sprite::UVRect(const Rect& uv)
+	void Sprite::Texcoord(const Rect& uv)
 	{
 			vertexData[1].uv.x = uv.x;
 			vertexData[0].uv.y = uv.y;
@@ -142,4 +165,22 @@ namespace ace
 		vertexData[3].position.w = id;
 	}
 
+
+	void Sprite::SetScale(const Vector2& scale)
+	{
+		for (int i = 0; i < Sprite::size; ++i)
+		{
+			vertexData[i].position.x = triangle[i].position.x * scale.x;
+			vertexData[i].position.y = triangle[i].position.y * scale.y;
+		}
+	}
+
+	void Sprite::SetScale(const Texture& texture, float scale)
+	{
+		for (int i = 0; i < Sprite::size; ++i)
+		{
+			vertexData[i].position.x = triangle[i].position.x * scale * texture.size.x / texture.scale;
+			vertexData[i].position.y = triangle[i].position.y * scale * texture.size.y / texture.scale;
+		}
+	}
 }

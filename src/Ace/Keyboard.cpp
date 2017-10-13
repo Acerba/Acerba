@@ -4,6 +4,7 @@
 #include <SDL_events.h>
 #include <Ace/Keyboard.h>
 #include <Ace/IntTypes.h>
+#include <Ace/Log.h>
 
 namespace ace
 {
@@ -42,48 +43,13 @@ namespace ace
 		return KeyMod::Invalid;
 	}
 
-	bool Keyboard::KeyPressed(KeyCode code)
+	Int32 Keyboard::GetKey(const char* key)
 	{
 		const UInt8 *state = SDL_GetKeyboardState(NULL);
-		int SDL_SCAN = 0;
-		switch (code)
+		Int32 SDL_SCAN = SDL_GetScancodeFromName(key);
+		if (SDL_SCAN == 0)
 		{
-		case KeyCode::W:
-			SDL_SCAN = 26;
-			break;
-		case KeyCode::A:
-			SDL_SCAN = 4;
-			break;
-		case KeyCode::S:
-			SDL_SCAN = 22;
-			break;
-		case KeyCode::D:
-			SDL_SCAN = 7;
-			break;
-		case KeyCode::One:
-			SDL_SCAN = 30;
-			break;
-		case KeyCode::Two:
-			SDL_SCAN = 31;
-			break;
-		case KeyCode::Three:
-			SDL_SCAN = 32;
-			break;
-		case KeyCode::Four:
-			SDL_SCAN = 33;
-			break;
-		case KeyCode::F1:
-			SDL_SCAN = 58;
-			break;
-		case KeyCode::F2:
-			SDL_SCAN = 59;
-			break;
-		case KeyCode::F3:
-			SDL_SCAN = 60;
-			break;
-		case KeyCode::F4:
-			SDL_SCAN = 61;
-			break;
+			Logger::LogError("Keyboard::GetKey() Invalid Keycode.\n");
 		}
 		return state[SDL_SCAN];
 	}

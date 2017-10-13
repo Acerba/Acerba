@@ -25,10 +25,12 @@ namespace ace
 
     void _print(Logger::Priority priority, const char* message, va_list args)
     {
+        if (!message) return;
+
         static const UInt32 offset = 1u;
 
-        UInt32 prioritySize = strlen(Priorities[static_cast<UInt32>(priority)]);
-        UInt32 formatSize = strlen(message);
+        const UInt32 prioritySize = strlen(Priorities[static_cast<UInt32>(priority)]);
+        const UInt32 formatSize = strlen(message);
 
         char* format = new char[formatSize + offset + prioritySize + 1];
         strncpy(format, Priorities[static_cast<UInt32>(priority)], prioritySize);
@@ -67,4 +69,17 @@ namespace ace
         _print(Priority::Info, message, args);
         va_end(args);
     }
+
+#if ACE_DEBUG
+
+    void Logger::LogDebug(const char* message ...)
+    {
+        va_list args;
+        va_start(args, message);
+        _print(Priority::Debug, message, args);
+        va_end(args);
+    }
+
+#endif
+
 }

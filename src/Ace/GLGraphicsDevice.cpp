@@ -65,7 +65,7 @@ namespace ace
 	{
 		static StandardMaterial s_standardMaterial;
         GraphicsDevice::SetMaterial(s_standardMaterial);
-        GraphicsDevice::Enable(true, Features::Blend);
+        GraphicsDevice::Enable(true, Features::Blend | Features::Depth);
 
         Material::Uniform("M", math::Matrix4::Identity());
         Material::Uniform("VP", math::Matrix4::Identity());
@@ -479,10 +479,14 @@ namespace ace
 		}
 	}
 
+	void GraphicsDevice::Draw(const Buffer& buffer, UInt32 elements, UInt32 indicies, const UInt32* indexTable)
+	{
+		SetBuffer(buffer);
+		Draw(elements, indicies, indexTable);
+	}
+
 	void GraphicsDevice::Draw(const Mesh& mesh)
 	{
-		Enable(true, Features::Blend | Features::Depth);
-
 		SetBuffer(mesh.vertexBuffer);
 		SetBuffer(mesh.indexBuffer);
 
@@ -496,6 +500,12 @@ namespace ace
 			Draw(**sprite);
 		}
 	}
+
+	// TODO: Calculate Index Table.
+	//void GraphicsDevice::Draw(const Sprite* sprites, UInt32 counts)
+	//{
+	//
+	//}
 
 	void GraphicsDevice::Draw(const Sprite& sprite)
 	{
@@ -514,6 +524,29 @@ namespace ace
 
 		Draw(0, 6, indexTable);
 	}
+
+    void GraphicsDevice::Draw(const Drawable& drawable)
+    {
+        static const Drawable* s_current = nullptr;
+
+        if (s_current == &drawable)
+        {
+            // Blocks Recursion...
+            return;
+        }
+
+        if (s_current == nullptr)
+        {
+            s_current = &drawable;
+        }
+
+        drawable.Draw();
+
+        if (s_current == &drawable)
+        {
+            s_current = nullptr;
+        }
+    }
 
 	void GraphicsDevice::SetMaterialFlags(const Material& material)
 	{

@@ -71,8 +71,5 @@ namespace ace
 		std::vector<AnimationData> m_animations;
 
 		Image m_spriteSheet;
-
-
-
 	};
 }
