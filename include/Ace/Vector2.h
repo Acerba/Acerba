@@ -4,6 +4,8 @@ namespace ace
 {
 	namespace math
 	{
+        class Matrix2;
+
 		class Vector2 final
 		{
 		public:
@@ -39,6 +41,11 @@ namespace ace
 			
 			Vector2& operator-=(const Vector2& v);
 			
+			Vector2& operator*=(const Matrix2& m);
+
+			friend Vector2 operator*(Vector2 lhs, const Matrix2& rhs);
+			friend Vector2 operator*(const Matrix2& lhs, Vector2 rhs);
+
 			Vector2 operator*(float scalar) const;
 			
 			Vector2& operator*=(float scalar);

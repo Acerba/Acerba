@@ -57,16 +57,20 @@ namespace ace
 		}
 
 		Texcoord(sprite->texcoord);
-		Scale(Vector2(sprite->location.width / base, sprite->location.height / base) * scale);
+		Scale(Vector2(sprite->location.width, sprite->location.height) / base * scale);
 
 	}
 
 	void Sprite::Rotate(float deg)
 	{
 		const math::Matrix4 rot(math::Matrix4::RotationZ(deg));
+        float w = vertexData[0].position.w;
+
 		for (auto& i : vertexData)
 		{
-			i.position = rot * i.position;
+            i.position.w = 1.0;
+            i.position = rot * i.position;
+            i.position.w = w;
 		}
 	}
 

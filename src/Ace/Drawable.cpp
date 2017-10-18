@@ -1,6 +1,8 @@
 #include <Ace/Drawable.h>
 #include <Ace/GraphicsDevice.h>
 
+#include <Ace/Log.h>
+
 #include <Ace/Math.h>
 
 #include <tmxlite/Map.hpp>
@@ -12,22 +14,29 @@ namespace ace
 {
     struct Tilemap::TiledImpl
     {
+        bool isMapLoaded;
         tmx::Map map;
 
         SpriteSheet sheet;
+        Vector2 tilesetSize;
+
         std::vector<TileLayer> layers;
 
-        TiledImpl(const Path file)
+        TiledImpl(const Path file) : isMapLoaded(true)
         {
             if (!map.load(file))
             {
                 // Error
+                Logger::LogError("Tilemap failed load map: %s", file);
+                isMapLoaded = false;
             }
+
         }
 
         Texture GetTileset()
         {
-            if (map.getTilesets().size() > 0)
+
+            if (isMapLoaded && map.getTilesets().size() > 0)
             {
                 Path path(map.getTilesets()[0].getImagePath(), true);
 
@@ -36,13 +45,13 @@ namespace ace
                     char nameBuffer[8];
 
                     sheet = SpriteSheet(Image(File(path)));
-                    sheet.AddSprite("NULL", Rect(0,0,0,0)); // Null Sprite
+                    sheet.AddSprite("NULL", Rect(0, 0, 0, 0)); // Null Sprite
 
-
+                    tilesetSize = Vector2(map.getTilesets()[0].getTileSize().x, map.getTilesets()[0].getTileSize().y);
 
                     UInt32 col = map.getTilesets()[0].getColumnCount(), row = map.getTilesets()[0].getTileCount() / col;
-                    Rect location(0, 0, map.getTilesets()[0].getTileSize().x, map.getTilesets()[0].getTileSize().y);
-                    
+                    Rect location(0, 0, tilesetSize.x, tilesetSize.y);
+
                     for (Int32 y = 0; y < row; ++y)
                     {
                         for (Int32 x = 0; x < col; ++x)
@@ -63,69 +72,77 @@ namespace ace
             return nullptr;
         }
 
-		typedef Sprite(*SpriteBeginCallback)(Vector2& position);
-		typedef void(*SpriteEndCallback)(Sprite& sprite, Vector2& pivot);
+        typedef Sprite(*SpriteBeginCallback)(Vector2& position, Vector2& size);
+        typedef void(*SpriteEndCallback)(Sprite& sprite, Vector2& pivot);
 
-		static Sprite BeginSprite(Vector2& position)
-		{
-			return Sprite();
-		}
+        static Sprite BeginSprite(Vector2& position, Vector2& size)
+        {
+            return Sprite();
+        }
 
-		static void EndSprite(Sprite& sprite, Vector2& pivot)
-		{
-			pivot.x *= 0.8f;
-			pivot.y *= 1.15f;
-		}
+        static void EndSprite(Sprite& sprite, Vector2& pivot)
+        {
 
-		static Sprite BeginSpriteIsometric(Vector2& position)
-		{
-			position *= 0.7f;
-			return Sprite(45);
-		}
+        }
 
-		static void EndSpriteIsometric(Sprite& sprite, Vector2& pivot)
-		{
-			pivot.x *= 1.4f;
-			pivot.y *= 0.6f;
-			sprite.Rotate(-45);
-		}
+        static Sprite BeginSpriteIsometric(Vector2& position, Vector2& size)
+        {
+            position = Isometric(position);
+            position.x /= -2.0f;
+            return Sprite();
+        }
 
-		static void GetSpriteCallback(const tmx::Orientation& orientation, SpriteBeginCallback& begin, SpriteEndCallback& end)
-		{
-			switch (orientation)
-			{
-			case tmx::Orientation::Isometric:
-				begin = BeginSpriteIsometric;
-				end = EndSpriteIsometric;
-				break;
+        static void EndSpriteIsometric(Sprite& sprite, Vector2& pivot)
+        {
+            pivot -= Vector2(0.5f, 0.5f);
+        }
 
-			default:
-				begin = BeginSprite;
-				end = EndSprite;
-			}
-		}
+        static Vector2 Isometric(const Vector2& point)
+        {
+            return Vector2(point.x - point.y, (point.x + point.y) / 2.0f);
+        }
+
+        static void GetSpriteCallback(const tmx::Orientation& orientation, SpriteBeginCallback& begin, SpriteEndCallback& end)
+        {
+            switch (orientation)
+            {
+            case tmx::Orientation::Isometric:
+                begin = BeginSpriteIsometric;
+                end = EndSpriteIsometric;
+                break;
+
+            default:
+                begin = BeginSprite;
+                end = EndSprite;
+            }
+        }
 
         void CreateLayers(float scale, const Vector3& pivot, ReadTilemap callback, void* arg)
         {
+            if (!isMapLoaded)
+            {
+                return;
+            }
+
             UInt32 col = map.getTileCount().x, row = map.getTileCount().y;
             tmx::Vector2u tileSize = map.getTileSize();
 
-			SpriteBeginCallback begin = nullptr;
-			SpriteEndCallback end = nullptr;
+            SpriteBeginCallback begin = nullptr;
+            SpriteEndCallback end = nullptr;
 
-			GetSpriteCallback(map.getOrientation(), begin, end);
+            GetSpriteCallback(map.getOrientation(), begin, end);
 
-			for (Int32 i = 0; i < map.getLayers().size(); ++i)
+            float offsetX = tileSize.x / tilesetSize.x, offsetY = tileSize.y / tilesetSize.y;
+
+            for (Int32 i = 0; i < map.getLayers().size(); ++i)
             {
                 TileLayer layer;
                 tmx::TileLayer* tileLayer = dynamic_cast<tmx::TileLayer*>(map.getLayers()[i].get());
-                
+
                 if (tileLayer == nullptr)
                 {
                     continue;
                 }
-
-				float realScale = scale * math::Max(tileSize.x, tileSize.y);
 
                 for (Int32 y = 0; y < row; ++y)
                 {
@@ -134,35 +151,43 @@ namespace ace
                         const tmx::TileLayer::Tile& tile = tileLayer->getTiles()[x + y * col];
 
                         if (tile.ID == 0)
-                            continue;
-                        
-						Vector2 pos(x, y);
-	
-						// Begin
-						Sprite sprite = begin(pos);
+                        {
+                            continue;   
+                        }
 
-						// Update
-						// TODO: Flip
-						sprite.SetSprite(sheet.GetSprite(tile.ID), realScale, sheet.image.scale);
+                        Vector2 pos(x, y);
+                        Vector2 size(tileSize.x, tileSize.y);
 
-                        sprite.Move(Vector3(pos.x * scale, (row- pos.y) * scale, i));
+                        // Begin
+                        Sprite sprite = begin(pos, size);
+                        pos.y *= (size.y / size.x);
 
-						// End
-						Vector2 offset(col, row);
-						end(sprite, offset);
 
-						sprite.Move(Vector3(offset.x * -pivot.x * scale, offset.y * -pivot.y * scale, pivot.z));
+                        // Update
+                        // TODO: Flip
+                        sprite.Texcoord(sheet.GetSprite(tile.ID)->texcoord);
+                        sprite.Scale(Vector2(tilesetSize.x, tilesetSize.y) / math::Min(tileSize.x, tileSize.y));
 
-						if (callback != nullptr)
-						{
-							callback(sprite, tile.ID, i, arg);
-						}
+                        sprite.Move(Vector3(pos.x, row-pos.y, i * pivot.z));
+
+                        // End
+                        // TODO: Fix pivot (offset)
+                        Vector2 point = pivot;
+                        end(sprite, point);
+                        sprite.Move(Vector3(col * -point.x, row * -point.y, 0));
+
+                        sprite.Scale(Vector2(scale, scale));
+
+                        if (callback != nullptr)
+                        {
+                            callback(sprite, tile.ID, i, arg);
+                        }
 
                         layer.tiles.push_back(sprite);
                     }
                 }
 
-  
+
                 layers.push_back(layer);
             }
         }
@@ -203,7 +228,7 @@ namespace ace
     {
         return m_tiledImpl->sheet;
     }
-    
+
     void Tilemap::Draw() const
     {
         for (Int32 i = 0; i < LayersCount(); ++i)
@@ -221,8 +246,13 @@ namespace ace
         }
     }
 
-	tmx::Map& Tilemap::GetMap()
-	{
-		return m_tiledImpl->map;
-	}
+    tmx::Map& Tilemap::GetMap()
+    {
+        return m_tiledImpl->map;
+    }
+
+    Tilemap::operator bool() const
+    {
+        return m_tiledImpl && m_tiledImpl->isMapLoaded;
+    }
 }

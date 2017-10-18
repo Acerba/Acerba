@@ -61,5 +61,7 @@ namespace ace
         virtual void Draw() const;
 
 		tmx::Map& GetMap();
+
+        operator bool() const;
     };
 }
