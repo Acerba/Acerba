@@ -6,6 +6,9 @@
 
 namespace ace
 {
+
+    using Vector2 = Collidable::Vector2;
+    using Matrix2 = Collidable::Matrix2;
     
     bool IsInTriangle(
         const Vector2& p,
@@ -127,8 +130,8 @@ namespace ace
 
 
 
-    Collidable::Collidable(const Vector2& position, const Matrix2& rotation) :
-        m_aabb(), m_rotation(rotation), m_position(position)
+    Collidable::Collidable(BVH::CollidableID id, const Vector2& position, const Matrix2& rotation) :
+        m_aabb(), m_rotation(rotation), m_position(position), m_id(id)
     {
         
     }
@@ -176,15 +179,10 @@ namespace ace
 
 
     Circle::Circle(const float radius, const Vector2& position, const Matrix2& rotation) :
-        Collidable(position, rotation), m_radius(math::Abs(radius))
+        Collidable(BVH::CollidableID::GetID<Circle>(), position, rotation), m_radius(math::Abs(radius))
     {
         if (math::IsNearEpsilon(radius))
             Logger::Log(Logger::Priority::Warning, "Collidable: Circle: Radius near epsilon: %f", radius);
-    }
-
-    bool Circle::IsColliding(const Vector2& point) const
-    {
-        return (point - m_position).lengthSquared() <= (m_radius * m_radius);
     }
 
     std::vector<Vector2> Circle::GetVertices() const
@@ -192,18 +190,44 @@ namespace ace
         return { };
     }
 
+    bool Circle::IsColliding(const Vector2& point) const
+    {
+        return (point - m_position).lengthSquared() <= (m_radius * m_radius);
+    }
+
     void Circle::Rotate(float)
     {
         return;
     }
 
+    void Circle::UpdateAABB(const bool)
+    {
+        m_aabb.min.x = m_position.x - m_radius;
+        m_aabb.min.y = m_position.y - m_radius;
+        m_aabb.max.x = m_position.x + m_radius;
+        m_aabb.max.y = m_position.y + m_radius;
+    }
+
+
+
+
 
     Rectangle::Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation) :
-        Collidable(position, rotation), m_extents(extents)
+        Collidable(BVH::CollidableID::GetID<Rectangle>(), position, rotation), m_extents(extents)
     {
         
     }
     
+    std::vector<Vector2> Rectangle::GetVertices() const
+    {
+        return {
+            mv::ToVektor(m_rotation * (m_position + Vector2{-m_extents.x, -m_extents.y})),
+            mv::ToVektor(m_rotation * (m_position + Vector2{ m_extents.x, -m_extents.y})),
+            mv::ToVektor(m_rotation * (m_position + m_extents)),
+            mv::ToVektor(m_rotation * (m_position + Vector2{-m_extents.x,  m_extents.y}))
+        };
+    }
+
     bool Rectangle::IsColliding(const Vector2& point) const
     {
         const Vector2 pos = mv::ToVektor(m_rotation * (m_position + m_extents));
@@ -220,40 +244,40 @@ namespace ace
             pos
         );
     }
-    
-    std::vector<Vector2> Rectangle::GetVertices() const
-    {
-        return {
-            mv::ToVektor(m_rotation * (m_position + Vector2{-m_extents.x, -m_extents.y})),
-            mv::ToVektor(m_rotation * (m_position + Vector2{ m_extents.x, -m_extents.y})),
-            mv::ToVektor(m_rotation * (m_position + m_extents)),
-            mv::ToVektor(m_rotation * (m_position + Vector2{-m_extents.x,  m_extents.y}))
-        };
-    }
 
     void Rectangle::Rotate(float deg)
     {
-        m_extents = mv::ToVektor(mv::MakeRotation<2u>(mv::ToRad(deg), mv::AXIS::Z) * m_extents);
+        m_extents = mv::ToVektor(math::RotateZ2(deg) * m_extents);
         m_rotation = math::s_identity2;
+
+        UpdateAABB(false);
     }
+
+    void Rectangle::UpdateAABB(const bool accountRotation)
+    {
+        m_aabb.Reset();
+        if (accountRotation)
+        {
+            for (const auto& vertex : GetVertices())
+            {
+                m_aabb.Update(vertex);
+            }
+        }
+        else
+        {
+            m_aabb.Update(m_position + mv::Invert(m_extents));
+            m_aabb.Update(m_position + m_extents);
+        }
+    }
+
 
 
 
 
     Triangle::Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation) :
-        Collidable(position, rotation), m_extents{ extents[0], extents[1], extents[2] }
+        Collidable(BVH::CollidableID::GetID<Triangle>(), position, rotation), m_extents{ extents[0], extents[1], extents[2] }
     {
         
-    }
-    
-    bool Triangle::IsColliding(const Vector2& point) const
-    {
-        return IsInTriangle(
-            point,
-            mv::ToVektor(m_rotation * (m_position + m_extents[0])),
-            mv::ToVektor(m_rotation * (m_position + m_extents[1])),
-            mv::ToVektor(m_rotation * (m_position + m_extents[2]))
-        );
     }
     
     std::vector<Vector2> Triangle::GetVertices() const
@@ -265,13 +289,43 @@ namespace ace
         };
     }
 
+    bool Triangle::IsColliding(const Vector2& point) const
+    {
+        return IsInTriangle(
+            point,
+            mv::ToVektor(m_rotation * (m_position + m_extents[0])),
+            mv::ToVektor(m_rotation * (m_position + m_extents[1])),
+            mv::ToVektor(m_rotation * (m_position + m_extents[2]))
+        );
+    }
+
     void Triangle::Rotate(float deg)
     {
-        const Matrix2 rot(mv::MakeRotation<2u>(mv::ToRad(deg), mv::AXIS::Z));
+        const Matrix2 rot(math::RotateZ2(deg));
         for (auto& itr : m_extents)
             itr = mv::ToVektor(rot * itr);
 
         m_rotation = math::s_identity2;
+
+        UpdateAABB(false);
+    }
+
+    void Triangle::UpdateAABB(const bool accountRotation)
+    {
+        m_aabb.Reset();
+        if (accountRotation)
+        {
+            for (const auto& vertex : GetVertices())
+            {
+                m_aabb.Update(vertex);
+            }
+        }
+        else
+        {
+            m_aabb.Update(m_position + m_extents[0]);
+            m_aabb.Update(m_position + m_extents[1]);
+            m_aabb.Update(m_position + m_extents[2]);
+        }
     }
     
 }

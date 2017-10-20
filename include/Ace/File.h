@@ -2,7 +2,8 @@
 
 #include <Ace/IntTypes.h>
 #include <Ace/Path.h>
-#include <Ace/SmartPtr.h>
+
+#include <memory>
 
 namespace ace
 {

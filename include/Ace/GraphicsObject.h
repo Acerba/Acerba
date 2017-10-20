@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Ace/SmartPtr.h>
+#include <memory>
 
 namespace ace
 {

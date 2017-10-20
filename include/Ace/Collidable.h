@@ -5,18 +5,33 @@
 #include <Ace/Matrix2.h>
 #include <Ace/Vector2.h>
 
+#include <Ace/BVH.h>
+
+#include <memory> // shared_from_this
 #include <vector>
 
 namespace ace
 {
-    using math::Matrix2;
-    using math::Vector2;
 
-    struct Collidable
+
+    struct Collidable : public std::enable_shared_from_this<Collidable>
     {
+        using Vector2 = math::Vector2;
+        using Matrix2 = math::Matrix2;
 
-        Collidable(const Vector2& position, const Matrix2& rotation = math::s_identity2);
+        Collidable(
+            BVH::CollidableID id,
+            const Vector2& position,
+            const Matrix2& rotation = math::s_identity2
+        );
         virtual ~Collidable() = 0;
+
+        inline const AABB& GetAABB() const
+        {
+            return m_aabb;
+        }
+
+        virtual UInt32 GetID() const = 0;
 
 
         // Vector2 GetGlobalPosition() const;
@@ -37,6 +52,11 @@ namespace ace
         inline Matrix2& GetRotation()
         {
             return m_rotation;
+        }
+
+        std::shared_ptr<Collidable> GetShared()
+        {
+            return this->shared_from_this();
         }
 
 
@@ -68,18 +88,28 @@ namespace ace
         virtual void Rotate(float deg) = 0;
 
     protected:
+
+        virtual void UpdateAABB(const bool accountRotation = true) = 0;
+
         AABB m_aabb;
         Matrix2 m_rotation;
         Vector2 m_position;
+        BVH::CollidableID m_id;
     };
 
 
-    class Circle final : public Collidable
+    struct Circle final : public Collidable
     {
-        float m_radius;
-    public:
+        using Vector2 = Collidable::Vector2;
+        using Matrix2 = Collidable::Matrix2;
+        
         Circle(const float radius, const Vector2& position, const Matrix2& rotation = math::s_identity2);
-        bool IsColliding(const Vector2& point) const override;
+
+
+        UInt32 GetID() const final override
+        {
+            return m_id.GetID<Circle>();
+        }
 
         inline float GetRadius() const
         {
@@ -87,41 +117,87 @@ namespace ace
         }
 
         std::vector<Vector2> GetVertices() const final override;
-        void Rotate(float deg) final override;
-    };
 
-
-    class Rectangle final : public Collidable
-    {
-        Vector2 m_extents;
-    public:
-        Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation = math::s_identity2);
         bool IsColliding(const Vector2& point) const override;
+        
+        void Rotate(float deg) final override;
+
+    protected:
+
+        void UpdateAABB(const bool accountRotation = true) final override;
+
+    private:
+
+        float m_radius;
+
+    }; // Circle
+
+
+    struct Rectangle final : public Collidable
+    {
+        using Vector2 = Collidable::Vector2;
+        using Matrix2 = Collidable::Matrix2;
+
+        Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation = math::s_identity2);
 
         inline const Vector2& GetExtents() const
         {
             return m_extents;
         }
 
+        UInt32 GetID() const final override
+        {
+            return m_id.GetID<Rectangle>();
+        }
+        
         std::vector<Vector2> GetVertices() const final override;
-        void Rotate(float deg) final override;
-    };
 
-
-    class Triangle final : public Collidable
-    {
-        Vector2 m_extents[3u];
-    public:
-        Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation = math::s_identity2);
         bool IsColliding(const Vector2& point) const override;
+
+        void Rotate(float deg) final override;
+
+    protected:
+
+        void UpdateAABB(const bool accountRotation = true) final override;
+
+    private:
+
+        Vector2 m_extents;
+
+    }; // Rectangle
+
+
+    struct Triangle final : public Collidable
+    {
+        using Vector2 = Collidable::Vector2;
+        using Matrix2 = Collidable::Matrix2;
+
+        Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation = math::s_identity2);
 
         inline const Vector2(&GetExtents() const)[3u]
         {
             return m_extents;
         }
 
+        UInt32 GetID() const final override
+        {
+            return m_id.GetID<Triangle>();
+        }
+        
         std::vector<Vector2> GetVertices() const final override;
+
+        bool IsColliding(const Vector2& point) const override;
+
         void Rotate(float deg) final override;
-    };
+
+    protected:
+
+        void UpdateAABB(const bool accountRotation = true) final override;
+
+    private:
+
+        Vector2 m_extents[3u];
+
+    }; // Triangle
 
 }

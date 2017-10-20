@@ -3,8 +3,8 @@
 #include <Ace/File.h>
 #include <Ace/Image.h>
 #include <Ace/Buffer.h>
-#include <Ace/SmartPtr.h>
 
+#include <memory>
 #include <vector>
 
 namespace ace

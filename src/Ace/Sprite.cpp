@@ -18,7 +18,7 @@ namespace ace
 
 	Sprite::Sprite(float deg) : Sprite()
 	{
-		const math::Matrix4 rot(mv::MakeRotation<4u>(mv::ToRad(deg), mv::AXIS::Z));
+		const math::Matrix4 rot(math::RotateZ4(deg));
 		for (auto& i : vertexData)
 		{
 			i.position = mv::ToVektor(rot * i.position);
@@ -62,7 +62,7 @@ namespace ace
 
 	void Sprite::Rotate(float deg)
 	{
-		const math::Matrix4 rot(mv::MakeRotation<4u>(mv::ToRad(deg), mv::AXIS::Z));
+		const math::Matrix4 rot(math::RotateZ4(deg));
 		const float w = vertexData[0].position.w;
 
 		for (auto& i : vertexData)

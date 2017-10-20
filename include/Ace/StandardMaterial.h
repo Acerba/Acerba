@@ -32,7 +32,7 @@ namespace ace
             material.Uniform("Color", color);
             material.Uniform("Scale", scale);
             material.Uniform("Position", position);
-            material.Uniform("Rotation", mv::MakeRotation<2u, float>(mv::ToRad(angle), mv::AXIS::Z));
+            material.Uniform("Rotation", math::RotateZ2(angle));
             material.Uniform("Model", model);
             GraphicsDevice::SetMaterial(material);
             GraphicsDevice::SetTexture(diffuse, "Diffuse", 0);
