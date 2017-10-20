@@ -60,8 +60,6 @@ namespace ace
 		stbtt_bakedchar cdata[255]; // ASCII 32..126 is 95 glyphs
 		UInt8* bitmap = new UInt8[w*h];
 
-		Int32 nW = 0, nH = 0;
-
 		//-- bake a font to a bitmap for use as texture
 		stbtt_BakeFontBitmap(m_buffer.get(), 0, pixelheight, bitmap, w, h, first_char, num_chars, cdata);
 
@@ -206,7 +204,7 @@ namespace ace
 			stbtt_GetCodepointBitmapBoxSubpixel(&m_info->font, character, scale, scale, x_shift, 0, &c_x1, &c_y1, &c_x2, &c_y2);
 
 			/* compute y (different characters have different heights */
-			Int32 y = ascent + c_y1;
+			// Int32 y = ascent + c_y1; // unused
 
 			// Chacking if character is new line command
 			const char newLine = '\n';
@@ -242,30 +240,23 @@ namespace ace
 	//Returns glyph
 	Glyph Font::GetGlyph(const UInt32 letter)
 	{
-		UInt32 index = letter;
-		index -= m_start;
-
-		if (index < 0 || index > m_end)
-		{
-			return Glyph();
-		}
-
-		return ASCII[index];
+		const UInt32 index = letter - m_start;
+		return (index < m_end) ? ASCII[index] : Glyph();
 	}
 
 	//Buffers text
 	void Font::GetTextBuffer(Buffer& buffer, const char* text, float scale, float xPos, float yPos)
 	{
-		UInt32 len = strlen(text);
-		//First position for X
-		float XPos = xPos;
-
-		if (len < 0)
+		const UInt32 len = strlen(text);
+		if (len == 0u)
 		{
 			return;
 		}
+		//First position for X
+		float XPos = xPos;
 
-		Vertex* vertex = new Vertex[6 * len];
+
+		Vertex* vertex = new Vertex[6u * len];
 
 		for (UInt32 i = 0u; i < len; ++i)
 		{
@@ -321,13 +312,13 @@ namespace ace
 			float y = yPos;
 			yPos -= (g.h + g.yoff);
 
-			vertex[6 * i + 0].position = Vector4(xPos, yPos, 0, 0);
-			vertex[6 * i + 2].position = Vector4(xPos, yPos + g.h, 0, 0);
-			vertex[6 * i + 1].position = Vector4(xPos + g.w, yPos + g.h, 0, 0);
+			vertex[6 * i + 0].position = Vector4(xPos, yPos, 0.f, 0.f);
+			vertex[6 * i + 2].position = Vector4(xPos, yPos + g.h, 0.f, 0.f);
+			vertex[6 * i + 1].position = Vector4(xPos + g.w, yPos + g.h, 0.f, 0.f);
 
-			vertex[6 * i + 3].position = Vector4(xPos, yPos, 0, 0);
-			vertex[6 * i + 4].position = Vector4(xPos + g.w, yPos, 0, 0);
-			vertex[6 * i + 5].position = Vector4(xPos + g.w, yPos + g.h, 0, 0);
+			vertex[6 * i + 3].position = Vector4(xPos, yPos, 0.f, 0.f);
+			vertex[6 * i + 4].position = Vector4(xPos + g.w, yPos, 0.f, 0.f);
+			vertex[6 * i + 5].position = Vector4(xPos + g.w, yPos + g.h, 0.f, 0.f);
 
 			yPos = y;
 			xPos += g.xoff + g.w;

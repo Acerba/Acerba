@@ -21,7 +21,7 @@ namespace ace
 
         mutable Texture diffuse;
 
-        StandardMaterialProperties() : model(math::Matrix4::Identity()), color(0xFFFFFFFF), scale(1, 1), position(0, 0), angle(0)
+        StandardMaterialProperties() : model(math::s_identity4), color(0xFFFFFFFF), scale(1.f, 1.f), position(0.f, 0.f), angle(0)
         {
 
         }
@@ -32,7 +32,7 @@ namespace ace
             material.Uniform("Color", color);
             material.Uniform("Scale", scale);
             material.Uniform("Position", position);
-            material.Uniform("Rotation", math::Matrix2::Rotation(angle));
+            material.Uniform("Rotation", mv::MakeRotation<2u, float>(mv::ToRad(angle), mv::AXIS::Z));
             material.Uniform("Model", model);
             GraphicsDevice::SetMaterial(material);
             GraphicsDevice::SetTexture(diffuse, "Diffuse", 0);

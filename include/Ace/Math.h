@@ -8,26 +8,6 @@ namespace ace
 
         static const float epsilon = 0.001f;
 
-        /**
-        @brief Convert degrees to radians
-        @param[in] deg Degrees
-        @return radians
-        */
-        inline float Rad(float deg)
-        {
-            return deg / 180.0f * PI;
-        }
-
-        /**
-        @brief Convert radians to degrees
-        @param[in] rad Radians
-        @return degrees
-        */
-        inline float Deg(float rad)
-        {
-            return rad / PI * 180.0f;
-        }
-
 
         inline float Abs(float a)
         {
@@ -36,10 +16,6 @@ namespace ace
         float Acos(float);
         float Asin(float);
         float Atan(float);
-        inline bool IsBetween(float value, float min, float max)
-        {
-            return min <= value && value <= max;
-        }
         float Ceil(float);
         inline float Clamp(float value, float min, float max)
         {
@@ -47,9 +23,26 @@ namespace ace
         }
         float Cos(float);
         float Cosh(float);
+        /**
+            @brief Convert radians to degrees
+            @param[in] rad Radians
+            @return degrees
+        */
+        inline float Deg(float rad)
+        {
+            return rad / PI * 180.0f;
+        }
         float Exp(float);
         float Floor(float);
         float Fmod(float, float);
+        inline bool IsBetween(float value, float min, float max)
+        {
+            return min <= value && value <= max;
+        }
+        inline bool IsSameSign(float a, float b)
+        {
+            return (a <= 0.f && b <= 0.f) || (a >= 0.f && b >= 0.f);
+        }
         inline float Lerp(float start, float end, float delta)
         {
             return start + delta * (end - start);
@@ -69,13 +62,18 @@ namespace ace
             return IsBetween(value, -epsilon, epsilon);
         }
         float Pow(float base, float exp);
+        /**
+            @brief Convert degrees to radians
+            @param[in] deg Degrees
+            @return radians
+        */
+        inline float Rad(float deg)
+        {
+            return deg / 180.0f * PI;
+        }
         float Rand(float min, float max);
         float Root(float base, float exp);
         float Round(float);
-        inline bool IsSameSign(float a, float b)
-        {
-            return (a <= 0.f && b <= 0.f) || (a >= 0.f && b >= 0.f);
-        }
         float Sin(float);
         float Sinh(float);
         float Sqrt(float);

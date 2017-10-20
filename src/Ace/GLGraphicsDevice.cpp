@@ -67,8 +67,8 @@ namespace ace
         GraphicsDevice::SetMaterial(s_standardMaterial);
         GraphicsDevice::Enable(true, Features::Blend | Features::Depth);
 
-        Material::Uniform("M", math::Matrix4::Identity());
-        Material::Uniform("VP", math::Matrix4::Identity());
+        Material::Uniform("M", math::s_identity4);
+        Material::Uniform("VP", math::s_identity4);
 	}
 
 	void GraphicsDevice::SetMaterial(const Material& material)
@@ -418,7 +418,7 @@ namespace ace
 	void GraphicsDevice::ApplyUniform(const char* name, const void* data, UniformType uniform, UInt32 elements)
 	{
 		//glUseProgram((*GetMaterialPtr())->materialID);
-		UInt32 location = glGetUniformLocation((*GetMaterialPtr())->materialID, name);
+		const Int32 location = glGetUniformLocation((*GetMaterialPtr())->materialID, name);
 
         if (location == -1)
         {
@@ -446,13 +446,13 @@ namespace ace
 			glUniform4fv(location, elements, static_cast<const float*>(data));
 			break;
 		case ace::UniformType::Mat2:
-			glUniformMatrix2fv(location, elements, false, static_cast<const math::Matrix2*>(data)->array);
+			glUniformMatrix2fv(location, elements, false, static_cast<const math::Matrix2*>(data)->array());
 			break;
 		case ace::UniformType::Mat3:
-			glUniformMatrix3fv(location, elements, false, static_cast<const math::Matrix3*>(data)->array);
+			glUniformMatrix3fv(location, elements, false, static_cast<const math::Matrix3*>(data)->array());
 			break;
 		case ace::UniformType::Mat4:
-			glUniformMatrix4fv(location, elements, false, static_cast<const math::Matrix4*>(data)->array);
+			glUniformMatrix4fv(location, elements, false, static_cast<const math::Matrix4*>(data)->array());
 			break;
 		}
         

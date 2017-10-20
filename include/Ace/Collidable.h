@@ -15,7 +15,7 @@ namespace ace
     struct Collidable
     {
 
-        Collidable(const Vector2& position, const Matrix2& rotation = Matrix2::Identity());
+        Collidable(const Vector2& position, const Matrix2& rotation = math::s_identity2);
         virtual ~Collidable() = 0;
 
 
@@ -78,7 +78,7 @@ namespace ace
     {
         float m_radius;
     public:
-        Circle(const float radius, const Vector2& position, const Matrix2& rotation = Matrix2::Identity());
+        Circle(const float radius, const Vector2& position, const Matrix2& rotation = math::s_identity2);
         bool IsColliding(const Vector2& point) const override;
 
         inline float GetRadius() const
@@ -95,7 +95,7 @@ namespace ace
     {
         Vector2 m_extents;
     public:
-        Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation = Matrix2::Identity());
+        Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation = math::s_identity2);
         bool IsColliding(const Vector2& point) const override;
 
         inline const Vector2& GetExtents() const
@@ -112,7 +112,7 @@ namespace ace
     {
         Vector2 m_extents[3u];
     public:
-        Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation = Matrix2::Identity());
+        Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation = math::s_identity2);
         bool IsColliding(const Vector2& point) const override;
 
         inline const Vector2(&GetExtents() const)[3u]

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
 project(ACERBA)
 include("cmake/ProjectBuild.cmake" REQUIRED)
@@ -27,6 +27,7 @@ find_package(OpenGL)
 file(GLOB SOURCES ${ACERBA_SOURCE_DIR}/src/Ace/*.cpp ${ACERBA_SOURCE_DIR}/include/Ace/*)
 set(ACERBA_INDLUCES 
     ${ACERBA_SOURCE_DIR}/3rdparty/rapidjson/include
+    ${ACERBA_SOURCE_DIR}/3rdparty/matvek
     ${ACERBA_SOURCE_DIR}/3rdparty/imgui/include
     ${ACERBA_SOURCE_DIR}/3rdparty/TMXLite/include
     ${ACERBA_SOURCE_DIR}/3rdparty/SDL2/include
@@ -58,9 +59,14 @@ endif()
 
 
 if(ANDROID)
-	BuildLibrary(acerba SHARED)
+    BuildLibrary(acerba SHARED)
 else()
-	BuildLibrary(acerba STATIC)
+    BuildLibrary(acerba STATIC)
+    if(MSVC)
+        target_compile_options(acerba PRIVATE /Wall)
+    else()
+        target_compile_options(acerba PRIVATE -W -Wall)
+    endif()
 endif()
 
 

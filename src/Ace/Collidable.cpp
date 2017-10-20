@@ -4,8 +4,6 @@
 
 #include <limits> // numeric_limits::max()
 
-#include <Ace/Debugger.h>
-
 namespace ace
 {
     
@@ -20,11 +18,11 @@ namespace ace
         const Vector2 v1 = b - a;
         const Vector2 v2 = p - a;
         
-        const float d00 = Vector2::Dot(v0, v0);
-        const float d01 = Vector2::Dot(v0, v1);
-        const float d02 = Vector2::Dot(v0, v2);
-        const float d11 = Vector2::Dot(v1, v1);
-        const float d12 = Vector2::Dot(v1, v2);
+        const float d00 = mv::Dot(v0, v0);
+        const float d01 = mv::Dot(v0, v1);
+        const float d02 = mv::Dot(v0, v2);
+        const float d11 = mv::Dot(v1, v1);
+        const float d12 = mv::Dot(v1, v2);
         
         const float id = 1.f / (d00 * d11 - d01 * d01); // TODO: add div-by-zero check?
         const float u = (d11 * d02 - d01 * d12) * id;
@@ -70,11 +68,11 @@ namespace ace
 
     Vector2 ProjectAxis(const Vector2& axis, const std::vector<Vector2>& vertices)
     {
-        float min = Vector2::Dot(axis, vertices[0]);
+        float min = mv::Dot(axis, vertices[0]);
         float max = min;
         for (UInt8 i = 1u; i < vertices.size(); ++i)
         {
-            const float cur = Vector2::Dot(axis, vertices[i]);
+            const float cur = mv::Dot(axis, vertices[i]);
             if (cur < min) min = cur;
             else if (max < cur) max = cur;
         }
@@ -83,6 +81,7 @@ namespace ace
 
     bool IsCollidingCircle(const Circle& c, const std::vector<Vector2>& otherVertices)
     {
+        using namespace mv;
         const float radiusSquared = c.GetRadius() * c.GetRadius();
         const Vector2 center(c.GetLocalPosition());
         Vector2 vertex = otherVertices.back();
@@ -94,18 +93,18 @@ namespace ace
         {
             const Vector2& nextVertex(otherVertices[i]);
             Vector2 axis(center - vertex);
-            const float distance = axis.LengthSquared() - radiusSquared;
+            const float distance = axis.lengthSquared() - radiusSquared;
             if (distance <= 0.f) return true;
             bool isInside = false;
             const Vector2 edge(nextVertex - vertex);
-            const float edgeLengthSquared = edge.LengthSquared();
+            const float edgeLengthSquared = edge.lengthSquared();
             if (!math::IsNearEpsilon(edgeLengthSquared))
             {
-                const float dot = Vector2::Dot(edge, axis);
+                const float dot = mv::Dot(edge, axis);
                 if (dot >= 0.f && dot <= edgeLengthSquared)
                 {
                     axis = (vertex + (edge * (dot / edgeLengthSquared))) - center;
-                    if (axis.LengthSquared() <= radiusSquared) return true;
+                    if (axis.lengthSquared() <= radiusSquared) return true;
                     if (edge.x > 0.f && axis.y > 0.f) return false;
                     if (edge.x < 0.f && axis.y < 0.f) return false;
                     if (edge.y > 0.f && axis.x < 0.f) return false;
@@ -154,7 +153,7 @@ namespace ace
         if (normalsA.empty() && normalsB.empty()) // Both are circles
         {
             const float radius = static_cast<const Circle&>(a).GetRadius() + static_cast<const Circle&>(b).GetRadius();
-            return (a.GetLocalPosition() - b.GetLocalPosition()).LengthSquared() <= (radius * radius);
+            return (a.GetLocalPosition() - b.GetLocalPosition()).lengthSquared() <= (radius * radius);
         }
         else if (normalsA.empty()) // A is a circle
         {
@@ -185,7 +184,7 @@ namespace ace
 
     bool Circle::IsColliding(const Vector2& point) const
     {
-        return (point - m_position).LengthSquared() <= (m_radius * m_radius);
+        return (point - m_position).lengthSquared() <= (m_radius * m_radius);
     }
 
     std::vector<Vector2> Circle::GetVertices() const
@@ -207,17 +206,17 @@ namespace ace
     
     bool Rectangle::IsColliding(const Vector2& point) const
     {
-        const Vector2 pos = m_rotation * (m_position + m_extents);
-        const Vector2 neg = m_rotation * (m_position + m_extents.Invert());
+        const Vector2 pos = mv::ToVektor(m_rotation * (m_position + m_extents));
+        const Vector2 neg = mv::ToVektor(m_rotation * (m_position + mv::Invert(m_extents)));
         return IsInTriangle(
             point,
             pos,
-            m_rotation * (m_position + Vector2(-m_extents.x, m_extents.y)),
+            mv::ToVektor(m_rotation * (m_position + Vector2(-m_extents.x, m_extents.y))),
             neg
         ) || IsInTriangle(
             point,
             neg,
-            m_rotation * (m_position + Vector2(m_extents.x, -m_extents.y)),
+            mv::ToVektor(m_rotation * (m_position + Vector2(m_extents.x, -m_extents.y))),
             pos
         );
     }
@@ -225,17 +224,17 @@ namespace ace
     std::vector<Vector2> Rectangle::GetVertices() const
     {
         return {
-            m_rotation * (m_position + Vector2{-m_extents.x, -m_extents.y}),
-            m_rotation * (m_position + Vector2{ m_extents.x, -m_extents.y}),
-            m_rotation * (m_position + m_extents),
-            m_rotation * (m_position + Vector2{-m_extents.x,  m_extents.y})
+            mv::ToVektor(m_rotation * (m_position + Vector2{-m_extents.x, -m_extents.y})),
+            mv::ToVektor(m_rotation * (m_position + Vector2{ m_extents.x, -m_extents.y})),
+            mv::ToVektor(m_rotation * (m_position + m_extents)),
+            mv::ToVektor(m_rotation * (m_position + Vector2{-m_extents.x,  m_extents.y}))
         };
     }
 
     void Rectangle::Rotate(float deg)
     {
-        m_extents *= Matrix2::Rotation(deg);
-        m_rotation = Matrix2::Identity();
+        m_extents = mv::ToVektor(mv::MakeRotation<2u>(mv::ToRad(deg), mv::AXIS::Z) * m_extents);
+        m_rotation = math::s_identity2;
     }
 
 
@@ -251,26 +250,28 @@ namespace ace
     {
         return IsInTriangle(
             point,
-            m_rotation * (m_position + m_extents[0]),
-            m_rotation * (m_position + m_extents[1]),
-            m_rotation * (m_position + m_extents[2])
+            mv::ToVektor(m_rotation * (m_position + m_extents[0])),
+            mv::ToVektor(m_rotation * (m_position + m_extents[1])),
+            mv::ToVektor(m_rotation * (m_position + m_extents[2]))
         );
     }
     
     std::vector<Vector2> Triangle::GetVertices() const
     {
         return {
-            m_position + (m_rotation * m_extents[0]),
-            m_position + (m_rotation * m_extents[1]),
-            m_position + (m_rotation * m_extents[2])
+            m_position + mv::ToVektor(m_rotation * m_extents[0]),
+            m_position + mv::ToVektor(m_rotation * m_extents[1]),
+            m_position + mv::ToVektor(m_rotation * m_extents[2])
         };
     }
 
     void Triangle::Rotate(float deg)
     {
+        const Matrix2 rot(mv::MakeRotation<2u>(mv::ToRad(deg), mv::AXIS::Z));
         for (auto& itr : m_extents)
-            itr *= Matrix2::Rotation(deg);
-        m_rotation = Matrix2::Identity();
+            itr = mv::ToVektor(rot * itr);
+
+        m_rotation = math::s_identity2;
     }
     
 }

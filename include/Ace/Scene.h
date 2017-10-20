@@ -1,14 +1,11 @@
 #pragma once
 
 #include <Ace/Macros.h>
+#include <Ace/TypesFwd.h>
 
 namespace ace
 {
     class Entity;
-    namespace math
-    {
-        class Matrix4;
-    }
     
 
     class Scene final

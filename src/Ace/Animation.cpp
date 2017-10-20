@@ -9,12 +9,12 @@
 
 namespace ace
 {
-	Int32 animationExists(const std::vector<Animation::AnimationData>& anim, const std::string& name)
+	UInt32 animationExists(const std::vector<Animation::AnimationData>& anim, const std::string& name)
 	{
-		for (Int32 i = 0; i < anim.size(); ++i)
+		for (UInt32 i = 0; i < anim.size(); ++i)
 			if (anim[i].animation == name)
 				return i;
-		return -1;
+		return anim.size();
 	}
 
 	static UInt32 GetNameIndex(const std::string& name)
@@ -37,11 +37,12 @@ namespace ace
 
 
 	Animation::AnimationData::AnimationData(const std::string& name) :
-		animation(name),
-		loopSpeed(1),
 		frames(),
+		animation(name),
 		currentTime(0.f),
-		currentFrame(0u)
+		loopSpeed(1),
+		currentFrame(0u),
+		loop(false)
 	{
 		
 	}
@@ -54,9 +55,8 @@ namespace ace
 	Animation::Animation(const SpriteSheet& sheet) :
 		isPlaying(false),
 		m_animations(),
-		m_frameSpeed(30u),
-		m_currentAnimation(nullptr)
-
+		m_currentAnimation(nullptr),
+		m_frameSpeed(30u)
 	{
 		m_animations.reserve(sheet.GetSpriteCount());
 		for (UInt16 i = 0u; i < sheet.GetSpriteCount(); ++i)
@@ -64,11 +64,9 @@ namespace ace
 			const SpriteSheet::SpriteData& sprite = *sheet.GetSprite(i);
 			const std::string name = sprite.SpriteName.substr(0, GetNameIndex(sprite.SpriteName));
 
-			Int32 index = animationExists(m_animations, name);
-
-			if (index == -1)
+			const UInt32 index = animationExists(m_animations, name);
+			if (index == m_animations.size())
 			{
-				index = m_animations.size();
 				m_animations.emplace_back(AnimationData(name));
 			}
 

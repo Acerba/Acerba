@@ -299,7 +299,7 @@ namespace ace
 		GetInstance().DrawDrawables(scene, camera, material);
         GetInstance().DrawImpl(scene, camera, material);
 
-        Material::Uniform("M", Matrix4::Identity()); // Rests Model matrix.
+        Material::Uniform("M", math::s_identity4); // Resets Model matrix.
     }
 
 }

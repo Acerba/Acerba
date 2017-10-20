@@ -26,9 +26,10 @@ namespace ace
         }
 
         entity->transform.model =
-           (Matrix4::Scale(entity->transform.scale.x, entity->transform.scale.y, entity->transform.scale.z) *
-           entity->transform.rotation.ToMatrix4() *
-           Matrix4::Translation(entity->transform.position)) * parentModel;
+           mv::MakeScaling(entity->transform.scale) *
+           mv::ToMatrix<4u>(entity->transform.rotation) *
+           mv::MakeTranslation(entity->transform.position) * parentModel
+        ;
 
         const UInt32 count = entity.ChildCount();
         for (UInt32 i = 0u; i < count; ++i)
@@ -74,7 +75,7 @@ namespace ace
 
     void Scene::Update()
     {
-        ComputeMatrices(*m_root, math::Matrix4::Identity());
+        ComputeMatrices(*m_root, math::s_identity4);
     }
 
 }

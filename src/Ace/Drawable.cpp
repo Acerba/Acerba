@@ -12,6 +12,9 @@
 
 namespace ace
 {
+
+    Drawable::~Drawable() { }
+
     struct Tilemap::TiledImpl
     {
         bool isMapLoaded;
@@ -27,7 +30,7 @@ namespace ace
             if (!map.load(file))
             {
                 // Error
-                Logger::LogError("Tilemap failed load map: %s", file);
+                Logger::LogError("Tilemap failed load map: %s", file.operator const char*());
                 isMapLoaded = false;
             }
 
@@ -47,19 +50,19 @@ namespace ace
                     sheet = SpriteSheet(Image(File(path)));
                     sheet.AddSprite("NULL", Rect(0, 0, 0, 0)); // Null Sprite
 
-                    tilesetSize = Vector2(map.getTilesets()[0].getTileSize().x, map.getTilesets()[0].getTileSize().y);
+                    tilesetSize = mv::MakeVektor<2u, float>(map.getTilesets()[0].getTileSize().x, map.getTilesets()[0].getTileSize().y);
 
                     UInt32 col = map.getTilesets()[0].getColumnCount(), row = map.getTilesets()[0].getTileCount() / col;
                     Rect location(0, 0, tilesetSize.x, tilesetSize.y);
 
-                    for (Int32 y = 0; y < row; ++y)
+                    for (UInt32 y = 0; y < row; ++y)
                     {
-                        for (Int32 x = 0; x < col; ++x)
+                        for (UInt32 x = 0; x < col; ++x)
                         {
-                            location.x = location.width * x;
-                            location.y = location.height * y;
+                            location.x = location.width * static_cast<Int32>(x);
+                            location.y = location.height * static_cast<Int32>(y);
 
-                            sprintf_s(nameBuffer, "%i", x + col * y + 1);
+                            sprintf(nameBuffer, "%i", x + (col * y) + 1);
                             sheet.AddSprite(nameBuffer, location);
                         }
                     }
@@ -144,9 +147,9 @@ namespace ace
                     continue;
                 }
 
-                for (Int32 y = 0; y < row; ++y)
+                for (UInt32 y = 0; y < row; ++y)
                 {
-                    for (Int32 x = 0; x < col; ++x)
+                    for (UInt32 x = 0; x < col; ++x)
                     {
                         const tmx::TileLayer::Tile& tile = tileLayer->getTiles()[x + y * col];
 
@@ -155,8 +158,8 @@ namespace ace
                             continue;   
                         }
 
-                        Vector2 pos(x, y);
-                        Vector2 size(tileSize.x, tileSize.y);
+                        Vector2 pos(static_cast<float>(x), static_cast<float>(y));
+                        Vector2 size(static_cast<float>(tileSize.x), static_cast<float>(tileSize.y));
 
                         // Begin
                         Sprite sprite = begin(pos, size);
@@ -172,9 +175,9 @@ namespace ace
 
                         // End
                         // TODO: Fix pivot (offset)
-                        Vector2 point = pivot;
+                        Vector2 point(pivot.x, pivot.y);
                         end(sprite, point);
-                        sprite.Move(Vector3(col * -point.x, row * -point.y, 0));
+                        sprite.Move(Vector3(col * -point.x, row * -point.y, 0.f));
 
                         sprite.Scale(Vector2(scale, scale));
 
@@ -209,14 +212,9 @@ namespace ace
         return m_tiledImpl->layers.size();
     }
 
-    Tilemap::TileLayer* Tilemap::GetLayer(Int32 i)
+    Tilemap::TileLayer* Tilemap::GetLayer(UInt32 i)
     {
-        if (i > LayersCount())
-        {
-            return nullptr;
-        }
-
-        return &m_tiledImpl->layers[i];
+        return i < LayersCount() ? &m_tiledImpl->layers[i] : nullptr;
     }
 
     SpriteSheet& Tilemap::GetSpriteSheet()
@@ -231,7 +229,7 @@ namespace ace
 
     void Tilemap::Draw() const
     {
-        for (Int32 i = 0; i < LayersCount(); ++i)
+        for (UInt32 i = 0; i < LayersCount(); ++i)
         {
             GraphicsDevice::Draw(m_tiledImpl->layers[i]);
         }
@@ -239,7 +237,7 @@ namespace ace
 
     void Tilemap::TileLayer::Draw() const
     {
-        for (Int32 i = 0; i < tiles.size(); ++i)
+        for (UInt32 i = 0; i < tiles.size(); ++i)
         {
             // TODO: Draw all sprites. (single draw call)
             GraphicsDevice::Draw(tiles[i]);

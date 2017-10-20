@@ -18,17 +18,15 @@ namespace ace
 	public:
 		struct AnimationData
 		{
+			std::vector<SpriteSheet::SpriteData> frames;
 			std::string animation;
+			float currentTime;
 			Int32 loopSpeed; // Animation speed? Frame speed?
+			UInt16 currentFrame;
 			bool loop;
 
-			std::vector<SpriteSheet::SpriteData> frames;
 			AnimationData(const std::string& name);
 			~AnimationData();
-
-			float currentTime;
-			UInt16 currentFrame;
-
 		};
 
 		Animation(){};
@@ -66,10 +64,10 @@ namespace ace
 		virtual void OnEvent(AnimationEvent);
 
 	private:
-		UInt16 m_frameSpeed;
-		AnimationData* m_currentAnimation;
 		std::vector<AnimationData> m_animations;
-
 		Image m_spriteSheet;
+		AnimationData* m_currentAnimation;
+		UInt16 m_frameSpeed;
+
 	};
 }

@@ -18,14 +18,13 @@ namespace ace
 
 	Vector2 Mouse::GetWorldPosition(ace::Camera camera)
 	{
-	
 		Int32 x, y;
 		SDL_GetMouseState(&x, &y);
-		Vector2 MousePosition = (static_cast<float>(x), static_cast<float>(y));
+		Vector2 MousePosition(static_cast<float>(x), static_cast<float>(y));
 		//MousePosition.x = ((MousePosition.x / Window::GetCurrent()->GetSize().x)*(602-228)+228); // * Jotain)
 		//MousePosition.y = ((MousePosition.y / Window::GetCurrent()->GetSize().y)*(316-88)+88); // * Jotain)
 		MousePosition = ((MousePosition / Window::GetCurrent()->GetSize().x));
-		return Vector2(MousePosition);
+		return MousePosition;
 	}
 
 	MouseButton Mouse::GetButton()

@@ -26,7 +26,7 @@ namespace ace
             const Quaternion& rotation = Quaternion(),
             const Vector3& scale = Vector3(1.f, 1.f, 1.f)
         ) :
-            model(Matrix4::Identity()),
+            model(math::s_identity4),
             position(position),
             rotation(rotation),
             scale(scale)
