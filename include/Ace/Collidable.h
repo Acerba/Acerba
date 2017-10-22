@@ -8,6 +8,7 @@
 #include <Ace/BVH.h>
 
 #include <memory> // shared_from_this
+#include <unordered_set>
 #include <vector>
 
 namespace ace
@@ -26,15 +27,37 @@ namespace ace
         );
         virtual ~Collidable() = 0;
 
+        /**
+            @brief Adds a collision to this collidable with other. Does not add the collision to other.
+            @param[in] other Collidable.
+         */
+        void AddCollision(Collidable& other)
+        {
+            m_collisions.insert(other.GetShared());
+        }
+
+        /**
+            @brief Retrieve the AABB of this collidable.
+            @return AABB
+        */
         inline const AABB& GetAABB() const
         {
             return m_aabb;
         }
 
+        /**
+            @brief Retrieve the id of the collidable.
+            @return ID.
+         */
         virtual UInt32 GetID() const = 0;
 
 
         // Vector2 GetGlobalPosition() const;
+
+        /**
+            @brief Retrieve the local position of the collidable.
+            @return Local position.
+         */
         inline const Vector2& GetLocalPosition() const
         {
             return m_position;
@@ -45,6 +68,10 @@ namespace ace
         }
 
 
+        /**
+            @brief Retrieve the current rotation of the collidable.
+            @return Rotation.
+         */
         inline const Matrix2& GetRotation() const
         {
             return m_rotation;
@@ -54,10 +81,11 @@ namespace ace
             return m_rotation;
         }
 
-        std::shared_ptr<Collidable> GetShared()
-        {
-            return this->shared_from_this();
-        }
+        /**
+            @brief Retrieve a shared pointer to this collidable.
+            @return Shared pointer to this collidable.
+        */
+        std::shared_ptr<Collidable> GetShared();
 
 
         /**
@@ -81,21 +109,34 @@ namespace ace
         static bool IsColliding(const Collidable& a, const Collidable& b);
 
         /**
+            @brief Resets the collisions this collidable has received.
+            Does not reset the collisions on the other collidable of the collision.
+        */
+        void ResetCollisions();
+
+        /**
             @brief Rotate the collidables vertices around its center by deg degrees.
             Modifies the objects vertices and resets the rotation, making the new orientation stay on until another call to this method.
             @param[in] deg Degrees to rotate.
         */
         virtual void Rotate(float deg) = 0;
 
+        /**
+            @brief Update collisions regarding this Collidable. Make sure you have called BVH::Update() beforehand.
+            Also marks collisions on to the other collidables, if any.
+        */
+        void UpdateCollisions();
+
     protected:
 
         virtual void UpdateAABB(const bool accountRotation = true) = 0;
 
+        std::unordered_set<std::shared_ptr<Collidable>> m_collisions;
         AABB m_aabb;
         Matrix2 m_rotation;
         Vector2 m_position;
         BVH::CollidableID m_id;
-    };
+    }; // Collidable
 
 
     struct Circle final : public Collidable

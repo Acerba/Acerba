@@ -204,15 +204,6 @@ static MV_API Type Length(const Quat<Type>& q)
 //////////////////////////////////////////////////////////
 
 
-template <typename Type>
-static MV_API Quat<Type> operator*(Quat<Type> q, const Type scalar)
-{
-    q *= scalar;
-    return q;
-}
-//////////////////////////////////////////////////////////
-
-
 #if MV_DEBUG
 //Print quaternion
 template <typename Type>

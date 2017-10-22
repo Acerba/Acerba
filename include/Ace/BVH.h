@@ -1,30 +1,56 @@
 #pragma once
 
-#include <Ace/CollisionData.h>
-
 #include <Ace/UUID.h>
-
-#include <vector>
 
 namespace ace
 {
     struct Collidable;
-
+    
     struct BVH final
     {
-
+        
         using CollidableID = UUID<BVH>;
-
+        
+        /**
+            @brief Adds a collidable to the BVH.
+            @param[in, out] c Collidable to add to the BVH.
+        */
         static void AddCollidable(Collidable& c);
-
+        
+        /**
+            @brief Refreshes the bounding volumes in the BVH.
+        */
+        static void Refresh();
+        
+        /**
+            @brief Remove a collidable from the BVH.
+            @param[in, out] c Collidable to remove.
+        */
         static void RemoveCollidable(const Collidable& c);
-
+        
+        /**
+            @brief Remove a collidable from the BVH.
+            @param[in] id ID of the Collidable to remove.
+        */
         static void RemoveCollidable(const UInt32 id);
-
-        static void Update();
-
-        static const std::vector<CollisionData>& GetCollisionData();
-
+        
+        /**
+            @brief Reserves memory for the collidables to be added to the BVH.
+            @param[in] size Number of collidables worth of memory to reserve.
+        */
+        static void Reserve(const UInt32 size);
+        
+        /**
+            @brief Calls UpdateCollisions on to all collidables added to the BVH. Calls Refresh internally.
+         */
+        static void UpdateAllCollisions();
+        
+        /**
+            @brief Updates collisions regarding c. Make sure you have called BVH::Refresh before.
+            @param[in, out] c Collidable whose collisions to update. Also marks the collisions on to the other collidables, if any.
+         */
+        static void UpdateCollisions(Collidable& c);
+        
         BVH() = delete;
         ~BVH() = delete;
         BVH(BVH&&) = delete;

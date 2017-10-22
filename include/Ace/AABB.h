@@ -9,14 +9,19 @@ namespace ace
     struct AABB final
     {
         using Vector2 = math::Vector2;
+
         Vector2 min;
         Vector2 max;
+
+        struct Split;
         
         AABB(
             const Vector2& min = DefaultMin(),
             const Vector2& max = DefaultMax()
         );
-        
+
+        Vector2 GetCenter() const;
+
         static bool IsColliding(const AABB& a, const AABB& b);
         
         static bool IsColliding(const AABB& a, const Vector2& point);
@@ -31,5 +36,15 @@ namespace ace
         static const Vector2& DefaultMin();
         static const Vector2& DefaultMax();
         
+    };
+
+    struct AABB::Split final
+    {
+        AABB leftTop;
+        AABB rightTop;
+        AABB leftBottom;
+        AABB rightBottom;
+
+        Split(const AABB& original);
     };
 }

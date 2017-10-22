@@ -412,24 +412,6 @@ MV_API Mat<RowsA, ColsB, Type> operator*(
 //////////////////////////////////////////////////////////
 
 
-template <UInt8 Rows, UInt8 Cols, typename Type>
-MV_API Mat<Rows, Cols, Type> operator*(Mat<Rows, Cols, Type> m, const Type scalar)
-{
-    m.scale(scalar);
-    return m;
-}
-//////////////////////////////////////////////////////////
-
-
-template <UInt8 Rows, UInt8 Cols, typename Type>
-MV_API Mat<Rows, Cols, Type>& operator*=(Mat<Rows, Cols, Type>& m, const Type scalar)
-{
-    m.scale(scalar);
-    return m;
-}
-//////////////////////////////////////////////////////////
-
-
 #if MV_DEBUG
 //Print matrix
 template <UInt8 Rows, UInt8 Cols, typename Type>

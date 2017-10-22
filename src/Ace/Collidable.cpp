@@ -1,6 +1,7 @@
 #include <Ace/Collidable.h>
-#include <Ace/Math.h>
+#include <Ace/BVH.h>
 #include <Ace/Log.h>
+#include <Ace/Math.h>
 
 #include <limits> // numeric_limits::max()
 
@@ -84,7 +85,6 @@ namespace ace
 
     bool IsCollidingCircle(const Circle& c, const std::vector<Vector2>& otherVertices)
     {
-        using namespace mv;
         const float radiusSquared = c.GetRadius() * c.GetRadius();
         const Vector2 center(c.GetLocalPosition());
         Vector2 vertex = otherVertices.back();
@@ -131,9 +131,9 @@ namespace ace
 
 
     Collidable::Collidable(BVH::CollidableID id, const Vector2& position, const Matrix2& rotation) :
-        m_aabb(), m_rotation(rotation), m_position(position), m_id(id)
+        m_collisions(), m_aabb(), m_rotation(rotation), m_position(position), m_id(id)
     {
-        
+
     }
 
     Collidable::~Collidable()
@@ -145,6 +145,20 @@ namespace ace
     // {
     //     return m_rotation * m_position;
     // }
+
+    std::shared_ptr<Collidable> Collidable::GetShared()
+    {
+        // return std::shared_ptr<Collidable>(this);
+        // return this->shared_from_this();
+        try {
+            return this->shared_from_this();
+        }
+        catch (std::bad_weak_ptr e)
+        {
+            Logger::LogError("Tried to create a shared Collidable from non-shared Collidable");
+            throw e;
+        }
+    }
 
     bool Collidable::IsColliding(const Collidable& a, const Collidable& b)
     {
@@ -172,6 +186,16 @@ namespace ace
             for (const auto& n : normalsB) if (!IsOverlapping(ProjectAxis(n, verticesA), ProjectAxis(n, verticesB))) return false; // SA found
         }
         return true; // No non-overlaps found, must be colliding
+    }
+
+    void Collidable::ResetCollisions()
+    {
+        m_collisions.clear();
+    }
+
+    void Collidable::UpdateCollisions()
+    {
+        BVH::UpdateCollisions(*this);
     }
 
 
@@ -215,7 +239,7 @@ namespace ace
     Rectangle::Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation) :
         Collidable(BVH::CollidableID::GetID<Rectangle>(), position, rotation), m_extents(extents)
     {
-        
+
     }
     
     std::vector<Vector2> Rectangle::GetVertices() const
@@ -277,7 +301,7 @@ namespace ace
     Triangle::Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation) :
         Collidable(BVH::CollidableID::GetID<Triangle>(), position, rotation), m_extents{ extents[0], extents[1], extents[2] }
     {
-        
+
     }
     
     std::vector<Vector2> Triangle::GetVertices() const

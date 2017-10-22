@@ -50,14 +50,11 @@ namespace ace
 
 	void Sprite::SetSprite(const SpriteSheet::SpriteData* sprite, float scale, float base)
 	{
-		using namespace mv; // operator *
-
-		if (sprite == nullptr)
+		if (sprite)
 		{
-			return;
+			Texcoord(sprite->texcoord);
+			Scale((Vector2(sprite->location.width, sprite->location.height) / base) * scale);
 		}
-		Texcoord(sprite->texcoord);
-		Scale((Vector2(sprite->location.width, sprite->location.height) / base) * scale);
 	}
 
 	void Sprite::Rotate(float deg)

@@ -263,27 +263,6 @@ static MV_API Vektor<Size, Type> Normalize(Vektor<Size, Type> copy)
 //////////////////////////////////////////////////////////
 
 
-template <UInt16 Size, typename Type>
-MV_API Vektor<Size, Type>& operator*=(Vektor<Size, Type>& lhs, const Type& rhs)
-{
-    for (UInt16 i = 0u; i < Size; ++i)
-    {
-        lhs[i] *= rhs;
-    }
-    return lhs;
-}
-//////////////////////////////////////////////////////////
-
-
-template <UInt16 Size, typename Type>
-MV_API Vektor<Size, Type> operator*(Vektor<Size, Type> lhs, const Type& rhs)
-{
-    lhs *= rhs;
-    return lhs;
-}
-//////////////////////////////////////////////////////////
-
-
 #if MV_DEBUG
 //Print vektor
 template <UInt16 Size, typename Type>

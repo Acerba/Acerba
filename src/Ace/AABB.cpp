@@ -10,7 +10,37 @@ namespace ace
     static const Vector2 s_defaultMin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
     static const Vector2 s_defaultMax(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
 
+    AABB::Split::Split(const AABB& original) :
+        leftTop(),
+        rightTop(),
+        leftBottom(),
+        rightBottom()
+    {
+        const Vector2 center(original.GetCenter());
+
+        leftTop.min.x = original.min.x;
+        leftTop.min.y = center.y;
+        leftTop.max.x = center.x;
+        leftTop.max.y = original.max.y;
+
+        rightTop.min = center;
+        rightTop.max = original.max;
+
+        leftBottom.min = original.min;
+        leftBottom.max = center;
+
+        rightBottom.min.x = center.x;
+        rightBottom.min.y = original.min.y;
+        rightBottom.max.x = original.max.x;
+        rightBottom.max.y = center.y;
+    }
+
     AABB::AABB(const Vector2& min, const Vector2& max) : min(min), max(max) { }
+
+    Vector2 AABB::GetCenter() const
+    {
+        return (min + max) * 0.5f;
+    }
 
     bool AABB::IsColliding(const AABB& a, const AABB& b)
     {

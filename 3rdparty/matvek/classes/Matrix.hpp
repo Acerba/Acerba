@@ -314,6 +314,20 @@ namespace mv
         }
         //////////////////////////////////////////////////////////
         
+        
+        // Scale
+        MV_API Mat& operator*=(const Type rhs)
+        {
+            scale(rhs);
+            return *this;
+        }
+        MV_API friend Mat operator*(Mat lhs, const Type& rhs)
+        {
+            lhs *= rhs;
+            return lhs;
+        }
+        //////////////////////////////////////////////////////////
+        
     }; //Mat
     
     #include "../functions/MatrixFunctions.hpp"

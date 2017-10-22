@@ -35,30 +35,30 @@ namespace mv
         {
             struct
             {
+                Type _s;
                 #ifdef MV_VEKTOR_HPP
                 Vektor<3u, Type> _v;
                 #else
                 std::array<Type, 3u> _v;
                 #endif
-                Type _s;
             };
             
             struct
             {
+                Type S;
+                
                 Type X;
                 Type Y;
                 Type Z;
-                
-                Type S;
             };
         };
         
         
         MV_API Quat() :
+        S(static_cast<Type>(1)),
         X(static_cast<Type>(0)),
         Y(static_cast<Type>(0)),
-        Z(static_cast<Type>(0)),
-        S(static_cast<Type>(1))
+        Z(static_cast<Type>(0))
         {
             
         }
@@ -67,10 +67,10 @@ namespace mv
         
         //Ctor
         MV_API Quat(Type s, Type x, Type y, Type z) :
+        S(s),
         X(x),
         Y(y),
-        Z(z),
-        S(s)
+        Z(z)
         {
             
         }
@@ -79,8 +79,8 @@ namespace mv
         
         //Ctor
         MV_API Quat(Type s, const std::array<Type, 3u>& v) :
-        _v(v),
-        _s(s)
+        _s(s),
+        _v(v)
         {
             
         }
@@ -89,8 +89,8 @@ namespace mv
         
         //Ctor (pure quaternion)
         MV_API Quat(const std::array<Type, 3u>& v) :
-        _v(v),
-        _s(static_cast<Type>(1))
+        _s(static_cast<Type>(0)),
+        _v(v)
         {
             
         }
@@ -112,7 +112,14 @@ namespace mv
         
         MV_API Type length() const
         {
-            return math::Sqrt(S*S + X*X + Y*Y + Z*Z);
+            return math::Sqrt(lengthSquared());
+        }
+        //////////////////////////////////////////////////////////
+        
+        
+        MV_API Type lengthSquared() const
+        {
+            return S*S + X*X + Y*Y + Z*Z;
         }
         //////////////////////////////////////////////////////////
         
@@ -163,6 +170,23 @@ namespace mv
         MV_API friend Quat operator-(Quat lhs, const Quat& rhs)
         {
             lhs -= rhs;
+            return lhs;
+        }
+        //////////////////////////////////////////////////////////
+        
+        
+        // Scale
+        MV_API Quat& operator*=(const Type& rhs)
+        {
+            S *= rhs;
+            X *= rhs;
+            Y *= rhs;
+            Z *= rhs;
+            return *this;
+        }
+        MV_API friend Quat operator*(Quat lhs, const Type& rhs)
+        {
+            lhs *= rhs;
             return lhs;
         }
         //////////////////////////////////////////////////////////
