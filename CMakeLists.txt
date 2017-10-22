@@ -100,11 +100,11 @@ endif()
 
 if(PB_MAIN)
 	if(PB_ANDROID)
-		add_custom_command(TARGET ProjectBuild POST_BUILD
+		add_custom_command(TARGET PBuild POST_BUILD
 			COMMAND ndk-build NDK_PROJECT_PATH=. NDK_APPLICATION_MK=acerba/Application.mk APP_BUILD_SCRIPT=acerba/Android.mk NDK_LIBS_OUT=acerba/libs BASE_PATH="${ACERBA_SOURCE_DIR}"
 			WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/android")
 			
-		add_custom_command(TARGET ProjectBuild POST_BUILD
+		add_custom_command(TARGET PBuild POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_BINARY_DIR}/android/acerba/libs/" "${PROJECT_BINARY_DIR}/android/libs/")
 	endif()
 endif()
