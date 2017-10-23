@@ -12,6 +12,7 @@ namespace ace
     
     static const UInt8 limitLeaf = 6u;
     static const UInt8 limitTwo = 12u;
+    static const UInt8 limitDepth = 9u;
     
     template <typename FItr, typename OItr, typename Pred>
     FItr remove_move_if(FItr first, FItr last, OItr out, Pred p)
@@ -90,7 +91,7 @@ namespace ace
                 }
             }
             
-            void Update(const AABB& myNewAABB, IndexContainer& myIds);
+            void Update(const AABB& myNewAABB, IndexContainer& myIds, const UInt8 depth);
         }; // Node
         
         CollidableContainer m_collidables;
@@ -146,7 +147,7 @@ namespace ace
                 ids.emplace_back(itr.first);
                 newRootAABB.Merge(itr.second->GetAABB());
             }
-            m_root.Update(newRootAABB, ids);
+            m_root.Update(newRootAABB, ids, 0u);
         }
         
         void RemoveCollidable(const UInt32 id)
@@ -184,14 +185,14 @@ namespace ace
     
     
     
-    void BVHImpl::Node::Update(const AABB& myNewAABB, IndexContainer& myIds)
+    void BVHImpl::Node::Update(const AABB& myNewAABB, IndexContainer& myIds, const UInt8 depth)
     {
         const UInt32 size = myIds.size();
         m_aabb = myNewAABB;
         m_ids = myIds;
         m_children.clear();
         
-        if (size < limitLeaf) // Leaf
+        if (size < limitLeaf || depth == limitDepth) // Leaf
         {
             auto& collidables = BVHImpl::GetBVHImpl().GetCollidables();
             for (const UInt32 id : m_ids)
@@ -209,8 +210,8 @@ namespace ace
             
             BVHImpl::RemoveMoveIf(myIds, leftIds, leftAABB);
             
-            AddChild().Update(leftAABB, leftIds);
-            AddChild().Update(rightAABB, myIds);
+            AddChild().Update(leftAABB, leftIds, depth + 1u);
+            AddChild().Update(rightAABB, myIds, depth + 1u);
         }
         else // Quadtree
         {
@@ -224,10 +225,10 @@ namespace ace
             BVHImpl::RemoveMoveIf(myIds, rightTopIds, split.rightTop);
             BVHImpl::RemoveMoveIf(myIds, leftBottomIds, split.leftBottom);
             
-            AddChild().Update(split.leftTop, leftTopIds);
-            AddChild().Update(split.rightTop, rightTopIds);
-            AddChild().Update(split.leftBottom, leftBottomIds);
-            AddChild().Update(split.rightBottom, myIds);
+            AddChild().Update(split.leftTop, leftTopIds, depth + 1u);
+            AddChild().Update(split.rightTop, rightTopIds, depth + 1u);
+            AddChild().Update(split.leftBottom, leftBottomIds, depth + 1u);
+            AddChild().Update(split.rightBottom, myIds, depth + 1u);
         }
     } // Node::Update
     
