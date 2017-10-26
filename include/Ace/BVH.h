@@ -4,7 +4,7 @@
 
 namespace ace
 {
-    struct Collidable;
+    struct CollidableImpl;
     
     struct BVH final
     {
@@ -13,9 +13,9 @@ namespace ace
         
         /**
             @brief Adds a collidable to the BVH.
-            @param[in, out] c Collidable to add to the BVH.
+            @param[in, out] c CollidableImpl to add to the BVH.
         */
-        static void AddCollidable(Collidable& c);
+        static void AddCollidable(CollidableImpl& c);
         
         /**
             @brief Refreshes the bounding volumes in the BVH.
@@ -24,13 +24,13 @@ namespace ace
         
         /**
             @brief Remove a collidable from the BVH.
-            @param[in, out] c Collidable to remove.
+            @param[in, out] c CollidableImpl to remove.
         */
-        static void RemoveCollidable(const Collidable& c);
+        static void RemoveCollidable(const CollidableImpl& c);
         
         /**
             @brief Remove a collidable from the BVH.
-            @param[in] id ID of the Collidable to remove.
+            @param[in] id ID of the CollidableImpl to remove.
         */
         static void RemoveCollidable(const UInt32 id);
         
@@ -47,9 +47,9 @@ namespace ace
         
         /**
             @brief Updates collisions regarding c. Make sure you have called BVH::Refresh before.
-            @param[in, out] c Collidable whose collisions to update. Also marks the collisions on to the other collidables, if any.
+            @param[in, out] c CollidableImpl whose collisions to update. Also marks the collisions on to the other collidables, if any.
          */
-        static void UpdateCollisions(Collidable& c);
+        static void UpdateCollisions(CollidableImpl& c);
         
         BVH() = delete;
         ~BVH() = delete;

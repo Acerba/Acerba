@@ -8,6 +8,8 @@ int main(int, char**)
 
     ace::Window window("BVHExample", 800u, 600u);
 
+    ace::Collidable::Reserve(4u);
+
     ace::Rectangle r1(ace::Vector2(2.f, 1.f), ace::Vector2(0.f, 0.f));
     ace::Rectangle r2(ace::Vector2(2.f, 1.f), ace::Vector2(5.f, 5.f));
 

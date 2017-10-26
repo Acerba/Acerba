@@ -1,24 +1,21 @@
 #pragma once
 
-#include <Ace/AABB.h>
 #include <Ace/IntTypes.h>
 #include <Ace/Matrix2.h>
 #include <Ace/Vector2.h>
 
 #include <Ace/BVH.h>
 
-#include <memory> // shared_from_this
-#include <unordered_set>
 #include <vector>
 
 namespace ace
 {
+    struct AABB;
 
-
-    struct Collidable : public std::enable_shared_from_this<Collidable>
+    struct Collidable
     {
-        using Vector2 = math::Vector2;
         using Matrix2 = math::Matrix2;
+        using Vector2 = math::Vector2;
 
         Collidable(
             BVH::CollidableID id,
@@ -28,22 +25,10 @@ namespace ace
         virtual ~Collidable() = 0;
 
         /**
-            @brief Adds a collision to this collidable with other. Does not add the collision to other.
-            @param[in] other Collidable.
-         */
-        void AddCollision(Collidable& other)
-        {
-            m_collisions.insert(other.GetShared());
-        }
-
-        /**
             @brief Retrieve the AABB of this collidable.
             @return AABB
         */
-        inline const AABB& GetAABB() const
-        {
-            return m_aabb;
-        }
+        const AABB& GetAABB() const;
 
         /**
             @brief Retrieve the id of the collidable.
@@ -58,34 +43,15 @@ namespace ace
             @brief Retrieve the local position of the collidable.
             @return Local position.
          */
-        inline const Vector2& GetLocalPosition() const
-        {
-            return m_position;
-        }
-        inline Vector2& GetLocalPosition()
-        {
-            return m_position;
-        }
-
+        const Vector2& GetLocalPosition() const;
+        Vector2& GetLocalPosition();
 
         /**
             @brief Retrieve the current rotation of the collidable.
             @return Rotation.
          */
-        inline const Matrix2& GetRotation() const
-        {
-            return m_rotation;
-        }
-        inline Matrix2& GetRotation()
-        {
-            return m_rotation;
-        }
-
-        /**
-            @brief Retrieve a shared pointer to this collidable.
-            @return Shared pointer to this collidable.
-        */
-        std::shared_ptr<Collidable> GetShared();
+        const Matrix2& GetRotation() const;
+        Matrix2& GetRotation();
 
 
         /**
@@ -109,8 +75,14 @@ namespace ace
         static bool IsColliding(const Collidable& a, const Collidable& b);
 
         /**
-            @brief Resets the collisions this collidable has received.
-            Does not reset the collisions on the other collidable of the collision.
+            @brief Reserve memory for Collidables.
+            @param[in] size Number of Collidables to support.
+        */
+        static void Reserve(const UInt32 size);
+
+        /**
+            @brief Reset collisions regarding this Collidable.
+            Does not remove markings from other collidables with this one.
         */
         void ResetCollisions();
 
@@ -131,18 +103,16 @@ namespace ace
 
         virtual void UpdateAABB(const bool accountRotation = true) = 0;
 
-        std::unordered_set<std::shared_ptr<Collidable>> m_collisions;
-        AABB m_aabb;
-        Matrix2 m_rotation;
-        Vector2 m_position;
+        CollidableImpl& m_impl;
+
         BVH::CollidableID m_id;
     }; // Collidable
 
 
     struct Circle final : public Collidable
     {
-        using Vector2 = Collidable::Vector2;
         using Matrix2 = Collidable::Matrix2;
+        using Vector2 = Collidable::Vector2;
         
         Circle(const float radius, const Vector2& position, const Matrix2& rotation = math::s_identity2);
 
@@ -176,8 +146,8 @@ namespace ace
 
     struct Rectangle final : public Collidable
     {
-        using Vector2 = Collidable::Vector2;
         using Matrix2 = Collidable::Matrix2;
+        using Vector2 = Collidable::Vector2;
 
         Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation = math::s_identity2);
 
@@ -210,8 +180,8 @@ namespace ace
 
     struct Triangle final : public Collidable
     {
-        using Vector2 = Collidable::Vector2;
         using Matrix2 = Collidable::Matrix2;
+        using Vector2 = Collidable::Vector2;
 
         Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation = math::s_identity2);
 

@@ -1,4 +1,5 @@
 #include <Ace/Collidable.h>
+#include <Ace/CollidableImpl.h>
 #include <Ace/BVH.h>
 #include <Ace/Log.h>
 #include <Ace/Math.h>
@@ -8,8 +9,8 @@
 namespace ace
 {
 
-    using Vector2 = Collidable::Vector2;
     using Matrix2 = Collidable::Matrix2;
+    using Vector2 = Collidable::Vector2;
     
     bool IsInTriangle(
         const Vector2& p,
@@ -131,14 +132,19 @@ namespace ace
 
 
     Collidable::Collidable(BVH::CollidableID id, const Vector2& position, const Matrix2& rotation) :
-        m_collisions(), m_aabb(), m_rotation(rotation), m_position(position), m_id(id)
+        m_impl(CollidableImpl::CreateCollidableImpl(position, rotation)), m_id(id)
     {
-
+        m_impl.SetOwner(this);
     }
 
     Collidable::~Collidable()
     {
-        
+        Logger::LogError("Began destructing Collidable");
+        // delete &m_impl; // check
+        // m_impl.~CollidableImpl();
+
+        // Why is the dtor of a reference called?
+        Logger::LogError("Ending destructing Collidable");
     }
 
     // Vector2 Collidable::GetGlobalPosition() const
@@ -146,18 +152,27 @@ namespace ace
     //     return m_rotation * m_position;
     // }
 
-    std::shared_ptr<Collidable> Collidable::GetShared()
+    const AABB& Collidable::GetAABB() const
     {
-        // return std::shared_ptr<Collidable>(this);
-        // return this->shared_from_this();
-        try {
-            return this->shared_from_this();
-        }
-        catch (std::bad_weak_ptr e)
-        {
-            Logger::LogError("Tried to create a shared Collidable from non-shared Collidable");
-            throw e;
-        }
+        return m_impl.GetAABB();
+    }
+
+    const Vector2& Collidable::GetLocalPosition() const
+    {
+        return m_impl.GetLocalPosition();
+    }
+    Vector2& Collidable::GetLocalPosition()
+    {
+        return m_impl.GetLocalPosition();
+    }
+
+    const Matrix2& Collidable::GetRotation() const
+    {
+        return m_impl.GetRotation();
+    }
+    Matrix2& Collidable::GetRotation()
+    {
+        return m_impl.GetRotation();
     }
 
     bool Collidable::IsColliding(const Collidable& a, const Collidable& b)
@@ -188,14 +203,19 @@ namespace ace
         return true; // No non-overlaps found, must be colliding
     }
 
+    void Collidable::Reserve(const UInt32 size)
+    {
+        CollidableImpl::Reserve(size);
+    }
+
     void Collidable::ResetCollisions()
     {
-        m_collisions.clear();
+        m_impl.ResetCollisions();
     }
 
     void Collidable::UpdateCollisions()
     {
-        BVH::UpdateCollisions(*this);
+        m_impl.UpdateCollisions();
     }
 
 
@@ -216,7 +236,7 @@ namespace ace
 
     bool Circle::IsColliding(const Vector2& point) const
     {
-        return (point - m_position).lengthSquared() <= (m_radius * m_radius);
+        return (point - GetLocalPosition()).lengthSquared() <= (m_radius * m_radius);
     }
 
     void Circle::Rotate(float)
@@ -226,10 +246,12 @@ namespace ace
 
     void Circle::UpdateAABB(const bool)
     {
-        m_aabb.min.x = m_position.x - m_radius;
-        m_aabb.min.y = m_position.y - m_radius;
-        m_aabb.max.x = m_position.x + m_radius;
-        m_aabb.max.y = m_position.y + m_radius;
+        AABB& aabb = m_impl.GetAABB();
+        const Vector2& pos = GetLocalPosition();
+        aabb.min.x = pos.x - m_radius;
+        aabb.min.y = pos.y - m_radius;
+        aabb.max.x = pos.x + m_radius;
+        aabb.max.y = pos.y + m_radius;
     }
 
 
@@ -244,53 +266,58 @@ namespace ace
     
     std::vector<Vector2> Rectangle::GetVertices() const
     {
+        const Matrix2& rot = GetRotation();
+        const Vector2& pos = GetLocalPosition();
         return {
-            mv::ToVektor(m_rotation * (m_position + Vector2{-m_extents.x, -m_extents.y})),
-            mv::ToVektor(m_rotation * (m_position + Vector2{ m_extents.x, -m_extents.y})),
-            mv::ToVektor(m_rotation * (m_position + m_extents)),
-            mv::ToVektor(m_rotation * (m_position + Vector2{-m_extents.x,  m_extents.y}))
+            mv::ToVektor(rot * (pos + Vector2{-m_extents.x, -m_extents.y})),
+            mv::ToVektor(rot * (pos + Vector2{ m_extents.x, -m_extents.y})),
+            mv::ToVektor(rot * (pos + m_extents)),
+            mv::ToVektor(rot * (pos + Vector2{-m_extents.x,  m_extents.y}))
         };
     }
 
     bool Rectangle::IsColliding(const Vector2& point) const
     {
-        const Vector2 pos = mv::ToVektor(m_rotation * (m_position + m_extents));
-        const Vector2 neg = mv::ToVektor(m_rotation * (m_position + mv::Invert(m_extents)));
+        const Matrix2& rot = GetRotation();
+        const Vector2& pos = GetLocalPosition();
+        const Vector2 expos = mv::ToVektor(rot * (pos + m_extents));
+        const Vector2 exneg = mv::ToVektor(rot * (pos + mv::Invert(m_extents)));
         return IsInTriangle(
             point,
-            pos,
-            mv::ToVektor(m_rotation * (m_position + Vector2(-m_extents.x, m_extents.y))),
-            neg
+            expos,
+            mv::ToVektor(rot * (pos + Vector2(-m_extents.x, m_extents.y))),
+            exneg
         ) || IsInTriangle(
             point,
-            neg,
-            mv::ToVektor(m_rotation * (m_position + Vector2(m_extents.x, -m_extents.y))),
-            pos
+            exneg,
+            mv::ToVektor(rot * (pos + Vector2(m_extents.x, -m_extents.y))),
+            expos
         );
     }
 
     void Rectangle::Rotate(float deg)
     {
         m_extents = mv::ToVektor(math::RotateZ2(deg) * m_extents);
-        m_rotation = math::s_identity2;
+        GetRotation() = math::s_identity2;
 
         UpdateAABB(false);
     }
 
     void Rectangle::UpdateAABB(const bool accountRotation)
     {
-        m_aabb.Reset();
+        AABB& aabb = m_impl.GetAABB();
+        aabb.Reset();
         if (accountRotation)
         {
             for (const auto& vertex : GetVertices())
             {
-                m_aabb.Update(vertex);
+                aabb.Update(vertex);
             }
         }
         else
         {
-            m_aabb.Update(m_position + mv::Invert(m_extents));
-            m_aabb.Update(m_position + m_extents);
+            aabb.Update(m_impl.GetLocalPosition() + mv::Invert(m_extents));
+            aabb.Update(m_impl.GetLocalPosition() + m_extents);
         }
     }
 
@@ -306,20 +333,24 @@ namespace ace
     
     std::vector<Vector2> Triangle::GetVertices() const
     {
+        const Matrix2& rot = GetRotation();
+        const Vector2& pos = GetLocalPosition();
         return {
-            m_position + mv::ToVektor(m_rotation * m_extents[0]),
-            m_position + mv::ToVektor(m_rotation * m_extents[1]),
-            m_position + mv::ToVektor(m_rotation * m_extents[2])
+            pos + mv::ToVektor(rot * m_extents[0]),
+            pos + mv::ToVektor(rot * m_extents[1]),
+            pos + mv::ToVektor(rot * m_extents[2])
         };
     }
 
     bool Triangle::IsColliding(const Vector2& point) const
     {
+        const Matrix2& rot = GetRotation();
+        const Vector2& pos = GetLocalPosition();
         return IsInTriangle(
             point,
-            mv::ToVektor(m_rotation * (m_position + m_extents[0])),
-            mv::ToVektor(m_rotation * (m_position + m_extents[1])),
-            mv::ToVektor(m_rotation * (m_position + m_extents[2]))
+            mv::ToVektor(rot * (pos + m_extents[0])),
+            mv::ToVektor(rot * (pos + m_extents[1])),
+            mv::ToVektor(rot * (pos + m_extents[2]))
         );
     }
 
@@ -329,26 +360,28 @@ namespace ace
         for (auto& itr : m_extents)
             itr = mv::ToVektor(rot * itr);
 
-        m_rotation = math::s_identity2;
+        GetRotation() = math::s_identity2;
 
         UpdateAABB(false);
     }
 
     void Triangle::UpdateAABB(const bool accountRotation)
     {
-        m_aabb.Reset();
+        AABB& aabb = m_impl.GetAABB();
+        aabb.Reset();
         if (accountRotation)
         {
             for (const auto& vertex : GetVertices())
             {
-                m_aabb.Update(vertex);
+                aabb.Update(vertex);
             }
         }
         else
         {
-            m_aabb.Update(m_position + m_extents[0]);
-            m_aabb.Update(m_position + m_extents[1]);
-            m_aabb.Update(m_position + m_extents[2]);
+            const Vector2& pos = GetLocalPosition();
+            aabb.Update(pos + m_extents[0]);
+            aabb.Update(pos + m_extents[1]);
+            aabb.Update(pos + m_extents[2]);
         }
     }
     
