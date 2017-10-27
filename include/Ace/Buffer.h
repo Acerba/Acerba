@@ -24,7 +24,7 @@ namespace ace
 	static const UInt32 vertexAttributeSizes[] = 
 	{ 
 		sizeof(Vector4), 
-		sizeof(Vector2), 
+		sizeof(Vector3), 
 		sizeof(Color32) 
 	};
 
@@ -44,10 +44,9 @@ namespace ace
 	struct Vertex
 	{
 		Vector4 position;
-		Vector2 uv;
+		Vector3 uv;
 		Color32 color;
 	};
-
 
 	/**
 	@brief Buffer Types

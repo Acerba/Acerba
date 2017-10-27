@@ -37,6 +37,7 @@ namespace ace
         struct TileLayer : public Drawable
         {
             std::vector<Sprite> tiles;
+			IndexBuffer indexBuffer;
 
             virtual void Draw() const;
         };

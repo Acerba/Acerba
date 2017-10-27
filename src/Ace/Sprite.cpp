@@ -5,10 +5,10 @@ namespace ace
 {
 
     const ace::Vertex triangle[4] = {
-        { { 0.5f, 0.5f, 0.f, 0.0f }, { 1.0f, 0.0f }, 0xFFFFFFFFU },
-        { { -0.5f, 0.5f, 0.f, 0.0f }, { 0.0f, 0.0f }, 0xFFFFFFFFU },
-        { { -0.5f, -0.5f, 0.f, 0.0f }, { 0.0f, 1.0f }, 0xFFFFFFFFU },
-        { { 0.5f, -0.5f, 0.f, 0.0f }, { 1.0f, 1.0f }, 0xFFFFFFFFU },
+        { { 0.5f, 0.5f, 0.f, 0.0f },	{ 1.0f, 0.0f, 0.0f}, 0xFFFFFFFFU },
+        { { -0.5f, 0.5f, 0.f, 0.0f },	{ 0.0f, 0.0f, 0.0f}, 0xFFFFFFFFU },
+        { { -0.5f, -0.5f, 0.f, 0.0f },	{ 0.0f, 1.0f, 0.0f}, 0xFFFFFFFFU },
+        { { 0.5f, -0.5f, 0.f, 0.0f },	{ 1.0f, 1.0f, 0.0f}, 0xFFFFFFFFU },
     };
 
     Sprite::Sprite() : Sprite(triangle)
@@ -26,15 +26,17 @@ namespace ace
 	}
 
     Sprite::Sprite(const Vertex(&data)[4]) :
-        vertexData{{data[0], data[1], data[2], data[3]}}
+        vertexData{data[0], data[1], data[2], data[3]}
     {
-		
+		// IF vertexData construction throws compiler error
+		// -> replace it here by setting values manually.
     }
 
     Sprite::Sprite(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4) :
-        vertexData{{ v1, v2, v3, v4 }}
+        vertexData{ v1, v2, v3, v4 } 
     {
-
+		// IF vertexData construction throws compiler error
+		// -> replace it here by setting values manually.
     }
 
 
@@ -148,7 +150,7 @@ namespace ace
 
 	void Sprite::SetUV(UInt8 index, const Vector2& uv)
 	{
-		vertexData[index].uv = uv;
+		vertexData[index].uv = Vector3(uv.x, uv.y, vertexData[index].uv.z);
 	}
 
 	void Sprite::SetPosition(UInt8 index, const Vector2& positon)
@@ -156,15 +158,6 @@ namespace ace
 		vertexData[index].position.x = positon.x;
 		vertexData[index].position.y = positon.y;
 	}
-
-	void Sprite::SetInstanceID(UInt8 id)
-	{
-		vertexData[0].position.w = id;
-		vertexData[1].position.w = id;
-		vertexData[2].position.w = id;
-		vertexData[3].position.w = id;
-	}
-
 
 	void Sprite::SetScale(const Vector2& scale)
 	{
@@ -194,5 +187,31 @@ namespace ace
 			position.z += vertexData[i].position.z;
 		}
 		return position / static_cast<float>(Sprite::size);
+	}
+
+	void Sprite::SetInstanceID(UInt32 id)
+	{
+		vertexData[0].position.w = id;
+		vertexData[1].position.w = id;
+		vertexData[2].position.w = id;
+		vertexData[3].position.w = id;
+	}
+
+	UInt32 Sprite::GetInstanceID() const
+	{
+		return vertexData[0].position.w;
+	}
+
+	void Sprite::SetID(UInt32 id)
+	{
+		vertexData[0].uv.z = id;
+		vertexData[1].uv.z = id;
+		vertexData[2].uv.z = id;
+		vertexData[3].uv.z = id;
+	}
+
+	UInt32 Sprite::GetID() const
+	{
+		return vertexData[0].uv.z;
 	}
 }

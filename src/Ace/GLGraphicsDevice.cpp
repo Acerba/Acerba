@@ -185,6 +185,16 @@ namespace ace
 		return buffer;
 	}
 
+
+	void GraphicsDevice::BufferData(Buffer& buffer, UInt32 count, const UInt32* indicies, BufferUsage usage)
+	{
+		UInt32 target = GLBufferTargets[static_cast<UInt32>(buffer.type)];
+
+		glBindBuffer(target, buffer->bufferID);
+		glBufferData(target, count * sizeof(UInt32), indicies, GLBufferUsage[static_cast<UInt32>(usage)]);
+		glBindBuffer(target, 0);
+	}
+
 	void GraphicsDevice::BufferData(Buffer& buffer, UInt32 count, const Vertex* data, BufferUsage usage, UInt32 instances)
 	{
 		UInt32 target = GLBufferTargets[static_cast<UInt32>(buffer.type)];
@@ -224,6 +234,12 @@ namespace ace
 
 		glBindBuffer(target, buffer->bufferID);
 		glBufferSubData(target, offset, count * sizeof(Vertex), data);
+		glBindBuffer(target, 0);
+	}
+
+	void GraphicsDevice::UnSetBuffer(BufferType type)
+	{
+		UInt32 target = GLBufferTargets[static_cast<UInt32>(type)];
 		glBindBuffer(target, 0);
 	}
 
@@ -457,7 +473,44 @@ namespace ace
 		}
         
 		//glUseProgram(0);
+	}
 
+	UInt32* GraphicsDevice::CreateIndicies(UInt32 count)
+	{
+		if (count == 0)
+		{
+			return nullptr;
+		}
+
+		UInt32* indicies = new UInt32[count * 6];
+
+		for (UInt32 i = 0; i < count; ++i)
+		{
+			indicies[0u + 6u * i] = 0u + 4u * i;
+			indicies[1u + 6u * i] = 1u + 4u * i;
+			indicies[2u + 6u * i] = 2u + 4u * i;
+			indicies[3u + 6u * i] = 2u + 4u * i;
+			indicies[4u + 6u * i] = 3u + 4u * i;
+			indicies[5u + 6u * i] = 0u + 4u * i;
+		}
+
+		return indicies;
+	}
+
+	void GraphicsDevice::CreateIndicies(Buffer& buffer, UInt32 count, BufferUsage usage)
+	{
+		if (count == 0)
+		{
+			return;
+		}
+
+		if (buffer.size < count)
+		{
+			UInt32* indicies = CreateIndicies(count);
+			GraphicsDevice::BufferData(buffer, count * 6, indicies, usage);
+			delete[] indicies;
+			indicies = nullptr;
+		}
 	}
 
 	void GraphicsDevice::Draw(UInt32 elements, UInt32 indicies, const UInt32* indexTable)
@@ -501,11 +554,34 @@ namespace ace
 		}
 	}
 
-	// TODO: Calculate Index Table.
-	//void GraphicsDevice::Draw(const Sprite* sprites, UInt32 counts)
-	//{
-	//
-	//}
+	void GraphicsDevice::Draw(const Sprite* sprites, UInt32 count, Buffer& indexBuffer)
+	{
+		if (count > 0)
+		{
+			GraphicsDevice::CreateIndicies(indexBuffer, count, BufferUsage::Dynamic);
+			const Buffer& buffer = indexBuffer;
+
+			Draw(sprites, count, buffer);
+		}
+	}
+
+	void GraphicsDevice::Draw(const Sprite* sprites, UInt32 count, const Buffer& indexBuffer)
+	{
+		if (count > 0)
+		{
+			static VertexBuffer vertexBuffer;
+			const Vertex* verticies = sprites->vertexData;
+			GraphicsDevice::BufferData(vertexBuffer, 4 * count, verticies, BufferUsage::Streaming);
+
+			GraphicsDevice::SetVertexBuffer(vertexBuffer);
+			GraphicsDevice::SetIndexBuffer(indexBuffer);
+
+			GraphicsDevice::Draw(0, count * 6);
+
+			GraphicsDevice::UnSetBuffer(BufferType::Vertex);
+			GraphicsDevice::UnSetBuffer(BufferType::Index);
+		}
+	}
 
 	void GraphicsDevice::Draw(const Sprite& sprite)
 	{
@@ -519,7 +595,7 @@ namespace ace
 		};
 
 		static Buffer s_spriteBuffer = GraphicsDevice::CreateBuffer(ace::BufferType::Vertex);
-		BufferData(s_spriteBuffer, 4, sprite.vertexData.data(), BufferUsage::Streaming);
+		BufferData(s_spriteBuffer, 4, sprite.vertexData, BufferUsage::Streaming);
 		SetVertexBuffer(s_spriteBuffer);
 
 		Draw(0, 6, indexTable);

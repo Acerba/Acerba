@@ -6,8 +6,6 @@
 
 #include <Ace/SpriteSheet.h>
 
-#include <array>
-
 namespace ace
 {
 
@@ -17,7 +15,7 @@ namespace ace
 
 		static const UInt8 size = 4u;
 
-		std::array<Vertex, size> vertexData;
+		Vertex vertexData[size];
 
 		Sprite();
 
@@ -111,7 +109,20 @@ namespace ace
 		*/
 		Vector3 GetCenter() const;
 
-		void SetInstanceID(UInt8 id);
+		void SetInstanceID(UInt32 id);
+		UInt32 GetInstanceID() const;
+
+		/**
+			@brief Sets Custom ID
+			@param[in] id
+		*/
+		void SetID(UInt32 id);
+
+		/**
+			@brief Gets Custom ID
+			@return id
+		*/
+		UInt32 GetID() const;
     };
 
 }

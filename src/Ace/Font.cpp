@@ -293,13 +293,13 @@ namespace ace
 			auto uv4 = Vector2((float)(g.x + 0) / m_w, (float)(g.y + 0) / m_h);
 			auto uv5 = Vector2((float)(g.x + 0) / m_w, (float)(g.y + g.h) / m_h);
 
-			vertex[6 * i + 0].uv = uv5;
-			vertex[6 * i + 2].uv = uv4;
-			vertex[6 * i + 1].uv = uv3;
-
-			vertex[6 * i + 3].uv = uv2;
-			vertex[6 * i + 4].uv = uv1;
-			vertex[6 * i + 5].uv = uv0;
+			vertex[6 * i + 0].uv = Vector3(uv5.x, uv5.y, 0.0f);
+			vertex[6 * i + 2].uv = Vector3(uv4.x, uv4.y, 0.0f);
+			vertex[6 * i + 1].uv = Vector3(uv3.x, uv3.y, 0.0f);
+								   			
+			vertex[6 * i + 3].uv = Vector3(uv2.x, uv2.y, 0.0f);
+			vertex[6 * i + 4].uv = Vector3(uv1.x, uv1.y, 0.0f);
+			vertex[6 * i + 5].uv = Vector3(uv0.x, uv0.y, 0.0f);
 
 			g.w *= scale;
 			g.h *= scale;
