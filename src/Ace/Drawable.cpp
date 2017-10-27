@@ -88,7 +88,7 @@ namespace ace
         static Sprite BeginSpriteIsometric(Vector2& position, Vector2& size)
         {
             position = Isometric(position);
-            position.x /= -2.0f;
+            //position.x /= -2.0f;
             return Sprite();
         }
 
@@ -160,7 +160,7 @@ namespace ace
 
                         // Begin
                         Sprite sprite = begin(pos, size);
-                        pos.y *= (size.y / size.x);
+                        //pos.y *= (size.y / size.x);
 
 
                         // Update
