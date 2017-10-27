@@ -135,9 +135,10 @@ namespace ace
 
             GetSpriteCallback(map.getOrientation(), begin, end);
 
-            float offsetX = tileSize.x / tilesetSize.x, offsetY = tileSize.y / tilesetSize.y;
+            // float offsetX = tileSize.x / tilesetSize.x, offsetY = tileSize.y / tilesetSize.y;
 
-            for (Int32 i = 0; i < map.getLayers().size(); ++i)
+            const UInt32 layerCount = map.getLayers().size();
+            for (UInt32 i = 0; i < layerCount; ++i)
             {
                 TileLayer layer;
                 tmx::TileLayer* tileLayer = dynamic_cast<tmx::TileLayer*>(map.getLayers()[i].get());

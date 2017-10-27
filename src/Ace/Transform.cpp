@@ -7,10 +7,12 @@ namespace ace
         const Quaternion& rotation,
         const Vector3& scale
     ) :
-        model(math::s_identity4),
-        rotation(rotation),
-        position(position),
-        scale(scale)
+        m_model(math::s_identity4),
+        m_rotation(rotation),
+        m_position(position),
+        m_scale(scale),
+        m_isModelValid(false)
+
     {
 
     }
@@ -24,6 +26,11 @@ namespace ace
     {
         m_isModelValid = false;
         return m_model;
+    }
+
+    bool Transform::GetModelStatus() const
+    {
+        return m_isModelValid;
     }
     
     const Vector3& Transform::GetPosition() const
@@ -59,8 +66,13 @@ namespace ace
 
     void Transform::SetModel(const Matrix4& model)
     {
-        m_isModelValid = false;
+        m_isModelValid = true;
         m_model = model;
+    }
+
+    void Transform::SetModelStatus(const bool isModelValid)
+    {
+        m_isModelValid = isModelValid;
     }
 
     void Transform::SetPosition(const Vector3& position)

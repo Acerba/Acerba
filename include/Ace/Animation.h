@@ -8,12 +8,12 @@
 
 namespace ace 
 {
-	struct AnimationEvent
+	struct AnimationEvent final
 	{
 		float delta;
 	};
 
-	class Animation : public EventBase<AnimationEvent>
+	class Animation final : public EventBase<AnimationEvent>
 	{
 	public:
 		struct AnimationData
@@ -61,7 +61,7 @@ namespace ace
 		*/
 		bool isPlaying;
 
-		virtual void OnEvent(AnimationEvent);
+		virtual void OnEvent(AnimationEvent) final override;
 
 	private:
 		std::vector<AnimationData> m_animations;

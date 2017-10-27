@@ -21,7 +21,7 @@ namespace ace
 		BasicColors& operator=(const BasicColors&) = delete;
 	};
 
-	struct Color
+	struct Color final
 	{
 		UInt8 r, g, b, a;
 
@@ -73,7 +73,7 @@ namespace ace
 
 	}; // Color
 
-	struct Color32
+	struct Color32 final
 	{
 		float r, g, b, a;
 		explicit Color32(float r = 0.f, float g = 0.f, float b = 0.f, float a = 0.f) : r(r), g(g), b(b), a(a)

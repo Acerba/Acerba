@@ -691,6 +691,7 @@ namespace ace
 			GL_COLOR_ATTACHMENT0
 		};
 
+		// TODO: explain the else expression
 		UInt32 attachments = framebufferAttachment < 3 ? GLAttachments[framebufferAttachment] : GLAttachments[3] + framebufferAttachment;
 
 		SetFramebuffer(&framebuffer);

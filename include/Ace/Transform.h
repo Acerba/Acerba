@@ -7,7 +7,6 @@ namespace ace
 
     class Transform final
     {
-        
         Matrix4 m_model;
         Quaternion m_rotation;
         Vector3 m_position;
@@ -19,7 +18,7 @@ namespace ace
         /**
             @brief Transform class, XYZ-coodrinates
             @param[in] position Position, default 0,0,0
-            @param[in] rotation Rotation, default 0,0,0,0
+            @param[in] rotation Rotation, default 1,0,0,0
             @param[in] scale Scale, default 1,1,1
         */
         Transform(
@@ -38,6 +37,12 @@ namespace ace
             @return Retrieve a reference to the model matrix.
         */
         Matrix4& GetModelRef();
+
+        /**
+            @brief Query model matrix status.
+            @return False if the model matrix needs to be recalculated.
+        */
+        bool GetModelStatus() const;
         
         /**
             @brief Retrieve position. Does not invalidate model matrix.
@@ -73,14 +78,29 @@ namespace ace
         Vector3& GetScaleRef();
 
         /**
-            @brief Set the model matrix. Invalidates
+            @brief Set the model matrix. Validates model matrix.
         */
         void SetModel(const Matrix4& model);
 
+        /**
+            @brief Overwrite the model matrix status.
+            @param[in] isModelValid Model matrix status.
+        */
+        void SetModelStatus(const bool isModelValid);
+
+        /**
+            @brief Set the position. Invalidates model matrix.
+        */
         void SetPosition(const Vector3& position);
 
+        /**
+            @brief Set the rotation. Invalidates model matrix.
+        */
         void SetRotation(const Quaternion& rotation);
 
+        /**
+            @brief Set the scale. Invalidates model matrix.
+        */
         void SetScale(const Vector3& scale);
     };
 }

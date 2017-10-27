@@ -47,10 +47,10 @@ namespace ace
     void LogDebug(const Transform& t, const char* msg)
     {
         Logger::LogDebug(msg);
-        LogDebug(t.model, "Model");
-        LogDebug(t.position, "Position");
-        LogDebug(t.rotation, "Rotation");
-        LogDebug(t.scale, "Scale");
+        LogDebug(t.GetModel(), "Model");
+        LogDebug(t.GetPosition(), "Position");
+        LogDebug(t.GetRotation(), "Rotation");
+        LogDebug(t.GetScale(), "Scale");
     }
 
     void LogDebug(const Vector2& v, const char* msg)

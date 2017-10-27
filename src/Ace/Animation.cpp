@@ -58,8 +58,9 @@ namespace ace
 		m_currentAnimation(nullptr),
 		m_frameSpeed(30u)
 	{
-		m_animations.reserve(sheet.GetSpriteCount());
-		for (UInt16 i = 0u; i < sheet.GetSpriteCount(); ++i)
+		const UInt32 spriteCount = sheet.GetSpriteCount();
+		m_animations.reserve(spriteCount);
+		for (UInt32 i = 0u; i < spriteCount; ++i)
 		{
 			const SpriteSheet::SpriteData& sprite = *sheet.GetSprite(i);
 			const std::string name = sprite.SpriteName.substr(0, GetNameIndex(sprite.SpriteName));
@@ -125,34 +126,31 @@ namespace ace
 
 	void Animation::OnEvent(AnimationEvent event)
 	{
-		if (m_currentAnimation == nullptr)
-		{
-			return;
-		}
+        if (!m_currentAnimation)
+        {
+            return;
+        }
 
-		if (m_currentAnimation->currentTime >= event.delta)
-		{
-				m_currentAnimation->currentTime = 0.f;
-				if (++m_currentAnimation->currentFrame >= m_currentAnimation->frames.size())
-				{
-					//Check if animation is at end
-					if (&m_currentAnimation->frames[m_currentAnimation->currentFrame] == &*m_currentAnimation->frames.end())
-					{
-						//Check if animation is Looping animation 
-						if (m_currentAnimation->loop)
-						{
-							&m_currentAnimation->frames[m_currentAnimation->currentFrame] == &*m_currentAnimation->frames.begin();
-						}
-						else
-						{
-							m_currentAnimation = nullptr;
-						}
-					}
-				}
-		}
+        if (m_currentAnimation->currentTime >= event.delta)
+        {
+            m_currentAnimation->currentTime = 0.f;
+            //Check if animation is at end
+            if (++m_currentAnimation->currentFrame >= m_currentAnimation->frames.size())
+            {
+                //Check if animation is Looping animation 
+                if (m_currentAnimation->loop)
+                {
+                    m_currentAnimation->currentFrame = 0u;
+                }
+                else
+                {
+                    m_currentAnimation = nullptr;
+                }
+            }
+        }
 
-		//event.delta // Delta Time
-		// TODO: Update Animation
-	}
+        //event.delta // Delta Time
+        // TODO: Update Animation
+    }
 
 }

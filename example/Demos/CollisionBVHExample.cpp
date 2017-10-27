@@ -16,8 +16,8 @@ int main(int, char**)
     ace::Sprite s1;
     ace::Sprite s2;
 
-    s1.Colorize(ace::Color(1.f, 1.f, 1.f, 1.f));
-    s2.Colorize(ace::Color(1.f, 1.f, 1.f, 1.f));
+    s1.Colorize(ace::Color32(0.2f, 0.f, 0.f, 1.f));
+    s2.Colorize(ace::Color32(0.f, 0.2f, 0.f, 1.f));
 
     // r1.GetShared();
     // ace::BVH::AddCollidable(r1);

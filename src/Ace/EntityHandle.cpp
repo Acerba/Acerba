@@ -60,8 +60,7 @@ namespace ace
         m_last(nullptr),
         m_parent(nullptr),
         m_componentCount(0u),
-        m_isStatic(false),
-        m_isModelValid(false)
+        m_isStatic(false)
     {
 
     }
@@ -172,17 +171,6 @@ namespace ace
         for (auto& child : this->m_children)
             this->RemoveChildHandle(child);
         m_children.clear();
-    }
-
-    void EntityManager::EntityHandle::SetModelValid(const bool isModelValid)
-    {
-        m_isModelValid = isModelValid;
-    }
-
-    void EntityManager::EntityHandle::SetStatic(const bool isStatic)
-    {
-        m_isStatic = isStatic;
-        m_isModelValid = false;
     }
 
 }

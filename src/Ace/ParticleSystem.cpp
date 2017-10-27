@@ -1,5 +1,7 @@
 #include <Ace/ParticleSystem.h>
 
+#if 0
+
 namespace ace
 {
 	ParticleSystem::ParticleSystem(Particle& particle, Vector3 position)
@@ -21,7 +23,7 @@ namespace ace
 		}
 		else
 		{
-			//TODO: Jotakin tänne?
+			//TODO: Jotakin tï¿½nne?
 			printf("ParticleSystem isn't active");
 		}
 	}
@@ -40,3 +42,5 @@ namespace ace
 		}
 	}
 }
+
+#endif

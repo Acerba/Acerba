@@ -10,24 +10,24 @@
 
 namespace ace
 {
-    struct StandardMaterialProperties : public Material::MaterialProperties
+    struct StandardMaterialProperties final : public Material::MaterialProperties
     {
+        math::Matrix4 model;
         Color32 color;
-        Vector2 scale, position;
-
+        Vector2 scale;
+        Vector2 position;
         float angle;
 
-        math::Matrix4 model;
 
         mutable Texture diffuse;
 
-        StandardMaterialProperties() : model(math::s_identity4), color(0xFFFFFFFF), scale(1.f, 1.f), position(0.f, 0.f), angle(0)
+        StandardMaterialProperties() : model(math::s_identity4), color(0xFFFFFFFF), scale(1.f, 1.f), position(0.f, 0.f), angle(0.f)
         {
 
         }
 
 
-        inline virtual void Apply(const Material& material) const
+        inline virtual void Apply(const Material& material) const final override
         {
             material.Uniform("Color", color);
             material.Uniform("Scale", scale);
@@ -39,7 +39,7 @@ namespace ace
         }
     };
 
-	class StandardMaterial : public MaterialPropertyWrapper<StandardMaterialProperties>
+	class StandardMaterial final : public MaterialPropertyWrapper<StandardMaterialProperties>
 	{
 	public:
 
@@ -57,7 +57,7 @@ namespace ace
 
 	protected:
 
-		virtual void Init() const
+		virtual void Init() const final override
 		{
 			Shader vert, frag;
 			vert.Create(

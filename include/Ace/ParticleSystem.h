@@ -1,6 +1,9 @@
 #pragma once
+
 #include <Ace/Transform.h>
 #include <Ace/Particle.h>
+
+#if 0
 
 namespace ace
 {
@@ -21,3 +24,5 @@ namespace ace
 		bool isActive;
 	};
 }
+
+#endif

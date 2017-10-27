@@ -23,7 +23,6 @@ namespace ace
         EntityHandle* m_parent;
         UInt32 m_componentCount;
         bool m_isStatic;
-        bool m_isModelValid;
 
 
         void PushComponentHandle(EntityManager::ComponentBaseHandle* handle);
@@ -209,15 +208,6 @@ namespace ace
 
 
         /**
-            @brief Queries if the entity model is up-to-date.
-            @return True if the model does not need to be recalculated.
-        */
-        inline bool IsModelValid() const
-        {
-            return m_isModelValid;
-        }
-
-        /**
             @brief Queries the entity static status.
             @return True if the entity is static. (Static entities transforms are not recalculated on each frame)
         */
@@ -263,13 +253,14 @@ namespace ace
             ComponentPool<CompType>::GetPool().Reserve(size);
         }
 
-        void SetModelValid(const bool isModelValid);
-
         /**
             @brief Set static status of the entity.
             @param[in] isStatic True if the entity should be made static.
         */
-        void SetStatic(const bool isStatic);
+        void SetStatic(const bool isStatic)
+        {
+            m_isStatic = isStatic;
+        }
 
     }; // EntityHandle
 

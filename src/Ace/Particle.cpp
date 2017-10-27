@@ -1,6 +1,8 @@
 #include <Ace/Particle.h>
 #include <Ace/Time.h>
 
+#if 0
+
 namespace ace
 {
 	
@@ -30,3 +32,5 @@ namespace ace
 		m_lifeTime -= Time::DeltaTime();
 	}
 }
+
+#endif

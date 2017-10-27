@@ -19,7 +19,7 @@ namespace ace
 
         /**
             @brief Scene constructor.
-            @param[in, out] rootManager EntityManager to handle this scene. Uses DefaultManger by default.
+            @param[in, out] rootManager EntityManager to handle this scene. Uses DefaultManager by default.
         */
         Scene(class EntityManager* rootManager = nullptr);
 

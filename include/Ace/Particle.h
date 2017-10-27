@@ -4,6 +4,8 @@
 #include <Ace/Transform.h>
 #include <Ace/StandardMaterial.h>
 
+#if 0
+
 namespace ace
 {
 	class Particle
@@ -42,3 +44,5 @@ namespace ace
 		
 	};
 }
+
+#endif
