@@ -50,7 +50,7 @@ namespace ace
                     sheet = SpriteSheet(Image(File(path)));
                     sheet.AddSprite("NULL", Rect(0, 0, 0, 0)); // Null Sprite
 
-                    tilesetSize = mv::MakeVektor<2u, float>(map.getTilesets()[0].getTileSize().x, map.getTilesets()[0].getTileSize().y);
+                    tilesetSize = math::MakeVektor<2u, float>(map.getTilesets()[0].getTileSize().x, map.getTilesets()[0].getTileSize().y);
 
                     UInt32 col = map.getTilesets()[0].getColumnCount(), row = map.getTilesets()[0].getTileCount() / col;
                     Rect location(0, 0, tilesetSize.x, tilesetSize.y);

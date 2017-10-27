@@ -20,15 +20,6 @@ namespace ace
     {
         const UInt32 size = s_collidableImpls.size();
         Logger::LogError("Began destructing CollidableImpl, number of collidables: %i", size);
-        try
-        {
-            const UInt32 removedCount = s_collidableImpls.erase(GetShared());
-            Logger::LogError("Removed %i collidables", removedCount);
-        }
-        catch (std::bad_weak_ptr e)
-        {
-            Logger::LogError("Caught bad_weak_ptr");
-        }
         Logger::LogError("Ending destructing CollidableImpl");
     }
 
@@ -41,6 +32,19 @@ namespace ace
             Logger::LogError("Collidable already exists, using old");
         }
         return *result.first->get();
+    }
+
+    void CollidableImpl::Destroy()
+    {
+        try
+        {
+            const UInt32 removedCount = s_collidableImpls.erase(GetShared());
+            Logger::LogError("Removed %i collidables", removedCount);
+        }
+        catch (std::bad_weak_ptr e)
+        {
+            Logger::LogError("Caught bad_weak_ptr");
+        }
     }
 
 

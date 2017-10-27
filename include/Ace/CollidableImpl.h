@@ -36,6 +36,8 @@ namespace ace
         }
         
         static CollidableImpl& CreateCollidableImpl(const Vector2& position, const Matrix2& rotation);
+
+        void Destroy();
         
 
         /**

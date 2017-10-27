@@ -23,11 +23,11 @@ namespace ace
         const Vector2 v1 = b - a;
         const Vector2 v2 = p - a;
         
-        const float d00 = mv::Dot(v0, v0);
-        const float d01 = mv::Dot(v0, v1);
-        const float d02 = mv::Dot(v0, v2);
-        const float d11 = mv::Dot(v1, v1);
-        const float d12 = mv::Dot(v1, v2);
+        const float d00 = math::Dot(v0, v0);
+        const float d01 = math::Dot(v0, v1);
+        const float d02 = math::Dot(v0, v2);
+        const float d11 = math::Dot(v1, v1);
+        const float d12 = math::Dot(v1, v2);
         
         const float id = 1.f / (d00 * d11 - d01 * d01); // TODO: add div-by-zero check?
         const float u = (d11 * d02 - d01 * d12) * id;
@@ -73,11 +73,11 @@ namespace ace
 
     Vector2 ProjectAxis(const Vector2& axis, const std::vector<Vector2>& vertices)
     {
-        float min = mv::Dot(axis, vertices[0]);
+        float min = math::Dot(axis, vertices[0]);
         float max = min;
         for (UInt8 i = 1u; i < vertices.size(); ++i)
         {
-            const float cur = mv::Dot(axis, vertices[i]);
+            const float cur = math::Dot(axis, vertices[i]);
             if (cur < min) min = cur;
             else if (max < cur) max = cur;
         }
@@ -104,7 +104,7 @@ namespace ace
             const float edgeLengthSquared = edge.lengthSquared();
             if (!math::IsNearEpsilon(edgeLengthSquared))
             {
-                const float dot = mv::Dot(edge, axis);
+                const float dot = math::Dot(edge, axis);
                 if (dot >= 0.f && dot <= edgeLengthSquared)
                 {
                     axis = (vertex + (edge * (dot / edgeLengthSquared))) - center;
@@ -140,10 +140,7 @@ namespace ace
     Collidable::~Collidable()
     {
         Logger::LogError("Began destructing Collidable");
-        // delete &m_impl; // check
-        // m_impl.~CollidableImpl();
-
-        // Why is the dtor of a reference called?
+        m_impl.Destroy();
         Logger::LogError("Ending destructing Collidable");
     }
 
@@ -269,10 +266,10 @@ namespace ace
         const Matrix2& rot = GetRotation();
         const Vector2& pos = GetLocalPosition();
         return {
-            mv::ToVektor(rot * (pos + Vector2{-m_extents.x, -m_extents.y})),
-            mv::ToVektor(rot * (pos + Vector2{ m_extents.x, -m_extents.y})),
-            mv::ToVektor(rot * (pos + m_extents)),
-            mv::ToVektor(rot * (pos + Vector2{-m_extents.x,  m_extents.y}))
+            math::ToVektor(rot * (pos + Vector2{-m_extents.x, -m_extents.y})),
+            math::ToVektor(rot * (pos + Vector2{ m_extents.x, -m_extents.y})),
+            math::ToVektor(rot * (pos + m_extents)),
+            math::ToVektor(rot * (pos + Vector2{-m_extents.x,  m_extents.y}))
         };
     }
 
@@ -280,24 +277,24 @@ namespace ace
     {
         const Matrix2& rot = GetRotation();
         const Vector2& pos = GetLocalPosition();
-        const Vector2 expos = mv::ToVektor(rot * (pos + m_extents));
-        const Vector2 exneg = mv::ToVektor(rot * (pos + mv::Invert(m_extents)));
+        const Vector2 expos = math::ToVektor(rot * (pos + m_extents));
+        const Vector2 exneg = math::ToVektor(rot * (pos + math::Invert(m_extents)));
         return IsInTriangle(
             point,
             expos,
-            mv::ToVektor(rot * (pos + Vector2(-m_extents.x, m_extents.y))),
+            math::ToVektor(rot * (pos + Vector2(-m_extents.x, m_extents.y))),
             exneg
         ) || IsInTriangle(
             point,
             exneg,
-            mv::ToVektor(rot * (pos + Vector2(m_extents.x, -m_extents.y))),
+            math::ToVektor(rot * (pos + Vector2(m_extents.x, -m_extents.y))),
             expos
         );
     }
 
     void Rectangle::Rotate(float deg)
     {
-        m_extents = mv::ToVektor(math::RotateZ2(deg) * m_extents);
+        m_extents = math::ToVektor(math::RotateZ2(deg) * m_extents);
         GetRotation() = math::s_identity2;
 
         UpdateAABB(false);
@@ -316,7 +313,7 @@ namespace ace
         }
         else
         {
-            aabb.Update(m_impl.GetLocalPosition() + mv::Invert(m_extents));
+            aabb.Update(m_impl.GetLocalPosition() + math::Invert(m_extents));
             aabb.Update(m_impl.GetLocalPosition() + m_extents);
         }
     }
@@ -336,9 +333,9 @@ namespace ace
         const Matrix2& rot = GetRotation();
         const Vector2& pos = GetLocalPosition();
         return {
-            pos + mv::ToVektor(rot * m_extents[0]),
-            pos + mv::ToVektor(rot * m_extents[1]),
-            pos + mv::ToVektor(rot * m_extents[2])
+            pos + math::ToVektor(rot * m_extents[0]),
+            pos + math::ToVektor(rot * m_extents[1]),
+            pos + math::ToVektor(rot * m_extents[2])
         };
     }
 
@@ -348,9 +345,9 @@ namespace ace
         const Vector2& pos = GetLocalPosition();
         return IsInTriangle(
             point,
-            mv::ToVektor(rot * (pos + m_extents[0])),
-            mv::ToVektor(rot * (pos + m_extents[1])),
-            mv::ToVektor(rot * (pos + m_extents[2]))
+            math::ToVektor(rot * (pos + m_extents[0])),
+            math::ToVektor(rot * (pos + m_extents[1])),
+            math::ToVektor(rot * (pos + m_extents[2]))
         );
     }
 
@@ -358,7 +355,7 @@ namespace ace
     {
         const Matrix2 rot(math::RotateZ2(deg));
         for (auto& itr : m_extents)
-            itr = mv::ToVektor(rot * itr);
+            itr = math::ToVektor(rot * itr);
 
         GetRotation() = math::s_identity2;
 

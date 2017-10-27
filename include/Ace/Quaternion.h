@@ -6,6 +6,7 @@ namespace ace
 {
     namespace math
     {
-		using Quaternion = mv::Quat<float>;
-	}
+        using namespace mv;
+        using Quaternion = Quat<float>;
+    }
 }

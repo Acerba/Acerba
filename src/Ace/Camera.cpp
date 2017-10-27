@@ -70,20 +70,20 @@ namespace ace
 
     void Camera::LookAt()
     {
-        const Vector3 position(mv::ResizeVektor<3u>(mv::ToVektor(
-            mv::Transpose(m_entity->transform.model) * Vector4(0.f,0.f,0.f,1.f)
+        const Vector3 position(math::ResizeVektor<3u>(ToVektor(
+            Transpose(m_entity->transform.model) * Vector4(0.f,0.f,0.f,1.f)
         )));
-        const Vector3 direction(mv::ResizeVektor<3u>(mv::ToVektor(
+        const Vector3 direction(math::ResizeVektor<3u>(math::ToVektor(
             m_entity->transform.model *
-            mv::ToMatrix<4u>(m_entity->transform.rotation) *
+            math::ToMatrix<4u>(m_entity->transform.rotation) *
             Vector4(0.f,0.f,-1.f,1.f)
         )));
-		m_view = mv::LookAt(position, position - direction, m_up);
+        m_view = math::LookAt(position, position - direction, m_up);
     }
 
 	void Camera::Ortho(const Vector4& size, float aspect)
 	{
-		m_proj = mv::MakeOrthographic(
+		m_proj = math::MakeOrthographic(
 			-size.x * aspect, size.x * aspect,
 			size.y, -size.y,
 			size.z, size.w
@@ -92,7 +92,7 @@ namespace ace
 
 	void Camera::LookAt(const Vector3& target)
 	{
-		m_entity->transform.rotation = mv::LookAt2(m_entity->transform.position - target, m_up);
+		m_entity->transform.rotation = math::LookAt2(m_entity->transform.position - target, m_up);
 		LookAt();
 	}
 

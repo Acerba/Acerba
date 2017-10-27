@@ -21,7 +21,7 @@ namespace ace
 		const math::Matrix4 rot(math::RotateZ4(deg));
 		for (auto& i : vertexData)
 		{
-			i.position = mv::ToVektor(rot * i.position);
+			i.position = math::ToVektor(rot * i.position);
 		}
 	}
 
@@ -65,7 +65,7 @@ namespace ace
 		for (auto& i : vertexData)
 		{
             i.position.w = 1.f;
-            i.position = mv::ToVektor(rot * i.position);
+            i.position = math::ToVektor(rot * i.position);
             i.position.w = w;
 		}
 	}

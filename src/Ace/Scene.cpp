@@ -26,9 +26,9 @@ namespace ace
         }
 
         entity->transform.model =
-           mv::MakeScaling(entity->transform.scale) *
-           mv::ToMatrix<4u>(entity->transform.rotation) *
-           mv::MakeTranslation(entity->transform.position) * parentModel
+           math::MakeScaling(entity->transform.scale) *
+           math::ToMatrix<4u>(entity->transform.rotation) *
+           math::MakeTranslation(entity->transform.position) * parentModel
         ;
 
         const UInt32 count = entity.ChildCount();
