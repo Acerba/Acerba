@@ -6,13 +6,14 @@ namespace ace
 {
 	namespace math
 	{
-		using Matrix4 = mv::Mat<4u, 4u, float>;
+		using namespace mv;
+		using Matrix4 = Mat<4u, 4u, float>;
 
-		static const Matrix4 s_identity4 = mv::MakeIdentity<4u, float>();
+		static const Matrix4 s_identity4 = MakeIdentity<4u, float>();
 
 		static Matrix4 RotateZ4(float deg)
 		{
-			return mv::MakeRotation<4u>(mv::ToRad(deg), mv::AXIS::Z);
+			return MakeRotation<4u>(ToRad(deg), AXIS::Z);
 		}
 	}
 }

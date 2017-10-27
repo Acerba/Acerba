@@ -198,7 +198,7 @@ namespace ace
         m_ids = myIds;
         m_children.clear();
         
-        if (size < limitLeaf || depth == limitDepth) // Leaf
+        if (size < limitLeaf || depth == limitDepth) // Leaf
         {
             auto& collidables = BVHImpl::GetBVHImpl().GetCollidables();
             for (const UInt32 id : m_ids)

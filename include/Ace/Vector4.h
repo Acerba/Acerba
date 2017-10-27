@@ -6,6 +6,7 @@ namespace ace
 {
 	namespace math
 	{
-		using Vector4 = mv::Vektor<4u, float>;
+		using namespace mv;
+		using Vector4 = Vektor<4u, float>;
 	}
 }

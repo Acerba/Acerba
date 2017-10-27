@@ -6,8 +6,9 @@ namespace ace
 {
 	namespace math
 	{
-		using Matrix3 = mv::Mat<3u, 3u, float>;
+		using namespace mv;
+		using Matrix3 = Mat<3u, 3u, float>;
 
-		static const Matrix3 s_identity3 = mv::MakeIdentity<3u, float>();
+		static const Matrix3 s_identity3 = MakeIdentity<3u, float>();
 	}
 }
