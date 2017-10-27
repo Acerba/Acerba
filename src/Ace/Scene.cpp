@@ -25,11 +25,20 @@ namespace ace
             return;
         }
 
-        entity->transform.model =
-           math::MakeScaling(entity->transform.scale) *
-           math::ToMatrix<4u>(entity->transform.rotation) *
-           math::MakeTranslation(entity->transform.position) * parentModel
-        ;
+
+        const bool staticInvalid = (entity->IsStatic() && !entity->IsModelValid());
+        if (staticInvalid || !entity->IsModelValid())
+        {
+            entity->transform.model =
+            math::MakeScaling(entity->transform.scale) *
+            math::ToMatrix<4u>(entity->transform.rotation) *
+            math::MakeTranslation(entity->transform.position) * parentModel;
+        }
+        // TODO: 
+        if (staticInvalid)
+        {
+            entity->SetModelValid(true);
+        }
 
         const UInt32 count = entity.ChildCount();
         for (UInt32 i = 0u; i < count; ++i)

@@ -5,6 +5,7 @@
 namespace ace
 {
 
+    // Get type-unique IDs
     template <typename U>
     class UUID
     {
@@ -81,6 +82,18 @@ namespace ace
         inline operator UInt32() const
         {
             return m_ID;
+        }
+    };
+
+    // Get unique IDs
+    template <>
+    class UUID<void> final
+    {
+    public:
+        inline static UInt32 GetID()
+        {
+            static UInt32 s_id = 0u;
+            return ++s_id;
         }
     };
 

@@ -168,6 +168,15 @@ namespace ace
         }
 
         /**
+            @brief Queries the entity static status.
+            @return True if the entity is static. (Static entities transforms are not recalculated on each frame)
+        */
+        inline bool IsStatic() const
+        {
+            return m_handle ? m_handle->IsStatic() : false;
+        }
+
+        /**
         @brief Removes target, components, children and all their components.
         @param[in, out] target Target and all its children will be invalidated on this call.
         */
@@ -203,6 +212,15 @@ namespace ace
         void SetParent(Entity& parent)
         {
             parent.AddChild(*this);
+        }
+
+        /**
+            @brief Set static status of the entity.
+            @param[in] isStatic True if the entity should be made static.
+        */
+        void SetStatic(const bool isStatic)
+        {
+            if (m_handle) m_handle->SetStatic(isStatic);
         }
 
         /**
