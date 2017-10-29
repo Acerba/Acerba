@@ -3,6 +3,8 @@
 #if ACE_DEBUG
 
 #include <Ace/Log.h>
+
+#include <Ace/AABB.h>
 #include <Ace/Types.h>
 #include <Ace/Transform.h>
 
@@ -14,6 +16,13 @@ namespace ace
     void LogDebug(const float f, const char* msg)
     {
         Logger::LogDebug("%s: %f", msg, f);
+    }
+
+    void LogDebug(const AABB& aabb, const char* msg)
+    {
+        Logger::LogDebug("%s:", msg);
+        LogDebug(aabb.min, "min");
+        LogDebug(aabb.max, "max");
     }
 
     void LogDebug(const Matrix2& m, const char* msg)

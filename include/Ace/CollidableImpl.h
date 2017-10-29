@@ -5,40 +5,44 @@
 #include <Ace/Matrix2.h>
 #include <Ace/Vector2.h>
 
-#include <memory> // std::shared_from_this
-#include <unordered_set>
+#include <vector> // std::vector
 
 namespace ace
 {
+
+    struct Collidable;
     
-    
-    struct CollidableImpl final : public std::enable_shared_from_this<CollidableImpl>
+    struct CollidableImpl final
     {
         using Matrix2 = math::Matrix2;
         using Vector2 = math::Vector2;
 
         /**
             @brief Ctor.
-            @warning Do not call manually. Use CreateCollidable instead.
-            @see CreateCollidableImpl()
         */
         CollidableImpl(const Vector2& position, const Matrix2& rotation);
 
+        /**
+            @brief Dtor.
+        */
         ~CollidableImpl();
         
         /**
-        @brief Adds a collision to this collidableimpl with other. Does not add the collision to other.
-        @param[in] other CollidableImpl.
+            @brief Adds a collision to this collidableimpl with other. Does not add the collision to other.
+            @param[in] other CollidableImpl.
         */
-        void AddCollision(CollidableImpl& other)
+        void AddCollision(CollidableImpl* other)
         {
-            m_collisions.insert(other.GetShared());
+            if (other)
+            {
+                m_collisions.emplace_back(other);
+            }
         }
-        
-        static CollidableImpl& CreateCollidableImpl(const Vector2& position, const Matrix2& rotation);
 
+        /**
+            @brief Destroy this CollidableImpl. Clears all collisions from all CollidableImpls.
+        */
         void Destroy();
-        
 
         /**
             @brief Retrieve the AABB of this collidable.
@@ -53,15 +57,32 @@ namespace ace
             return m_aabb;
         }
 
-        inline UInt32 GetID() const
+        /**
+            @brief Retrieve the number of collisions this object has.
+        */
+        UInt32 GetCollisionCount() const
         {
-            return 0u; // TODO:
+            return m_collisions.size();
         }
+
+        /**
+            @brief Retrieve the objects which this collides with.
+         */
+        std::vector<CollidableImpl*>& GetCollisions()
+        {
+            return m_collisions;
+        }
+
+        /**
+            @brief Retrieve the unique ID of this.
+            @return UInt32.
+        */
+        UInt32 GetID() const;
 
         /**
             @brief Retrieve the local position of the collidable.
             @return Local position.
-         */
+        */
         inline const Vector2& GetLocalPosition() const
         {
             return m_position;
@@ -71,6 +92,10 @@ namespace ace
             return m_position;
         }
 
+        /**
+            @brief Retrieve the owner of this.
+            @return Collidable.
+        */
         inline Collidable& GetOwner()
         {
             return *m_owner;
@@ -79,7 +104,7 @@ namespace ace
         /**
             @brief Retrieve the current rotation of the collidable.
             @return Rotation.
-         */
+        */
         inline const Matrix2& GetRotation() const
         {
             return m_rotation;
@@ -89,18 +114,6 @@ namespace ace
             return m_rotation;
         }
 
-        
-        std::shared_ptr<CollidableImpl> GetShared()
-        {
-            return this->shared_from_this();
-        }
-
-        /**
-            @brief Reserve memory for collidables.
-            @param[in] size Number of simultaneous collidables to support.
-        */
-        static void Reserve(const UInt32 size);
-        
         /**
             @brief Resets the collisions this collidable has received.
             Does not reset the collisions on the other collidable of the collision.
@@ -110,18 +123,17 @@ namespace ace
             m_collisions.clear();
         }
         
-        void SetOwner(Collidable* owner)
-        {
-            m_owner = owner;
-        }
+        /**
+            @brief Set the owner of this.
+            @warning Only call this method in a Derived-from-Collidable ctor.
+            @param[in] owner Collidable.
+        */
+        void SetOwner(Collidable* owner);
 
-        void UpdateCollisions();
-        
-        
         
     private:
         
-        std::unordered_set<std::shared_ptr<CollidableImpl>> m_collisions;
+        std::vector<CollidableImpl*> m_collisions;
         AABB m_aabb;
         Matrix2 m_rotation;
         Vector2 m_position;

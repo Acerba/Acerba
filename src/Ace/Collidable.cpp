@@ -3,8 +3,9 @@
 #include <Ace/BVH.h>
 #include <Ace/Log.h>
 #include <Ace/Math.h>
+#include <Ace/UUID.h>
 
-#include <limits> // numeric_limits::max()
+#include <limits> // std::numeric_limits::max()
 
 namespace ace
 {
@@ -67,8 +68,6 @@ namespace ace
             math::IsBetween(a.y, b.x, b.y) ||
             math::IsBetween(b.x, a.x, a.y) ||
             math::IsBetween(b.y, a.x, a.y);
-            //(b.x < a.x && a.x < b.y) ||
-            //(b.x < a.y && a.y < b.y) ||
     }
 
     Vector2 ProjectAxis(const Vector2& axis, const std::vector<Vector2>& vertices)
@@ -81,7 +80,7 @@ namespace ace
             if (cur < min) min = cur;
             else if (max < cur) max = cur;
         }
-        return { min, max };
+        return Vector2(min, max);
     }
 
     bool IsCollidingCircle(const Circle& c, const std::vector<Vector2>& otherVertices)
@@ -131,17 +130,15 @@ namespace ace
 
 
 
-    Collidable::Collidable(BVH::CollidableID id, const Vector2& position, const Matrix2& rotation) :
-        m_impl(CollidableImpl::CreateCollidableImpl(position, rotation)), m_id(id)
+    Collidable::Collidable(const Vector2& position, const Matrix2& rotation) :
+        m_impl(BVH::AddCollidable(position, rotation)), m_id(UUID<void>::GetID())
     {
-        m_impl.SetOwner(this);
+        // Don't call SetOwner here. Derived class not yet created.
     }
 
     Collidable::~Collidable()
     {
-        Logger::LogError("Began destructing Collidable");
         m_impl.Destroy();
-        Logger::LogError("Ending destructing Collidable");
     }
 
     // Vector2 Collidable::GetGlobalPosition() const
@@ -202,7 +199,7 @@ namespace ace
 
     void Collidable::Reserve(const UInt32 size)
     {
-        CollidableImpl::Reserve(size);
+        BVH::Reserve(size);
     }
 
     void Collidable::ResetCollisions()
@@ -212,7 +209,8 @@ namespace ace
 
     void Collidable::UpdateCollisions()
     {
-        m_impl.UpdateCollisions();
+        UpdateAABB();
+        BVH::UpdateCollisions(*this);
     }
 
 
@@ -220,10 +218,12 @@ namespace ace
 
 
     Circle::Circle(const float radius, const Vector2& position, const Matrix2& rotation) :
-        Collidable(BVH::CollidableID::GetID<Circle>(), position, rotation), m_radius(math::Abs(radius))
+        Collidable(position, rotation), m_radius(math::Abs(radius))
     {
         if (math::IsNearEpsilon(radius))
             Logger::Log(Logger::Priority::Warning, "Collidable: Circle: Radius near epsilon: %f", radius);
+        
+        m_impl.SetOwner(this);
     }
 
     std::vector<Vector2> Circle::GetVertices() const
@@ -256,9 +256,9 @@ namespace ace
 
 
     Rectangle::Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation) :
-        Collidable(BVH::CollidableID::GetID<Rectangle>(), position, rotation), m_extents(extents)
+        Collidable(position, rotation), m_extents(extents)
     {
-
+        m_impl.SetOwner(this);
     }
     
     std::vector<Vector2> Rectangle::GetVertices() const
@@ -308,13 +308,13 @@ namespace ace
         {
             for (const auto& vertex : GetVertices())
             {
-                aabb.Update(vertex);
+                aabb.Merge(vertex);
             }
         }
         else
         {
-            aabb.Update(m_impl.GetLocalPosition() + math::Invert(m_extents));
-            aabb.Update(m_impl.GetLocalPosition() + m_extents);
+            aabb.Merge(m_impl.GetLocalPosition() + math::Invert(m_extents));
+            aabb.Merge(m_impl.GetLocalPosition() + m_extents);
         }
     }
 
@@ -323,9 +323,9 @@ namespace ace
 
 
     Triangle::Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation) :
-        Collidable(BVH::CollidableID::GetID<Triangle>(), position, rotation), m_extents{ extents[0], extents[1], extents[2] }
+        Collidable(position, rotation), m_extents{ extents[0], extents[1], extents[2] }
     {
-
+        m_impl.SetOwner(this);
     }
     
     std::vector<Vector2> Triangle::GetVertices() const
@@ -370,15 +370,15 @@ namespace ace
         {
             for (const auto& vertex : GetVertices())
             {
-                aabb.Update(vertex);
+                aabb.Merge(vertex);
             }
         }
         else
         {
             const Vector2& pos = GetLocalPosition();
-            aabb.Update(pos + m_extents[0]);
-            aabb.Update(pos + m_extents[1]);
-            aabb.Update(pos + m_extents[2]);
+            aabb.Merge(pos + m_extents[0]);
+            aabb.Merge(pos + m_extents[1]);
+            aabb.Merge(pos + m_extents[2]);
         }
     }
     

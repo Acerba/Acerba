@@ -1,7 +1,6 @@
 #include <Ace/AABB.h>
-#include <Ace/Collidable.h>
 
-#include <limits>
+#include <limits> // std::numeric_limits
 
 namespace ace
 {
@@ -10,7 +9,23 @@ namespace ace
     static const Vector2 s_defaultMin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
     static const Vector2 s_defaultMax(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
 
-    AABB::Split::Split(const AABB& original) :
+
+    AABB::Split2::Split2(const AABB& original) :
+        left(),
+        right()
+    {
+        const float centerX = (original.min.x + original.max.x) * 0.5f;
+
+        left.min = original.min;
+        left.max.x = centerX;
+        left.max.y = original.max.y;
+
+        right.min.x = centerX;
+        right.min.y = original.min.y;
+        right.max = original.max;
+    }
+
+    AABB::Split4::Split4(const AABB& original) :
         leftTop(),
         rightTop(),
         leftBottom(),
@@ -58,24 +73,24 @@ namespace ace
             a.min.y <= point.y && point.y <= a.max.y;
     }
 
+    void AABB::Merge(const Vector2& point)
+    {
+        if (point.x < min.x) min.x = point.x;
+        else if (max.x < point.x) max.x = point.x;
+        if (point.y < min.y) min.y = point.y;
+        else if (max.y < point.y) max.y = point.y;
+    }
+
     void AABB::Merge(const AABB& other)
     {
-        Update(other.min);
-        Update(other.max);
+        Merge(other.min);
+        Merge(other.max);
     }
 
     void AABB::Reset()
     {
         min = s_defaultMin;
         max = s_defaultMax;
-    }
-
-    void AABB::Update(const Vector2& vertex)
-    {
-        if (vertex.x < min.x) min.x = vertex.x;
-        else if (max.x < vertex.x) max.x = vertex.x;
-        if (vertex.y < min.y) min.y = vertex.y;
-        else if (max.y < vertex.y) max.y = vertex.y;
     }
     
     const Vector2& AABB::DefaultMin()

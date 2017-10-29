@@ -4,24 +4,31 @@
 #include <Ace/Matrix2.h>
 #include <Ace/Vector2.h>
 
-#include <Ace/BVH.h>
-
-#include <vector>
+#include <vector> // std::vector
 
 namespace ace
 {
     struct AABB;
+    struct CollidableImpl;
 
     struct Collidable
     {
         using Matrix2 = math::Matrix2;
         using Vector2 = math::Vector2;
 
+        /**
+            @brief Ctor.
+            @param[in] position Position of the collidable.
+            @param[in] rotation Rotation of the collidable.
+        */
         Collidable(
-            BVH::CollidableID id,
             const Vector2& position,
             const Matrix2& rotation = math::s_identity2
         );
+
+        /**
+            @brief Dtor. Clears all collisions from all Collidables.
+        */
         virtual ~Collidable() = 0;
 
         /**
@@ -34,8 +41,10 @@ namespace ace
             @brief Retrieve the id of the collidable.
             @return ID.
          */
-        virtual UInt32 GetID() const = 0;
-
+        inline UInt32 GetID() const
+        {
+            return m_id;
+        }
 
         // Vector2 GetGlobalPosition() const;
 
@@ -75,6 +84,19 @@ namespace ace
         static bool IsColliding(const Collidable& a, const Collidable& b);
 
         /**
+            @brief Access the underlying implementation.
+            @return CollidableImpl.
+        */
+        inline const CollidableImpl& operator*() const
+        {
+            return m_impl;
+        }
+        inline CollidableImpl& operator*()
+        {
+            return m_impl;
+        }
+
+        /**
             @brief Reserve memory for Collidables.
             @param[in] size Number of Collidables to support.
         */
@@ -93,19 +115,20 @@ namespace ace
         */
         virtual void Rotate(float deg) = 0;
 
+        virtual void UpdateAABB(const bool accountRotation = true) = 0;
+
         /**
             @brief Update collisions regarding this Collidable. Make sure you have called BVH::Update() beforehand.
             Also marks collisions on to the other collidables, if any.
         */
         void UpdateCollisions();
 
+        
+        
     protected:
-
-        virtual void UpdateAABB(const bool accountRotation = true) = 0;
-
         CollidableImpl& m_impl;
+        const UInt32 m_id;
 
-        BVH::CollidableID m_id;
     }; // Collidable
 
 
@@ -115,12 +138,6 @@ namespace ace
         using Vector2 = Collidable::Vector2;
         
         Circle(const float radius, const Vector2& position, const Matrix2& rotation = math::s_identity2);
-
-
-        UInt32 GetID() const final override
-        {
-            return m_id.GetID<Circle>();
-        }
 
         inline float GetRadius() const
         {
@@ -132,8 +149,6 @@ namespace ace
         bool IsColliding(const Vector2& point) const override;
         
         void Rotate(float deg) final override;
-
-    protected:
 
         void UpdateAABB(const bool accountRotation = true) final override;
 
@@ -156,18 +171,11 @@ namespace ace
             return m_extents;
         }
 
-        UInt32 GetID() const final override
-        {
-            return m_id.GetID<Rectangle>();
-        }
-        
         std::vector<Vector2> GetVertices() const final override;
 
         bool IsColliding(const Vector2& point) const override;
 
         void Rotate(float deg) final override;
-
-    protected:
 
         void UpdateAABB(const bool accountRotation = true) final override;
 
@@ -190,18 +198,11 @@ namespace ace
             return m_extents;
         }
 
-        UInt32 GetID() const final override
-        {
-            return m_id.GetID<Triangle>();
-        }
-        
         std::vector<Vector2> GetVertices() const final override;
 
         bool IsColliding(const Vector2& point) const override;
 
         void Rotate(float deg) final override;
-
-    protected:
 
         void UpdateAABB(const bool accountRotation = true) final override;
 

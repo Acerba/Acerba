@@ -8,9 +8,12 @@
 
 namespace ace
 {
+
+    struct AABB;
     class Transform;
 
     void LogDebug(const float, const char* msg = "");
+    void LogDebug(const AABB&, const char* msg = "");
     void LogDebug(const math::Matrix2&, const char* msg = "");
     void LogDebug(const math::Matrix3&, const char* msg = "");
     void LogDebug(const math::Matrix4&, const char* msg = "");

@@ -1,181 +1,122 @@
-//SceneDrawingMultipleEntites Demo
-// Include all necessary modules
 #include <Ace/Ace.h>
 
 #include <Ace/Collidable.h>
+#include <Ace/CollidableImpl.h>
+#include <Ace/BVH.h>
 
-#include <Ace/Debugger.h>
+#include <memory>
+#include <vector>
 
-#include <iostream>
-
-void logC(const ace::Collidable& c, const char* msg = nullptr)
+struct MyObject final
 {
-    for (const auto& itr : c.GetVertices())
-    {
-        ace::LogDebug(itr, msg);
-    }
+    std::unique_ptr<ace::Collidable> collidable;
+    ace::Sprite sprite;
+
+    MyObject() : collidable(), sprite() { }
+};
+
+void SetSprite(ace::Sprite& sprite, const ace::Vector2& pos)
+{
+    sprite.vertexData[0].position.x =  pos.x;
+    sprite.vertexData[0].position.y =  pos.y;
+
+    sprite.vertexData[1].position.x = -pos.x;
+    sprite.vertexData[1].position.y =  pos.y;
+
+    sprite.vertexData[2].position.x = -pos.x;
+    sprite.vertexData[2].position.y = -pos.y;
+
+    sprite.vertexData[3].position.x =  pos.x;
+    sprite.vertexData[3].position.y = -pos.y;
 }
 
-int main(int, char**) {
-    // Initialize Acerba
+int main(int, char**)
+{
     ace::Init();
     
+    ace::Window window("BVHExample", 800u, 600u);
     
-    #if 0
+    static const ace::UInt8 collidableCount = 20u;
     
-    using namespace ace;
+    ace::Collidable::Reserve(collidableCount + 1u);
+    std::vector<MyObject> objects(collidableCount);
     
-    std::cout << std::boolalpha;
+    static const ace::Vector2 rectSize(0.05f, 0.05f);
     
-    Rectangle r1(Vector2(-5.1, 6), Vector2(1, 1));
-    Rectangle r2(Vector2(0.999f, 3), Vector2(1, 1));
-    
-    Vector2 ex[3]{ {-1, -1}, {1, -1}, {1, 1} };
-    Triangle t1(Vector2(-4, 5), ex);
-    Circle c1(Vector2(-4.6, 5.6), 1);
-    
-    logC(t1, "t1vert");
-    //logC(r1, "r1vert");
-    
-    std::cout << "töks: " << Collidable::IsColliding(t1, c1) << '\n';
-    
-    #else
-    
-    // Create window
-    ace::Window window("Scene_demo", 1024u, 768u);
-    
-    ace::Entity entA;
-    ace::Entity entB;
-    
-    // Create a timer
-    ace::Time timer;
-    
-    // Create a scene
-    ace::Scene world;
-    
-    // Create a sprite
-    ace::Sprite spriteA;
-    ace::Sprite spriteB;
-    
-    // Create a material
-    ace::StandardMaterial mat;
-    
-    // Change sprite colour
-    spriteA.Colorize(ace::Color32(0.f, 0.f, 0.f, 1.f));
-    spriteB.Colorize(ace::Color32(1.f, 1.f, 1.f, 1.f));
-    
-    // Create a camera
-    ace::Camera camera;
-    
-    // Set world root as parent of camera
-    //camera.GetEntity().SetParent(world.GetRoot());
-    
-    // Take camera reference so we don't have to get it every time
-    ace::Entity& cam = camera.GetEntity();
-    
-    const float scale = 0.2f;
-    
-    // Change position
-    entA->transform.position = ace::Vector3(-0.75f, 0.f, 0.f);
-    ace::Rectangle rectA(ace::Vector2(scale, scale), ace::Vector2(-0.75f, 0.f));
-    ace::Rectangle rectB(ace::Vector2(scale, scale), ace::Vector2());
-    
-    // Scale to 20%
-    entA->transform.scale = ace::Vector3(scale, scale, 1.f);
-    entB->transform.scale = ace::Vector3(scale, scale, 1.f);
-    
-    // Add Sprite to entity
-    entA.ReserveComponents<ace::Sprite>(2u);
-    
-    ace::Sprite& spriteAref = entA.AddComponent(spriteA)->GetRef();
-    ace::Sprite& spriteBref = entB.AddComponent(spriteB)->GetRef();
+    for (ace::UInt8 i = 0u; i < collidableCount; ++i)
+    {
+        const ace::Vector2 position(ace::math::Rand(-1.f, 1.f), ace::math::Rand(-1.f, 1.f));
+        objects[i].collidable = std::make_unique<ace::Rectangle>(
+            rectSize,   // extents
+            position    // position
+        );
+        SetSprite(objects[i].sprite, rectSize);
+        objects[i].sprite.Move(ace::Vector3(position.x, position.y, 0.f));
+        objects[i].sprite.Colorize(ace::Color32(0.f, 0.f, 0.2f, 1.f));
+    }
+
+    MyObject player;
+    player.collidable = std::make_unique<ace::Rectangle>(rectSize, ace::Vector2());
+    SetSprite(player.sprite, rectSize);
+    player.sprite.Colorize(ace::Color32(0.f, 0.2f, 0.f, 1.f));
     
     
-    entA.ReserveComponents<ace::Rectangle>(2u);
-    
-    ace::Rectangle& rectAref = entA.AddComponent(rectA)->GetRef();
-    ace::Rectangle& rectBref = entB.AddComponent(rectB)->GetRef();
-    
-    // Add material to entity
-    entA.AddComponent<ace::Material>(mat);
-    entB.AddComponent<ace::Material>(mat);
-    
-    entA.SetParent(world.GetRoot());
-    entB.SetParent(world.GetRoot());
-    
-    #if 0
-    camera.GetEntity().SetParent(world.GetRoot());
-    #else
-    camera.GetEntity().SetParent(entB);
-    #endif
-    
-    // Total time elapsed, used in color calculation
-    float dt = 0.f;
-    
-    // While window is open
-    while (window) {
-        
-        // Clear window
+    while (window)
+    {
         window.Clear();
-        
-        // Update Acerba systems
         ace::Update();
         
-        // Get time between updates
-        dt = timer.DeltaTime();
-        
-        if (ace::Keyboard::GetKey("A"))
-        {
-            entA->transform.position.x -= dt;
-            rectAref.GetLocalPosition().x -= dt;
-        }
-        if (ace::Keyboard::GetKey("D"))
-        {
-            entA->transform.position.x += dt;
-            rectAref.GetLocalPosition().x += dt;
-        }
-        if (ace::Keyboard::GetKey("W"))
-        {
-            entA->transform.position.y += dt;
-            rectAref.GetLocalPosition().y += dt;
-        }
-        if (ace::Keyboard::GetKey("S"))
-        {
-            entA->transform.position.y -= dt;
-            rectAref.GetLocalPosition().y -= dt;
-        }
         if (ace::Keyboard::GetKey("1"))
         {
             window.Close();
         }
-        
-        if (ace::Collidable::IsColliding(rectAref, rectBref))
+        if (ace::Keyboard::GetKey("A"))
         {
-            spriteBref.Colorize(ace::Color32(0.5f, 0.2f, 0.2f, 1.f));
+            player.collidable->GetLocalPosition().x -= 0.01f;
+            player.sprite.Move(ace::Vector3(-0.01f, 0.f, 0.f));
+        }
+        if (ace::Keyboard::GetKey("D"))
+        {
+            player.collidable->GetLocalPosition().x += 0.01f;
+            player.sprite.Move(ace::Vector3( 0.01f, 0.f, 0.f));
+        }
+        if (ace::Keyboard::GetKey("W"))
+        {
+            player.collidable->GetLocalPosition().y += 0.01f;
+            player.sprite.Move(ace::Vector3(0.f,  0.01f, 0.f));
+        }
+        if (ace::Keyboard::GetKey("S"))
+        {
+            player.collidable->GetLocalPosition().y -= 0.01f;
+            player.sprite.Move(ace::Vector3(0.f, -0.01f, 0.f));
+        }
+
+        // if (ace::Keyboard::GetKey("4"))
+        {
+            ace::BVH::Update();
+            player.collidable->UpdateCollisions();
+        }
+
+
+        if ((*(*player.collidable.get())).GetCollisionCount() != 0)
+        {
+            player.sprite.Colorize(ace::Color32(0.2f, 0.f, 0.f, 1.f));
         }
         else
         {
-            (*entB.GetComponent<ace::Sprite>())->Colorize(ace::Color32(0.2f, 0.5f, 0.2f, 1.f));
+            player.sprite.Colorize(ace::Color32(0.f, 0.2f, 0.f, 1.f));
         }
 
-        // static float angle1 = 0.f;
-        // angle1 += dt;
-        // cam->transform.rotation = mv::MakeQuaternion(mv::MakeVektor<3u, float>(0, 0, angle1), true);
-        
-        // Update scene
-        world.Update();
-        
-        // Draw scene
-        world.Draw(camera);
-        
-        // Refresh screen
+
+        for (ace::UInt8 i = 0u; i < collidableCount; ++i)
+        {
+            ace::GraphicsDevice::Draw(objects[i].sprite);
+        }
+        ace::GraphicsDevice::Draw(player.sprite);
+
         window.Present();
     }
     
-    #endif
-    
-    // Shutdown Acerba
     ace::Quit();
-    
     return 0;
 }

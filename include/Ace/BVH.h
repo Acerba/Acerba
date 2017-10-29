@@ -1,32 +1,30 @@
 #pragma once
 
-#include <Ace/UUID.h>
+#include <Ace/IntTypes.h>
+#include <Ace/TypesFwd.h> // Vector2, Matrix2
 
 namespace ace
 {
+    struct Collidable;
     struct CollidableImpl;
     
     struct BVH final
     {
-        
-        using CollidableID = UUID<BVH>;
-        
         /**
-            @brief Adds a collidable to the BVH.
-            @param[in, out] c CollidableImpl to add to the BVH.
+            @brief Adds a CollidableImpl to the BVH.
+            @param[in] position Position of the collidable.
+            @param[in] rotation Rotation of the collidable.
+            @warning Do not call yourself. Called by Collidable ctor.
+            @see Collidable()
+            @return CollidableImpl for the Collidable ctor.
         */
-        static void AddCollidable(CollidableImpl& c);
-        
-        /**
-            @brief Refreshes the bounding volumes in the BVH.
-        */
-        static void Refresh();
+        static CollidableImpl& AddCollidable(const math::Vector2& position, const math::Matrix2& rotation);
         
         /**
             @brief Remove a collidable from the BVH.
-            @param[in, out] c CollidableImpl to remove.
+            @param[in] c Collidable to remove.
         */
-        static void RemoveCollidable(const CollidableImpl& c);
+        static void RemoveCollidable(const Collidable& c);
         
         /**
             @brief Remove a collidable from the BVH.
@@ -41,15 +39,25 @@ namespace ace
         static void Reserve(const UInt32 size);
         
         /**
-            @brief Calls UpdateCollisions on to all collidables added to the BVH. Calls Refresh internally.
-         */
+            @brief Reset collisions from all collidables.
+        */
+        static void ResetAllCollisions();
+
+        /**
+            @brief Refreshes the bounding volumes in the BVH.
+        */
+        static void Update();
+
+        /**
+            @brief Calls UpdateCollisions on to all collidables added to the BVH. Calls Update internally.
+        */
         static void UpdateAllCollisions();
         
         /**
-            @brief Updates collisions regarding c. Make sure you have called BVH::Refresh before.
-            @param[in, out] c CollidableImpl whose collisions to update. Also marks the collisions on to the other collidables, if any.
-         */
-        static void UpdateCollisions(CollidableImpl& c);
+            @brief Updates collisions regarding c. Make sure you have called BVH::Update before.
+            @param[in, out] c Collidable whose collisions to update. Also marks the collisions on to the other collidables, if any.
+        */
+        static void UpdateCollisions(Collidable& c);
         
         BVH() = delete;
         ~BVH() = delete;

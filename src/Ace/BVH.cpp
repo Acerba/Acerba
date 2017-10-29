@@ -1,22 +1,26 @@
 #include <Ace/BVH.h>
 #include <Ace/Collidable.h>
 #include <Ace/CollidableImpl.h>
-
 #include <Ace/Log.h>
 
-#include <algorithm> // std::find, std::remove_copy_if
-#include <unordered_map>
-#include <vector>
+#include <algorithm> // std::find_if, std::remove_copy_if
+#include <memory> // std::unique_ptr
+#include <vector> // std::vector
+
+#if ACE_DEBUG
+    #include <Ace/Debugger.h>
+#endif
 
 namespace ace
 {
-    using Vector2 = CollidableImpl::Vector2;
+    using Matrix2 = math::Matrix2;
+    using Vector2 = math::Vector2;
     
     static const UInt8 limitLeaf = 6u;
     static const UInt8 limitTwo = 12u;
     static const UInt8 limitDepth = 9u;
     
-    // Moves all elements from [first, last) to [out], that return true for p.
+    // Moves all elements from [first, last) to [out], which return true for p.
     template <typename FItr, typename OItr, typename Pred>
     FItr remove_move_if(FItr first, FItr last, OItr out, Pred p)
     {
@@ -37,13 +41,54 @@ namespace ace
     
     class BVHImpl final
     {
-        using CollidableImplContainer = std::unordered_map<UInt32, std::shared_ptr<CollidableImpl>>;
         using IndexContainer = std::vector<UInt32>;
+
+        struct CollidableImpls final
+        {
+            using Container = std::vector<std::unique_ptr<CollidableImpl>>;
+            using Iterator = Container::iterator;
+    
+            const Container& Data() const
+            {
+                return m_collidables;
+            }
+            Container& Data()
+            {
+                return m_collidables;
+            }
+    
+            CollidableImpl* Find(const UInt32 id)
+            {
+                Iterator itr = FindItr(id);
+                return IsIteratorValid(itr) ? itr->get() : nullptr;
+            }
+            CollidableImpl* Find(Collidable& c)
+            {
+                return Find(c.GetID());
+            }
+            Iterator FindItr(const UInt32 id)
+            {
+                return std::find_if(
+                    m_collidables.begin(), m_collidables.end(),
+                    [id](const std::unique_ptr<CollidableImpl>& ptr) -> bool
+                    { return ptr->GetID() == id; }
+                );
+            }
+    
+            inline bool IsIteratorValid(const Iterator& itr)
+            {
+                return itr != m_collidables.end();
+            }
+    
+        private:
+            Container m_collidables;
+        }; // CollidableImpls
         
+
         class Node final
         {
             AABB m_aabb;
-            std::vector<std::unique_ptr<Node>> m_children;
+            std::vector<Node> m_children;
             IndexContainer m_ids;
             
         public:
@@ -55,48 +100,66 @@ namespace ace
             
             Node& AddChild(const AABB& aabb = AABB())
             {
-                m_children.emplace_back(std::make_unique<Node>(aabb));
-                return *m_children.back().get();
+                m_children.emplace_back(aabb);
+                return m_children.back();
             }
             
             static void UpdateCollisions(
                 CollidableImpl& collidable,
                 Node& node,
-                const CollidableImplContainer& collidables
+                CollidableImpls& collidables
             )
             {
                 if (AABB::IsColliding(node.m_aabb, collidable.GetAABB()))
                 {
+            #if ACE_DEBUG
+                    Logger::LogDebug("Collision between aabbs:");
+                    LogDebug(collidable.GetAABB(), "Collidable");
+                    LogDebug(node.m_aabb, "Node");
+            #endif
                     if (!node.m_children.empty())
                     {
                         for (auto& itr : node.m_children)
                         {
-                            UpdateCollisions(
-                                collidable,
-                                *itr.get(),
-                                collidables
-                            );
+                            UpdateCollisions(collidable, itr, collidables);
                         }
                     }
                     else
                     {
                         for (const UInt32 id : node.m_ids)
                         {
-                            CollidableImpl& other = *collidables.at(id).get();
-                            if (Collidable::IsColliding(collidable.GetOwner(), other.GetOwner()))
+                            if (id != collidable.GetID())
                             {
-                                collidable.AddCollision(other);
-                                other.AddCollision(collidable);
+                                CollidableImpl* other = collidables.Find(id);
+                                if (other && Collidable::IsColliding(collidable.GetOwner(), other->GetOwner()))
+                                {
+                            #if ACE_DEBUG
+                                    Logger::LogDebug("Collision! Ids: Collidable: %i, Node: %i", collidable.GetID(), id);
+                                    Logger::LogDebug("AABBS:");
+                                    LogDebug(collidable.GetAABB(), "Collidable AABB");
+                                    LogDebug(other->GetAABB(), "Other AABB");
+                            #endif
+                                    collidable.AddCollision(other);
+                                    other->AddCollision(&collidable);
+                                }
                             }
                         }
                     }
                 }
+            #if ACE_DEBUG
+                else
+                {
+                    Logger::LogDebug("No collision between aabbs:");
+                    LogDebug(collidable.GetAABB(), "Collidable");
+                    LogDebug(node.m_aabb, "Node");
+                }
+            #endif
             }
             
             void Update(const AABB& myNewAABB, IndexContainer& myIds, const UInt8 depth);
         }; // Node
         
-        CollidableImplContainer m_collidables;
+        CollidableImpls m_collidables;
         Node m_root;
         
         BVHImpl() : m_collidables(), m_root(AABB())
@@ -105,27 +168,14 @@ namespace ace
         }
         
     public:
-        
-        static void RemoveMoveIf(IndexContainer& from, IndexContainer& to, const AABB& aabb)
+
+        CollidableImpl& AddCollidable(const Vector2& position, const Matrix2& rotation)
         {
-            const CollidableImplContainer& collidables = BVHImpl::GetBVHImpl().m_collidables;
-            (void)remove_move_if(
-                from.begin(), from.end(), std::back_inserter(to),
-                [&](const UInt32 id) -> bool
-                {
-                    return AABB::IsColliding(aabb, collidables.at(id)->GetAABB().GetCenter());
-                }
-            );
+            CollidableImpls::Container& data = m_collidables.Data();
+            data.emplace_back(std::make_unique<CollidableImpl>(position, rotation));
+            return *data.back().get();
         }
-        
-        
-        void AddCollidable(CollidableImpl& c)
-        {
-            if (!m_collidables.insert({c.GetID(), c.GetShared()}).second)
-            {
-                Logger::LogError("BVH: AddCollidable: Collidable already in BVH. ID: %i", c.GetID());
-            }
-        }
+
         
         static BVHImpl& GetBVHImpl()
         {
@@ -133,55 +183,80 @@ namespace ace
             return impl;
         }
         
-        CollidableImplContainer& GetCollidables()
-        {
-            return m_collidables;
-        }
-        
         void Rebuild()
         {
-            const UInt32 size = m_collidables.size();
-            IndexContainer ids;
-            ids.reserve(size);
+            CollidableImpls::Container& data = m_collidables.Data();
+            const UInt32 size = data.size();
+            IndexContainer ids(size);
             AABB newRootAABB;
-            for (const auto& itr : m_collidables)
+            for (UInt32 i = 0u; i < size; ++i)
             {
-                ids.emplace_back(itr.first);
-                newRootAABB.Merge(itr.second->GetAABB());
+                ids[i] = data[i]->GetID();
+                data[i]->GetOwner().UpdateAABB();
+                newRootAABB.Merge(data[i]->GetAABB());
             }
             m_root.Update(newRootAABB, ids, 0u);
+            ResetAllCollisions();
         }
         
         void RemoveCollidable(const UInt32 id)
         {
-            if (m_collidables.erase(id) == 0u)
+            CollidableImpls::Iterator itr = m_collidables.FindItr(id);
+            if (m_collidables.IsIteratorValid(itr))
             {
-                Logger::LogError("BVH: RemoveCollidable: Collidable not in BVH. ID: %i", id);
+                m_collidables.Data().erase(itr);
             }
+            else
+            {
+                Logger::LogError("RemoveCollidable: Collidable not found. ID: %i", id);
+            }
+        }
+
+        void RemoveMoveIf(IndexContainer& from, IndexContainer& to, const AABB& aabb)
+        {
+            (void)remove_move_if(
+                from.begin(), from.end(), std::back_inserter(to),
+                [&](const UInt32 id) -> bool
+                {
+                    CollidableImpl* ptr = m_collidables.Find(id);
+                    return ptr ? AABB::IsColliding(aabb, ptr->GetAABB().GetCenter()) : false;
+                }
+            );
         }
         
         void Reserve(const UInt32 size)
         {
-            m_collidables.reserve(size);
+            m_collidables.Data().reserve(size);
+        }
+
+        void ResetAllCollisions()
+        {
+            for (const auto& itr : m_collidables.Data())
+            {
+                itr->ResetCollisions();
+            }
         }
 
         void UpdateAllCollisions()
         {
             Rebuild();
-            for (const auto& itr : m_collidables)
+            for (const auto& itr : m_collidables.Data())
             {
-                itr.second->ResetCollisions(); // Can not be in the same loop
-            }
-            for (const auto& itr : m_collidables)
-            {
-                Node::UpdateCollisions(*itr.second.get(), m_root, m_collidables);
+                Node::UpdateCollisions(*itr.get(), m_root, m_collidables);
             }
         }
 
-        void UpdateCollisions(CollidableImpl& c)
+        void UpdateCollisions(Collidable& c)
         {
-            c.ResetCollisions();
-            Node::UpdateCollisions(c, m_root, m_collidables);
+            if (CollidableImpl* found = m_collidables.Find(c))
+            {
+                found->ResetCollisions();
+                Node::UpdateCollisions(*found, m_root, m_collidables);
+            }
+            else
+            {
+                Logger::LogError("UpdateCollisions: Collidable not found, ID: %i", c.GetID());
+            }
         }
         
         
@@ -200,37 +275,33 @@ namespace ace
         
         if (size < limitLeaf || depth == limitDepth) // Leaf
         {
-            auto& collidables = BVHImpl::GetBVHImpl().GetCollidables();
-            for (const UInt32 id : m_ids)
-            {
-                collidables.at(id)->ResetCollisions();
-            }
+            // Collisions reset after this call
+            // Empty on purpose
         }
         else if (size < limitTwo) // Binarytree
         {
-            const float splitX = (myNewAABB.min.x + myNewAABB.max.x) * 0.5f;
-            const AABB leftAABB(myNewAABB.min, Vector2(splitX, myNewAABB.max.y));
-            const AABB rightAABB(Vector2(splitX, myNewAABB.min.y), myNewAABB.max);
+            const AABB::Split2 split(myNewAABB);
             
             IndexContainer leftIds;
             
-            BVHImpl::RemoveMoveIf(myIds, leftIds, leftAABB);
+            BVHImpl::GetBVHImpl().RemoveMoveIf(myIds, leftIds, split.left);
             
-            AddChild().Update(leftAABB, leftIds, depth + 1u);
-            AddChild().Update(rightAABB, myIds, depth + 1u);
+            AddChild().Update(split.left, leftIds, depth + 1u);
+            AddChild().Update(split.right, myIds, depth + 1u);
         }
         else // Quadtree
         {
-            const AABB::Split split(myNewAABB);
+            const AABB::Split4 split(myNewAABB);
             
             IndexContainer leftTopIds;
             IndexContainer rightTopIds;
             IndexContainer leftBottomIds;
             
-            BVHImpl::RemoveMoveIf(myIds, leftTopIds, split.leftTop);
-            BVHImpl::RemoveMoveIf(myIds, rightTopIds, split.rightTop);
-            BVHImpl::RemoveMoveIf(myIds, leftBottomIds, split.leftBottom);
-            
+            BVHImpl& impl = BVHImpl::GetBVHImpl();
+            impl.RemoveMoveIf(myIds, leftTopIds, split.leftTop);
+            impl.RemoveMoveIf(myIds, rightTopIds, split.rightTop);
+            impl.RemoveMoveIf(myIds, leftBottomIds, split.leftBottom);
+
             AddChild().Update(split.leftTop, leftTopIds, depth + 1u);
             AddChild().Update(split.rightTop, rightTopIds, depth + 1u);
             AddChild().Update(split.leftBottom, leftBottomIds, depth + 1u);
@@ -242,14 +313,9 @@ namespace ace
     
     
     
-    void BVH::AddCollidable(CollidableImpl& c)
+    CollidableImpl& BVH::AddCollidable(const Vector2& position, const Matrix2& rotation)
     {
-        BVHImpl::GetBVHImpl().AddCollidable(c);
-    }
-    
-    void BVH::Refresh()
-    {
-        BVHImpl::GetBVHImpl().Rebuild();
+        return BVHImpl::GetBVHImpl().AddCollidable(position, rotation);
     }
     
     void BVH::RemoveCollidable(const UInt32 id)
@@ -257,14 +323,24 @@ namespace ace
         BVHImpl::GetBVHImpl().RemoveCollidable(id);
     }
     
-    void BVH::RemoveCollidable(const CollidableImpl& c)
+    void BVH::RemoveCollidable(const Collidable& c)
     {
-        BVHImpl::GetBVHImpl().RemoveCollidable(c.GetID());
+        RemoveCollidable(c.GetID());
     }
     
     void BVH::Reserve(const UInt32 size)
     {
         BVHImpl::GetBVHImpl().Reserve(size);
+    }
+
+    void BVH::ResetAllCollisions()
+    {
+        BVHImpl::GetBVHImpl().ResetAllCollisions();
+    }
+
+    void BVH::Update()
+    {
+        BVHImpl::GetBVHImpl().Rebuild();
     }
     
     void BVH::UpdateAllCollisions()
@@ -272,7 +348,7 @@ namespace ace
         BVHImpl::GetBVHImpl().UpdateAllCollisions();
     }
     
-    void BVH::UpdateCollisions(CollidableImpl& c)
+    void BVH::UpdateCollisions(Collidable& c)
     {
         BVHImpl::GetBVHImpl().UpdateCollisions(c);
     }
