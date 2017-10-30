@@ -38,7 +38,8 @@ namespace ace
 	SpriteSheet::SpriteSheet(const Path& path) : image(nullptr, 0, 0, PixelFormat::Unknown)
 	{
 		Json json;
-		const char* jsonName = path.GetPath().c_str();
+        std::string p = path.GetPath();
+		const char* jsonName = p.c_str();
 
 		if (json.Parse(path))
 		{
@@ -65,8 +66,6 @@ namespace ace
 				ACE_ASSERT(root["sprites"][i].HasMember("y"), "Sprites does not have a member: y", jsonName);
 				ACE_ASSERT(root["sprites"][i].HasMember("w"), "Sprites does not have a member: w", jsonName);
 				ACE_ASSERT(root["sprites"][i].HasMember("h"), "Sprites does not have a member: h", jsonName);
-
-
 
 				const char* spriteName = root["sprites"][i]["name"].GetString();
 				ACE_ASSERT(spriteName != nullptr, "Sprite does not have valid name %s", jsonName);

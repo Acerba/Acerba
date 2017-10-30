@@ -1,6 +1,7 @@
 #include <Ace/Module.h>
 
 #include <Ace/Audio.h>
+#include <Ace/Animation.h>
 #include <Ace/EntityManager.h>
 #include <Ace/Event.h>
 #include <Ace/Time.h>
@@ -50,6 +51,7 @@ namespace ace
         {
             Event::Update();
             Time::Update();
+            Animation::Update();
             EntityManager::Update();
             Camera::UpdateMainCamera();
         }

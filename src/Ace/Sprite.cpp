@@ -53,7 +53,7 @@ namespace ace
 		if (sprite)
 		{
 			Texcoord(sprite->texcoord);
-			Scale((Vector2(sprite->location.width, sprite->location.height) / base) * scale);
+			SetScale((Vector2(sprite->location.width, sprite->location.height) / base) * scale);
 		}
 	}
 
@@ -168,10 +168,12 @@ namespace ace
 
 	void Sprite::SetScale(const Vector2& scale)
 	{
+        Vector3 center = GetCenter();
+
 		for (int i = 0; i < Sprite::size; ++i)
 		{
-			vertexData[i].position.x = triangle[i].position.x * scale.x;
-			vertexData[i].position.y = triangle[i].position.y * scale.y;
+			vertexData[i].position.x = center.x + triangle[i].position.x * scale.x;
+			vertexData[i].position.y = center.y + triangle[i].position.y * scale.y;
 		}
 	}
 
@@ -195,4 +197,9 @@ namespace ace
 		}
 		return position / static_cast<float>(Sprite::size);
 	}
+
+    Vector2 Sprite::GetScale() const
+    {
+        return Vector2(vertexData[0].position.x + vertexData[3].position.x, vertexData[0].position.y + vertexData[1].position.y);
+    }
 }

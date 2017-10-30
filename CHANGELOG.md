@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## 30.10.2017
+
+### Added
+
+- Animation Support
+- Animation Component
+- Animation Example
+- Added TotalTime method for Time
+- Added GetScale method for Sprite
+
+## 13.10.2017
+
+### Added
+
+- Drawable base
+- Tilemap support
+
+### Changed
+
+- Spritesheet
+- Keyboards
+- Materials & Uniforms, reworked
+- BaseComponent, fixed constants
+- Path, added operators and absolute path
 
 ## 29.09.2017
 ### Added
