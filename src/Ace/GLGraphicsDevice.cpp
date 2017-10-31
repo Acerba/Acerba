@@ -684,15 +684,15 @@ namespace ace
 	{
 		ACE_ASSERT(framebuffer, "Framebuffer is not initialized.", "");
 		ACE_ASSERT(texture, "Texture is not initialized.", "");
-
+		
+		const UIn32 COLOR_INDEX = 2;
 		static const UInt32 GLAttachments[] = {
 			GL_DEPTH_ATTACHMENT, 
 			GL_STENCIL_ATTACHMENT, 
 			GL_COLOR_ATTACHMENT0
 		};
 
-		// TODO: explain the else expression
-		UInt32 attachments = framebufferAttachment < 3 ? GLAttachments[framebufferAttachment] : GLAttachments[3] + framebufferAttachment;
+		UInt32 attachments = framebufferAttachment < COLOR_INDEX ? GLAttachments[framebufferAttachment] : GLAttachments[COLOR_INDEX] + framebufferAttachment;
 
 		SetFramebuffer(&framebuffer);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachments, GL_TEXTURE_2D, texture->textureID, 0);
