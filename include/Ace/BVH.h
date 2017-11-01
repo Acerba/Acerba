@@ -45,6 +45,7 @@ namespace ace
 
         /**
             @brief Refreshes the bounding volumes in the BVH.
+            This makes sure there are as few collisions to check as possible when some form of UpdateCollisions is called.
         */
         static void Update();
 

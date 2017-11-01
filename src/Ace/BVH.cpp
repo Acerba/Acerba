@@ -7,10 +7,6 @@
 #include <memory> // std::unique_ptr
 #include <vector> // std::vector
 
-#if ACE_DEBUG
-    #include <Ace/Debugger.h>
-#endif
-
 namespace ace
 {
     using Matrix2 = math::Matrix2;
@@ -112,11 +108,6 @@ namespace ace
             {
                 if (AABB::IsColliding(node.m_aabb, collidable.GetAABB()))
                 {
-            #if ACE_DEBUG
-                    Logger::LogDebug("Collision between aabbs:");
-                    LogDebug(collidable.GetAABB(), "Collidable");
-                    LogDebug(node.m_aabb, "Node");
-            #endif
                     if (!node.m_children.empty())
                     {
                         for (auto& itr : node.m_children)
@@ -131,14 +122,8 @@ namespace ace
                             if (id != collidable.GetID())
                             {
                                 CollidableImpl* other = collidables.Find(id);
-                                if (other && Collidable::IsColliding(collidable.GetOwner(), other->GetOwner()))
+                                if (other && Collidable::IsColliding(collidable.GetOwner(), other->GetOwner()) && !collidable.HasCollision(id))
                                 {
-                            #if ACE_DEBUG
-                                    Logger::LogDebug("Collision! Ids: Collidable: %i, Node: %i", collidable.GetID(), id);
-                                    Logger::LogDebug("AABBS:");
-                                    LogDebug(collidable.GetAABB(), "Collidable AABB");
-                                    LogDebug(other->GetAABB(), "Other AABB");
-                            #endif
                                     collidable.AddCollision(other);
                                     other->AddCollision(&collidable);
                                 }
@@ -146,14 +131,6 @@ namespace ace
                         }
                     }
                 }
-            #if ACE_DEBUG
-                else
-                {
-                    Logger::LogDebug("No collision between aabbs:");
-                    LogDebug(collidable.GetAABB(), "Collidable");
-                    LogDebug(node.m_aabb, "Node");
-                }
-            #endif
             }
             
             void Update(const AABB& myNewAABB, IndexContainer& myIds, const UInt8 depth);

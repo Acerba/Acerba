@@ -38,9 +38,21 @@ namespace ace
         const AABB& GetAABB() const;
 
         /**
+            @brief Retrieve the number of collidables this one is colliding with.
+            @return UInt32
+        */
+        UInt32 GetCollisionCount() const;
+
+        /**
+            @brief Retrieve pointers to the objects that are colliding with this one.
+            @return vector of pointers
+        */
+        const std::vector<CollidableImpl*>& GetCollisions() const;
+
+        /**
             @brief Retrieve the id of the collidable.
             @return ID.
-         */
+        */
         inline UInt32 GetID() const
         {
             return m_id;
@@ -51,7 +63,7 @@ namespace ace
         /**
             @brief Retrieve the local position of the collidable.
             @return Local position.
-         */
+        */
         const Vector2& GetLocalPosition() const;
         Vector2& GetLocalPosition();
 
@@ -67,6 +79,14 @@ namespace ace
             @return Global vertices of the collidable.
         */
         virtual std::vector<Vector2> GetVertices() const = 0;
+
+        /**
+            @brief Check if the collidable has a marked collision with the other collidable.
+            Does not actually check for collision, only if a collision has been marked previously.
+            @param[in] other Other collidable.
+            @return True if the collidables are marked as colliding.
+        */
+        bool HasCollision(const Collidable& other) const;
 
         /**
             @brief Checks if the point is in or on the Collidable.

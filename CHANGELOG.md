@@ -7,6 +7,7 @@
 ### Changed
 
 - Improved support for static entities
+- Updated CollisionExample
 
 
 
@@ -44,6 +45,14 @@
 
 - Transform members are private
 - Transform stores status if it has been modified
+
+
+
+## 20.10.2017
+
+### Changed
+
+- Changed Matrix, Quaternion and Vector implementation.
 
 
 

@@ -67,8 +67,8 @@ namespace ace
 
         /**
             @brief Retrieve the objects which this collides with.
-         */
-        std::vector<CollidableImpl*>& GetCollisions()
+        */
+        const std::vector<CollidableImpl*>& GetCollisions() const
         {
             return m_collisions;
         }
@@ -112,6 +112,22 @@ namespace ace
         inline Matrix2& GetRotation()
         {
             return m_rotation;
+        }
+
+        /**
+            @brief Check if the collidable has a marked collision with the other collidable.
+            Does not actually check for collision, only if a collision has been marked previously.
+            @param[in] id ID of the other collidable.
+            @return True if the collidables are marked as colliding.
+        */
+        bool HasCollision(const UInt32 id) const;
+
+        /**
+            @brief Access the owner.
+        */
+        inline Collidable& operator*()
+        {
+            return *m_owner;
         }
 
         /**

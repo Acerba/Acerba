@@ -151,6 +151,16 @@ namespace ace
         return m_impl.GetAABB();
     }
 
+    UInt32 Collidable::GetCollisionCount() const
+    {
+        return m_impl.GetCollisionCount();
+    }
+
+    const std::vector<CollidableImpl*>& Collidable::GetCollisions() const
+    {
+        return m_impl.GetCollisions();
+    }
+
     const Vector2& Collidable::GetLocalPosition() const
     {
         return m_impl.GetLocalPosition();
@@ -167,6 +177,11 @@ namespace ace
     Matrix2& Collidable::GetRotation()
     {
         return m_impl.GetRotation();
+    }
+
+    bool Collidable::HasCollision(const Collidable& other) const
+    {
+        return m_impl.HasCollision(other.GetID());
     }
 
     bool Collidable::IsColliding(const Collidable& a, const Collidable& b)
