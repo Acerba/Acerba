@@ -11,7 +11,7 @@ namespace ace
         Quaternion m_rotation;
         Vector3 m_position;
         Vector3 m_scale;
-        bool m_isModelValid;
+        bool m_modelHasChanged;
 
     public:
 
@@ -38,12 +38,6 @@ namespace ace
         */
         Matrix4& GetModelRef();
 
-        /**
-            @brief Query model matrix status.
-            @return False if the model matrix needs to be recalculated.
-        */
-        bool GetModelStatus() const;
-        
         /**
             @brief Retrieve position. Does not invalidate model matrix.
             @return Retrieve a constant reference to the position.
@@ -78,6 +72,12 @@ namespace ace
         Vector3& GetScaleRef();
 
         /**
+            @brief Query model matrix status.
+            @return True if the model matrix needs to be recalculated.
+        */
+        bool HasModelChanged() const;
+
+        /**
             @brief Set the model matrix. Validates model matrix.
         */
         void SetModel(const Matrix4& model);
@@ -85,8 +85,9 @@ namespace ace
         /**
             @brief Overwrite the model matrix status.
             @param[in] isModelValid Model matrix status.
+            @warning Do not call manually unless you are sure about what you are doing.
         */
-        void SetModelStatus(const bool isModelValid);
+        void SetModelHasChanged(const bool isModelValid);
 
         /**
             @brief Set the position. Invalidates model matrix.

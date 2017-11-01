@@ -6,7 +6,6 @@
 namespace ace
 {
     class Entity;
-    
 
     class Scene final
     {

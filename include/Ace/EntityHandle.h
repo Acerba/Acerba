@@ -208,8 +208,8 @@ namespace ace
 
 
         /**
-            @brief Queries the entity static status.
-            @return True if the entity is static. (Static entities transforms are not recalculated on each frame)
+            @brief Queries the entity static status. Static entities transforms are recalculated only if their parents models change.
+            @return True if the entity is static.
         */
         inline bool IsStatic() const
         {
@@ -254,7 +254,7 @@ namespace ace
         }
 
         /**
-            @brief Set static status of the entity.
+            @brief Set static status of the entity. Static entities transforms are recalculated only if their parents models change.
             @param[in] isStatic True if the entity should be made static.
         */
         void SetStatic(const bool isStatic)

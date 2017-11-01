@@ -11,8 +11,7 @@ namespace ace
         m_rotation(rotation),
         m_position(position),
         m_scale(scale),
-        m_isModelValid(false)
-
+        m_modelHasChanged(true)
     {
 
     }
@@ -24,13 +23,8 @@ namespace ace
     }
     Matrix4& Transform::GetModelRef()
     {
-        m_isModelValid = false;
+        m_modelHasChanged = true;
         return m_model;
-    }
-
-    bool Transform::GetModelStatus() const
-    {
-        return m_isModelValid;
     }
     
     const Vector3& Transform::GetPosition() const
@@ -39,7 +33,7 @@ namespace ace
     }
     Vector3& Transform::GetPositionRef()
     {
-        m_isModelValid = false;
+        m_modelHasChanged = true;
         return m_position;
     }
 
@@ -49,7 +43,7 @@ namespace ace
     }
     Quaternion& Transform::GetRotationRef()
     {
-        m_isModelValid = false;
+        m_modelHasChanged = true;
         return m_rotation;
     }
 
@@ -59,37 +53,43 @@ namespace ace
     }
     Vector3& Transform::GetScaleRef()
     {
-        m_isModelValid = false;
+        m_modelHasChanged = true;
         return m_scale;
+    }
+
+
+    bool Transform::HasModelChanged() const
+    {
+        return m_modelHasChanged;
     }
 
 
     void Transform::SetModel(const Matrix4& model)
     {
-        m_isModelValid = true;
+        m_modelHasChanged = false;
         m_model = model;
     }
 
-    void Transform::SetModelStatus(const bool isModelValid)
+    void Transform::SetModelHasChanged(const bool modelHasChanged)
     {
-        m_isModelValid = isModelValid;
+        m_modelHasChanged = modelHasChanged;
     }
 
     void Transform::SetPosition(const Vector3& position)
     {
-        m_isModelValid = false;
+        m_modelHasChanged = true;
         m_position = position;
     }
 
     void Transform::SetRotation(const Quaternion& rotation)
     {
-        m_isModelValid = false;
+        m_modelHasChanged = true;
         m_rotation = rotation;
     }
 
     void Transform::SetScale(const Vector3& scale)
     {
-        m_isModelValid = false;
+        m_modelHasChanged = true;
         m_scale = scale;
     }
 }

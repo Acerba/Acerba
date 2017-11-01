@@ -685,7 +685,7 @@ namespace ace
 		ACE_ASSERT(framebuffer, "Framebuffer is not initialized.", "");
 		ACE_ASSERT(texture, "Texture is not initialized.", "");
 		
-		const UIn32 COLOR_INDEX = 2;
+		const UInt32 COLOR_INDEX = 2;
 		static const UInt32 GLAttachments[] = {
 			GL_DEPTH_ATTACHMENT, 
 			GL_STENCIL_ATTACHMENT, 
