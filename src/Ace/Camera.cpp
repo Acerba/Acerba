@@ -34,7 +34,7 @@ namespace ace
         m_up(0.f, 1.f, 0.f),
 		m_aspectRatio(1.0f)
     {
-        m_entity->transform.position = Vector3(0.f, 0.f, 1.f);
+        m_entity->transform.SetPosition(Vector3(0.f, 0.f, 1.f));
         Ortho(m_ortho);
         LookAt(Vector3(0.0f, 0.0f, 0.0f));
 
@@ -70,19 +70,29 @@ namespace ace
 
     void Camera::LookAt()
     {
-        const Vector3 position = m_entity->transform.model.Transpose() * Vector4(0,0,0,1);
-        const Vector3 direction = m_entity->transform.model * m_entity->transform.rotation.ToMatrix4() * Vector4(0, 0, 1, 1);
-        m_view = Matrix4::LookAt(position, position - direction, m_up);
+        const Vector3 position(math::ResizeVektor<3u>(ToVektor(
+            Transpose(m_entity->transform.GetModel()) * Vector4(0.f,0.f,0.f,1.f)
+        )));
+        const Vector3 direction(math::ResizeVektor<3u>(math::ToVektor(
+            m_entity->transform.GetModel() *
+            math::ToMatrix<4u>(m_entity->transform.GetRotation()) *
+            Vector4(0.f,0.f,-1.f,1.f)
+        )));
+        m_view = math::LookAt(position, position - direction, m_up);
     }
 
 	void Camera::Ortho(const Vector4& size, float aspect)
 	{
-		m_proj = Matrix4::Ortho(-size.x * aspect, size.x * aspect, -size.y, size.y, size.z, size.w);
+		m_proj = math::MakeOrthographic(
+			-size.x * aspect, size.x * aspect,
+			size.y, -size.y,
+			size.z, size.w
+		);
 	}
 
 	void Camera::LookAt(const Vector3& target)
 	{
-		m_entity->transform.rotation = Quaternion::LookAt((m_entity->transform.position - target), m_up);
+		m_entity->transform.SetRotation(math::LookAt2(m_entity->transform.GetPosition() - target, m_up));
 		LookAt();
 	}
 
@@ -103,17 +113,17 @@ namespace ace
 	
     void Camera::Move(const Vector3& distance)
     {
-        m_entity->transform.position += distance;
+        m_entity->transform.GetPositionRef() += distance;
     }
 
     void Camera::SetPosition(const Vector3& position)
     {
-        m_entity->transform.position = position;
+        m_entity->transform.SetPosition(position);
     }
 
 	Vector3 Camera::GetPosition() const
 	{
-		return m_entity->transform.position;
+		return m_entity->transform.GetPosition();
 	}
 
 	Vector4 Camera::GetOrtho() const

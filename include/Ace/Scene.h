@@ -1,15 +1,11 @@
 #pragma once
 
 #include <Ace/Macros.h>
+#include <Ace/TypesFwd.h>
 
 namespace ace
 {
     class Entity;
-    namespace math
-    {
-        class Matrix4;
-    }
-    
 
     class Scene final
     {
@@ -22,7 +18,7 @@ namespace ace
 
         /**
             @brief Scene constructor.
-            @param[in, out] rootManager EntityManager to handle this scene. Uses DefaultManger by default.
+            @param[in, out] rootManager EntityManager to handle this scene. Uses DefaultManager by default.
         */
         Scene(class EntityManager* rootManager = nullptr);
 

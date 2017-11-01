@@ -1,6 +1,7 @@
 #include <Ace/Time.h>
 #include <SDL_timer.h>
 
+#include <Ace/EventManager.h>
 
 namespace ace
 {
@@ -25,11 +26,17 @@ namespace ace
 	}
 
 	static float s_deltaTime;
+    static float s_totalTime = 0;
 
 	float Time::DeltaTime()
 	{
 		return s_deltaTime;
 	}
+
+    float Time::TotalTime()
+    {
+        return s_totalTime;
+    }
 
 	void Time::Update()
 	{
@@ -48,6 +55,7 @@ namespace ace
         s_now = GetTicks();
         
         s_deltaTime = static_cast<float>(s_now - s_last) / 1000.0f;
+        s_totalTime += s_deltaTime;
 	}
 
 	bool Time::WaitTime::IsDone()

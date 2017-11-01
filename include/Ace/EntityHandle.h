@@ -22,6 +22,7 @@ namespace ace
         EntityManager::ComponentBaseHandle* m_last;
         EntityHandle* m_parent;
         UInt32 m_componentCount;
+        bool m_isStatic;
 
 
         void PushComponentHandle(EntityManager::ComponentBaseHandle* handle);
@@ -205,6 +206,16 @@ namespace ace
             return false;
         }
 
+
+        /**
+            @brief Queries the entity static status. Static entities transforms are recalculated only if their parents models change.
+            @return True if the entity is static.
+        */
+        inline bool IsStatic() const
+        {
+            return m_isStatic;
+        }
+
         /**
             @brief Remove all children and components recursively.
         */
@@ -240,6 +251,15 @@ namespace ace
         static void ReserveComponents(const UInt32 size)
         {
             ComponentPool<CompType>::GetPool().Reserve(size);
+        }
+
+        /**
+            @brief Set static status of the entity. Static entities transforms are recalculated only if their parents models change.
+            @param[in] isStatic True if the entity should be made static.
+        */
+        void SetStatic(const bool isStatic)
+        {
+            m_isStatic = isStatic;
         }
 
     }; // EntityHandle

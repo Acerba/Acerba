@@ -59,7 +59,8 @@ namespace ace
         m_first(nullptr),
         m_last(nullptr),
         m_parent(nullptr),
-        m_componentCount(0u)
+        m_componentCount(0u),
+        m_isStatic(false)
     {
 
     }
@@ -153,7 +154,6 @@ namespace ace
         }
         return parent;
     }
-
 
     void EntityManager::EntityHandle::RemoveChildHandle(EntityHandle* child)
     {

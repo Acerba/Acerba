@@ -1,40 +1,36 @@
 #include <Ace/Scene.h>
 
 #include <Ace/Entity.h>
-#include <Ace/Matrix4.h>
 #include <Ace/GraphicsDevice.h>
+#include <Ace/Log.h>
+#include <Ace/Matrix4.h>
 #include <Ace/SpriteManager.h>
-
-#include <Ace/Platform.h>
-
-#if ACE_DEBUG
-    #include <Ace/Log.h>
-#endif
 
 namespace ace
 {
-
-    void ComputeMatrices(Entity& entity, const math::Matrix4& parentModel)
+    void ComputeMatrices(EntityHandle* handle, const math::Matrix4& parentModel, bool hasParentModelChanged)
     {
-        if (!entity)
+        if (!handle)
         {
-            #if ACE_DEBUG
-                Logger::LogDebug("ComputeMatrices null entity");
-            #endif
-
+            Logger::Log(Logger::Priority::Warning, "Scene: Update: Skipped null entity");
             return;
         }
 
-        entity->transform.model =
-           (Matrix4::Scale(entity->transform.scale.x, entity->transform.scale.y, entity->transform.scale.z) *
-           entity->transform.rotation.ToMatrix4() *
-           Matrix4::Translation(entity->transform.position)) * parentModel;
+        // Changing parent model overrides entity isStatic
+        if (hasParentModelChanged || (handle->transform.HasModelChanged() && !handle->IsStatic()))
+        {
+            handle->transform.SetModel(
+                math::MakeScaling(handle->transform.GetScale()) *
+                math::ToMatrix<4u>(handle->transform.GetRotation()) *
+                math::MakeTranslation(handle->transform.GetPosition()) * parentModel
+            );
+            hasParentModelChanged = true;
+        }
 
-        const UInt32 count = entity.ChildCount();
+        const UInt32 count = handle->ChildCount();
         for (UInt32 i = 0u; i < count; ++i)
         {
-            Entity child = entity.GetChild(i);
-            ComputeMatrices(child, entity->transform.model);
+            ComputeMatrices(handle->GetChild(i), handle->transform.GetModel(), hasParentModelChanged);
         }
     }
 
@@ -74,7 +70,7 @@ namespace ace
 
     void Scene::Update()
     {
-        ComputeMatrices(*m_root, math::Matrix4::Identity());
+        ComputeMatrices(*m_root, math::s_identity4, false);
     }
 
 }

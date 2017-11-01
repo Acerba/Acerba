@@ -11,7 +11,7 @@ add_subdirectory(OALWrapper)
 add_subdirectory(gl3w)
 add_subdirectory(imgui)
 add_subdirectory(TMXLite)
-
+add_subdirectory(matvek)
 
 if(NOT PB_ANDROID)
 	set_property(TARGET SDL2 SDL2main SDL2-static gl3w imgui tmxlite PROPERTY FOLDER 3rdParty)

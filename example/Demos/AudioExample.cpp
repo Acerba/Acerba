@@ -1,5 +1,5 @@
 //Audio demo
-#include <Ace\Ace.h>
+#include <Ace/Ace.h>
 
 int main(int, char**)
 {
@@ -9,16 +9,18 @@ int main(int, char**)
 	//Create window (Name, Width, Height)
 	ace::Window window("Title", 800, 600);
 
-	//Create AudioClip
+	//Create empty AudioClip
 	ace::AudioClip ExampleSound;
-	ace::Path AudioClip = "assets/blop.ogg";
+	
+	//Create path to the audio file
+	const ace::Path clip = "assets/blop.ogg";
 	//Bool for using audio (optional)
 	bool useAudio = false;
 	//Loading Audiosample to AudioClip
-	if (ace::File::Exists(AudioClip))
+	if (ace::File::Exists(clip))
 	{
 		useAudio = true;
-		ExampleSound = ace::AudioClip({ AudioClip });
+		ExampleSound = ace::AudioClip(ace::File(clip));
 	}
 
 	//Loop that goes on forever while window is open
@@ -28,7 +30,7 @@ int main(int, char**)
 		ace::Update();
 
 		//Play sound when A is pressed
-		if (ace::Keyboard::KeyPressed(ace::KeyCode::A))
+		if (ace::Keyboard::GetKey("A"))
 		{
 			if (useAudio)
 			{
@@ -36,6 +38,7 @@ int main(int, char**)
 				ace::Time::Delay(100);
 			}
 		}
-
 	}
+	ace::Quit();
+	return 0;
 }

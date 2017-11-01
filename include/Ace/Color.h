@@ -7,15 +7,25 @@ namespace ace
 	struct Color32;
 	struct Color;
 
-	struct Color
+	struct BasicColors final
 	{
 		static const UInt32 Red = 0xFF000000U;
 		static const UInt32 Green = 0x00FF0000U;
 		static const UInt32 Blue = 0x0000FF00U;
 
+		BasicColors() = delete;
+		~BasicColors() = delete;
+		BasicColors(BasicColors&&) = delete;
+		BasicColors(const BasicColors&) = delete;
+		BasicColors& operator=(BasicColors&&) = delete;
+		BasicColors& operator=(const BasicColors&) = delete;
+	};
+
+	struct Color final
+	{
 		UInt8 r, g, b, a;
 
-		Color(UInt8 r = 0, UInt8 g = 0, UInt8 b = 0, UInt8 a = 0) : r(r), g(g), b(b), a(a)
+		explicit Color(UInt8 r = 0u, UInt8 g = 0u, UInt8 b = 0u, UInt8 a = 0u) : r(r), g(g), b(b), a(a)
 		{
 
 		}
@@ -30,7 +40,7 @@ namespace ace
 	
 		Color operator+(const Color& c) const
 		{
-			return Color( r + c.r, g + c.g, b + c.b, a + c.a);
+			return Color(r + c.r, g + c.g, b + c.b, a + c.a);
 		}
 
 		Color operator-(const Color& c) const
@@ -41,26 +51,32 @@ namespace ace
 
 		Color operator*(float scalar) const
 		{
-			return Color( r * scalar, g * scalar, b * scalar, a * scalar );
+			return Color(
+				static_cast<UInt8>(static_cast<float>(r) * scalar),
+				static_cast<UInt8>(static_cast<float>(g) * scalar),
+				static_cast<UInt8>(static_cast<float>(b) * scalar),
+				static_cast<UInt8>(static_cast<float>(a) * scalar)
+			);
 		}
 
 		Color operator/(float scalar) const
 		{
-			return Color( r / scalar, g / scalar, b / scalar, a / scalar );
+			return Color(
+				static_cast<UInt8>(static_cast<float>(r) / scalar),
+				static_cast<UInt8>(static_cast<float>(g) / scalar),
+				static_cast<UInt8>(static_cast<float>(b) / scalar),
+				static_cast<UInt8>(static_cast<float>(a) / scalar)
+			);
 		}
-		
 
 		operator Color32() const;
-	};
 
-	struct Color32
+	}; // Color
+
+	struct Color32 final
 	{
-		static const UInt32 Red = 0xFF000000U;
-		static const UInt32 Green = 0x00FF0000U;
-		static const UInt32 Blue = 0x0000FF00U;
-
 		float r, g, b, a;
-		Color32(float r = 0, float g = 0, float b = 0, float a = 0) : r(r), g(g), b(b), a(a)
+		explicit Color32(float r = 0.f, float g = 0.f, float b = 0.f, float a = 0.f) : r(r), g(g), b(b), a(a)
 		{
 			
 		}
@@ -72,26 +88,26 @@ namespace ace
 		}
 		Color32 operator+(const Color32& c32) const
 		{
-			return{ r + c32.r, g + c32.g, b + c32.b, a + c32.a };
+			return Color32(r + c32.r, g + c32.g, b + c32.b, a + c32.a);
 		}
 
 		Color32 operator-(const Color32& c32) const
 		{
-			return{ r - c32.r, g - c32.g, b - c32.b, a - c32.a };
+			return Color32(r - c32.r, g - c32.g, b - c32.b, a - c32.a);
 		}
 
 		Color32 operator*(float scalar) const
 		{
-			return{ r * scalar, g * scalar, b * scalar, a * scalar };
+			return Color32(r * scalar, g * scalar, b * scalar, a * scalar);
 		}
 
 		Color32 operator/(float scalar) const
 		{
-			return{ r / scalar, g / scalar, b / scalar, a / scalar };
+			return Color32(r / scalar, g / scalar, b / scalar, a / scalar);
 		}
 
 		operator Color() const;
-	};
+	}; // Color32
 
 	/**
 		@brief Conversion from Color to Color32
@@ -99,7 +115,12 @@ namespace ace
 	*/
 	inline Color::operator ace::Color32() const
 	{
-		return Color32(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+		return Color32(
+			static_cast<UInt8>(static_cast<float>(r) / 255.0f),
+			static_cast<UInt8>(static_cast<float>(g) / 255.0f),
+			static_cast<UInt8>(static_cast<float>(b) / 255.0f),
+			static_cast<UInt8>(static_cast<float>(a) / 255.0f)
+		);
 	}
 	
 	/**
@@ -108,7 +129,12 @@ namespace ace
 	*/
 	inline Color32::operator ace::Color() const
 	{
-		return Color(r * 255.f, g * 255.f, b * 255.f, a * 255.f);
+		return Color(
+			static_cast<UInt8>(r * 255.f),
+			static_cast<UInt8>(g * 255.f),
+			static_cast<UInt8>(b * 255.f),
+			static_cast<UInt8>(a * 255.f)
+		);
 	}
 
 }

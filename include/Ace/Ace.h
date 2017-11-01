@@ -2,7 +2,9 @@
 #include <Ace/Animation.h>
 #include <Ace/Audio.h>
 #include <Ace/BaseComponent.h>
+#include <Ace/BVH.h>
 #include <Ace/Camera.h>
+#include <Ace/Collidable.h>
 #include <Ace/Event.h>
 #include <Ace/Font.h>
 #include <Ace/GraphicsDevice.h>

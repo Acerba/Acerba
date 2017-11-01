@@ -11,6 +11,8 @@ namespace ace
 
 		UInt32 m_id;
 
+		Touch(const UInt32 id);
+
 	public:
 		
 		/**
@@ -24,12 +26,12 @@ namespace ace
 			@param[in] UInt32 index
 			@return Touch
 		*/
-		static Touch GetTouch(UInt32 index);
+		static Touch GetTouch(UInt8 index);
 
 		/**
 			@return Id of finger.
 		*/
-		Int64 GetID() const;
+		UInt32 GetID() const;
 
 		/**
 			@return Position of finger.

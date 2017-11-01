@@ -3,6 +3,8 @@
 #include <Ace/IntTypes.h>
 #include <Ace/Macros.h>
 
+#include <Ace/UUID.h>
+
 #include <vector>
 
 namespace ace
@@ -14,77 +16,7 @@ namespace ace
 
     public:
 
-        class ComponentID
-        {
-            const UInt32 m_ID;
-
-            inline static UInt32 GenerateID()
-            {
-                static UInt32 _id = 0u;
-                return ++_id;
-            }
-
-            template <typename T>
-            struct ID_Handle
-            {
-                inline static ID_Handle& GetInstance()
-                {
-                    static ID_Handle handle(GenerateID());
-                    return handle;
-                }
-
-                inline static UInt32 GetID()
-                {
-                    return GetInstance().m_ID;
-                }
-
-            private:
-
-                UInt32 m_ID;
-
-                ID_Handle(const UInt32 id) :
-                    m_ID(id)
-                {
-
-                }
-            };
-
-        public:
-
-            template <typename T>
-            inline static UInt32 GetID(const T&)
-            {
-                return ID_Handle<T>::GetID();
-            }
-            template <typename T>
-            inline static UInt32 GetID(const T*)
-            {
-                return ID_Handle<T>::GetID();
-            }
-            template <typename T>
-            inline static UInt32 GetID()
-            {
-                return ID_Handle<T>::GetID();
-            }
-
-            template <typename T>
-            ComponentID(const T& value) :
-                m_ID(GetID(value))
-            {
-
-            }
-
-            ComponentID(const UInt32 id) :
-                m_ID(id)
-            {
-
-            }
-
-            inline operator UInt32() const
-            {
-                return m_ID;
-            }
-        };
+        using ComponentID = UUID<EntityManager>;
 
         struct EntityHandle;
 

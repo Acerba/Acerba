@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
 project(ACERBA)
 include("cmake/ProjectBuild.cmake" REQUIRED)
@@ -27,6 +27,7 @@ find_package(OpenGL)
 file(GLOB SOURCES ${ACERBA_SOURCE_DIR}/src/Ace/*.cpp ${ACERBA_SOURCE_DIR}/include/Ace/*)
 set(ACERBA_INDLUCES 
     ${ACERBA_SOURCE_DIR}/3rdparty/rapidjson/include
+    ${ACERBA_SOURCE_DIR}/3rdparty/matvek
     ${ACERBA_SOURCE_DIR}/3rdparty/imgui/include
     ${ACERBA_SOURCE_DIR}/3rdparty/TMXLite/include
     ${ACERBA_SOURCE_DIR}/3rdparty/SDL2/include
@@ -58,9 +59,14 @@ endif()
 
 
 if(ANDROID)
-	BuildLibrary(acerba SHARED)
+    BuildLibrary(acerba SHARED)
 else()
-	BuildLibrary(acerba STATIC)
+    BuildLibrary(acerba STATIC)
+    if(MSVC)
+        target_compile_options(acerba PRIVATE /Wall)
+    else()
+        target_compile_options(acerba PRIVATE -W -Wall)
+    endif()
 endif()
 
 
@@ -94,11 +100,11 @@ endif()
 
 if(PB_MAIN)
 	if(PB_ANDROID)
-		add_custom_command(TARGET ProjectBuild POST_BUILD
+		add_custom_command(TARGET PBuild POST_BUILD
 			COMMAND ndk-build NDK_PROJECT_PATH=. NDK_APPLICATION_MK=acerba/Application.mk APP_BUILD_SCRIPT=acerba/Android.mk NDK_LIBS_OUT=acerba/libs BASE_PATH="${ACERBA_SOURCE_DIR}"
 			WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/android")
 			
-		add_custom_command(TARGET ProjectBuild POST_BUILD
+		add_custom_command(TARGET PBuild POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_BINARY_DIR}/android/acerba/libs/" "${PROJECT_BINARY_DIR}/android/libs/")
 	endif()
 endif()

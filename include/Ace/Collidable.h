@@ -1,49 +1,92 @@
 #pragma once
 
-#include <Ace/AABB.h>
 #include <Ace/IntTypes.h>
 #include <Ace/Matrix2.h>
 #include <Ace/Vector2.h>
 
-#include <vector>
+#include <vector> // std::vector
 
 namespace ace
 {
-    using math::Matrix2;
-    using math::Vector2;
+    struct AABB;
+    struct CollidableImpl;
 
     struct Collidable
     {
+        using Matrix2 = math::Matrix2;
+        using Vector2 = math::Vector2;
 
-        Collidable(const Vector2& position, const Matrix2& rotation = Matrix2::Identity());
+        /**
+            @brief Ctor.
+            @param[in] position Position of the collidable.
+            @param[in] rotation Rotation of the collidable.
+        */
+        Collidable(
+            const Vector2& position,
+            const Matrix2& rotation = math::s_identity2
+        );
+
+        /**
+            @brief Dtor. Clears all collisions from all Collidables.
+        */
         virtual ~Collidable() = 0;
 
+        /**
+            @brief Retrieve the AABB of this collidable.
+            @return AABB
+        */
+        const AABB& GetAABB() const;
+
+        /**
+            @brief Retrieve the number of collidables this one is colliding with.
+            @return UInt32
+        */
+        UInt32 GetCollisionCount() const;
+
+        /**
+            @brief Retrieve pointers to the objects that are colliding with this one.
+            @return vector of pointers
+        */
+        const std::vector<CollidableImpl*>& GetCollisions() const;
+
+        /**
+            @brief Retrieve the id of the collidable.
+            @return ID.
+        */
+        inline UInt32 GetID() const
+        {
+            return m_id;
+        }
 
         // Vector2 GetGlobalPosition() const;
-        inline const Vector2& GetLocalPosition() const
-        {
-            return m_position;
-        }
-        inline Vector2& GetLocalPosition()
-        {
-            return m_position;
-        }
 
+        /**
+            @brief Retrieve the local position of the collidable.
+            @return Local position.
+        */
+        const Vector2& GetLocalPosition() const;
+        Vector2& GetLocalPosition();
 
-        inline const Matrix2& GetRotation() const
-        {
-            return m_rotation;
-        }
-        inline Matrix2& GetRotation()
-        {
-            return m_rotation;
-        }
+        /**
+            @brief Retrieve the current rotation of the collidable.
+            @return Rotation.
+         */
+        const Matrix2& GetRotation() const;
+        Matrix2& GetRotation();
 
 
         /**
             @return Global vertices of the collidable.
         */
         virtual std::vector<Vector2> GetVertices() const = 0;
+
+        /**
+            @brief Check if the collidable has a marked collision with the other collidable.
+            Does not actually check for collision, only if a collision has been marked previously.
+            @param[in] other Other collidable.
+            @return True if the collidables are marked as colliding.
+        */
+        bool HasCollision(const Collidable& other) const;
 
         /**
             @brief Checks if the point is in or on the Collidable.
@@ -61,25 +104,60 @@ namespace ace
         static bool IsColliding(const Collidable& a, const Collidable& b);
 
         /**
+            @brief Access the underlying implementation.
+            @return CollidableImpl.
+        */
+        inline const CollidableImpl& operator*() const
+        {
+            return m_impl;
+        }
+        inline CollidableImpl& operator*()
+        {
+            return m_impl;
+        }
+
+        /**
+            @brief Reserve memory for Collidables.
+            @param[in] size Number of Collidables to support.
+        */
+        static void Reserve(const UInt32 size);
+
+        /**
+            @brief Reset collisions regarding this Collidable.
+            Does not remove markings from other collidables with this one.
+        */
+        void ResetCollisions();
+
+        /**
             @brief Rotate the collidables vertices around its center by deg degrees.
             Modifies the objects vertices and resets the rotation, making the new orientation stay on until another call to this method.
             @param[in] deg Degrees to rotate.
         */
         virtual void Rotate(float deg) = 0;
 
+        virtual void UpdateAABB(const bool accountRotation = true) = 0;
+
+        /**
+            @brief Update collisions regarding this Collidable. Make sure you have called BVH::Update() beforehand.
+            Also marks collisions on to the other collidables, if any.
+        */
+        void UpdateCollisions();
+
+        
+        
     protected:
-        AABB m_aabb;
-        Matrix2 m_rotation;
-        Vector2 m_position;
-    };
+        CollidableImpl& m_impl;
+        const UInt32 m_id;
+
+    }; // Collidable
 
 
-    class Circle final : public Collidable
+    struct Circle final : public Collidable
     {
-        float m_radius;
-    public:
-        Circle(const float radius, const Vector2& position, const Matrix2& rotation = Matrix2::Identity());
-        bool IsColliding(const Vector2& point) const override;
+        using Matrix2 = Collidable::Matrix2;
+        using Vector2 = Collidable::Vector2;
+        
+        Circle(const float radius, const Vector2& position, const Matrix2& rotation = math::s_identity2);
 
         inline float GetRadius() const
         {
@@ -87,16 +165,26 @@ namespace ace
         }
 
         std::vector<Vector2> GetVertices() const final override;
-        void Rotate(float deg) final override;
-    };
 
-
-    class Rectangle final : public Collidable
-    {
-        Vector2 m_extents;
-    public:
-        Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation = Matrix2::Identity());
         bool IsColliding(const Vector2& point) const override;
+        
+        void Rotate(float deg) final override;
+
+        void UpdateAABB(const bool accountRotation = true) final override;
+
+    private:
+
+        float m_radius;
+
+    }; // Circle
+
+
+    struct Rectangle final : public Collidable
+    {
+        using Matrix2 = Collidable::Matrix2;
+        using Vector2 = Collidable::Vector2;
+
+        Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation = math::s_identity2);
 
         inline const Vector2& GetExtents() const
         {
@@ -104,16 +192,26 @@ namespace ace
         }
 
         std::vector<Vector2> GetVertices() const final override;
-        void Rotate(float deg) final override;
-    };
 
-
-    class Triangle final : public Collidable
-    {
-        Vector2 m_extents[3u];
-    public:
-        Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation = Matrix2::Identity());
         bool IsColliding(const Vector2& point) const override;
+
+        void Rotate(float deg) final override;
+
+        void UpdateAABB(const bool accountRotation = true) final override;
+
+    private:
+
+        Vector2 m_extents;
+
+    }; // Rectangle
+
+
+    struct Triangle final : public Collidable
+    {
+        using Matrix2 = Collidable::Matrix2;
+        using Vector2 = Collidable::Vector2;
+
+        Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation = math::s_identity2);
 
         inline const Vector2(&GetExtents() const)[3u]
         {
@@ -121,7 +219,17 @@ namespace ace
         }
 
         std::vector<Vector2> GetVertices() const final override;
+
+        bool IsColliding(const Vector2& point) const override;
+
         void Rotate(float deg) final override;
-    };
+
+        void UpdateAABB(const bool accountRotation = true) final override;
+
+    private:
+
+        Vector2 m_extents[3u];
+
+    }; // Triangle
 
 }

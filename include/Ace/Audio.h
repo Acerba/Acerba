@@ -3,10 +3,10 @@
 #include <Ace/Vector3.h>
 #include <Ace/File.h>
 #include <Ace/Math.h>
-#include <Ace/SmartPtr.h>
 
 #include <Ace/Macros.h>
 
+#include <memory>
 #include <vector>
 
 namespace ace
@@ -20,19 +20,18 @@ namespace ace
 		struct AudioClipImpl;
 
 	protected:
-		std::shared_ptr<AudioClipImpl> impl;
+		std::shared_ptr<AudioClipImpl> m_impl;
 
-		bool ispaused;
-
-
-		float volume;
-		float pitch;
-		bool loop;
-		
+		float m_volume;
+		float m_pitch;
+		bool m_isPaused;
+		bool m_loop;
 
 	public:
 
 		IAudioSample(AudioClipImpl* clip = nullptr);
+
+		virtual ~IAudioSample() = 0;
 
 		/**
 		@brief Sets the volume for specified clip between 0.0f and 1.0f.
@@ -99,13 +98,13 @@ namespace ace
 		@brief Sets  audio position for the specified source
 		@param[in] Position
 		*/
-		void SetPosition(math::Vector3 position);
+		void SetPosition(const math::Vector3& position);
 
 		/**
 		@brief Sets  audio position for the specified source
 		@param[in] Velocity
 		*/
-		void SetVelocity(math::Vector3 velocity);
+		void SetVelocity(const math::Vector3& velocity);
 
 		AudioClipImpl* operator->() const;
 
@@ -150,11 +149,11 @@ namespace ace
 	{
 	public:
 
+		AudioClip clip;
 		float duration;
 		float time;
-		AudioClip clip;
 
-		IAudioEffect(const AudioClip& clip, float duration) : clip(clip), duration(duration), time(0)
+		IAudioEffect(const AudioClip& clip, float duration) : clip(clip), duration(duration), time(0.f)
 		{
 
 		}
@@ -175,7 +174,8 @@ namespace ace
 		float volume;
 		float endVolume;
 
-		FadeEffect(const AudioClip& clip, float duration, float volume, float endVolume) : IAudioEffect(clip, duration), volume(volume), endVolume(endVolume)
+		FadeEffect(const AudioClip& clip, float duration, float volume, float endVolume) :
+			IAudioEffect(clip, duration), volume(volume), endVolume(endVolume)
 		{
 
 		}
@@ -240,13 +240,16 @@ namespace ace
 			@brief Sets 3D audio position for the specified source.
 			@param[in] AudioClip&, Vector3 pos
 		*/
-		static void PlayAudioAtPosition(const AudioClip& Clip, math::Vector3 pos);
+		static void PlayAudioAtPosition(const AudioClip& Clip, const math::Vector3& pos);
 		
 		/**
 			@briefSets 3D audio attributes for the listener.
 			@param[in] Vector3 apPos, Vector3 apVel, Vector3 apforward, Vector3 apupward
 		*/
-		static void SetAttributes(math::Vector3 apPos, math::Vector3 apVel, math::Vector3 apForward, math::Vector3 apUpward);
+		static void SetAttributes(
+			const math::Vector3& apPos, const math::Vector3& apVel,
+			const math::Vector3& apForward, const math::Vector3& apUpward
+		);
 
 		/**
 			@brief Stops the specific clip.

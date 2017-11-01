@@ -39,6 +39,11 @@ namespace ace
 		*/
 		static float DeltaTime();
 
+        /**
+            @brief Returns total time.
+            @return Total Time
+        */
+        static float TotalTime();
 
 		static void Update();
 		

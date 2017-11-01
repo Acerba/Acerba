@@ -1,189 +1,175 @@
-//SceneDrawingMultipleEntites Demo
-// Include all necessary modules
 #include <Ace/Ace.h>
 
-#include <Ace/Collidable.h>
+#include <memory> // For custom game object
+#include <vector> // For custom game object
 
-#include <Ace/Debugger.h>
-
-#include <iostream>
-
-void logC(const ace::Collidable& c, const char* msg = nullptr)
+// Custom game object
+struct MyObject final
 {
-    for (const auto& itr : c.GetVertices())
-    {
-        ace::LogDebug(itr, msg);
-    }
+    // Store a pointer to an object of a pure virtual base class.
+    std::unique_ptr<ace::Collidable> collidable;
+    // Sprite to draw
+    ace::Sprite sprite;
+
+    // Ctor
+    MyObject() : collidable(), sprite() { }
+};
+
+// Manual vertex placement due to accessing raw GraphicsDevice
+void SetSprite(ace::Sprite& sprite, const ace::Vector2& pos)
+{
+    sprite.vertexData[0].position.x =  pos.x;
+    sprite.vertexData[0].position.y =  pos.y;
+
+    sprite.vertexData[1].position.x = -pos.x;
+    sprite.vertexData[1].position.y =  pos.y;
+
+    sprite.vertexData[2].position.x = -pos.x;
+    sprite.vertexData[2].position.y = -pos.y;
+
+    sprite.vertexData[3].position.x =  pos.x;
+    sprite.vertexData[3].position.y = -pos.y;
 }
 
-int main(int, char**) {
-    // Initialize Acerba
+int main(int, char**)
+{
+    // Initialize the engine
     ace::Init();
+    
+    // Create a window
+    ace::Window window("CollisionExample", 800u, 600u);
+    
+    // Number of collidables
+    static const ace::UInt8 collidableCount = 20u;
+    
+    // Preallocate space for the collidables + player collidable
+    ace::Collidable::Reserve(collidableCount + 1u);
 
+    // Create gameobjects
+    std::vector<MyObject> objects(collidableCount);
+    
+    // Size for the objects
+    static const ace::Vector2 rectSize(0.05f, 0.05f);
+    
+    // Set all gameobjects
+    for (ace::UInt8 i = 0u; i < collidableCount; ++i)
+    {
+        // Randomize a position on the screen
+        const ace::Vector2 position(ace::math::Rand(-1.f, 1.f), ace::math::Rand(-1.f, 1.f));
 
-    #if 1
+        // Create a rectangle (derived from ace::Collidable)
+        objects[i].collidable = std::make_unique<ace::Rectangle>(
+            rectSize,   // extents
+            position    // position
+        );
 
-    using namespace ace;
+        // Set vertices manually
+        SetSprite(objects[i].sprite, rectSize);
 
-    std::cout << std::boolalpha;
+        // Move the sprite to the correct position
+        objects[i].sprite.Move(ace::Vector3(position.x, position.y, 0.f));
 
-    Rectangle r1(Vector2(-5.1, 6), Vector2(1, 1));
-    Rectangle r2(Vector2(0.999f, 3), Vector2(1, 1));
+        // Colorize the sprite
+        objects[i].sprite.Colorize(ace::Color32(0.f, 0.f, 0.2f, 1.f));
+    }
 
-    Vector2 ex[3]{ {-1, -1}, {1, -1}, {1, 1} };
-    Triangle t1(ex, Vector2(-4, 5));
-    Circle c1(1, Vector2(-4.6, 5.6));
+    // Create a player
+    MyObject player;
 
-    Circle c2(1.5f, Vector2(3.f, 5.f));
-    Vector2 ex2[3]{ {-1, -1}, {1, -1}, {1, 1} };
-    Triangle t2(ex2, Vector2(5, 4));// , Matrix2::Rotation(90.f));
+    // Create a rectangle
+    player.collidable = std::make_unique<ace::Rectangle>(rectSize, ace::Vector2());
 
-    logC(t1);
-    logC(t2, "t2vert");
+    // Set the vertices manually
+    SetSprite(player.sprite, rectSize);
 
-    std::cout << "collision: " << Collidable::IsColliding(t2, c2) << '\n';
-
-    //logC(t1, "t1vert");
-    //logC(r1, "r1vert");
-
-    //std::cout << "töks: " << Collidable::IsColliding(t1, c1) << '\n';
-
-    #else
-
-    // Create window
-    ace::Window window("Scene_demo", 1024u, 768u);
-
-    ace::Entity entA;
-    ace::Entity entB;
-
-    // Create a timer
-    ace::Time timer;
-
-    // Create a scene
-    ace::Scene world;
-
-    // Create a sprite
-    ace::Sprite spriteA;
-    ace::Sprite spriteB;
-
-    // Create a material
-    ace::StandardMaterial mat;
-
-    // Change sprite colour
-    spriteA.Colorize(ace::Color32(0.f, 0.f, 0.f, 1.f));
-    spriteB.Colorize(ace::Color32(1.f, 1.f, 1.f, 1.f));
-
-    // Create a camera
-    ace::Camera camera;
-
-    // Set world root as parent of camera
-    //camera.GetEntity().SetParent(world.GetRoot());
-
-    // Take camera reference so we don't have to get it every time
-    ace::Entity& cam = camera.GetEntity();
-
-    const float scale = 0.2f;
-
-    // Change position
-    entA->transform.position = ace::Vector3(-0.75f, 0.f, 0.f);
-    ace::Rectangle rectA(ace::Vector2(-0.75f, 0.f), ace::Vector2(scale, scale));
-    ace::Rectangle rectB(ace::Vector2(), ace::Vector2(scale, scale));
-
-    // Scale to 20%
-    entA->transform.scale = ace::Vector3(scale, scale, 1.f);
-    entB->transform.scale = ace::Vector3(scale, scale, 1.f);
-
-    // Add Sprite to entity
-    entA.ReserveComponents<ace::Sprite>(2u);
-
-    ace::Sprite& spriteAref = entA.AddComponent(spriteA)->GetRef();
-    ace::Sprite& spriteBref = entB.AddComponent(spriteB)->GetRef();
-
-
-    entA.ReserveComponents<ace::Rectangle>(2u);
-
-    ace::Rectangle& rectAref = entA.AddComponent(rectA)->GetRef();
-    ace::Rectangle& rectBref = entB.AddComponent(rectB)->GetRef();
-
-    // Add material to entity
-    entA.AddComponent<ace::Material>(mat);
-    entB.AddComponent<ace::Material>(mat);
-
-    entA.SetParent(world.GetRoot());
-    entB.SetParent(world.GetRoot());
-
-    #if 0
-        camera.GetEntity().SetParent(world.GetRoot());
-    #else
-        camera.GetEntity().SetParent(entB);
-    #endif
-
-    // Total time elapsed, used in color calculation
-    float dt = 0.f;
-
-    // While window is open
-    while (window) {
-
-        // Clear window
+    // Colorize the player
+    player.sprite.Colorize(ace::Color32(0.f, 0.2f, 0.f, 1.f));
+    
+    
+    // While the window is open
+    while (window)
+    {
+        // Clear the window
         window.Clear();
 
-        // Update Acerba systems
+        // Update the engines systems
         ace::Update();
-
-        // Get time between updates
-        dt = timer.DeltaTime();
-
-        if (ace::Keyboard::KeyPressed(ace::KeyCode::A))
-        {
-            entA->transform.position.x -= dt;
-            rectAref.GetPosition().x -= dt;
-        }
-        if (ace::Keyboard::KeyPressed(ace::KeyCode::D))
-        {
-            entA->transform.position.x += dt;
-            rectAref.GetPosition().x += dt;
-        }
-        if (ace::Keyboard::KeyPressed(ace::KeyCode::W))
-        {
-            entA->transform.position.y += dt;
-            rectAref.GetPosition().y += dt;
-        }
-        if (ace::Keyboard::KeyPressed(ace::KeyCode::S))
-        {
-            entA->transform.position.y -= dt;
-            rectAref.GetPosition().y -= dt;
-        }
-        if (ace::Keyboard::KeyPressed(ace::KeyCode::One))
+        
+        // Close the window on key press 1
+        if (ace::Keyboard::GetKey("1"))
         {
             window.Close();
         }
-
-        if (ace::Collidable::IsColliding(rectAref, rectBref))
+        // Move the player left
+        if (ace::Keyboard::GetKey("A"))
         {
-            static ace::Color col(1.f, 1.f, 1.f, 1.f);
-
-            col = ace::Color(0.5f, 0.2f, 0.2f, 1.f);
-            spriteBref.Colorize(col);
+            player.collidable->GetLocalPosition().x -= 0.01f;
+            player.sprite.Move(ace::Vector3(-0.01f, 0.f, 0.f));
         }
-//        else
-//        {
-//            (*entB.GetComponent<ace::Sprite>())->Colorize(ace::Color(0.2f, 0.5f, 0.2f, 1.f));
-//        }
+        // Move the player right
+        if (ace::Keyboard::GetKey("D"))
+        {
+            player.collidable->GetLocalPosition().x += 0.01f;
+            player.sprite.Move(ace::Vector3( 0.01f, 0.f, 0.f));
+        }
+        // Move the player up
+        if (ace::Keyboard::GetKey("W"))
+        {
+            player.collidable->GetLocalPosition().y += 0.01f;
+            player.sprite.Move(ace::Vector3(0.f,  0.01f, 0.f));
+        }
+        // Move the player down
+        if (ace::Keyboard::GetKey("S"))
+        {
+            player.collidable->GetLocalPosition().y -= 0.01f;
+            player.sprite.Move(ace::Vector3(0.f, -0.01f, 0.f));
+        }
 
-        // Update scene
-        world.Update();
+        // Update the Bounding Volume Hierarchy which contains the actual ace::Collidable implementations
+        // This makes sure that there are as few collisions to check as possible when some form of UpdateCollisions is called
+        ace::BVH::Update();
 
-        // Draw scene
-        world.Draw(camera);
+        // Update only the collisions regarding the player
+        player.collidable->UpdateCollisions();
 
-        // Refresh screen
+        // We don't need to know anyone elses collisions in this demo,
+        // but there is the following function available in ace::BVH
+        // which updates the collisions on every living collidable:
+        // ace::BVH::UpdateAllCollisions();
+
+
+        // If the player has collisions
+        if (player.collidable->GetCollisionCount() != 0)
+        {
+            // Change the player colour
+            player.sprite.Colorize(ace::Color32(0.2f, 0.f, 0.f, 1.f));
+        }
+        else
+        {
+            // Set the player colour back to original
+            player.sprite.Colorize(ace::Color32(0.f, 0.2f, 0.f, 1.f));
+        }
+
+        // Print the number of collisions
+        // Possibly bad performance on windows
+        // ace::Logger::LogInfo("Player is colliding with %i objects.", player.collidable->GetCollisionCount());
+
+        // Draw the game objects
+        for (ace::UInt8 i = 0u; i < collidableCount; ++i)
+        {
+            ace::GraphicsDevice::Draw(objects[i].sprite);
+        }
+        // Draw the player last so it stays on top on the screen
+        ace::GraphicsDevice::Draw(player.sprite);
+
+        // Refresh the screen
         window.Present();
-    }
 
-    #endif
-
-    // Shutdown Acerba
+    } // while(window)
+    
+    // Shutdown the engine
     ace::Quit();
 
+    // Exit the application
     return 0;
 }

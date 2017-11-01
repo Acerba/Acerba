@@ -4,21 +4,16 @@
 
 #if ACE_DEBUG
 
+#include <Ace/TypesFwd.h>
+
 namespace ace
 {
-    namespace math
-    {
-        class Matrix2;
-        class Matrix3;
-        class Matrix4;
-        class Quaternion;
-        class Vector2;
-        class Vector3;
-        class Vector4;
-    }
+
+    struct AABB;
     class Transform;
 
     void LogDebug(const float, const char* msg = "");
+    void LogDebug(const AABB&, const char* msg = "");
     void LogDebug(const math::Matrix2&, const char* msg = "");
     void LogDebug(const math::Matrix3&, const char* msg = "");
     void LogDebug(const math::Matrix4&, const char* msg = "");

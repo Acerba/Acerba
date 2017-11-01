@@ -14,8 +14,8 @@ namespace ace
 
     Raycast::Raycast(const Vector2& start, const Vector2& ray) :
         start(start),
-        unitDirection(ray.Normalize()),
-        invDirection(unitDirection.Invert())
+        unitDirection(math::Normalize(ray)),
+        invDirection(math::Invert(unitDirection))
         // length(ray.Length())
     {
 
@@ -23,8 +23,8 @@ namespace ace
 
     Raycast::Raycast(const Vector2& start, const Vector2& direction, const float length) :
         start(start),
-        unitDirection(direction.Normalize()),
-        invDirection(unitDirection.Invert())
+        unitDirection(math::Normalize(direction)),
+        invDirection(math::Invert(unitDirection))
         //length(math::Abs(length))
     {
 

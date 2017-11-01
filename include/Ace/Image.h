@@ -2,7 +2,8 @@
 
 #include <Ace/File.h>
 #include <Ace/Color.h>
-#include <Ace/SmartPtr.h>
+
+#include <memory>
 
 namespace ace
 {

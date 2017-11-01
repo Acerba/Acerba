@@ -6,7 +6,7 @@
 namespace ace
 {
 
-    class Entity
+    class Entity final
     {
         EntityManager::EntityHandle* m_handle;
 
@@ -165,6 +165,15 @@ namespace ace
         inline bool HasComponent() const
         {
             return m_handle->HasComponent<CompType>();
+        }
+
+        /**
+            @brief Queries the entity static status. Static entities transforms are recalculated only if their parents models change.
+            @return True if the entity is static.
+        */
+        inline bool IsStatic() const
+        {
+            return m_handle ? m_handle->IsStatic() : false;
         }
 
         /**

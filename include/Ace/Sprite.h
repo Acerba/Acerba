@@ -110,6 +110,7 @@ namespace ace
 			@return Sprites local position.
 		*/
 		Vector3 GetCenter() const;
+        Vector2 GetScale() const;
 
 		void SetInstanceID(UInt8 id);
     };

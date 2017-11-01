@@ -1,15 +1,14 @@
 #include <Ace/Sprite.h>
 #include <Ace/Math.h>
 
-
 namespace ace
 {
 
     const ace::Vertex triangle[4] = {
-        { { 0.5f, 0.5f, 0, 0.0f }, { 1.0f, 0.0f }, 0xFFFFFFFFU },
-        { { -0.5f, 0.5f, 0, 0.0f }, { 0.0f, 0.0f }, 0xFFFFFFFFU },
-        { { -0.5f, -0.5f, 0, 0.0f }, { 0.0f, 1.0f }, 0xFFFFFFFFU },
-        { { 0.5f, -0.5f, 0, 0.0f }, { 1.0f, 1.0f }, 0xFFFFFFFFU },
+        { { 0.5f, 0.5f, 0.f, 0.0f }, { 1.0f, 0.0f }, 0xFFFFFFFFU },
+        { { -0.5f, 0.5f, 0.f, 0.0f }, { 0.0f, 0.0f }, 0xFFFFFFFFU },
+        { { -0.5f, -0.5f, 0.f, 0.0f }, { 0.0f, 1.0f }, 0xFFFFFFFFU },
+        { { 0.5f, -0.5f, 0.f, 0.0f }, { 1.0f, 1.0f }, 0xFFFFFFFFU },
     };
 
     Sprite::Sprite() : Sprite(triangle)
@@ -19,10 +18,10 @@ namespace ace
 
 	Sprite::Sprite(float deg) : Sprite()
 	{
-		const math::Matrix4 rot(math::Matrix4::RotationZ(deg));
+		const math::Matrix4 rot(math::RotateZ4(deg));
 		for (auto& i : vertexData)
 		{
-			i.position = rot * i.position;
+			i.position = math::ToVektor(rot * i.position);
 		}
 	}
 
@@ -51,25 +50,22 @@ namespace ace
 
 	void Sprite::SetSprite(const SpriteSheet::SpriteData* sprite, float scale, float base)
 	{
-		if (sprite == nullptr)
+		if (sprite)
 		{
-			return;
+			Texcoord(sprite->texcoord);
+			SetScale((Vector2(sprite->location.width, sprite->location.height) / base) * scale);
 		}
-
-		Texcoord(sprite->texcoord);
-		Scale(Vector2(sprite->location.width, sprite->location.height) / base * scale);
-
 	}
 
 	void Sprite::Rotate(float deg)
 	{
-		const math::Matrix4 rot(math::Matrix4::RotationZ(deg));
-        float w = vertexData[0].position.w;
+		const math::Matrix4 rot(math::RotateZ4(deg));
+		const float w = vertexData[0].position.w;
 
 		for (auto& i : vertexData)
 		{
-            i.position.w = 1.0;
-            i.position = rot * i.position;
+            i.position.w = 1.f;
+            i.position = math::ToVektor(rot * i.position);
             i.position.w = w;
 		}
 	}
@@ -172,10 +168,12 @@ namespace ace
 
 	void Sprite::SetScale(const Vector2& scale)
 	{
+        Vector3 center = GetCenter();
+
 		for (int i = 0; i < Sprite::size; ++i)
 		{
-			vertexData[i].position.x = triangle[i].position.x * scale.x;
-			vertexData[i].position.y = triangle[i].position.y * scale.y;
+			vertexData[i].position.x = center.x + triangle[i].position.x * scale.x;
+			vertexData[i].position.y = center.y + triangle[i].position.y * scale.y;
 		}
 	}
 
@@ -191,12 +189,17 @@ namespace ace
 	Vector3 Sprite::GetCenter() const
 	{
 		Vector3 position;
-
 		for (Int32 i = 0; i < Sprite::size; ++i)
 		{
-			position += vertexData[i].position;
+			position.x += vertexData[i].position.x;
+			position.y += vertexData[i].position.y;
+			position.z += vertexData[i].position.z;
 		}
-
-		return position / Sprite::size;
+		return position / static_cast<float>(Sprite::size);
 	}
+
+    Vector2 Sprite::GetScale() const
+    {
+        return Vector2(vertexData[0].position.x + vertexData[3].position.x, vertexData[0].position.y + vertexData[1].position.y);
+    }
 }

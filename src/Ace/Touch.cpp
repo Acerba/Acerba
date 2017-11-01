@@ -1,16 +1,18 @@
 #include <Ace/Touch.h>
 #include <SDL_touch.h>
 
+#include <Ace/Log.h>
+
 namespace ace
 {
-	static const UInt32 MAX_FINGERS = 10;
-	static const SDL_Finger* sdlFingers[MAX_FINGERS];
+	const UInt8 MAX_FINGERS = 10u;
+	const SDL_Finger* sdlFingers[MAX_FINGERS];
 
 	struct FingerHandler
 	{
 		FingerHandler()
 		{
-			for (int i = 0; i < MAX_FINGERS; ++i)
+			for (UInt8 i = 0; i < MAX_FINGERS; ++i)
 			{
 				sdlFingers[i] = nullptr;
 			}
@@ -23,22 +25,29 @@ namespace ace
 
 	} fingerHandler;
 
+	Touch::Touch(const UInt32 id) : m_id(id)
+	{
+
+	}
+
 	UInt32 Touch::GetCount()
 	{
 		return SDL_GetNumTouchFingers(SDL_GetTouchDevice(0));
 	}
 
-	Touch Touch::GetTouch(UInt32 index)
+	Touch Touch::GetTouch(UInt8 index)
 	{
-		Touch touch;
-		touch.m_id = index;
+		if (index >= MAX_FINGERS)
+		{
+			Logger::LogError("Touch::GetTouch() index overflow, using 0");
+			index = 0u;
+		}
 		sdlFingers[index] = SDL_GetTouchFinger(SDL_GetTouchDevice(0), index);
-		return touch;
-
+		return Touch(index);
 		//return *SDL_GetTouchFinger(TouchIndex, id);
 	}
 
-	Int64 Touch::GetID() const
+	UInt32 Touch::GetID() const
 	{
 		return sdlFingers[m_id]->id;
 	}

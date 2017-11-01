@@ -3,6 +3,8 @@
 #if ACE_DEBUG
 
 #include <Ace/Log.h>
+
+#include <Ace/AABB.h>
 #include <Ace/Types.h>
 #include <Ace/Transform.h>
 
@@ -16,41 +18,48 @@ namespace ace
         Logger::LogDebug("%s: %f", msg, f);
     }
 
+    void LogDebug(const AABB& aabb, const char* msg)
+    {
+        Logger::LogDebug("%s:", msg);
+        LogDebug(aabb.min, "min");
+        LogDebug(aabb.max, "max");
+    }
+
     void LogDebug(const Matrix2& m, const char* msg)
     {
         Logger::LogDebug("%s:", msg);
-        LogDebug(m.rows[0], "Row 0");
-        LogDebug(m.rows[1], "Row 1");
+        LogDebug(Vector2(m.dataRow(0)), "Row 0");
+        LogDebug(Vector2(m.dataRow(1)), "Row 1");
     }
     void LogDebug(const Matrix3& m, const char* msg)
     {
         Logger::LogDebug("%s:", msg);
-        LogDebug(m.rows[0], "Row 0");
-        LogDebug(m.rows[1], "Row 1");
-        LogDebug(m.rows[2], "Row 2");
+        LogDebug(Vector3(m.dataRow(0)), "Row 0");
+        LogDebug(Vector3(m.dataRow(1)), "Row 1");
+        LogDebug(Vector3(m.dataRow(2)), "Row 2");
     }
     void LogDebug(const Matrix4& m, const char* msg)
     {
         Logger::LogDebug("%s:", msg);
-        LogDebug(m.rows[0], "Row 0");
-        LogDebug(m.rows[1], "Row 1");
-        LogDebug(m.rows[2], "Row 2");
-        LogDebug(m.rows[3], "Row 3");
+        LogDebug(Vector4(m.dataRow(0)), "Row 0");
+        LogDebug(Vector4(m.dataRow(1)), "Row 1");
+        LogDebug(Vector4(m.dataRow(2)), "Row 2");
+        LogDebug(Vector4(m.dataRow(3)), "Row 3");
     }
 
     void LogDebug(const math::Quaternion& q, const char* msg)
     {
-        Logger::LogDebug("%s: Scalar: %f", msg, q.scalar);
-        LogDebug(q.vector, "Vector");
+        Logger::LogDebug("%s: Scalar: %f", msg, q.S);
+        LogDebug(Vector3(q._v), "Vector");
     }
 
     void LogDebug(const Transform& t, const char* msg)
     {
         Logger::LogDebug(msg);
-        LogDebug(t.model, "Model");
-        LogDebug(t.position, "Position");
-        LogDebug(t.rotation, "Rotation");
-        LogDebug(t.scale, "Scale");
+        LogDebug(t.GetModel(), "Model");
+        LogDebug(t.GetPosition(), "Position");
+        LogDebug(t.GetRotation(), "Rotation");
+        LogDebug(t.GetScale(), "Scale");
     }
 
     void LogDebug(const Vector2& v, const char* msg)

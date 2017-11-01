@@ -23,7 +23,8 @@ namespace ace
             @brief Custom Draw method
             Requires manual buffer or sprite logic.
         */
-		virtual void Draw() const = 0;
+        virtual void Draw() const = 0;
+        virtual ~Drawable() = 0;
     };
 
 
@@ -49,11 +50,11 @@ namespace ace
 
         Texture tileset;
 
-        Tilemap(const Path& map, float scale = 1.0, const Vector3& pivot = Vector3(0.5, 0.5, 0), ReadTilemap callback = nullptr, void* arg = nullptr);
+        Tilemap(const Path& map, float scale = 1.0f, const Vector3& pivot = Vector3(0.5f, 0.5f, 0.f), ReadTilemap callback = nullptr, void* arg = nullptr);
         ~Tilemap();
 
         UInt32 LayersCount() const;
-        TileLayer* GetLayer(Int32 i);
+        TileLayer* GetLayer(UInt32 i);
 
         SpriteSheet& GetSpriteSheet();
         const SpriteSheet& GetSpriteSheet() const;

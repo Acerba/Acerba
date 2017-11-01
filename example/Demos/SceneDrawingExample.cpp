@@ -67,7 +67,7 @@ int main(int, char**)
         ace::Update();
 
         // Get reference to the x-axis position
-        float& x = myEntity->transform.position.x;
+		float& x = myEntity->transform.GetPositionRef().x;
 
         // Limit movement
         if (x >= 1.f)

@@ -68,17 +68,17 @@ namespace ace
 		 
 	void Material::Uniform(const char* name, const Matrix2& value)
 	{
-		GraphicsDevice::Uniform(name, &value.array, UniformType::Mat2, 1);
+		GraphicsDevice::Uniform(name, &value.data(), UniformType::Mat2, 1);
 	}
 	
 	void Material::Uniform(const char* name, const Matrix3& value)
 	{
-		GraphicsDevice::Uniform(name, &value.array, UniformType::Mat3, 1);
+		GraphicsDevice::Uniform(name, &value.data(), UniformType::Mat3, 1);
 	}
 	
 	void Material::Uniform(const char* name, const Matrix4& value)
 	{
-		GraphicsDevice::Uniform(name, &value.array, UniformType::Mat4, 1);
+		GraphicsDevice::Uniform(name, &value.data(), UniformType::Mat4, 1);
 	}	
 
 	void Material::Uniform(const char* name, const UInt32* values, UInt32 count)

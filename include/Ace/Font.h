@@ -3,8 +3,8 @@
 #include <Ace/File.h>
 #include <Ace/Image.h>
 #include <Ace/Buffer.h>
-#include <Ace/SmartPtr.h>
 
+#include <memory>
 #include <vector>
 
 namespace ace
@@ -37,14 +37,26 @@ namespace ace
 
 	class Font
 	{
-	public:
+    public:
+        
+        /**
+            @brief Empty font ctor. Call CreateFont() to fill the font.
+            @see CreateFont()
+        */
+        Font();
+
 		/**
 			@brief Font constructor
-			@param[in] p_file File to read
+			@param[in] file File to read
 		*/
-		Font(const File& p_file);
+		Font(const File& file);
 		
-		~Font();
+        /**
+            @brief Fill the font object.
+            @param[in] file The font file.
+            @return True if the operation was successful.
+        */
+        bool Fill(const File& file);
 
 		/**
 			@brief Baking imagefile of the fontsheet from ttf-file
@@ -103,26 +115,30 @@ namespace ace
         UInt8* GetBuffer(UInt32& size);
 
 
-		/**
-			@brief m_lineHeight Lineheight for printable text
-			@brief m_spaceSize spacesize for printable text
-		*/
-		float m_lineHeight = 42.0f, m_spaceSize = 20.0f;
-	private:
-		//Image size from baking image to sheet
-		int m_w, m_h;
-
-		UInt32 m_start, m_end;
-
-		//Vector where Glyphs are stored
-		std::vector<Glyph>ASCII;
-		std::vector<Glyph>::iterator it = ASCII.begin();
-
-		//Sharedpointers
-		struct FontInfo;
-		std::shared_ptr<FontInfo> m_info;
-		std::shared_ptr<UInt8> m_buffer;
+    private:
+        
+        struct FontInfo;
+        
+        // Vector where Glyphs are stored
+        std::vector<Glyph> m_ascii;
+        std::vector<Glyph>::iterator m_it;
+        
+        std::shared_ptr<FontInfo> m_info;
+        std::shared_ptr<UInt8> m_buffer;
         UInt32 m_bufferSize;
+        UInt32 m_start;
+        UInt32 m_end;
+        // Image size from baking image to sheet
+        Int32 m_w;
+        Int32 m_h;
+        /**
+            @brief m_lineHeight Lineheight for printable text
+        */
+        float m_lineHeight;
+        /**
+            @brief m_spaceSize spacesize for printable text
+        */
+        float m_spaceSize;
 
-	};
+    };
 }

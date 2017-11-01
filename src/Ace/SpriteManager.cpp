@@ -83,7 +83,11 @@ namespace ace
 
 				if (drawable != nullptr)
 				{
-					GraphicsDevice::SetMaterial(GetTargetMaterial(customMaterial ? *customMaterial : primaryPool.m_components[i], camera, secondary->entity->transform.model));
+                    GraphicsDevice::SetMaterial(GetTargetMaterial(
+                        customMaterial ? *customMaterial : primaryPool.m_components[i],
+                        camera,
+                        secondary->entity->transform.GetModel()
+                    ));
 					drawable->Draw();
 				}
 			}
@@ -254,7 +258,7 @@ namespace ace
                         instanceID = 0;
                     }
 
-                    matrix.emplace_back(e->transform.model);
+                    matrix.emplace_back(e->transform.GetModel());
                     handles.emplace_back(e);
                 }
             }
@@ -281,12 +285,7 @@ namespace ace
         std::sort(indices.begin(), indices.end(),
             [&handles](const UInt32 i1, const UInt32 i2)
         {
-            if (i1 == i2)
-                return false;
-            else if (handles[i1]->transform.position.z > handles[i2]->transform.position.z)
-                return true;
-            else
-                return false;
+            return (i1 == i2) ? false : (handles[i1]->transform.GetPosition().z > handles[i2]->transform.GetPosition().z) ? true : false;
         }
         );
 
@@ -299,7 +298,7 @@ namespace ace
 		GetInstance().DrawDrawables(scene, camera, material);
         GetInstance().DrawImpl(scene, camera, material);
 
-        Material::Uniform("M", Matrix4::Identity()); // Rests Model matrix.
+        Material::Uniform("M", math::s_identity4); // Resets Model matrix.
     }
 
 }

@@ -31,7 +31,7 @@ namespace ace
 		cOAL_Stream* stream;
 		cOAL_Sample* sample;
 
-		int id;
+		Int32 id;
 
 		AudioClipImpl(cOAL_Stream* clip) : stream(clip), id(-1), sample(nullptr)
 		{
@@ -59,14 +59,19 @@ namespace ace
 	};
 
 
-	IAudioSample::IAudioSample(IAudioSample::AudioClipImpl* impl) : impl(impl)
+	IAudioSample::IAudioSample(IAudioSample::AudioClipImpl* impl) :
+		m_impl(impl), m_volume(0.f), m_pitch(0.f), m_isPaused(false), m_loop(false)
+	{
+
+	}
+	IAudioSample::~IAudioSample()
 	{
 
 	}
 
 	IAudioSample::AudioClipImpl* IAudioSample::operator->() const
 	{
-		return impl ? impl.get() : nullptr;
+		return m_impl ? m_impl.get() : nullptr;
 	}
 
 	static cOAL_Sample* LoadSample(const File& file)
@@ -77,7 +82,7 @@ namespace ace
 			return nullptr;
 		}
 
-		UInt32 pos = file.Size();
+		const UInt32 pos = file.Size();
 		UInt8* buffer = new UInt8[pos];
 
 		file.Read(buffer, pos);
@@ -89,7 +94,7 @@ namespace ace
 			Logger::LogError("Audioclip not found %s!", file.path.GetPath().c_str());
 		}
 
-		delete buffer;
+		delete [] buffer;
 		return sample;
 	}
 
@@ -101,7 +106,7 @@ namespace ace
 			return nullptr;
 		}
 		
-		UInt32 pos = file.Size();
+		const UInt32 pos = file.Size();
 		UInt8* buffer = new UInt8[pos];
 
 		file.Read(buffer, pos);
@@ -113,7 +118,7 @@ namespace ace
 			Logger::LogError("Audioclip not found %s!", file.path.GetPath().c_str());
 		}
 
-		delete buffer;
+		delete [] buffer;
 		return stream;
 	}
 
@@ -123,11 +128,12 @@ namespace ace
 
 	}
 
-	AudioClip::AudioClip(const File& file, float volume, bool isPaused, bool loop) : IAudioSample(new AudioClipImpl(LoadSample(file)))
+	AudioClip::AudioClip(const File& file, float volume, bool isPaused, bool loop) :
+		IAudioSample(new AudioClipImpl(LoadSample(file)))
 	{
-		this->volume = volume;
-		this->ispaused = isPaused;
-		this->loop = loop;
+		this->m_volume = volume;
+		this->m_isPaused = isPaused;
+		this->m_loop = loop;
 	}
 
 	AudioStream::AudioStream() : IAudioSample(nullptr)
@@ -135,11 +141,12 @@ namespace ace
 
 	}
 
-	AudioStream::AudioStream(const File& file, float volume, bool isPaused, bool loop) : IAudioSample(new AudioClipImpl(LoadStream(file)))
+	AudioStream::AudioStream(const File& file, float volume, bool isPaused, bool loop) :
+		IAudioSample(new AudioClipImpl(LoadStream(file)))
 	{
-		this->volume = volume;
-		this->ispaused = isPaused;
-		this->loop = loop;
+		this->m_volume = volume;
+		this->m_isPaused = isPaused;
+		this->m_loop = loop;
 	}
 
 
@@ -188,17 +195,7 @@ namespace ace
 
 	bool Audio::Update(const AudioClip& clip)
 	{
-		if(!g_isAudioRunning)
-		{
-			return false;
-		}
-		
-		if (clip->id != -1)
-		{
-			return false;
-		}
-
-		return OAL_Source_IsPlaying(clip->id);
+		return (!g_isAudioRunning || clip->id != -1) ? false : OAL_Source_IsPlaying(clip->id);
 	}
 
 	void AudioStream::Play()
@@ -213,17 +210,17 @@ namespace ace
 
 	void Audio::PlayAudio(AudioClip& clip)
 	{
-		if(!g_isAudioRunning || clip.impl == nullptr)
+		if(!g_isAudioRunning || clip.m_impl == nullptr)
 		{
 			return;
 		}
 		
-		if (clip.impl->sample)
+		if (clip.m_impl->sample)
 		{
-			clip.impl->id = OAL_Sample_Play(OAL_FREE, clip.impl->sample, clip.volume, clip.ispaused, 0);
+			clip.m_impl->id = OAL_Sample_Play(OAL_FREE, clip.m_impl->sample, clip.m_volume, clip.m_isPaused, 0);
 			Audio::GetAudio().clips.push_back(clip);
 
-			OAL_Source_SetLoop(clip->id, clip.loop);
+			OAL_Source_SetLoop(clip->id, clip.m_loop);
 
 			OAL_Source_SetPaused(clip->id, false);
 		}
@@ -235,22 +232,22 @@ namespace ace
 
 	void Audio::PlayAudio(AudioStream& stream)
 	{
-		if (!g_isAudioRunning || stream.impl == nullptr)
+		if (!g_isAudioRunning || stream.m_impl == nullptr)
 		{
 			return;
 		}
 		
-		if (stream.impl->stream)
+		if (stream.m_impl->stream)
 		{
-			if (stream.impl->id != -1)
+			if (stream.m_impl->id != -1)
 			{
 				stream.SetElapsedTime(0);
 			}
 			else
 			{
-				stream.impl->id = OAL_Stream_Play(OAL_FREE, stream.impl->stream, stream.volume, stream.ispaused);
+				stream.m_impl->id = OAL_Stream_Play(OAL_FREE, stream.m_impl->stream, stream.m_volume, stream.m_isPaused);
 
-				OAL_Source_SetLoop(stream->id, stream.loop);
+				OAL_Source_SetLoop(stream->id, stream.m_loop);
 
 				OAL_Source_SetPaused(stream->id, false);
 			}
@@ -264,103 +261,79 @@ namespace ace
 
 	void Audio::PauseAudio(AudioClip& clip)
 	{
-		if (!g_isAudioRunning || clip.impl == nullptr)
+		if (!g_isAudioRunning || clip.m_impl == nullptr)
 		{
 			return;
 		}
 		
-		clip.ispaused = !clip.ispaused;
-		PauseAudio(clip, clip.ispaused);
+		clip.m_isPaused = !clip.m_isPaused;
+		PauseAudio(clip, clip.m_isPaused);
 	}
 
 	void Audio::PauseAudio(AudioClip& clip, bool pause)
 	{
-		if (!g_isAudioRunning || clip.impl == nullptr)
+		if (g_isAudioRunning || clip.m_impl)
 		{
-			return;
+			OAL_Source_SetPaused(clip->id, pause);
 		}
-		
-		OAL_Source_SetPaused(clip->id, pause);
 	}
 
 	void Audio::StopAudio(const AudioClip& clip)
 	{
-		if (!g_isAudioRunning || clip.impl == nullptr)
+		if (g_isAudioRunning || clip.m_impl)
 		{
-			return;
+			OAL_Source_Stop(clip->id);
 		}
-		
-		OAL_Source_Stop(clip->id);
 	}
 
 	void Audio::StopAll()
 	{
-		if(!g_isAudioRunning)
+		if (g_isAudioRunning)
 		{
-			return;
+			OAL_Source_Stop(OAL_ALL);
 		}
-		
-		OAL_Source_Stop(OAL_ALL);
 	}
 
 	void Audio::SetMasterVolume(float volume)
 	{
-		if(!g_isAudioRunning)
+		if (g_isAudioRunning)
 		{
-			return;
+			OAL_Listener_SetMasterVolume(volume);
 		}
-		
-		OAL_Listener_SetMasterVolume(volume);
 	}
 
 	void IAudioSample::SetVolume(float volume)
 	{
-		if(!g_isAudioRunning)
+		if (g_isAudioRunning)
 		{
-			return;
+			OAL_Source_SetGain((*this)->id, volume);
 		}
-		
-		OAL_Source_SetGain((*this)->id, volume);
 	}
 
 	float IAudioSample::GetVolume()
 	{
-		if(!g_isAudioRunning)
-		{
-			return 0;
-		}
-		
-		return OAL_Source_GetGain((*this)->id);
+		return g_isAudioRunning ? OAL_Source_GetGain((*this)->id) : 0.f;
 	}
 
 	void IAudioSample::SetPitch(float pitch)
 	{
-		if(!g_isAudioRunning)
+		if (g_isAudioRunning)
 		{
-			return;
+			OAL_Source_SetPitch((*this)->id, pitch);
 		}
-		
-		OAL_Source_SetPitch((*this)->id, pitch);
 	}
 
 	float IAudioSample::GetPitch()
 	{
-		if(!g_isAudioRunning)
-		{
-			return 0;
-		}
-		
-		return OAL_Source_GetPitch((*this)->id);
+		return g_isAudioRunning ? OAL_Source_GetPitch((*this)->id) : 0.f;
 	}
 
 	void IAudioSample::SetLoop(bool loop)
 	{
-		if(!g_isAudioRunning)
+		if (g_isAudioRunning)
 		{
-			return;
+			OAL_Source_SetLoop((*this)->id, loop);
 		}
-		
-		OAL_Source_SetLoop((*this)->id, loop);
 	}
 
 	//void AudioClip::SetPriority(UInt32 priority)
@@ -375,73 +348,49 @@ namespace ace
 
 	void IAudioSample::SetElapsedTime(double time)
 	{
-		if(!g_isAudioRunning)
+		if (g_isAudioRunning)
 		{
-			return;
+			OAL_Source_SetElapsedTime((*this)->id, time);
 		}
-		
-		OAL_Source_SetElapsedTime((*this)->id, time);
 	}
 
 	double IAudioSample::GetElapsedTime()
 	{
-		if(!g_isAudioRunning)
-		{
-			return 0;
-		}
-		
-		return OAL_Source_GetElapsedTime((*this)->id);
+		return g_isAudioRunning ? OAL_Source_GetElapsedTime((*this)->id) : 0.0;
 	}
 
 	double IAudioSample::GetTotalTime()
 	{
-		if(!g_isAudioRunning)
-		{
-			return 0;
-		}
-		
-		return OAL_Source_GetTotalTime((*this)->id);
+		return g_isAudioRunning ? OAL_Source_GetTotalTime((*this)->id) : 0.0;
 	}
 
 	bool IAudioSample::IsPlaying()
 	{
-		if(!g_isAudioRunning)
-		{
-			return false;
-		}
-		
-		return OAL_Source_IsPlaying((*this)->id);
+		return g_isAudioRunning ? OAL_Source_IsPlaying((*this)->id) : false;
 	}
 
-	void IAudioSample::SetPosition(math::Vector3 position)
+	void IAudioSample::SetPosition(const math::Vector3& position)
 	{
-		if(!g_isAudioRunning)
+		if (g_isAudioRunning)
 		{
-			return;
+			OAL_Source_SetPosition((*this)->id, position.array());
 		}
-		
-		OAL_Source_SetPosition((*this)->id, position.array);
 	}
 
-	void IAudioSample::SetVelocity(math::Vector3 velocity)
+	void IAudioSample::SetVelocity(const math::Vector3& velocity)
 	{
-		if(!g_isAudioRunning)
+		if (g_isAudioRunning)
 		{
-			return;
+			OAL_Source_SetPosition((*this)->id, velocity.array());
 		}
-		
-		OAL_Source_SetPosition((*this)->id, velocity.array);
 	}
 
 	void AudioClip::Fade(float duration, float endVolume)
 	{
-		if(!g_isAudioRunning)
+		if (g_isAudioRunning)
 		{
-			return;
+			Audio::AddEffect(new FadeEffect(*this, duration, this->m_volume, endVolume));
 		}
-		
-		FadeEffect* fade = new FadeEffect(*this, duration, volume, endVolume);
-		Audio::AddEffect(fade);
 	}
 
 	Audio& Audio::GetAudio()
@@ -459,52 +408,51 @@ namespace ace
 	{
 		for (UInt32 i = 0u; i < effects.size(); ++i)
 		{
-			if (effects[i] == nullptr)
+			if (effects[i])
 			{
-				continue;
+				delete effects[i];
+				effects[i] = nullptr;
 			}
-
-			delete effects[i];
-			effects[i] = nullptr;
 		}
 	}
 
 	void Audio::AddEffect(IAudioEffect* effect)
 	{
-		if(!g_isAudioRunning)
+		if (g_isAudioRunning)
+		{
+			Audio::GetAudio().effects.push_back(effect);
+		}
+		else
 		{
 			delete effect;
-			return;
 		}
-		
-		Audio& audio = Audio::GetAudio();
-
-		audio.effects.push_back(effect);
 	}
 
-	void Audio::PlayAudioAtPosition(const AudioClip& Clip, math::Vector3 pos)
+	void Audio::PlayAudioAtPosition(const AudioClip& Clip, const math::Vector3& pos)
 	{
-		if(!g_isAudioRunning)
+		if (g_isAudioRunning)
 		{
-			return;
+			OAL_Source_SetPosition(Clip->id, pos.array());
 		}
-		
-		OAL_Source_SetPosition(Clip->id, pos.array);
 	}
 
-	void Audio::SetAttributes(math::Vector3 apPos, math::Vector3 apVel, math::Vector3 apForward, math::Vector3 apUpward)
+	void Audio::SetAttributes(
+		const math::Vector3& apPos, const math::Vector3& apVel,
+		const math::Vector3& apForward, const math::Vector3& apUpward
+	)
 	{
-		if(!g_isAudioRunning)
+		if (g_isAudioRunning)
 		{
-			return;
+			OAL_Listener_SetAttributes(
+				apPos.array(), apVel.array(),
+				apForward.array(), apUpward.array()
+			);
 		}
-		
-		OAL_Listener_SetAttributes(apPos.array, apVel.array, apForward.array, apUpward.array);
 	}
 
 	void Audio::Update()
 	{
-		if(!g_isAudioRunning)
+		if (!g_isAudioRunning)
 		{
 			return;
 		}
@@ -518,9 +466,9 @@ namespace ace
 				continue;
 			}
 
-			float normalized = audio.effects[i]->time / audio.effects[i]->duration;
+			const float normalized = audio.effects[i]->time / audio.effects[i]->duration;
 
-			if (normalized > 1)
+			if (normalized > 1.f)
 			{
 				delete audio.effects[i];
 				audio.effects[i] = nullptr;
