@@ -169,6 +169,8 @@ namespace ace
 
                         // Update
                         // TODO: Flip
+
+						sprite.SetID(tile.ID);
                         sprite.Texcoord(sheet.GetSprite(tile.ID)->texcoord);
                         sprite.Scale(Vector2(tilesetSize.x, tilesetSize.y) / math::Min(tileSize.x, tileSize.y));
 
@@ -191,7 +193,7 @@ namespace ace
                     }
                 }
 
-
+				GraphicsDevice::CreateIndicies(layer.indexBuffer, layer.tiles.size(), BufferUsage::Static);
                 layers.push_back(layer);
             }
         }
@@ -238,11 +240,13 @@ namespace ace
 
     void Tilemap::TileLayer::Draw() const
     {
-        for (UInt32 i = 0; i < tiles.size(); ++i)
-        {
-            // TODO: Draw all sprites. (single draw call)
-            GraphicsDevice::Draw(tiles[i]);
-        }
+		GraphicsDevice::Draw(tiles.data(), tiles.size(), indexBuffer);
+
+        //for (UInt32 i = 0; i < tiles.size(); ++i)
+        //{
+        //    // TODO: Draw all sprites. (single draw call)
+        //    GraphicsDevice::Draw(tiles[i]);
+        //}
     }
 
     tmx::Map& Tilemap::GetMap()

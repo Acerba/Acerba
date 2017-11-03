@@ -25,12 +25,6 @@ namespace ace
 	protected:
 
 		mutable std::shared_ptr<Impl> m_impl;
-
-		inline void InitImpl(const GraphicsObject& obj) const
-		{
-			m_impl.swap(obj.m_impl);
-		}
-
 		virtual void Init() const = 0;
 
 	public:
@@ -45,6 +39,11 @@ namespace ace
 		~GraphicsObject()
 		{
 
+		}
+
+		inline void InitImpl(const GraphicsObject& obj) const
+		{
+			m_impl.swap(obj.m_impl);
 		}
 
 		inline Impl* operator->()

@@ -53,13 +53,6 @@ namespace ace
 	{
 	public:
 
-		/*
-			TODO:
-			Framebuffers
-			- Set
-		*/
-
-
 		/**
 			@brief Enable/Disable Feature
 			@param[in] status True enables feature and False disables feature
@@ -104,19 +97,44 @@ namespace ace
 		static void SetMaterial(const Material& material);
 
 		/**
+			@brief Create Indicies
+			@param[in] Index buffer
+			@param[in] Indicies count
+			@param[in] Buffer Usage
+		*/
+		static void CreateIndicies(Buffer& buffer, UInt32 count, BufferUsage usage = BufferUsage::Dynamic);
+
+		/**
+			@brief Create Indicies 
+			@param[in] Indicies count
+			@return array  [COUNT * 6] of indicies.
+		*/
+		static UInt32* CreateIndicies(UInt32 count);
+
+		/**
 			@brief Draw using Sprites
 			@see SetVertexBuffer
 			@param[in] sprite
 		*/
 		static void Draw(const Sprite& sprite);
 
-		/** TODO
-			@brief Draw using Sprites
+		/**
+			@brief Draw using Sprites, automatic index buffer
 			@see SetVertexBuffer
 			@param[in] sprite pointer
 			@param[in] count of sprites
+			@param[in] index buffer
 		*/
-		//static void Draw(const Sprite* sprites, UInt32 counts);
+		static void Draw(const Sprite* sprites, UInt32 count, Buffer& indexbuffer);
+
+		/**
+			@brief Draw using Sprites, manual index buffer
+			@see SetVertexBuffer
+			@param[in] sprite pointer
+			@param[in] count of sprites
+			@param[in] index buffer
+		*/
+		static void Draw(const Sprite* sprites, UInt32 count, const Buffer& indexbuffer);
 
 
 		/**
@@ -171,6 +189,15 @@ namespace ace
 		static void BufferData(Buffer& buffer, UInt32 count, const Vertex* data, BufferUsage usage = BufferUsage::Static, UInt32 instances = 0);
 
 		/**
+			@brief Buffer Data
+			@param[in, out] buffer
+			@param[in] count Index Count
+			@param[in] data Indicies
+			@param[in] usage Buffer Usage
+		*/
+		static void BufferData(Buffer& buffer, UInt32 count, const UInt32* indicies, BufferUsage usage = BufferUsage::Static);
+
+		/**
 			@brief BufferSubData
 			@param[in,out] buffer
 			@param[in] count Vertex Count
@@ -191,6 +218,12 @@ namespace ace
 			@param[in] buffer
 		*/
 		static void SetBuffer(const Buffer&);
+
+		/**
+			@brief UnSet Buffer
+			@param[in] buffer type
+		*/
+		static void UnSetBuffer(BufferType type);
 
 		/**
 			@brief Set Vertex Buffer

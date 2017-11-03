@@ -26,7 +26,7 @@ int main(int, char**)
 
 	// REQUIRES: map.tmx file!
 	// Loads tilemap
-	ace::Tilemap tilemap("Assets/map.tmx", 1.0f, ace::Vector3(0.5, 0.5, 0));
+	ace::Tilemap tilemap("Assets/map.tmx", 1.0f, ace::Vector3(0.5f, 0.5f, 0.0f));
 
 	// Loads tilemap with callback
 	//ace::Tilemap tilemap("Assets/map.tmx", 1.0f, ace::Vector3(0.5, 0.5, 0), TileCallback, &tileCount);
