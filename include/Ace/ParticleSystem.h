@@ -3,7 +3,6 @@
 #include <Ace/Transform.h>
 #include <Ace/Particle.h>
 
-#if 0
 
 namespace ace
 {
@@ -12,7 +11,7 @@ namespace ace
 	public:
 
 		ParticleSystem() {};
-		ParticleSystem(Particle& particle, Vector3 position);
+		ParticleSystem(Particle& particle, Vector3 position, bool isActive);
 		~ParticleSystem();
 
 		void Update();
@@ -25,4 +24,3 @@ namespace ace
 	};
 }
 
-#endif

@@ -4,13 +4,32 @@
 #include <Ace/Transform.h>
 #include <Ace/StandardMaterial.h>
 
-#if 0
+
 
 namespace ace
 {
-	class Particle
+	class Particle final
 	{
 	public:
+
+		struct ParticleData final
+		{
+			Vector3 position;
+			Vector3 velocity;
+			UInt32 ID;
+			float lifeTime;
+			ParticleData(const Vector3& position, const Vector3& velocity, const float lifeTime);
+			friend bool operator<(const ParticleData& lhs, const ParticleData& rhs)
+			{
+				return lhs.lifeTime < rhs.lifeTime;
+			}
+		};
+
+		struct SpriteData final
+		{
+			Sprite sprite;
+			const UInt32 ID;
+		};
 
 		Particle() {};
 
@@ -27,22 +46,27 @@ namespace ace
 		@param[in] Sprite Sprite image
 		@param[in] lifeTime Time how long sprite will live
 		@param[in] position Vector3 position where particle will be
+		@param[in] velocity Vector3 veloctiy where particle is heading
 		*/
-		Particle(const Sprite& sprite, float lifeTime, Vector3 position);
+		Particle(const Sprite& sprite, const float lifeTime, const Vector3& position, const Vector3& velocity);
 		~Particle();
 
 		void Draw();
+		void Update();
 
-		float m_lifeTime;
-		Vector3 m_position;
+		std::vector<ParticleData> particles;
+		std::vector<Sprite> sprites;
+
+		IndexBuffer indexBuffer;
 
 		//Private?
-		Sprite m_sprite;
 		SpriteSheet m_sheet;
 
-		StandardMaterial m_standartMaterial;
+		StandardMaterial m_standardMaterial;
 		
 	};
+
+
 }
 
-#endif
+

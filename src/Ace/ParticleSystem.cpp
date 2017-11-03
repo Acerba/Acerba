@@ -1,13 +1,13 @@
 #include <Ace/ParticleSystem.h>
 
-#if 0
 
 namespace ace
 {
-	ParticleSystem::ParticleSystem(Particle& particle, Vector3 position)
+	ParticleSystem::ParticleSystem(Particle& particle, Vector3 position, bool isActiv = false)
 	{
 		m_particle = particle;
 		m_position = position;
+		isActive = isActiv;
 	}
 
 	ParticleSystem::~ParticleSystem()
@@ -23,7 +23,7 @@ namespace ace
 		}
 		else
 		{
-			//TODO: Jotakin t�nne?
+			//TODO: Jotakin tanne?
 			printf("ParticleSystem isn't active");
 		}
 	}
@@ -36,11 +36,7 @@ namespace ace
 	void ParticleSystem::Draw()
 	{
 		m_particle.Draw();
-		if (m_particle.m_lifeTime <= 0)
-		{
-			isActive = false;;
-		}
+
 	}
 }
 
-#endif
