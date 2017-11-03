@@ -16,6 +16,22 @@ namespace ace
         using Matrix2 = math::Matrix2;
         using Vector2 = math::Vector2;
 
+        struct Mask final
+        {
+            enum : UInt8
+            {
+                A = 1<<0,
+                B = 1<<1,
+                C = 1<<2,
+                D = 1<<3,
+                E = 1<<4,
+                F = 1<<5,
+                G = 1<<6,
+                H = 1<<7
+            };
+            Mask() = delete;
+        };
+
         /**
             @brief Ctor.
             @param[in] position Position of the collidable.
@@ -67,6 +83,11 @@ namespace ace
         const Vector2& GetLocalPosition() const;
         Vector2& GetLocalPosition();
 
+        inline Mask GetMask() const
+        {
+            return m_mask;
+        }
+
         /**
             @brief Retrieve the current rotation of the collidable.
             @return Rotation.
@@ -87,6 +108,20 @@ namespace ace
             @return True if the collidables are marked as colliding.
         */
         bool HasCollision(const Collidable& other) const;
+
+        inline bool HasMask(const Mask mask) const
+        {
+            return (static_cast<UInt8>(m_mask) & static_cast<UInt8>(mask));
+        }
+        /**
+            @brief Check if the collidables have atleast some same masks on, so that they can collide.
+            @param[in] other Other collidable to test against.
+            @return True if the collidables are allowed to collide.
+        */
+        inline bool HasMask(const Collidable& other) const
+        {
+            return HasMask(other.m_mask);
+        }
 
         /**
             @brief Checks if the point is in or on the Collidable.
@@ -135,6 +170,8 @@ namespace ace
         */
         virtual void Rotate(float deg) = 0;
 
+        void SetMask(const Mask mask);
+
         virtual void UpdateAABB(const bool accountRotation = true) = 0;
 
         /**
@@ -148,6 +185,7 @@ namespace ace
     protected:
         CollidableImpl& m_impl;
         const UInt32 m_id;
+        Mask m_mask;
 
     }; // Collidable
 
@@ -185,6 +223,8 @@ namespace ace
         using Vector2 = Collidable::Vector2;
 
         Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation = math::s_identity2);
+
+        Rectangle(const Vector2& a, const Vector2& b, const Vector2& c, const Vector2& d);
 
         inline const Vector2& GetExtents() const
         {

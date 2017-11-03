@@ -131,7 +131,7 @@ namespace ace
 
 
     Collidable::Collidable(const Vector2& position, const Matrix2& rotation) :
-        m_impl(BVH::AddCollidable(position, rotation)), m_id(UUID<void>::GetID())
+        m_impl(BVH::AddCollidable(position, rotation)), m_id(UUID<void>::GetID()), m_mask(Mask::A)
     {
         // Don't call SetOwner here. Derived class not yet created.
     }
@@ -186,6 +186,11 @@ namespace ace
 
     bool Collidable::IsColliding(const Collidable& a, const Collidable& b)
     {
+        if (!a.HasMask(b))
+        {
+            return false;
+        }
+
         const std::vector<Vector2> verticesA(a.GetVertices());
         const std::vector<Vector2> verticesB(b.GetVertices());
         const std::vector<Vector2> normalsA(GetNormals(verticesA));
@@ -220,6 +225,11 @@ namespace ace
     void Collidable::ResetCollisions()
     {
         m_impl.ResetCollisions();
+    }
+
+    void Collidable::SetMask(const Mask mask)
+    {
+        m_mask = mask;
     }
 
     void Collidable::UpdateCollisions()
