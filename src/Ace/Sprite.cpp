@@ -4,17 +4,17 @@
 namespace ace
 {
 
-    const ace::Vertex triangle[4] = {
-        { { 0.5f, 0.5f, 0.f, 0.0f }, { 1.0f, 0.0f }, 0xFFFFFFFFU },
-        { { -0.5f, 0.5f, 0.f, 0.0f }, { 0.0f, 0.0f }, 0xFFFFFFFFU },
-        { { -0.5f, -0.5f, 0.f, 0.0f }, { 0.0f, 1.0f }, 0xFFFFFFFFU },
-        { { 0.5f, -0.5f, 0.f, 0.0f }, { 1.0f, 1.0f }, 0xFFFFFFFFU },
-    };
+	const ace::Vertex triangle[4] = {
+		{ { 0.5f, 0.5f, 0.f, 0.0f },{ 1.0f, 0.0f, 0.0f }, 0xFFFFFFFFU },
+		{ { -0.5f, 0.5f, 0.f, 0.0f },{ 0.0f, 0.0f, 0.0f }, 0xFFFFFFFFU },
+		{ { -0.5f, -0.5f, 0.f, 0.0f },{ 0.0f, 1.0f, 0.0f }, 0xFFFFFFFFU },
+		{ { 0.5f, -0.5f, 0.f, 0.0f },{ 1.0f, 1.0f, 0.0f }, 0xFFFFFFFFU },
+	};
 
-    Sprite::Sprite() : Sprite(triangle)
-    {	
+	Sprite::Sprite() : Sprite(triangle)
+	{
 
-    }
+	}
 
 	Sprite::Sprite(float deg) : Sprite()
 	{
@@ -25,17 +25,19 @@ namespace ace
 		}
 	}
 
-    Sprite::Sprite(const Vertex(&data)[4]) :
-        vertexData{{data[0], data[1], data[2], data[3]}}
-    {
-		
-    }
+	Sprite::Sprite(const Vertex(&data)[4]) :
+		vertexData{ data[0], data[1], data[2], data[3] }
+	{
+		// IF vertexData construction throws compiler error
+		// -> replace it here by setting values manually.
+	}
 
-    Sprite::Sprite(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4) :
-        vertexData{{ v1, v2, v3, v4 }}
-    {
-
-    }
+	Sprite::Sprite(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4) :
+		vertexData{ v1, v2, v3, v4 }
+	{
+		// IF vertexData construction throws compiler error
+		// -> replace it here by setting values manually.
+	}
 
 
 	void Sprite::SetSprite(const SpriteSheet::SpriteData* sprite)
@@ -53,7 +55,7 @@ namespace ace
 		if (sprite)
 		{
 			Texcoord(sprite->texcoord);
-			SetScale((Vector2(sprite->location.width, sprite->location.height) / base) * scale);
+			Scale((Vector2(sprite->location.width, sprite->location.height) / base) * scale);
 		}
 	}
 
@@ -64,37 +66,37 @@ namespace ace
 
 		for (auto& i : vertexData)
 		{
-            i.position.w = 1.f;
-            i.position = math::ToVektor(rot * i.position);
-            i.position.w = w;
+			i.position.w = 1.f;
+			i.position = math::ToVektor(rot * i.position);
+			i.position.w = w;
 		}
 	}
 
 	void Sprite::Scale(const Vector2& scale)
 	{
-        for (int i = 0; i < Sprite::size; ++i)
-        {
-            vertexData[i].position.x = vertexData[i].position.x * scale.x;
-            vertexData[i].position.y = vertexData[i].position.y * scale.y;
-        }
+		for (int i = 0; i < Sprite::size; ++i)
+		{
+			vertexData[i].position.x = vertexData[i].position.x * scale.x;
+			vertexData[i].position.y = vertexData[i].position.y * scale.y;
+		}
 	}
 
-    void Sprite::Scale(const Texture& texture, float scale)
-    {
-        for (int i  = 0; i < Sprite::size; ++i)
-        {
-            vertexData[i].position.x = vertexData[i].position.x * scale * texture.size.x / texture.scale;
-            vertexData[i].position.y = vertexData[i].position.y * scale * texture.size.y / texture.scale;
-        }
-    }
+	void Sprite::Scale(const Texture& texture, float scale)
+	{
+		for (int i = 0; i < Sprite::size; ++i)
+		{
+			vertexData[i].position.x = vertexData[i].position.x * scale * texture.size.x / texture.scale;
+			vertexData[i].position.y = vertexData[i].position.y * scale * texture.size.y / texture.scale;
+		}
+	}
 
 	void Sprite::Move(const Vector3& pos)
 	{
-		for(auto& i : vertexData)
+		for (auto& i : vertexData)
 		{
 			i.position.x += pos.x;
-            i.position.y += pos.y;
-            i.position.z += pos.z;
+			i.position.y += pos.y;
+			i.position.z += pos.z;
 		}
 	}
 
@@ -108,17 +110,17 @@ namespace ace
 
 	void Sprite::Texcoord(const Rect& uv)
 	{
-			vertexData[1].uv.x = uv.x;
-			vertexData[0].uv.y = uv.y;
-			
-			vertexData[0].uv.x = uv.x + uv.width;
-			vertexData[1].uv.y = uv.y;
+		vertexData[1].uv.x = uv.x;
+		vertexData[0].uv.y = uv.y;
 
-			vertexData[3].uv.x = uv.x + uv.width;
-			vertexData[2].uv.y = uv.y + uv.height;
+		vertexData[0].uv.x = uv.x + uv.width;
+		vertexData[1].uv.y = uv.y;
 
-			vertexData[2].uv.x = uv.x;
-			vertexData[3].uv.y = uv.y + uv.height;
+		vertexData[3].uv.x = uv.x + uv.width;
+		vertexData[2].uv.y = uv.y + uv.height;
+
+		vertexData[2].uv.x = uv.x;
+		vertexData[3].uv.y = uv.y + uv.height;
 	}
 
 	void Sprite::FlipUV(const bool axis)
@@ -148,7 +150,7 @@ namespace ace
 
 	void Sprite::SetUV(UInt8 index, const Vector2& uv)
 	{
-		vertexData[index].uv = uv;
+		vertexData[index].uv = Vector3(uv.x, uv.y, vertexData[index].uv.z);
 	}
 
 	void Sprite::SetPosition(UInt8 index, const Vector2& positon)
@@ -157,23 +159,12 @@ namespace ace
 		vertexData[index].position.y = positon.y;
 	}
 
-	void Sprite::SetInstanceID(UInt8 id)
-	{
-		vertexData[0].position.w = id;
-		vertexData[1].position.w = id;
-		vertexData[2].position.w = id;
-		vertexData[3].position.w = id;
-	}
-
-
 	void Sprite::SetScale(const Vector2& scale)
 	{
-        Vector3 center = GetCenter();
-
 		for (int i = 0; i < Sprite::size; ++i)
 		{
-			vertexData[i].position.x = center.x + triangle[i].position.x * scale.x;
-			vertexData[i].position.y = center.y + triangle[i].position.y * scale.y;
+			vertexData[i].position.x = triangle[i].position.x * scale.x;
+			vertexData[i].position.y = triangle[i].position.y * scale.y;
 		}
 	}
 
@@ -198,8 +189,29 @@ namespace ace
 		return position / static_cast<float>(Sprite::size);
 	}
 
-    Vector2 Sprite::GetScale() const
-    {
-        return Vector2(vertexData[0].position.x + vertexData[3].position.x, vertexData[0].position.y + vertexData[1].position.y);
-    }
+	void Sprite::SetInstanceID(UInt32 id)
+	{
+		vertexData[0].position.w = id;
+		vertexData[1].position.w = id;
+		vertexData[2].position.w = id;
+		vertexData[3].position.w = id;
+	}
+
+	UInt32 Sprite::GetInstanceID() const
+	{
+		return vertexData[0].position.w;
+	}
+
+	void Sprite::SetID(UInt32 id)
+	{
+		vertexData[0].uv.z = id;
+		vertexData[1].uv.z = id;
+		vertexData[2].uv.z = id;
+		vertexData[3].uv.z = id;
+	}
+
+	UInt32 Sprite::GetID() const
+	{
+		return vertexData[0].uv.z;
+	}
 }
