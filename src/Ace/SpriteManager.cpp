@@ -111,7 +111,7 @@ namespace ace
         for (const auto& itr : groups)
         {
             const UInt32 indexCount = itr.end - itr.start;
-            GraphicsDevice::BufferData(m_buffer, indexCount * 4, m_sprites[itr.start].vertexData.data(), BufferUsage::Streaming);
+            GraphicsDevice::BufferData(m_buffer, indexCount * 4, m_sprites[itr.start].vertexData, BufferUsage::Streaming);
             GraphicsDevice::SetBuffer(m_buffer);
 
             // for (int i = 0; i < indexCount; ++i)
