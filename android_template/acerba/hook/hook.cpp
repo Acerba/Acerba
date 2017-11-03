@@ -8,7 +8,7 @@
 
 extern int AcerbaMain(int, char**);
 
-int main(int argc, char** args)
+int SDL_main(int argc, char** args)
 {
 	// INIT
 
