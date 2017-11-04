@@ -227,7 +227,7 @@ namespace ace
         m_impl.ResetCollisions();
     }
 
-    void Collidable::SetMask(const Mask mask)
+    void Collidable::SetMask(const UInt8 mask)
     {
         m_mask = mask;
     }

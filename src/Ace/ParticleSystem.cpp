@@ -5,7 +5,7 @@ namespace ace
 {
 	ParticleSystem::ParticleSystem(Particle& particle, Vector3 position, bool isActiv = false)
 	{
-		m_particle = particle;
+		// m_particle = particle; // TODO: Disabled for compilation error
 		m_position = position;
 		isActive = isActiv;
 	}
@@ -30,7 +30,7 @@ namespace ace
 
 	void ParticleSystem::ToggleActive()
 	{
-		isActive != isActive;
+		isActive = !isActive;
 	}
 
 	void ParticleSystem::Draw()

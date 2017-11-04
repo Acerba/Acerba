@@ -83,7 +83,11 @@ namespace ace
         const Vector2& GetLocalPosition() const;
         Vector2& GetLocalPosition();
 
-        inline Mask GetMask() const
+        /**
+            @brief Retrieve the current mask of the collidable.
+            @return UInt8
+         */
+        inline UInt8 GetMask() const
         {
             return m_mask;
         }
@@ -109,9 +113,14 @@ namespace ace
         */
         bool HasCollision(const Collidable& other) const;
 
-        inline bool HasMask(const Mask mask) const
+        /**
+            @brief Check if the collidable has atleast some same masks as the param, so that they can collide.
+            @param[in] mask Other mask to test against.
+            @return True if the collidable can collide with the param mask.
+         */
+        inline bool HasMask(const UInt8 mask) const
         {
-            return (static_cast<UInt8>(m_mask) & static_cast<UInt8>(mask));
+            return (m_mask & mask);
         }
         /**
             @brief Check if the collidables have atleast some same masks on, so that they can collide.
@@ -170,7 +179,12 @@ namespace ace
         */
         virtual void Rotate(float deg) = 0;
 
-        void SetMask(const Mask mask);
+        /**
+            @brief Set collision mask for this collidable. Collidables which have atleast partly same mask can collide with each other.
+            @param[in] mask New masking value to set. Preferably from Mask::
+            @see Mask
+         */
+        void SetMask(const UInt8 mask);
 
         virtual void UpdateAABB(const bool accountRotation = true) = 0;
 
@@ -185,7 +199,7 @@ namespace ace
     protected:
         CollidableImpl& m_impl;
         const UInt32 m_id;
-        Mask m_mask;
+        UInt8 m_mask;
 
     }; // Collidable
 

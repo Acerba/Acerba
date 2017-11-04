@@ -63,14 +63,29 @@ int main(int, char**)
             position    // position
         );
 
+        // Randomize masking for collidables.
+        // When collidables have atleast one same bit in their mask, they can collide.
+        const bool masked = (ace::math::Rand(0.f, 1.f) < 0.5f);
+
+        // Mask the collidable. Collidables are masked to Mask::A by default.
+        if (masked) {
+            objects[i].collidable->SetMask(ace::Collidable::Mask::B);
+        }
+
         // Set vertices manually
         SetSprite(objects[i].sprite, rectSize);
 
         // Move the sprite to the correct position
         objects[i].sprite.Move(ace::Vector3(position.x, position.y, 0.f));
 
-        // Colorize the sprite
-        objects[i].sprite.Colorize(ace::Color32(0.f, 0.f, 0.2f, 1.f));
+        // Colorize the sprite.
+        // Masked collidables are coloured purple and do not register hits.
+        // "Unmasked" / default collidables are coloured blue and can be collided with.
+        objects[i].sprite.Colorize(
+            masked ?
+            ace::Color32(0.2f, 0.f, 0.2f, 1.f) :
+            ace::Color32(0.f, 0.f, 0.2f, 1.f)
+        );
     }
 
     // Create a player

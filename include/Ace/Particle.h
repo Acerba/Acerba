@@ -17,8 +17,10 @@ namespace ace
 			Vector3 position;
 			Vector3 velocity;
 			UInt32 ID;
-			float lifeTime;
-			ParticleData(const Vector3& position, const Vector3& velocity, const float lifeTime);
+            float lifeTime;
+            
+            ParticleData(const Vector3& position, const Vector3& velocity, const float lifeTime);
+            
 			friend bool operator<(const ParticleData& lhs, const ParticleData& rhs)
 			{
 				return lhs.lifeTime < rhs.lifeTime;
@@ -28,10 +30,12 @@ namespace ace
 		struct SpriteData final
 		{
 			Sprite sprite;
-			const UInt32 ID;
+            const UInt32 ID;
+            
+            SpriteData();
 		};
 
-		Particle() {};
+		Particle();
 
 		/**
 			@brief Create particle

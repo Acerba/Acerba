@@ -14,6 +14,11 @@ namespace ace
 	//	
 	//}
 
+	Particle::Particle()
+	{
+
+	}
+
 	Particle::Particle(const Sprite& sprite, const float lifeTime, const Vector3& position, const Vector3& velocity)
 	{
 		particles.emplace_back(position, velocity, lifeTime);
@@ -39,6 +44,7 @@ namespace ace
 	}
 
 	Particle::SpriteData::SpriteData() :
+		sprite(),
 		ID(UUID<void>::GetID())
 	{
 
@@ -60,7 +66,7 @@ namespace ace
 		// Draw
 		
 		// Draw
-		m_standardMaterial->position = particles.data()->position;
+		// m_standardMaterial->position = particles.data()->position; // TODO: Disabled for compilation error
 		GraphicsDevice::Draw(sprites.data(), sprites.size(), indexBuffer);
 
 	}
