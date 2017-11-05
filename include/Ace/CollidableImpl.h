@@ -22,6 +22,8 @@ namespace ace
         */
         CollidableImpl(const Vector2& position, const Matrix2& rotation);
 
+        CollidableImpl& operator=(const CollidableImpl& other);
+
         /**
             @brief Dtor.
         */
@@ -42,7 +44,7 @@ namespace ace
         /**
             @brief Destroy this CollidableImpl. Clears all collisions from all CollidableImpls.
         */
-        void Destroy();
+        void Destroy() const;
 
         /**
             @brief Retrieve the AABB of this collidable.

@@ -16,6 +16,22 @@ namespace ace
         using Matrix2 = math::Matrix2;
         using Vector2 = math::Vector2;
 
+        struct Mask final
+        {
+            enum : UInt8
+            {
+                A = 1<<0,
+                B = 1<<1,
+                C = 1<<2,
+                D = 1<<3,
+                E = 1<<4,
+                F = 1<<5,
+                G = 1<<6,
+                H = 1<<7
+            };
+            Mask() = delete;
+        };
+
         /**
             @brief Ctor.
             @param[in] position Position of the collidable.
@@ -25,6 +41,8 @@ namespace ace
             const Vector2& position,
             const Matrix2& rotation = math::s_identity2
         );
+
+        Collidable& operator=(const Collidable& other);
 
         /**
             @brief Dtor. Clears all collisions from all Collidables.
@@ -68,6 +86,15 @@ namespace ace
         Vector2& GetLocalPosition();
 
         /**
+            @brief Retrieve the current mask of the collidable.
+            @return UInt8
+         */
+        inline UInt8 GetMask() const
+        {
+            return m_mask;
+        }
+
+        /**
             @brief Retrieve the current rotation of the collidable.
             @return Rotation.
          */
@@ -87,6 +114,25 @@ namespace ace
             @return True if the collidables are marked as colliding.
         */
         bool HasCollision(const Collidable& other) const;
+
+        /**
+            @brief Check if the collidable has atleast some same masks as the param, so that they can collide.
+            @param[in] mask Other mask to test against.
+            @return True if the collidable can collide with the param mask.
+         */
+        inline bool HasMask(const UInt8 mask) const
+        {
+            return (m_mask & mask);
+        }
+        /**
+            @brief Check if the collidables have atleast some same masks on, so that they can collide.
+            @param[in] other Other collidable to test against.
+            @return True if the collidables are allowed to collide.
+        */
+        inline bool HasMask(const Collidable& other) const
+        {
+            return HasMask(other.m_mask);
+        }
 
         /**
             @brief Checks if the point is in or on the Collidable.
@@ -135,6 +181,13 @@ namespace ace
         */
         virtual void Rotate(float deg) = 0;
 
+        /**
+            @brief Set collision mask for this collidable. Collidables which have atleast partly same mask can collide with each other.
+            @param[in] mask New masking value to set. Preferably from Mask::
+            @see Mask
+         */
+        void SetMask(const UInt8 mask);
+
         virtual void UpdateAABB(const bool accountRotation = true) = 0;
 
         /**
@@ -148,6 +201,7 @@ namespace ace
     protected:
         CollidableImpl& m_impl;
         const UInt32 m_id;
+        UInt8 m_mask;
 
     }; // Collidable
 
@@ -185,6 +239,8 @@ namespace ace
         using Vector2 = Collidable::Vector2;
 
         Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation = math::s_identity2);
+
+        Rectangle(const Vector2& a, const Vector2& b, const Vector2& c, const Vector2& d);
 
         inline const Vector2& GetExtents() const
         {

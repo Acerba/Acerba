@@ -131,14 +131,23 @@ namespace ace
 
 
     Collidable::Collidable(const Vector2& position, const Matrix2& rotation) :
-        m_impl(BVH::AddCollidable(position, rotation)), m_id(UUID<void>::GetID())
+        m_impl(BVH::AddCollidable(position, rotation)), m_id(UUID<void>::GetID()), m_mask(Mask::A)
     {
         // Don't call SetOwner here. Derived class not yet created.
     }
 
+    Collidable& Collidable::operator=(const Collidable& other)
+    {
+        m_mask = other.m_mask;
+        m_impl = other.m_impl;
+        return *this;
+    }
+
     Collidable::~Collidable()
     {
-        m_impl.Destroy();
+        // Disabled for copy-assigment
+        // TODO: make m_impl shared_ptr?
+        // m_impl.Destroy();
     }
 
     // Vector2 Collidable::GetGlobalPosition() const
@@ -186,6 +195,11 @@ namespace ace
 
     bool Collidable::IsColliding(const Collidable& a, const Collidable& b)
     {
+        if (!a.HasMask(b))
+        {
+            return false;
+        }
+
         const std::vector<Vector2> verticesA(a.GetVertices());
         const std::vector<Vector2> verticesB(b.GetVertices());
         const std::vector<Vector2> normalsA(GetNormals(verticesA));
@@ -220,6 +234,11 @@ namespace ace
     void Collidable::ResetCollisions()
     {
         m_impl.ResetCollisions();
+    }
+
+    void Collidable::SetMask(const UInt8 mask)
+    {
+        m_mask = mask;
     }
 
     void Collidable::UpdateCollisions()

@@ -17,13 +17,23 @@ namespace ace
         
     }
 
+    CollidableImpl& CollidableImpl::operator=(const CollidableImpl& other)
+    {
+        m_collisions = other.m_collisions;
+        m_aabb = other.m_aabb;
+        m_rotation = other.m_rotation;
+        m_position = other.m_position;
+        m_owner = other.m_owner;
+        return *this;
+    }
+
     CollidableImpl::~CollidableImpl()
     {
 
     }
 
 
-    void CollidableImpl::Destroy()
+    void CollidableImpl::Destroy() const
     {
         BVH::ResetAllCollisions();
         BVH::RemoveCollidable(m_owner->GetID());
