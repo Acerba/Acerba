@@ -136,9 +136,18 @@ namespace ace
         // Don't call SetOwner here. Derived class not yet created.
     }
 
+    Collidable& Collidable::operator=(const Collidable& other)
+    {
+        m_mask = other.m_mask;
+        m_impl = other.m_impl;
+        return *this;
+    }
+
     Collidable::~Collidable()
     {
-        m_impl.Destroy();
+        // Disabled for copy-assigment
+        // TODO: make m_impl shared_ptr?
+        // m_impl.Destroy();
     }
 
     // Vector2 Collidable::GetGlobalPosition() const

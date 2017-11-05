@@ -42,6 +42,8 @@ namespace ace
             const Matrix2& rotation = math::s_identity2
         );
 
+        Collidable& operator=(const Collidable& other);
+
         /**
             @brief Dtor. Clears all collisions from all Collidables.
         */

@@ -76,13 +76,13 @@ int main(int, char**) {
     const float scale = 0.2f;
     
     // Change position
-    entA->transform.position = ace::Vector3(-0.75f, 0.f, 0.f);
+    entA->transform.GetPositionRef() = ace::Vector3(-0.75f, 0.f, 0.f);
     ace::Rectangle rectA(ace::Vector2(scale, scale), ace::Vector2(-0.75f, 0.f));
     ace::Rectangle rectB(ace::Vector2(scale, scale), ace::Vector2());
     
     // Scale to 20%
-    entA->transform.scale = ace::Vector3(scale, scale, 1.f);
-    entB->transform.scale = ace::Vector3(scale, scale, 1.f);
+    entA->transform.GetScaleRef() = ace::Vector3(scale, scale, 1.f);
+    entB->transform.GetScaleRef() = ace::Vector3(scale, scale, 1.f);
     
     // Add Sprite to entity
     entA.ReserveComponents<ace::Sprite>(2u);
@@ -126,22 +126,22 @@ int main(int, char**) {
         
         if (ace::Keyboard::GetKey("A"))
         {
-            entA->transform.position.x -= dt;
+            entA->transform.GetPositionRef().x -= dt;
             rectAref.GetLocalPosition().x -= dt;
         }
         if (ace::Keyboard::GetKey("D"))
         {
-            entA->transform.position.x += dt;
+            entA->transform.GetPositionRef().x += dt;
             rectAref.GetLocalPosition().x += dt;
         }
         if (ace::Keyboard::GetKey("W"))
         {
-            entA->transform.position.y += dt;
+            entA->transform.GetPositionRef().y += dt;
             rectAref.GetLocalPosition().y += dt;
         }
         if (ace::Keyboard::GetKey("S"))
         {
-            entA->transform.position.y -= dt;
+            entA->transform.GetPositionRef().y -= dt;
             rectAref.GetLocalPosition().y -= dt;
         }
         if (ace::Keyboard::GetKey("1"))
