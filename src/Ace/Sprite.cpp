@@ -55,7 +55,7 @@ namespace ace
 		if (sprite)
 		{
 			Texcoord(sprite->texcoord);
-			Scale((Vector2(sprite->location.width, sprite->location.height) / base) * scale);
+			SetScale((Vector2(sprite->location.width, sprite->location.height) / base) * scale);
 		}
 	}
 
