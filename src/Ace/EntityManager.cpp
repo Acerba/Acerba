@@ -42,7 +42,7 @@ namespace ace
     EntityManager::EntityManager():
         m_entities()
     {
-
+        RegisterAcerbaComponents();
     }
 
     EntityManager::~EntityManager()

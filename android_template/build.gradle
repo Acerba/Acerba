@@ -43,6 +43,7 @@ android {
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
+            jniLibs.srcDir 'libs'
         }
     }
 
@@ -79,4 +80,8 @@ android {
         }
         */
     }
+	
+	dependencies {
+		compile fileTree(include: ['*.jar'], dir: 'libs')
+	}
 }

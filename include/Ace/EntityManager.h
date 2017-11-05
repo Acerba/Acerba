@@ -7,6 +7,9 @@
 
 #include <vector>
 
+#include <Ace/Material.h>
+#include <Ace/Sprite.h>
+
 namespace ace
 {
 
@@ -40,6 +43,12 @@ namespace ace
         std::vector<EntityHandle*> m_entities;
 
     public:
+
+        inline static void RegisterAcerbaComponents()
+        {
+            EntityManager::ComponentID::GetID<Sprite>();
+            EntityManager::ComponentID::GetID<Material>();
+        }
 
         static EntityManager& DefaultManager();
         static EntityHandle* Entity(EntityManager& manager = DefaultManager());
