@@ -63,7 +63,7 @@ namespace ace
 			vert.Create(
 			"#version 100													\n"
 			"attribute vec4 a_position;										\n"
-			"attribute vec2 a_uv;											\n"
+			"attribute vec3 a_uv;											\n"
 			"attribute vec4 a_color;										\n"
 			"																\n"
 			"varying vec4 o_c;												\n"
@@ -79,7 +79,7 @@ namespace ace
 			"void main()													\n"
 			"{																\n"
 			"	o_c = a_color;												\n"
-			"	o_uv = a_uv;												\n"
+			"	o_uv = a_uv.xy;												\n"
 			"																\n"
 			"	vec4 pos = vec4(a_position.xyz, 1);							\n"
 			"	pos.xy = Rotation * pos.xy;									\n"

@@ -77,6 +77,7 @@ public class SDLActivity extends Activity {
             // "SDL2_net",
             // "SDL2_ttf",
 			"openal",
+			"acerba_hook",		
             "main"
         };
     }
