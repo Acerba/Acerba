@@ -10,7 +10,7 @@ LOCAL_MODULE := acerba_hook
 
 $(info $(BASE_PATH))
 
-LOCAL_C_INCLUDES := $(BASE_PATH)/3rdparty/SDL2/include $(LOCAL_PATH)/include $(BASE_PATH)/3rdparty/OALWrapper/include $(BASE_PATH)/include $(LOCAL_EXPORT_C_INCLUDES)			
+LOCAL_C_INCLUDES := $(BASE_PATH)/3rdparty/SDL2/include $(BASE_PATH)/3rdparty/matvek $(LOCAL_PATH)/include $(BASE_PATH)/3rdparty/OALWrapper/include $(BASE_PATH)/include $(LOCAL_EXPORT_C_INCLUDES)			
 
 LOCAL_SRC_FILES := $(BASE_PATH)/3rdparty/SDL2/src/main/android/SDL_android_main.c\
 		   hook.cpp

@@ -7,12 +7,12 @@ set(ACERBA_MOVELIBS TRUE CACHE BOOL "" )
 set(ACERBA_BUILD_EXAMPLE FALSE CACHE BOOL "")
 set(ACERBA_DEBUG FALSE CACHE BOOL "")
 
-BuildBegin()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 #list( APPEND CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
+BuildBegin()
 
 
 if(ACERBA_DEBUG)
@@ -100,12 +100,12 @@ endif()
 
 if(PB_MAIN)
 	if(PB_ANDROID)
-		add_custom_command(TARGET PBuild POST_BUILD
+		add_custom_command(TARGET PBuildPost_ACERBA POST_BUILD
 			COMMAND ndk-build NDK_PROJECT_PATH=. NDK_APPLICATION_MK=acerba/Application.mk APP_BUILD_SCRIPT=acerba/Android.mk NDK_LIBS_OUT=acerba/libs BASE_PATH="${ACERBA_SOURCE_DIR}"
-			WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/android")
+			WORKING_DIRECTORY "${PB_BUILD_DIR}/android")
 			
-		add_custom_command(TARGET PBuild POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_BINARY_DIR}/android/acerba/libs/" "${PROJECT_BINARY_DIR}/android/libs/")
+		add_custom_command(TARGET PBuildPost_ACERBA POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_directory "${PB_BUILD_DIR}/android/acerba/libs/" "${PB_BUILD_DIR}/android/libs/")
 	endif()
 endif()
 
