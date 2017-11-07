@@ -76,7 +76,7 @@ set(PB_ANDROID_STL "c++_static" CACHE STRING "Android STL")
 set_property(CACHE PB_ANDROID_STL PROPERTY STRINGS ${ANDROID_STL_VALUES})
 
 set(ANDROID_BUILD_SYSTEMS
-	"ant debug install;gradlew installDebug;"
+	"ant debug install;gradlew installDebug;gradlew build;"
 )
 
 set(PB_ANDROID_BUILD_SYSTEM "gradlew installDebug" CACHE STRING "Android Build System")
