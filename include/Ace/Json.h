@@ -12,7 +12,10 @@ namespace ace
 	{
 	public:
 
-		rapidjson::Document document;
+        typedef rapidjson::GenericDocument<rapidjson::UTF8<>, rapidjson::CrtAllocator> Document;
+		//rapidjson::Document document;
+
+        Document document;
 
 		Json();
 
