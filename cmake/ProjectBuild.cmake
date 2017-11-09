@@ -158,10 +158,14 @@ macro(BuildBegin)
 				add_custom_target(PBuildPost)
 				add_custom_target(PRun)
 				
-				add_custom_target(PSetup_${PROJECT_NAME} DEPENDS PSetup)
-				add_custom_target(PBuild_${PROJECT_NAME} DEPENDS PBuild)
-				add_custom_target(PBuildPost_${PROJECT_NAME} DEPENDS PBuild)
+				add_custom_target(PSetup_${PROJECT_NAME})
+				add_custom_target(PBuild_${PROJECT_NAME})
+				add_custom_target(PBuildPost_${PROJECT_NAME})
 
+				add_dependencies(PSetup PSetup_${PROJECT_NAME})
+				add_dependencies(PBuild PBuild_${PROJECT_NAME})
+				add_dependencies(PBuildPost PBuildPost_${PROJECT_NAME})
+				
 				if(PB_CXX_FLAGS)
 					list(APPEND PB_FLAGS "-DPB_CXX_FLAGS=${PB_CXX_FLAGS}")
 				endif()
