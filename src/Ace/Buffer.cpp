@@ -12,7 +12,7 @@ namespace ace
 
 	}
 
-	IndexBuffer::IndexBuffer(BufferImpl* impl) : Buffer(impl, BufferType::Vertex)
+	IndexBuffer::IndexBuffer(BufferImpl* impl) : Buffer(impl, BufferType::Index)
 	{
 
 	}
