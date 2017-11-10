@@ -9,6 +9,8 @@
 
 #include <SDL_thread.h>
 
+#include <iostream>
+
 namespace ace
 {
 	static SDL_Thread* g_audioThread;
@@ -195,6 +197,9 @@ namespace ace
 
 	bool Audio::Update(const AudioClip& clip)
 	{
+		if (!g_isAudioRunning)
+		{
+		}
 		return (!g_isAudioRunning || clip->id != -1) ? false : OAL_Source_IsPlaying(clip->id);
 	}
 
@@ -217,13 +222,27 @@ namespace ace
 		
 		if (clip.m_impl->sample)
 		{
-			clip.m_impl->id = OAL_Sample_Play(OAL_FREE, clip.m_impl->sample, clip.m_volume, clip.m_isPaused, 0);
-			Audio::GetAudio().clips.push_back(clip);
+
+			if (clip.m_impl->id == -1)
+			{
+				clip.m_impl->id = OAL_Sample_Play(OAL_FREE, clip.m_impl->sample, clip.m_volume, clip.m_isPaused, 0);
+
+				Audio::GetAudio().clips.push_back(clip);
+			}
+
+			else
+			{
+				clip.SetElapsedTime(0);
+			}
 
 			OAL_Source_SetLoop(clip->id, clip.m_loop);
 
 			OAL_Source_SetPaused(clip->id, false);
+
+			std::cout << clip.m_impl->id << std::endl;
+
 		}
+
 		else
 		{
 			Logger::LogError("Audioclip play failed!");
@@ -248,7 +267,7 @@ namespace ace
 				stream.m_impl->id = OAL_Stream_Play(OAL_FREE, stream.m_impl->stream, stream.m_volume, stream.m_isPaused);
 
 				OAL_Source_SetLoop(stream->id, stream.m_loop);
-
+				
 				OAL_Source_SetPaused(stream->id, false);
 			}
 
@@ -283,6 +302,7 @@ namespace ace
 		if (g_isAudioRunning || clip.m_impl)
 		{
 			OAL_Source_Stop(clip->id);
+			clip->id = -1;
 		}
 	}
 
@@ -485,6 +505,7 @@ namespace ace
 		{
 			if (!OAL_Source_IsPlaying(audio.clips[i]->id))
 			{
+				Audio::StopAudio(audio.clips[i]);
 				// TODO: Remove clip from the vector. (Or add check for "duplicated" clips in PlayAudio method)
 			}
 		}
