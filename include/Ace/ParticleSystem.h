@@ -2,6 +2,7 @@
 
 #include <Ace/Transform.h>
 #include <Ace/Particle.h>
+#include <Ace/StandardMaterial.h>
 
 
 namespace ace
@@ -11,7 +12,7 @@ namespace ace
 	public:
 
 		ParticleSystem() {};
-		ParticleSystem(Particle& particle, Vector3 position, bool isActive);
+		ParticleSystem(const Particle& particle, const Vector3& position, const bool isActive);
 		~ParticleSystem();
 
 		void Update();
@@ -21,6 +22,8 @@ namespace ace
 		Vector3 m_position;
 		Particle m_particle;
 		bool isActive;
+
+		StandardMaterial m_standardMaterial;
 	};
 }
 

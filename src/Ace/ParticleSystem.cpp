@@ -3,11 +3,16 @@
 
 namespace ace
 {
-	ParticleSystem::ParticleSystem(Particle& particle, Vector3 position, bool isActiv = false)
+	ParticleSystem::ParticleSystem(
+		const Particle& particle, 
+		const Vector3& position, 
+		const bool isActiv = false
+	) :
+		m_particle(particle),
+		m_position(position),
+		isActive(isActiv)
 	{
-		// m_particle = particle; // TODO: Disabled for compilation error
-		m_position = position;
-		isActive = isActiv;
+
 	}
 
 	ParticleSystem::~ParticleSystem()
@@ -23,7 +28,7 @@ namespace ace
 		}
 		else
 		{
-			//TODO: Jotakin tanne?
+			//TODO: Jotakin tanne? -> error message
 			printf("ParticleSystem isn't active");
 		}
 	}
@@ -35,6 +40,7 @@ namespace ace
 
 	void ParticleSystem::Draw()
 	{
+
 		m_particle.Draw();
 
 	}

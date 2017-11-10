@@ -2,6 +2,7 @@
 #include <Ace/Time.h>
 #include <Ace/UUID.h>
 #include <algorithm>	//std::sort
+#include <Ace/GraphicsDevice.h>
 
 
 
@@ -62,11 +63,8 @@ namespace ace
 		// 2. else create new particle (particles, sprites)
 
 		std::sort(particles.begin(), particles.end());
-
-		// Draw
 		
 		// Draw
-		// m_standardMaterial->position = particles.data()->position; // TODO: Disabled for compilation error
 		GraphicsDevice::Draw(sprites.data(), sprites.size(), indexBuffer);
 
 	}
@@ -76,6 +74,7 @@ namespace ace
 		const float deltaTime = Time::DeltaTime();
 		particles.data()->lifeTime -= deltaTime;
 		particles.data()->position += math::Scale(particles.data()->velocity, deltaTime);
+		//TODO: spriten paikan m‰‰ritt‰minen nykyinen ei toimi oikein koska se on rikki :(
 	}
 }
 

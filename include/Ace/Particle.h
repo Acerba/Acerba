@@ -2,7 +2,6 @@
 #include <Ace/SpriteSheet.h>
 #include <Ace/Sprite.h>
 #include <Ace/Transform.h>
-#include <Ace/StandardMaterial.h>
 
 
 
@@ -66,7 +65,6 @@ namespace ace
 		//Private?
 		SpriteSheet m_sheet;
 
-		StandardMaterial m_standardMaterial;
 		
 	};
 
