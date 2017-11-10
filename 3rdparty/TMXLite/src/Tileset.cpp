@@ -68,22 +68,48 @@ void Tileset::parse(pugi::xml_node node)
     {
         //parse TSX doc
         std::string path = node.attribute("source").as_string();
-        path = resolveFilePath(path, m_workingDir);
-
-        //as the TSX file now dictates the image path, the working
-        //directory is now that of the tsx file
-        auto position = path.find_last_of('/');
-        if (position != std::string::npos)
+        
+        if (editPaths)
         {
-            m_workingDir = path.substr(0, position);
+            path = resolveFilePath(path, m_workingDir);
+
+            //as the TSX file now dictates the image path, the working
+            //directory is now that of the tsx file
+            auto position = path.find_last_of('/');
+            if (position != std::string::npos)
+            {
+                m_workingDir = path.substr(0, position);
+            }
+            else
+            {
+                m_workingDir = "";
+            }
         }
         else
         {
-            m_workingDir = "";
+            path = m_workingDir + path;
+        }
+
+        pugi::xml_parse_result result;
+
+        if (fileCallback == nullptr)
+        {
+            result = tsxDoc.load_file(path.c_str());
+        }
+        else
+        {
+            char* buffer = fileCallback(path.c_str());
+
+            if (buffer == nullptr)
+            {
+                return;
+            }
+
+            result = tsxDoc.load_string(buffer);
+            delete[] buffer;
         }
 
         //see if doc can be opened       
-        auto result = tsxDoc.load_file(path.c_str());
         if (!result)
         {
             Logger::log("Failed opening tsx file for tile set, tile set will be skipped", Logger::Type::Error);
@@ -131,7 +157,9 @@ void Tileset::parse(pugi::xml_node node)
                 Logger::log("Tileset image node has missing source property, tile set not loaded", Logger::Type::Error);
                 return reset();
             }
+
             m_imagePath = resolveFilePath(attribString, m_workingDir);
+
             if (node.attribute("trans"))
             {
                 attribString = node.attribute("trans").as_string();

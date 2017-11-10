@@ -16,6 +16,8 @@ namespace ace
         inline operator std::string() const { return m_data_path; }
         inline operator const char*() const { return m_data_path.c_str(); }
 
+        std::string GetBasePath() const;
+
 	private:
 		std::string m_data_path;
 	};

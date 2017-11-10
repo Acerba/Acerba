@@ -9,7 +9,7 @@
 	#define ACE_LINUX 1
 #endif
 
-#if defined (_DEBUG)
+#if defined (_DEBUG) || defined(ACE_DEBUG)
     #define ACE_DEBUG 1
 #endif
 

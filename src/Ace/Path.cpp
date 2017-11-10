@@ -1,4 +1,6 @@
 #include <Ace/Path.h>
+#include <Ace/IntTypes.h>
+
 #include <SDL_filesystem.h>
 
 
@@ -54,5 +56,25 @@ namespace ace
 	{
 		return m_data_path;
 	}
+
+    std::string Path::GetBasePath() const
+    {
+        const char* path = m_data_path.c_str();
+        UInt16 fileTypePos = 0;
+
+        // Find '.' in the path
+        while (*(path + fileTypePos++) != '.')
+        {
+
+        }
+
+        // Find file name
+        while (*(path + fileTypePos) != '/' && *(path + fileTypePos) != '\\')
+        {
+            --fileTypePos;
+        }
+
+        return std::string(path, path + (fileTypePos + 1));
+    }
 }
 

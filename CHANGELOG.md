@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 11.11.2017
+
+### Added
+
+- arm64-v8a support 
+
+### Fixed
+
+- TMXLite android paths
+    - **NOTE 1:** .tmx files doens't need "source=map.tsx" to "source=assets/map.tsx" edit
+    - **NOTE 2:** This means that .tsx files will be searched from **same directory** where .tmx files are
+
 ## 13.10.2017
 
 ### Added

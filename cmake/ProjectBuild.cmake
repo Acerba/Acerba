@@ -65,7 +65,7 @@ set(PB_FORCE_PROJECT FALSE CACHE BOOL "Use root project ()" )
 
 if(PB_ANDROID OR ANDROID)
 
-set(PB_ANDROID_ABI "armeabi" "armeabi-v7a" "x86" CACHE STRING "Android ABI Targets")
+set(PB_ANDROID_ABI "armeabi" "armeabi-v7a" "x86" "arm64-v8a" CACHE STRING "Android ABI Targets")
 set(PB_ANDROID_API "9" CACHE STRING "Android API LEVEL")
 
 set(ANDROID_STL_VALUES

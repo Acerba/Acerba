@@ -2,7 +2,7 @@
 #include <Ace/GraphicsDevice.h>
 
 #include <Ace/Log.h>
-
+#include <Ace/Assert.h>
 #include <Ace/Math.h>
 
 #include <tmxlite/Map.hpp>
@@ -12,6 +12,18 @@
 
 namespace ace
 {
+    char* TMXLiteFileCallback(const char* path)
+    {
+        File file(Path(path, true));
+        UInt32 size = file.Size();
+
+        UInt8* buffer = new UInt8[size + 1];
+        file.Read(buffer, size);
+        buffer[size] = '\0';
+
+        return (char*)(buffer);
+    }
+
 
     Drawable::~Drawable() { }
 
@@ -25,15 +37,32 @@ namespace ace
 
         std::vector<TileLayer> layers;
 
-        TiledImpl(const Path file) : isMapLoaded(true)
+        TiledImpl(const Path path) : isMapLoaded(true)
         {
-            if (!map.load(file))
+            std::string p = path.GetPath();
+
+            if (!File::Exists(path))
             {
-                // Error
-                Logger::LogError("Tilemap failed load map: %s", file.operator const char*());
-                isMapLoaded = false;
+                Logger::LogError("Tilemap file doesn't exists: %s", p.c_str());
+                ACE_ASSERT(0, "Tilemap file doesn't exists", "");
+                return;
             }
 
+
+            File file(path);
+            UInt32 size = file.Size();
+            const auto& buffer = file.ReadAllText();
+
+            std::string workingDir = path.GetBasePath();
+
+            tmx::fileCallback = TMXLiteFileCallback;
+
+            if (!map.load(path.GetPath(), workingDir))
+            {
+                Logger::LogError("Tilemap failed load map: %s", p.c_str());
+                ACE_ASSERT(0, "Tilemap failed load map", "");
+                isMapLoaded = false;
+            }
         }
 
         Texture GetTileset()
@@ -41,36 +70,49 @@ namespace ace
 
             if (isMapLoaded && map.getTilesets().size() > 0)
             {
-                Path path(map.getTilesets()[0].getImagePath(), true);
-
+                std::string p = map.getTilesets()[0].getImagePath();
+                Path path(p, true);
+				Image image = Image::MissingFile();
+	
                 if (File::Exists(path))
                 {
-                    char nameBuffer[8];
-
-                    sheet = SpriteSheet(Image(File(path)));
-                    sheet.AddSprite("NULL", Rect(0, 0, 0, 0)); // Null Sprite
-
-                    tilesetSize = math::MakeVektor<2u, float>(map.getTilesets()[0].getTileSize().x, map.getTilesets()[0].getTileSize().y);
-
-                    UInt32 col = map.getTilesets()[0].getColumnCount(), row = map.getTilesets()[0].getTileCount() / col;
-                    Rect location(0, 0, tilesetSize.x, tilesetSize.y);
-
-                    for (UInt32 y = 0; y < row; ++y)
-                    {
-                        for (UInt32 x = 0; x < col; ++x)
-                        {
-                            location.x = location.width * static_cast<Int32>(x);
-                            location.y = location.height * static_cast<Int32>(y);
-
-                            sprintf(nameBuffer, "%i", x + (col * y) + 1);
-                            sheet.AddSprite(nameBuffer, location);
-                        }
-                    }
-
-                    return Texture(sheet.image);
+					image = Image(File(path));          
                 }
+				else
+				{
+                    Logger::LogError("Tilemap failed load image: %s", p.c_str());
+                    ACE_ASSERT(0, "Tilemap failed load image", "");
+				}
+				
+				sheet = SpriteSheet(image);
 
+				char nameBuffer[8];
+			
+				sheet.AddSprite("NULL", Rect(0, 0, 0, 0)); // Null Sprite
+
+				tilesetSize = math::MakeVektor<2u, float>(map.getTilesets()[0].getTileSize().x, map.getTilesets()[0].getTileSize().y);
+
+				UInt32 col = map.getTilesets()[0].getColumnCount(), row = map.getTilesets()[0].getTileCount() / col;
+				Rect location(0, 0, tilesetSize.x, tilesetSize.y);
+
+				for (UInt32 y = 0; y < row; ++y)
+				{
+					for (UInt32 x = 0; x < col; ++x)
+					{
+						location.x = location.width * static_cast<Int32>(x);
+						location.y = location.height * static_cast<Int32>(y);
+
+						sprintf(nameBuffer, "%i", x + (col * y) + 1);
+						sheet.AddSprite(nameBuffer, location);
+					}
+				}
+				
+				return Texture(sheet.image);
             }
+			else
+			{
+				Logger::LogError("Tilemap failed load tiles");
+			}
 
             return nullptr;
         }
@@ -132,6 +174,7 @@ namespace ace
 
             SpriteBeginCallback begin = nullptr;
             SpriteEndCallback end = nullptr;
+            SpriteSheet::SpriteData* spriteData = nullptr;
 
             GetSpriteCallback(map.getOrientation(), begin, end);
 
@@ -171,9 +214,16 @@ namespace ace
                         // TODO: Flip
 
 						sprite.SetID(tile.ID);
-                        sprite.Texcoord(sheet.GetSprite(tile.ID)->texcoord);
-                        sprite.Scale(Vector2(tilesetSize.x, tilesetSize.y) / math::Min(tileSize.x, tileSize.y));
 
+
+                        spriteData = sheet.GetSprite(tile.ID);
+                        
+                        if (spriteData != nullptr)
+                        {
+                            sprite.Texcoord(spriteData->texcoord);
+                        }
+
+                        sprite.Scale(Vector2(tilesetSize.x, tilesetSize.y) / math::Min(tileSize.x, tileSize.y));
                         sprite.Move(Vector3(pos.x, row-pos.y, i * pivot.z));
 
                         // End
@@ -240,6 +290,9 @@ namespace ace
 
     void Tilemap::TileLayer::Draw() const
     {
+		//while(1)
+		//	Logger::LogError("Tilemap drawing... %i", tiles.size());
+		
 		GraphicsDevice::Draw(tiles.data(), tiles.size(), indexBuffer);
 
         //for (UInt32 i = 0; i < tiles.size(); ++i)

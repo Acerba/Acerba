@@ -90,7 +90,7 @@ namespace tmx
     class TMXLITE_EXPORT_API Map final
     {
     public:
-            
+           
         Map();
         ~Map() = default;
         Map(const Map&) = delete;
@@ -102,7 +102,7 @@ namespace tmx
         \returns true if map was parsed successfully else returns false.
         In debug mode this will attempt to log any errors to the console.
         */
-        bool load(const std::string&);
+        bool load(const std::string&, const std::string& workingDir = "");
 
         /*!
         \brief Returns the version of the tile map last parsed.

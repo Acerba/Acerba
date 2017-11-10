@@ -16,8 +16,7 @@ set(PB_CXX_FLAGS "${PB_CXX_FLAGS} -std=c++14")
 #set(ACERBA_BUILD_EXAMPLE TRUE)
 BuildBegin()
 
-
-if(ACERBA_DEBUG)
+if(NOT PB_RELEASE)
 #TODO: ProjectBuild
 add_definitions(-DACE_DEBUG)
 endif()
