@@ -46,10 +46,10 @@ int main(int, char**) {
 		entities[i] = ace::Entity();
 
 		// Change position
-		entities[i]->transform.position = ace::Vector3(-0.9f + 0.2f*i, 0.f, 0.f);
+		entities[i]->transform.GetPositionRef() = ace::Vector3(-0.9f + 0.2f*i, 0.f, 0.f);
 
 		// Scale to 20%
-		entities[i]->transform.scale = ace::Vector3(0.2f, 0.2f, 1.f);
+		entities[i]->transform.GetScaleRef() = ace::Vector3(0.2f, 0.2f, 1.f);
 
 		// Add Sprite to entity
 		entities[i].AddComponent(sprite);
@@ -80,7 +80,7 @@ int main(int, char**) {
 		for (ace::UInt8 i = 0u; i < EC; ++i) {
 
 			// Change position for each component
-			entities[i]->transform.position.y = ace::math::Sin(total*(i + 1u)*0.05f);
+			entities[i]->transform.GetPositionRef().y = ace::math::Sin(total*(i + 1u)*0.05f);
 
 			// Calculate new color
 			const float color = (i + 1u) * total * 0.01f;

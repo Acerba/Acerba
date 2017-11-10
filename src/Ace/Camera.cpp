@@ -26,13 +26,14 @@ namespace ace
 
 
 	Camera::Camera(EntityManager& manager) :
-        m_entity(manager),
-        m_proj(),
-        m_view(),
-        m_vp(),
-        m_ortho(1.f, 1.f, 0.0f, 100.f),
-        m_up(0.f, 1.f, 0.f),
-		m_aspectRatio(1.0f)
+		m_entity(manager),
+		m_proj(),
+		m_view(),
+		m_vp(),
+		m_ortho(1.f, 1.f, 0.0f, 100.f),
+		m_up(0.f, 1.f, 0.f),
+		m_aspectRatio(1.0f),
+		m_screenSize(1.0f)
     {
         m_entity->transform.SetPosition(Vector3(0.f, 0.f, 1.f));
         Ortho(m_ortho);
@@ -79,6 +80,9 @@ namespace ace
             Vector4(0.f,0.f,-1.f,1.f)
         )));
         m_view = math::LookAt(position, position - direction, m_up);
+
+		Material::Uniform("V", m_view);
+
     }
 
 	void Camera::Ortho(const Vector4& size, float aspect)
@@ -88,6 +92,14 @@ namespace ace
 			size.y, -size.y,
 			size.z, size.w
 		);
+
+		Material::Uniform("P", m_proj);
+		Screen(m_screenSize, aspect);
+	}
+
+	void Camera::Screen(float size, float aspect)
+	{
+		Material::Uniform("Screen", math::MakeOrthographic(-aspect * size, aspect * size, m_screenSize, -m_screenSize, m_ortho.z, m_ortho.w));
 	}
 
 	void Camera::LookAt(const Vector3& target)
@@ -139,6 +151,17 @@ namespace ace
 	float Camera::GetAspectRatio() const
 	{
 		return m_aspectRatio;
+	}
+
+	float Camera::GetUISize() const
+	{
+		return m_screenSize;
+	}
+	
+	void Camera::SetUISize(float size)
+	{
+		m_screenSize = size;
+		Screen(m_screenSize, m_aspectRatio);
 	}
 
     void Camera::Update()

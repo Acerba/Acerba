@@ -19,6 +19,7 @@
 #include <Ace/SpriteManager.h>
 #include <Ace/SpriteSheet.h>
 #include <Ace/StandardMaterial.h>
+#include <Ace/UIMaterial.h>
 #include <Ace/Time.h>
 #include <Ace/Touch.h>
 #include <Ace/UserInterface.h>

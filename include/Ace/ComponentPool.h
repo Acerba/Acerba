@@ -70,6 +70,16 @@ namespace ace
             return m_components.data();
         }
 
+		inline const CompType* DataRef() const
+		{
+			return m_components.data();
+		}
+
+		inline CompType* DataRef()
+		{
+			return m_components.data();
+		}
+
         void* Get(const UInt32 index) final override
         {
             return &m_components.at(index);

@@ -189,6 +189,7 @@ namespace ace
 	void GraphicsDevice::BufferData(Buffer& buffer, UInt32 count, const UInt32* indicies, BufferUsage usage)
 	{
 		UInt32 target = GLBufferTargets[static_cast<UInt32>(buffer.type)];
+		buffer.size = count;
 
 		glBindBuffer(target, buffer->bufferID);
 		glBufferData(target, count * sizeof(UInt32), indicies, GLBufferUsage[static_cast<UInt32>(usage)]);

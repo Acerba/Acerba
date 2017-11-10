@@ -157,7 +157,7 @@ namespace ace
         inline static CompType* GetComponents(UInt32& size)
         {
             size = ComponentPool<CompType>::GetIndex();
-            return ComponentPool<CompType>::GetPool().components.data();
+            return ComponentPool<CompType>::GetPool().DataRef();
         }
 
 

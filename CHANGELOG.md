@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 10.11.2017
+### Added
+- Added UI Material
+- Camera added SetUISize and GetUISize methods
+
+### Changed
+- Updated SceneDrawing examples
+- Fixed EnittyManger's GetComponents method
+
 ## 27.10.2017
 ### Added
 

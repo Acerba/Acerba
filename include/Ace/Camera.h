@@ -8,7 +8,6 @@
 
 namespace ace
 {
-
     class Camera : public EventBase<WindowEvent>
     {
         Entity m_entity;
@@ -22,9 +21,12 @@ namespace ace
 
         void LookAt();
 		void Ortho(const Vector4& size, float aspect = 1.0f);
+		void Screen(float size, float aspect);
 
         Vector4 m_orthoSize;
 		float m_aspectRatio;
+
+		float m_screenSize;
 
     public:
 
@@ -96,6 +98,17 @@ namespace ace
 		Vector2 GetSize() const;
 		float GetAspectRatio() const;
 
+		/**
+			@return Gets UI size
+		*/
+		float GetUISize() const;
+
+		/**
+			@brief Set UI size
+			@param[in] size
+		*/
+		void SetUISize(float size);
+
         void Apply();
 
         /**
@@ -108,6 +121,7 @@ namespace ace
             @brief Update the camera transformations and matrices.
         */
         void Update();
+
 
 		virtual void OnEvent(WindowEvent windowEvent);
 
