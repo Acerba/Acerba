@@ -63,7 +63,8 @@ static MV_API Quat<Type> ToQuat(const Mat<3u, 3u, Type>& m)
 {
     using math::Sqrt;
     
-    const MV_TYPE sq = static_cast<MV_TYPE>(m[0] + m.at(1, 1) + m.at(2, 2));
+    // g++ 7.0.1 not constexpr otherwise
+    auto sq = m[0] + m.template get<1, 1>() + m.template get<2, 2>();
     if MV_API (sq > 0)
     {
         const MV_TYPE s = static_cast<MV_TYPE>(0.5f) / Sqrt(sq + static_cast<MV_TYPE>(1.f));

@@ -1,39 +1,40 @@
 #pragma once
 
-#include <Ace/Types.h>
-#include <Ace/Camera.h>
+#include <Ace/IntTypes.h>
+#include <Ace/Vector2.h>
 
 namespace ace
 {
-	enum class MouseButton
-	{
-		Invalid = 0,
-		Left,
-		Middle,
-		Right,
-	};
-
-	class Mouse
-	{
-	public:
-
+    class Camera;
+    
+    struct Mouse
+    {
+        
+        enum class Button : UInt8
+        {
+            Invalid = 0,
+            Left,
+            Middle,
+            Right,
+        };
+        
 		//int SDL_GetMouseState(int* x, int* y);
 		//int SDL_CaptureMouse(bool enabled);
 		//Mouse();
-		//~Mouse();
-
-		/**
-			@brief Returns vector2 position for mouse.
-			@return Position
-		*/
-		static Vector2 GetPosition();
-
-		static Vector2 GetWorldPosition(ace::Camera camera);
-
-		/**
-			@brief Returns the pressed mouse button.
-			@return MouseButton
-		*/
-		static MouseButton GetButton();
-	};
+        //~Mouse();
+        
+        /**
+            @brief Retrieves the current on-screen coordinates of the mouse. Range: [0:0, 1:1]
+            @return Vector2
+        */
+        static math::Vector2 GetPosition();
+        
+        static math::Vector2 GetWorldPosition(const Camera& camera);
+        
+        /**
+            @brief Returns the pressed mouse button.
+            @return MouseButton
+        */
+        static Button GetButton();
+    };
 }

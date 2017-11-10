@@ -159,65 +159,94 @@ static MV_API Mat<Rows - 1u, Cols - 1u, Type> GetMinor(const Mat<Rows, Cols, Typ
 
 namespace detail
 {
-    //Determinants
-    template <typename Type>
-    MV_API static Type Det(const Mat<2u, 2u, Type>& m)
+    // Forward declare
+    template <UInt8 Rows, UInt8 Cols>
+    struct DetHelper;
+
+    template <>
+    struct DetHelper<2u, 2u> final
     {
-        return (m.template get<0, 0>() * m.template get<1, 1>()) - (m.template get<0, 1>() * m.template get<1, 0>());
-    }
-    template <typename Type>
-    static MV_API Type Det(const Mat<3u, 3u, Type>& m)
-    {
-        return (
-            m.template get<0, 0>() * Det<2u, 2u, Type>(GetMinor(m, 0, 0)) -
-            m.template get<0, 1>() * Det<2u, 2u, Type>(GetMinor(m, 0, 1)) +
-            m.template get<0, 2>() * Det<2u, 2u, Type>(GetMinor(m, 0, 2))
-        );
-    }
-    template <UInt8 Rows, UInt8 Cols, typename Type>
-    static MV_API Type Det(const Mat<Rows, Cols, Type>& m)
-    {
-        Type det = static_cast<Type>(0);
-        for (UInt8 j = 0u; j < Cols; ++j)
+        template <typename Type>
+        static MV_API Type Det(const Mat<2u, 2u, Type>& m)
         {
-            det += (
-                math::Pow<Type>(static_cast<Type>(-1), j) *
-                (m.at(0, j) * Det<Rows - 1u, Cols - 1u, Type>(GetMinor(m, 0, j)))
+            return (
+                (m.template get<0, 0>() * m.template get<1, 1>()) -
+                (m.template get<0, 1>() * m.template get<1, 0>())
             );
         }
-        return det;
-    }
-    //////////////////////////////////////////////////////////
-    
-    
-    //Cofactors
-    template <typename Type>
-    static MV_API Mat<2u, 2u, Type> Cof(const Mat<2u, 2u, Type>& m)
+    };
+    template <>
+    struct DetHelper<3u, 3u> final
     {
-        return Mat<2u, 2u, Type>(
-            m.template get<3>(), -m.template get<2>(),
-            -m.template get<1>(), m.template get<0>()
-        );
-    }
-    template <UInt8 Rows, UInt8 Cols, typename Type>
-    static MV_API Mat<Rows, Cols, Type> Cof(const Mat<Rows, Cols, Type>& m)
-    {
-        Mat<Rows, Cols, Type> mat;
-        for (UInt8 i = 0u; i < Rows; ++i)
+        template <typename Type>
+        static MV_API Type Det(const Mat<3u, 3u, Type>& m)
         {
+            return (
+                m.template get<0, 0>() * DetHelper<2u, 2u>::Det(GetMinor(m, 0, 0)) -
+                m.template get<0, 1>() * DetHelper<2u, 2u>::Det(GetMinor(m, 0, 1)) +
+                m.template get<0, 2>() * DetHelper<2u, 2u>::Det(GetMinor(m, 0, 2))
+            );
+        }
+    };
+    template <UInt8 Rows, UInt8 Cols>
+    struct DetHelper final
+    {
+        template <typename Type>
+        static MV_API Type Det(const Mat<Rows, Cols, Type>& m)
+        {
+            Type det = static_cast<Type>(0);
             for (UInt8 j = 0u; j < Cols; ++j)
             {
-                mat.at(i, j) = (
-                    math::Pow<Type>(static_cast<Type>(-1), i + j) *
-                    Det<Rows - 1u, Cols - 1u, Type>(GetMinor(m, i, j))
+                det += (
+                    math::Pow<Type>(static_cast<Type>(-1), j) *
+                    (m.at(0, j) * DetHelper<Rows - 1u, Cols - 1u>::Det(GetMinor(m, 0, j)))
                 );
             }
+            return det;
         }
-        return mat;
-    }
+    };
     //////////////////////////////////////////////////////////
     
-} //Detail
+    // Forward declare
+    template <UInt8 Rows, UInt8 Cols>
+    struct CofHelper;
+
+    template <>
+    struct CofHelper<2u, 2u> final
+    {
+        template <typename Type>
+        static MV_API Mat<2u, 2u, Type> Cof(const Mat<2u, 2u, Type>& m)
+        {
+            return Mat<2u, 2u, Type>(
+                m.template get<3>(), -m.template get<2>(),
+                -m.template get<1>(), m.template get<0>()
+            );
+        }
+    };
+    template <UInt8 Rows, UInt8 Cols>
+    struct CofHelper final
+    {
+        template <typename Type>
+        static MV_API Mat<Rows, Cols, Type> Cof(const Mat<Rows, Cols, Type>& m)
+        {
+            Mat<Rows, Cols, Type> mat;
+            for (UInt8 i = 0u; i < Rows; ++i)
+            {
+                for (UInt8 j = 0u; j < Cols; ++j)
+                {
+                    mat.at(i, j) = (
+                        math::Pow<Type>(static_cast<Type>(-1), i + j) *
+                        // Det<Rows - 1u, Cols - 1u, Type>(GetMinor(m, i, j))
+                        DetHelper<Rows - 1u, Cols - 1u>::Det(GetMinor(m, i, j))
+                    );
+                }
+            }
+            return mat;
+        }
+    };
+    //////////////////////////////////////////////////////////
+    
+} // detail
 
 
 //Calculate adjunct matrix
@@ -233,7 +262,7 @@ static MV_API Mat<Cols, Rows, Type> Adjunct(const Mat<Rows, Cols, Type>& m)
 template <UInt8 Rows, UInt8 Cols, typename Type>
 static MV_API Mat<Rows, Cols, Type> Cofactor(const Mat<Rows, Cols, Type>& m)
 {
-    return detail::Cof(m);
+    return detail::CofHelper<Rows, Cols>::Cof(m);
 }
 //////////////////////////////////////////////////////////
 
@@ -242,7 +271,7 @@ static MV_API Mat<Rows, Cols, Type> Cofactor(const Mat<Rows, Cols, Type>& m)
 template <UInt8 Rows, UInt8 Cols, typename Type>
 static MV_API Type Determinant(const Mat<Rows, Cols, Type>& m)
 {
-    return detail::Det(m);
+    return detail::DetHelper<Rows, Cols>::Det(m);
 }
 //////////////////////////////////////////////////////////
 
