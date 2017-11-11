@@ -128,8 +128,8 @@ macro(BuildBegin)
 
 			# Strips Debug information from the release binaries.
 			if(PB_RELEASE)
-				set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
-				set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
+				set(PB_C_FLAGS "${PB_C_FLAGS} -s -Os")
+				set(PB_CXX_FLAGS "${PB_CXX_FLAGS} -s -Os")
 			endif()
 
 			# Set Recursion flags
@@ -348,6 +348,7 @@ macro(BuildAndroid)
 
 	foreach(ABI ${PB_ANDROID_ABI})
 
+	
 		add_custom_command(TARGET PSetup PRE_BUILD
 			COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/obj/${ABI}/")
 
