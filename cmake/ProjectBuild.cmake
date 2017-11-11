@@ -342,7 +342,7 @@ macro(BuildAndroid)
 	if(PB_ANDROID_NDK)
 		add_custom_command(TARGET PBuildNDK PRE_BUILD
 			COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan "ProjectBuild: Starting NDK building... ${PROJECT_BINARY_DIR}"
-			COMMAND ndk-build
+			COMMAND ndk-build -j
 			WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/android")
 	endif()
 
