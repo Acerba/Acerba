@@ -71,12 +71,12 @@ namespace ace
 			"varying lowp vec4 o_c;											\n"
 			"varying lowp vec2 o_uv;										\n"
 			"																\n"
-			"uniform sampler2D Diffuse;										\n"
+			"uniform sampler2D Texture;										\n"
 			"uniform lowp vec4 Color;										\n"
 			"																\n"
 			"void main()													\n"
 			"{																\n"
-			"	gl_FragColor = texture2D(Diffuse, o_uv) * o_c;				\n"
+			"	gl_FragColor = texture2D(Texture, o_uv.st) * o_c;			\n"
 			"}																\n"
 			, ShaderType::Fragment);
 

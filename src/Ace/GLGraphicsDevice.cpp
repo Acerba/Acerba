@@ -19,6 +19,36 @@
 
 #include <Ace/UniformImpl.h>
 
+#ifndef __FUNCTION_NAME__
+#ifdef WIN32   //WINDOWS
+#define __FUNCTION_NAME__   __FUNCTION__  
+#else          //*NIX
+#define __FUNCTION_NAME__   __func__ 
+#endif
+#endif
+
+#ifdef ACE_DEBUG
+
+    #define CheckGL()                                                                                 \
+        {GLenum err;                                                                                   \
+        while ((err = glGetError()) != GL_NO_ERROR)                                                   \
+        {                                                                                             \
+            std::string error;                                                                        \
+                                                                                                      \
+            switch (err) {                                                                            \
+            case GL_INVALID_OPERATION:      error = "INVALID_OPERATION";      break;                  \
+            case GL_INVALID_ENUM:           error = "INVALID_ENUM";           break;                  \
+            case GL_INVALID_VALUE:          error = "INVALID_VALUE";          break;                  \
+            case GL_OUT_OF_MEMORY:          error = "OUT_OF_MEMORY";          break;                  \
+            case GL_INVALID_FRAMEBUFFER_OPERATION:  error = "INVALID_FRAMEBUFFER_OPERATION";  break;  \
+            }                                                                                         \
+            Logger::LogError("%s: %s", __FUNCTION_NAME__, error.c_str());                             \
+        }}                                                                                             
+#else
+    #define CheckGL()
+#endif
+
+
 namespace ace
 {
 	static bool s_glstatus = false;
@@ -75,6 +105,8 @@ namespace ace
 	{
 		GetMaterialPtr(&material);
         glUseProgram(material->materialID);
+
+        CheckGL();
 	}
 
 	// OpenGL
@@ -112,26 +144,6 @@ namespace ace
 		else
 		{
 			glDisable(GLEnables[index]);
-		}
-	}
-
-	inline void CheckGL()
-	{
-		// check OpenGL error
-		GLenum err;
-		while ((err = glGetError()) != GL_NO_ERROR)
-		{
-			std::string error;
-			
-			switch (err) {
-			case GL_INVALID_OPERATION:      error = "INVALID_OPERATION";      break;
-			case GL_INVALID_ENUM:           error = "INVALID_ENUM";           break;
-			case GL_INVALID_VALUE:          error = "INVALID_VALUE";          break;
-			case GL_OUT_OF_MEMORY:          error = "OUT_OF_MEMORY";          break;
-			case GL_INVALID_FRAMEBUFFER_OPERATION:  error = "INVALID_FRAMEBUFFER_OPERATION";  break;
-			}
-
-			Logger::Log(Logger::Priority::Warning, "%s", error.c_str());
 		}
 	}
 
@@ -336,6 +348,8 @@ namespace ace
 		
 		glShaderSource(shader->shaderID, 1, &source, NULL);
 		glCompileShader(shader->shaderID);
+
+        CheckGL();
 		
 		GLint result = GL_FALSE;
 		GLint errorMsgLength = 0;
@@ -350,6 +364,8 @@ namespace ace
 			Logger::Log(Logger::Priority::Error, "%s", errorMsg);
 		
 			delete[] errorMsg;
+
+            ACE_ASSERT(0, "Shader creation failed!", "")
 		}
 
 		return shader;
@@ -367,33 +383,39 @@ namespace ace
 
         ACE_ASSERT(vertex, "Vertex shader is not initialized or valid.", "");
 		ACE_ASSERT(fragment, "Fragment shader is not initialized or valid.", "");
-
-		if (vertex)
+		
+        if (vertex)
 		{
 			glAttachShader(material->materialID, vertex->shaderID);
 		}
-
+        
 		if (fragment)
 		{
 			glAttachShader(material->materialID, fragment->shaderID);
 		}
 
+        CheckGL();
+        
 		for (UInt32 i = 0; i < (UInt32)VertexAttributes::COUNT; ++i)
 		{
 			glBindAttribLocation(material->materialID, i, vertexAttributeNames[i]);
 		}
 
+        CheckGL();
+
 		glLinkProgram(material->materialID);
+
+        CheckGL();
 	
-		if (vertex)
-		{
-			glDetachShader(material->materialID, vertex->shaderID);
-		}
-		
-		if (fragment)
-		{
-			glDetachShader(material->materialID, fragment->shaderID);
-		}
+		//if (vertex)
+		//{
+		//	glDetachShader(material->materialID, vertex->shaderID);
+		//}
+		//
+		//if (fragment)
+		//{
+		//	glDetachShader(material->materialID, fragment->shaderID);
+		//}
 		
 		GLint result = GL_FALSE;
 		GLint errorMsgLength = 0;
@@ -411,6 +433,7 @@ namespace ace
 
 			// TODO: Set default error material.
 		}		
+
 		return material;
 	}
 

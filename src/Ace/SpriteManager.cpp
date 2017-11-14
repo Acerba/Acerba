@@ -54,7 +54,7 @@ namespace ace
 	}
 
 
-	const Material& GetTargetMaterial(const Material& material, const Camera& camera, UInt32 offset = 0u, UInt32 count = 64u)
+	const Material& GetTargetMaterial(const Material& material, const Camera& camera, UInt32 offset = 0u, UInt32 count = 32u)
 	{
 	   // material.Uniform("VP", camera.GetMatrix());
 		material.Uniform("M", matrix.data() + offset, count);
@@ -96,7 +96,7 @@ namespace ace
 
     void SpriteManager::DrawImpl(const Scene& scene, const Camera& camera, const Material* customMaterial)
     {
-        static const UInt32 maxCount = 64u;
+        static const UInt32 maxCount = 32u;
         std::vector<Group> groups(Sort(scene));
 
         UInt32 count = 0u;
@@ -126,13 +126,13 @@ namespace ace
             //     GraphicsDevice::Draw(mat, m_sprites[i]);
             // }
             
-            const float timesTemp = static_cast<float>(indexCount) / 64.f;
+            const float timesTemp = static_cast<float>(indexCount) / 32.f;
             const UInt32 times = static_cast<UInt32>(timesTemp) + (math::Abs(timesTemp - math::Floor(timesTemp)) < 0.001f ? 0u : 1u);
 
             for (UInt32 i = 0; i < times; ++i)
             {
-                const UInt32 elementsCount = 64u < (indexCount - (i * 64u)) ? 64u : (indexCount - (i * 64u));
-                GraphicsDevice::SetMaterial(GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera, 64u * i, elementsCount));
+                const UInt32 elementsCount = 32u < (indexCount - (i * 32u)) ? 32u : (indexCount - (i * 32u));
+                GraphicsDevice::SetMaterial(GetTargetMaterial(customMaterial ? *customMaterial : itr.material, camera, 32u * i, elementsCount));
                 GraphicsDevice::Draw( 0u, elementsCount * 6u, m_indexTable + (elementsCount * 6u * i)); //  + (i * maxCount)
             }
 

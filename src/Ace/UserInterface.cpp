@@ -49,7 +49,6 @@ namespace ace
         Int32    m_AttribLocationUV;
         Int32    m_AttribLocationColor;
         UInt32   m_VboHandle;
-        //UInt32   m_VaoHandle;
         UInt32   m_ElementsHandle;
         Window   m_window;
 
@@ -67,7 +66,6 @@ namespace ace
             m_AttribLocationColor(0),
             m_FontTexture(0u),
             m_VboHandle(0u),
-            //m_VaoHandle(0u),
             m_ElementsHandle(0u),
             m_window(nullptr)
         {
@@ -83,15 +81,6 @@ namespace ace
 
         bool CreateDeviceObjects()
         {
-
-            // Backup GL state
-            //Int32 last_texture, last_array_buffer, last_vertex_array;
-            //glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-            //glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
-            //glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
-
-            // TODO: Convert Shaders from GLSL 3 to GLSL 1. (#version 100)
-
             const GLchar *vertex_shader =
                 "#version 100                                       \n"
                 "uniform mat4 ProjMtx;                              \n"
