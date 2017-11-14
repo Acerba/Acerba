@@ -93,7 +93,7 @@ namespace ace
 	// TODO: GraphicsDeviceImpl
 	void InitGraphicsDevice()
 	{
-		static StandardMaterial s_standardMaterial;
+	    static StandardMaterial s_standardMaterial;
         GraphicsDevice::SetMaterial(s_standardMaterial);
         GraphicsDevice::Enable(true, Features::Blend | Features::Depth);
 
@@ -332,10 +332,11 @@ namespace ace
 		ACE_ASSERT(GetMaterialPtr(), "Material is not initialized.", "");
 		//ACE_ASSERT(texture, "Texture is not initialized.", "");
 
-		glUseProgram((*GetMaterialPtr())->materialID);
-		glBindTexture(GL_TEXTURE_2D, texture->textureID);
-		glActiveTexture(GL_TEXTURE0 + id);
+
+        glActiveTexture(GL_TEXTURE0 + id);
         Uniform(name, &id, UniformType::Int32, 1);
+
+		glBindTexture(GL_TEXTURE_2D, texture->textureID);
 		//glUniform1i(glGetUniformLocation((*GetMaterialPtr())->materialID, name), id);
 	}
 
@@ -380,6 +381,8 @@ namespace ace
 	Material GraphicsDevice::CreateMaterial(const Shader& vertex, const Shader& fragment)
 	{
 		Material material(new MaterialImpl());
+
+        
 
         ACE_ASSERT(vertex, "Vertex shader is not initialized or valid.", "");
 		ACE_ASSERT(fragment, "Fragment shader is not initialized or valid.", "");
