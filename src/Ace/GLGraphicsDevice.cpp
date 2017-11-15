@@ -173,6 +173,8 @@ namespace ace
 	void GraphicsDevice::Present(Window& window)
 	{
 		SDL_GL_SwapWindow((*window)->sdlWindow);
+
+        CheckGL();
 	}
 
 	void GraphicsDevice::Viewport(UInt32 w, UInt32 h)
@@ -181,6 +183,7 @@ namespace ace
 		ACE_ASSERT(h != 0, "Viewport height must be more than zero, %i", h);
 
 		glViewport(0, 0, w, h);
+        CheckGL();
 	}
 
 	void GraphicsDevice::Scissor(Int32 x, Int32 y, UInt32 width, UInt32 height)
@@ -189,6 +192,7 @@ namespace ace
 		ACE_ASSERT(height != 0, "Scissor height must be more than zero, %i", height);
 
 		glScissor(x, y, width, height);
+        CheckGL();
 	}
 
 	Buffer GraphicsDevice::CreateBuffer(BufferType type)
@@ -205,7 +209,11 @@ namespace ace
 
 		glBindBuffer(target, buffer->bufferID);
 		glBufferData(target, count * sizeof(UInt32), indicies, GLBufferUsage[static_cast<UInt32>(usage)]);
+
+        CheckGL();
+
 		glBindBuffer(target, 0);
+
 	}
 
 	void GraphicsDevice::BufferData(Buffer& buffer, UInt32 count, const Vertex* data, BufferUsage usage, UInt32 instances)
@@ -237,6 +245,8 @@ namespace ace
 
 		}
 
+        CheckGL();
+
 		glBindBuffer(target, 0);
 
 	}
@@ -247,6 +257,9 @@ namespace ace
 
 		glBindBuffer(target, buffer->bufferID);
 		glBufferSubData(target, offset, count * sizeof(Vertex), data);
+
+        CheckGL();
+
 		glBindBuffer(target, 0);
 	}
 
@@ -260,8 +273,7 @@ namespace ace
 	{
 			
 		ACE_ASSERT(buffer, "Buffer is not initialized", "");
-
-
+    
 		UInt32 target = GLBufferTargets[static_cast<UInt32>(type)];
 		glBindBuffer(target, buffer->bufferID);
 
@@ -274,6 +286,8 @@ namespace ace
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
+
+            CheckGL();
 		}
 	}
 
@@ -410,15 +424,15 @@ namespace ace
 
         CheckGL();
 	
-		//if (vertex)
-		//{
-		//	glDetachShader(material->materialID, vertex->shaderID);
-		//}
-		//
-		//if (fragment)
-		//{
-		//	glDetachShader(material->materialID, fragment->shaderID);
-		//}
+		if (vertex)
+		{
+			glDetachShader(material->materialID, vertex->shaderID);
+		}
+		
+		if (fragment)
+		{
+			glDetachShader(material->materialID, fragment->shaderID);
+		}
 		
 		GLint result = GL_FALSE;
 		GLint errorMsgLength = 0;
@@ -557,6 +571,8 @@ namespace ace
 		{
 			glDrawElements(GL_TRIANGLES, indicies, GL_UNSIGNED_INT, indexTable == nullptr ? 0 : indexTable);
 		}
+
+        CheckGL();
 	}
 
 	void GraphicsDevice::Draw(const Buffer& buffer, UInt32 elements, UInt32 indicies, const UInt32* indexTable)
