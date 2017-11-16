@@ -36,6 +36,7 @@ namespace ace
         Vector2 tilesetSize;
 
         std::vector<TileLayer> layers;
+        std::vector<tmx::ObjectGroup*> objects;
 
         TiledImpl(const Path path) : isMapLoaded(true)
         {
@@ -174,77 +175,76 @@ namespace ace
 
             SpriteBeginCallback begin = nullptr;
             SpriteEndCallback end = nullptr;
-            SpriteSheet::SpriteData* spriteData = nullptr;
 
             GetSpriteCallback(map.getOrientation(), begin, end);
 
             // float offsetX = tileSize.x / tilesetSize.x, offsetY = tileSize.y / tilesetSize.y;
 
+            tmx::Layer* layerImpl;
+
             const UInt32 layerCount = map.getLayers().size();
             for (UInt32 i = 0; i < layerCount; ++i)
             {
                 TileLayer layer;
-                tmx::TileLayer* tileLayer = dynamic_cast<tmx::TileLayer*>(map.getLayers()[i].get());
 
-                if (tileLayer == nullptr)
+                layerImpl = map.getLayers()[i].get();
+
+                if (layerImpl->getType() == tmx::Layer::Type::Object)
                 {
-                    continue;
+                    objects.push_back(static_cast<tmx::ObjectGroup*>(map.getLayers()[i].get()));
                 }
-
-                for (UInt32 y = 0; y < row; ++y)
+                else if (layerImpl->getType() == tmx::Layer::Type::Tile)
                 {
-                    for (UInt32 x = 0; x < col; ++x)
+                    tmx::TileLayer* tileLayer = static_cast<tmx::TileLayer*>(map.getLayers()[i].get());
+
+                    for (UInt32 y = 0; y < row; ++y)
                     {
-                        const tmx::TileLayer::Tile& tile = tileLayer->getTiles()[x + y * col];
-
-                        if (tile.ID == 0)
+                        for (UInt32 x = 0; x < col; ++x)
                         {
-                            continue;   
+                            const tmx::TileLayer::Tile& tile = tileLayer->getTiles()[x + y * col];
+
+                            if (tile.ID == 0)
+                            {
+                                continue;
+                            }
+
+                            Vector2 pos(static_cast<float>(x), static_cast<float>(y));
+                            Vector2 size(static_cast<float>(tileSize.x), static_cast<float>(tileSize.y));
+
+                            // Begin
+                            Sprite sprite = begin(pos, size);
+                            //pos.y *= (size.y / size.x);
+
+                            // Update
+                            // TODO: Flip
+
+                            sprite.SetID(tile.ID);
+                            sprite.Texcoord(sheet.GetSprite(tile.ID)->texcoord);
+                            sprite.Scale(Vector2(tilesetSize.x, tilesetSize.y) / math::Min(tileSize.x, tileSize.y));
+
+                            sprite.Move(Vector3(pos.x, row - pos.y, i * pivot.z));
+
+                            // End
+                            // TODO: Fix pivot (offset)
+                            Vector2 point(pivot.x, pivot.y);
+                            end(sprite, point);
+                            sprite.Move(Vector3(col * -point.x, row * -point.y, 0.f));
+
+                            sprite.Scale(Vector2(scale, scale));
+
+                            if (callback != nullptr)
+                            {
+                                callback(sprite, tile.ID, i, arg);
+                            }
+
+                            layer.tiles.push_back(sprite);
                         }
-
-                        Vector2 pos(static_cast<float>(x), static_cast<float>(y));
-                        Vector2 size(static_cast<float>(tileSize.x), static_cast<float>(tileSize.y));
-
-                        // Begin
-                        Sprite sprite = begin(pos, size);
-                        //pos.y *= (size.y / size.x);
-
-
-                        // Update
-                        // TODO: Flip
-
-						sprite.SetID(tile.ID);
-
-
-                        spriteData = sheet.GetSprite(tile.ID);
-                        
-                        if (spriteData != nullptr)
-                        {
-                            sprite.Texcoord(spriteData->texcoord);
-                        }
-
-                        sprite.Scale(Vector2(tilesetSize.x, tilesetSize.y) / math::Min(tileSize.x, tileSize.y));
-                        sprite.Move(Vector3(pos.x, row-pos.y, i * pivot.z));
-
-                        // End
-                        // TODO: Fix pivot (offset)
-                        Vector2 point(pivot.x, pivot.y);
-                        end(sprite, point);
-                        sprite.Move(Vector3(col * -point.x, row * -point.y, 0.f));
-
-                        sprite.Scale(Vector2(scale, scale));
-
-                        if (callback != nullptr)
-                        {
-                            callback(sprite, tile.ID, i, arg);
-                        }
-
-                        layer.tiles.push_back(sprite);
                     }
-                }
 
-				GraphicsDevice::CreateIndicies(layer.indexBuffer, layer.tiles.size(), BufferUsage::Static);
-                layers.push_back(layer);
+                    GraphicsDevice::CreateIndicies(layer.indexBuffer, layer.tiles.size(), BufferUsage::Static);
+                    layers.push_back(layer);
+
+                }
             }
         }
     };
@@ -305,6 +305,11 @@ namespace ace
     tmx::Map& Tilemap::GetMap()
     {
         return m_tiledImpl->map;
+    }
+
+    std::vector<tmx::ObjectGroup*>& Tilemap::GetObjects()
+    {
+        return m_tiledImpl->objects;
     }
 
     Tilemap::operator bool() const
