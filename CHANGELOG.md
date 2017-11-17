@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 17.11.2017
+### Added
+- Tiled collision support 
+
+### Changed
+  - Improved collision performance
+
 ## 11.11.2017
 ### Added
 - arm64-v8a support 
@@ -11,7 +18,7 @@
 
 ## 10.11.2017
 ### Added
-- Added UI Material
+- UI Material
 - Camera added SetUISize and GetUISize methods
 
 ### Changed
@@ -20,13 +27,11 @@
 
 ## 27.10.2017
 ### Added
-
-- Added SetID & GetID support for sprites
-- Added CreateIndicies for GraphicsDevice
-- Added Draw method for drawing array of sprites for GraphicsDevice
+- SetID & GetID support for sprites
+- CreateIndicies for GraphicsDevice
+- Draw method for drawing array of sprites for GraphicsDevice
 
 ### Changed
-
 - Sprite now uses C/C++ Vertex array instead of std::array.
 - Vertex uv is now Vector3 instead of Vector2
 - Tilemap now draws all tiles using one draw call.
@@ -34,68 +39,53 @@
 
 
 ## 1.11.2017
-
 ### Changed
-
 - Improved support for static entities
 - Updated CollisionExample
 
 
 
 ## 30.10.2017
-
 ### Added
-
 - Animation Support
 - Animation Component
 - Animation Example
-- Added TotalTime method for Time
-- Added GetScale method for Sprite
+- TotalTime method for Time
+- GetScale method for Sprite
 
 
 
 ## 29.10.2017
-
 ### Added
-
 - Proper CollisionExample
 
 ### Changed
-
 - Collidables work when used without ECS
 
 
 
 ## 27.10.2017
-
 ### Added
-
 - Support for static entities
 
 ### Changed
-
 - Transform members are private
 - Transform stores status if it has been modified
 
 
 
 ## 20.10.2017
-
 ### Changed
-
 - Changed Matrix, Quaternion and Vector implementation.
 
 
 
 ## 13.10.2017
-
 ### Added
-
 - Drawable base
 - Tilemap support
 
 ### Changed
-
 - Spritesheet
 - Keyboards
 - Materials & Uniforms, reworked
@@ -105,16 +95,13 @@
 
 
 ## 29.09.2017
-
 ### Added
-
-- Added CHANGELOG.md
-- Added Vector4 operators
-- Added GetParent to EntityHandle
-- Added LookAt and Identity to Quaternation
+- CHANGELOG.md
+- Vector4 operators
+- GetParent to EntityHandle
+- LookAt and Identity to Quaternation
 
 ### Changed
-
 - Reworked Camera
 - Fixed some scene's matrix issues
 - Added temporary solution for Camera's matrix calculations.
