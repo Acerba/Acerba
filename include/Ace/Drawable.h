@@ -57,6 +57,9 @@ namespace ace
         UInt32 LayersCount() const;
         TileLayer* GetLayer(UInt32 i);
 
+		bool CreateCollisions(UInt32 layer);
+		bool CreateCollisions(std::string layer);
+
         SpriteSheet& GetSpriteSheet();
         const SpriteSheet& GetSpriteSheet() const;
 
@@ -64,6 +67,20 @@ namespace ace
 
 		tmx::Map& GetMap();
         std::vector<tmx::ObjectGroup*>& GetObjects();
+
+		/**
+			@brief Transforms object position to world position
+		*/
+		Vector2 GetPosition(float x, float y, const Vector2& offset = Vector2(0.0f, 0.0f)) const;
+
+		/**
+			@brief Transforms object position to world position
+			@param[in] object position
+			@param[in] offset
+			@return World Position 
+		*/
+		Vector2 GetPosition(const Vector2& position, const Vector2& offset = Vector2(0.0f, 0.0f)) const;
+
 
         operator bool() const;
     };

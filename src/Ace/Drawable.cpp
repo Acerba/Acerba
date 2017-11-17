@@ -5,6 +5,8 @@
 #include <Ace/Assert.h>
 #include <Ace/Math.h>
 
+#include <Ace/Collidable.h>
+
 #include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
 
@@ -24,7 +26,6 @@ namespace ace
         return (char*)(buffer);
     }
 
-
     Drawable::~Drawable() { }
 
     struct Tilemap::TiledImpl
@@ -35,8 +36,17 @@ namespace ace
         SpriteSheet sheet;
         Vector2 tilesetSize;
 
+		UInt32 mapWidth, mapHeight;
+		UInt32 tileWidth, tileHeight;
+		UInt32 row, col;
+
+		Vector3 pivot;
+		float scale;
+
         std::vector<TileLayer> layers;
         std::vector<tmx::ObjectGroup*> objects;
+
+		std::vector<Rectangle> collision;
 
         TiledImpl(const Path path) : isMapLoaded(true)
         {
@@ -92,8 +102,12 @@ namespace ace
 				sheet.AddSprite("NULL", Rect(0, 0, 0, 0)); // Null Sprite
 
 				tilesetSize = math::MakeVektor<2u, float>(map.getTilesets()[0].getTileSize().x, map.getTilesets()[0].getTileSize().y);
+				tileWidth = tilesetSize.x;
+				tileHeight = tilesetSize.y;
 
-				UInt32 col = map.getTilesets()[0].getColumnCount(), row = map.getTilesets()[0].getTileCount() / col;
+
+				UInt32 col = map.getTilesets()[0].getColumnCount();
+				UInt32 row = map.getTilesets()[0].getTileCount() / col;
 				Rect location(0, 0, tilesetSize.x, tilesetSize.y);
 
 				for (UInt32 y = 0; y < row; ++y)
@@ -140,7 +154,7 @@ namespace ace
 
         static void EndSpriteIsometric(Sprite& sprite, Vector2& pivot)
         {
-            pivot -= Vector2(0.5f, 0.5f);
+            pivot -= Vector2(0.5f, 0.0f);
         }
 
         static Vector2 Isometric(const Vector2& point)
@@ -163,15 +177,22 @@ namespace ace
             }
         }
 
-        void CreateLayers(float scale, const Vector3& pivot, ReadTilemap callback, void* arg)
+        void CreateLayers(float scal, const Vector3& piv, ReadTilemap callback, void* arg)
         {
             if (!isMapLoaded)
             {
                 return;
             }
 
-            UInt32 col = map.getTileCount().x, row = map.getTileCount().y;
+			scale = scal;
+			pivot = piv;
+
+			col = map.getTileCount().x;
+			row = map.getTileCount().y;
+
             tmx::Vector2u tileSize = map.getTileSize();
+			mapWidth = tileSize.x;
+			mapHeight = tileSize.y;
 
             SpriteBeginCallback begin = nullptr;
             SpriteEndCallback end = nullptr;
@@ -316,4 +337,75 @@ namespace ace
     {
         return m_tiledImpl && m_tiledImpl->isMapLoaded;
     }
+
+	Vector2 Tilemap::GetPosition(float x, float y, const Vector2& offset) const
+	{
+		return GetPosition(Vector2(x, y), offset);
+	}
+
+	Vector2 Tilemap::GetPosition(const Vector2& position, const Vector2& offset) const
+	{
+		// TODO: Orthogonal position.
+
+		Vector2 iso = position + offset;
+		iso.x /= m_tiledImpl->mapWidth;
+		iso.y /= m_tiledImpl->mapHeight;
+
+		iso.x = math::Round(iso.x);
+		iso.y = math::Round(iso.y);
+
+		iso = TiledImpl::Isometric(iso);
+		iso.y = m_tiledImpl->row - iso.y;
+
+		Vector3 pivot = m_tiledImpl->pivot - Vector3(0.5f, 0.0f, 0.0f);
+
+		iso -= Vector2(m_tiledImpl->col * -pivot.x, m_tiledImpl->row * pivot.y);
+
+		return iso * m_tiledImpl->scale;
+	}
+
+	bool Tilemap::CreateCollisions(UInt32 layer)
+	{
+		if (m_tiledImpl->objects.size() > layer)
+		{
+			tmx::ObjectGroup* objectLayer = m_tiledImpl->objects[layer];
+			Vector2 pos;
+
+			for (UInt32 i = 0; i < objectLayer->getObjects().size(); ++i)
+			{
+				if (objectLayer->getObjects()[i].getShape() == tmx::Object::Shape::Polygon)
+				{
+					pos.x = objectLayer->getObjects()[i].getPosition().x;
+					pos.y = objectLayer->getObjects()[i].getPosition().y;
+
+					if (objectLayer->getObjects()[i].getPoints().size() == 4)
+					{
+						const tmx::Object& obj = objectLayer->getObjects()[i];
+						m_tiledImpl->collision.push_back(Rectangle(
+							GetPosition(pos, Vector2(obj.getPoints()[0].x, obj.getPoints()[0].y)),
+							GetPosition(pos, Vector2(obj.getPoints()[1].x, obj.getPoints()[1].y)),
+							GetPosition(pos, Vector2(obj.getPoints()[2].x, obj.getPoints()[2].y)),
+							GetPosition(pos, Vector2(obj.getPoints()[3].x, obj.getPoints()[3].y))
+						));
+					}
+				}
+			}
+
+		}
+
+		return false;
+	}
+	
+	bool Tilemap::CreateCollisions(std::string layer)
+	{
+		for (UInt32 i = 0; i < m_tiledImpl->objects.size(); ++i)
+		{
+			if (m_tiledImpl->objects[i]->getName() == layer)
+			{
+				return CreateCollisions(layer);
+			}
+		}
+
+		return false;
+	}
 }

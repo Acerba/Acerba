@@ -25,7 +25,7 @@ namespace ace
 	{
 		UInt8 r, g, b, a;
 
-		explicit Color(UInt8 r = 0u, UInt8 g = 0u, UInt8 b = 0u, UInt8 a = 0u) : r(r), g(g), b(b), a(a)
+		explicit Color(UInt8 r = 0u, UInt8 g = 0u, UInt8 b = 0u, UInt8 a = 255u) : r(r), g(g), b(b), a(a)
 		{
 
 		}
@@ -76,7 +76,7 @@ namespace ace
 	struct Color32 final
 	{
 		float r, g, b, a;
-		explicit Color32(float r = 0.f, float g = 0.f, float b = 0.f, float a = 0.f) : r(r), g(g), b(b), a(a)
+		explicit Color32(float r = 0.f, float g = 0.f, float b = 0.f, float a = 1.f) : r(r), g(g), b(b), a(a)
 		{
 			
 		}
