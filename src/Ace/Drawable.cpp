@@ -11,6 +11,7 @@
 #include <tmxlite/TileLayer.hpp>
 
 #include <cstdio>
+#include <memory>
 
 namespace ace
 {
@@ -46,7 +47,7 @@ namespace ace
         std::vector<TileLayer> layers;
         std::vector<tmx::ObjectGroup*> objects;
 
-		std::vector<Rectangle> collision;
+		std::vector< std::unique_ptr<Rectangle> > collision;
 
         TiledImpl(const Path path) : isMapLoaded(true)
         {
@@ -122,7 +123,7 @@ namespace ace
 					}
 				}
 				
-				return Texture(sheet.image);
+                return sheet.spriteSheet;
             }
 			else
 			{
@@ -348,11 +349,12 @@ namespace ace
 		// TODO: Orthogonal position.
 
 		Vector2 iso = position + offset;
-		iso.x /= m_tiledImpl->mapWidth;
-		iso.y /= m_tiledImpl->mapHeight;
+        float min = math::Min(m_tiledImpl->mapWidth, m_tiledImpl->mapHeight);
+		iso.x /= min;
+		iso.y /= min;
 
-		iso.x = math::Round(iso.x);
-		iso.y = math::Round(iso.y);
+		//iso.x = math::Round(iso.x);
+		//iso.y = math::Round(iso.y);
 
 		iso = TiledImpl::Isometric(iso);
 		iso.y = m_tiledImpl->row - iso.y;
@@ -369,6 +371,7 @@ namespace ace
 		if (m_tiledImpl->objects.size() > layer)
 		{
 			tmx::ObjectGroup* objectLayer = m_tiledImpl->objects[layer];
+
 			Vector2 pos;
 
 			for (UInt32 i = 0; i < objectLayer->getObjects().size(); ++i)
@@ -381,7 +384,7 @@ namespace ace
 					if (objectLayer->getObjects()[i].getPoints().size() == 4)
 					{
 						const tmx::Object& obj = objectLayer->getObjects()[i];
-						m_tiledImpl->collision.push_back(Rectangle(
+						m_tiledImpl->collision.push_back(std::make_unique<Rectangle>(
 							GetPosition(pos, Vector2(obj.getPoints()[0].x, obj.getPoints()[0].y)),
 							GetPosition(pos, Vector2(obj.getPoints()[1].x, obj.getPoints()[1].y)),
 							GetPosition(pos, Vector2(obj.getPoints()[2].x, obj.getPoints()[2].y)),

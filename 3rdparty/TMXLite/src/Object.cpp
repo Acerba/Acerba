@@ -31,6 +31,7 @@ source distribution.
 #include <tmxlite/detail/Log.hpp>
 
 #include <sstream>
+#include <cfenv>
 
 using namespace tmx;
 
@@ -119,7 +120,11 @@ void Object::parsePoints(const pugi::xml_node& node)
         {
             std::vector<float> coords;
             std::stringstream coordstream(points[i]);
-
+            
+            // Windows: Unexpected rounding mode error...
+            #pragma STDC FENV_ACCESS ON
+            std::fesetround(FE_DOWNWARD);
+            
             float j;
             while (coordstream >> j)
             {
@@ -129,7 +134,11 @@ void Object::parsePoints(const pugi::xml_node& node)
                 {
                     coordstream.ignore();
                 }
-            }
+            } 
+
+            
+
+
             m_points.emplace_back(coords[0], coords[1]);
         }
     }
