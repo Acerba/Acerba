@@ -14,22 +14,36 @@ int main(int, char**)
 
 
 	ace::Image img1(0xFFFFFFFFU);
-
+	ace::Image img2(0xFFFFFFFFU);
 	img1 = ace::Image(ace::File("spudro.png"));
+	img2 = ace::Image(ace::File("TestImageFile.png"));
 	ace::Texture SpudroTexture(img1);
+	ace::Texture TestImageTexture(img2);
 
 	ace::Sprite sprite1;
+	ace::Sprite sprite2;
 
-	ace::math::Vector3 particlePosition( 0.f,0.f,0.f );
-	ace::math::Vector3 particleVelocity( 0.5f,0.f,0.f );
-	float spudroLifeTime = 10.f;
+	//ace::SpriteSheet spriteSheet1("sheet/Kebab.png");
+
+	ace::math::Vector3 particlePosition( 0.0f,0.0f,0.0f );
+	ace::math::Vector3 particleVelocity( 0.05f,0.0f,0.0f );
+	ace::math::Vector3 particleVelocity2(-0.05f, 0.0f, 0.0f);
+	float spudroLifeTime = 5.0f;
+	float testLifeTime = 10.0f;
 
 	ace::Particle spudroParticle(sprite1, spudroLifeTime, particlePosition, particleVelocity);
-	ace::math::Vector3 particleSystemPosition(0.5f, 0.25f, 0.f);
+	ace::Particle testParticle(sprite2, testLifeTime, particlePosition, particleVelocity2);
+	
+	
+	ace::math::Vector3 particleSystemPosition(0.0f, 0.0f, 0.0f);
+	ace::math::Vector3 particleSystemPosition2(0.25f, 0.25f, 1.0f);
 	bool partSysActive = true;
 	ace::ParticleSystem spudroParticleSystem(spudroParticle, particleSystemPosition, partSysActive);
+	ace::ParticleSystem testParticleSystem(testParticle, particleSystemPosition2, partSysActive);
 
 	spudroParticleSystem.m_standardMaterial->diffuse = SpudroTexture;
+	testParticleSystem.m_standardMaterial->diffuse = TestImageTexture;
+
 
 	//ace::math::Vector3 Upperposition( 0.0f,0.75f );
 	//ace::math::Vector3 Lowerposition( 0.0f, -0.75f );
@@ -47,9 +61,9 @@ int main(int, char**)
 		}
 
 		Window.Clear({ 0x0008400FFU });
-		spudroParticleSystem.Draw();
+		spudroParticleSystem.Update();
+		testParticleSystem.Update();
 
-		//printf(spudroParticleSystem.m_particle.particles.data()->position.x);
 		std::cout << spudroParticleSystem.m_particle.particles.data()->position.x << std::endl;
 
 		theScene.Update();

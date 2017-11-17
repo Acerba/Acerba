@@ -52,6 +52,7 @@ namespace ace
 		@param[in] velocity Vector3 veloctiy where particle is heading
 		*/
 		Particle(const Sprite& sprite, const float lifeTime, const Vector3& position, const Vector3& velocity);
+		Particle(const SpriteSheet& spriteSheet, const float lifeTime, const Vector3& position, const Vector3& velocity);
 		~Particle();
 
 		void Draw();

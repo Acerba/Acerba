@@ -24,6 +24,7 @@ namespace ace
 	{
 		if (isActive)
 		{
+			GraphicsDevice::SetMaterial(m_standardMaterial);
 			Draw();
 		}
 		else
