@@ -306,16 +306,16 @@ namespace ace
         Collidable(
             Vector2(
                 (a.x + b.x + c.x + d.x) * 0.25f,
-                (a.y + b.y + x.y + d.y) * 0.25f
+                (a.y + b.y + c.y + d.y) * 0.25f
             ),
             math::s_identity2
         ),
         m_extents(
             a.x - ((a.x + b.x + c.x + d.x) * 0.25f),
-            b.y - ((a.y + b.y + x.y + d.y) * 0.25f)
+            b.y - ((a.y + b.y + c.y + d.y) * 0.25f)
         )
     {
-        m_impl.SetOwnder(this);
+        m_impl.SetOwner(this);
     }
     
     std::vector<Vector2> Rectangle::GetVertices() const
