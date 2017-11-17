@@ -13,9 +13,9 @@ namespace ace
 	enum class PixelFormat
 	{
 		Unknown,
-		R,			/**	Gray		*/
-		RG,			/**	Gray Alpha	*/
-		RGB,		/**	RGB			*/
+		R,		/**	Gray		*/
+		RG,		/**	Gray Alpha	*/
+		RGB,		/**	RGB		*/
 		RGBA,		/**	RGBA		*/
 		Depth,		/** Depth		*/
 		Stencil,	/** Stencil		*/
@@ -35,7 +35,7 @@ namespace ace
 			@param[in] PixelFormat PixelFormat of the target image file
 			@see PixelFormat
 		*/
-		Image(const ace::File &file, float scale = 1000);
+		Image(const ace::File &file, float scale = 100);
 
 		/**
 			@brief Load image with only pixeldata
@@ -45,7 +45,7 @@ namespace ace
 			@param[in] PixelFormat PixelFormat of the target image file
 			@see PixelFormat
 		*/
-		Image(UInt8* pixels, Int32 w, Int32 h, PixelFormat, float scale = 1000);
+		Image(UInt8* pixels, Int32 w, Int32 h, PixelFormat, float scale = 100);
 		
 		/**
 			@brief Image with colored pixels

@@ -19,6 +19,36 @@
 
 #include <Ace/UniformImpl.h>
 
+#ifndef __FUNCTION_NAME__
+#ifdef WIN32   //WINDOWS
+#define __FUNCTION_NAME__   __FUNCTION__  
+#else          //*NIX
+#define __FUNCTION_NAME__   __func__ 
+#endif
+#endif
+
+#ifdef ACE_DEBUG
+
+    #define CheckGL()                                                                                 \
+        {GLenum err;                                                                                   \
+        while ((err = glGetError()) != GL_NO_ERROR)                                                   \
+        {                                                                                             \
+            std::string error;                                                                        \
+                                                                                                      \
+            switch (err) {                                                                            \
+            case GL_INVALID_OPERATION:      error = "INVALID_OPERATION";      break;                  \
+            case GL_INVALID_ENUM:           error = "INVALID_ENUM";           break;                  \
+            case GL_INVALID_VALUE:          error = "INVALID_VALUE";          break;                  \
+            case GL_OUT_OF_MEMORY:          error = "OUT_OF_MEMORY";          break;                  \
+            case GL_INVALID_FRAMEBUFFER_OPERATION:  error = "INVALID_FRAMEBUFFER_OPERATION";  break;  \
+            }                                                                                         \
+            Logger::LogError("%s: %s", __FUNCTION_NAME__, error.c_str());                             \
+        }}                                                                                             
+#else
+    #define CheckGL()
+#endif
+
+
 namespace ace
 {
 	static bool s_glstatus = false;
@@ -63,7 +93,7 @@ namespace ace
 	// TODO: GraphicsDeviceImpl
 	void InitGraphicsDevice()
 	{
-		static StandardMaterial s_standardMaterial;
+	    static StandardMaterial s_standardMaterial;
         GraphicsDevice::SetMaterial(s_standardMaterial);
         GraphicsDevice::Enable(true, Features::Blend | Features::Depth);
 
@@ -75,6 +105,8 @@ namespace ace
 	{
 		GetMaterialPtr(&material);
         glUseProgram(material->materialID);
+
+        CheckGL();
 	}
 
 	// OpenGL
@@ -115,26 +147,6 @@ namespace ace
 		}
 	}
 
-	inline void CheckGL()
-	{
-		// check OpenGL error
-		GLenum err;
-		while ((err = glGetError()) != GL_NO_ERROR)
-		{
-			std::string error;
-			
-			switch (err) {
-			case GL_INVALID_OPERATION:      error = "INVALID_OPERATION";      break;
-			case GL_INVALID_ENUM:           error = "INVALID_ENUM";           break;
-			case GL_INVALID_VALUE:          error = "INVALID_VALUE";          break;
-			case GL_OUT_OF_MEMORY:          error = "OUT_OF_MEMORY";          break;
-			case GL_INVALID_FRAMEBUFFER_OPERATION:  error = "INVALID_FRAMEBUFFER_OPERATION";  break;
-			}
-
-			Logger::Log(Logger::Priority::Warning, "%s", error.c_str());
-		}
-	}
-
 	void GraphicsDevice::Enable(bool status, Features features)
 	{
 		GLEnable(status, GetIndex(features & Features::Blend, 0));
@@ -161,6 +173,8 @@ namespace ace
 	void GraphicsDevice::Present(Window& window)
 	{
 		SDL_GL_SwapWindow((*window)->sdlWindow);
+
+        CheckGL();
 	}
 
 	void GraphicsDevice::Viewport(UInt32 w, UInt32 h)
@@ -169,6 +183,7 @@ namespace ace
 		ACE_ASSERT(h != 0, "Viewport height must be more than zero, %i", h);
 
 		glViewport(0, 0, w, h);
+        CheckGL();
 	}
 
 	void GraphicsDevice::Scissor(Int32 x, Int32 y, UInt32 width, UInt32 height)
@@ -177,6 +192,7 @@ namespace ace
 		ACE_ASSERT(height != 0, "Scissor height must be more than zero, %i", height);
 
 		glScissor(x, y, width, height);
+        CheckGL();
 	}
 
 	Buffer GraphicsDevice::CreateBuffer(BufferType type)
@@ -193,7 +209,11 @@ namespace ace
 
 		glBindBuffer(target, buffer->bufferID);
 		glBufferData(target, count * sizeof(UInt32), indicies, GLBufferUsage[static_cast<UInt32>(usage)]);
+
+        CheckGL();
+
 		glBindBuffer(target, 0);
+
 	}
 
 	void GraphicsDevice::BufferData(Buffer& buffer, UInt32 count, const Vertex* data, BufferUsage usage, UInt32 instances)
@@ -225,6 +245,8 @@ namespace ace
 
 		}
 
+        CheckGL();
+
 		glBindBuffer(target, 0);
 
 	}
@@ -235,6 +257,9 @@ namespace ace
 
 		glBindBuffer(target, buffer->bufferID);
 		glBufferSubData(target, offset, count * sizeof(Vertex), data);
+
+        CheckGL();
+
 		glBindBuffer(target, 0);
 	}
 
@@ -248,8 +273,7 @@ namespace ace
 	{
 			
 		ACE_ASSERT(buffer, "Buffer is not initialized", "");
-
-
+    
 		UInt32 target = GLBufferTargets[static_cast<UInt32>(type)];
 		glBindBuffer(target, buffer->bufferID);
 
@@ -262,6 +286,8 @@ namespace ace
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
+
+            CheckGL();
 		}
 	}
 
@@ -320,10 +346,11 @@ namespace ace
 		ACE_ASSERT(GetMaterialPtr(), "Material is not initialized.", "");
 		//ACE_ASSERT(texture, "Texture is not initialized.", "");
 
-		glUseProgram((*GetMaterialPtr())->materialID);
-		glBindTexture(GL_TEXTURE_2D, texture->textureID);
-		glActiveTexture(GL_TEXTURE0 + id);
+
+        glActiveTexture(GL_TEXTURE0 + id);
         Uniform(name, &id, UniformType::Int32, 1);
+
+		glBindTexture(GL_TEXTURE_2D, texture->textureID);
 		//glUniform1i(glGetUniformLocation((*GetMaterialPtr())->materialID, name), id);
 	}
 
@@ -336,6 +363,8 @@ namespace ace
 		
 		glShaderSource(shader->shaderID, 1, &source, NULL);
 		glCompileShader(shader->shaderID);
+
+        CheckGL();
 		
 		GLint result = GL_FALSE;
 		GLint errorMsgLength = 0;
@@ -350,6 +379,8 @@ namespace ace
 			Logger::Log(Logger::Priority::Error, "%s", errorMsg);
 		
 			delete[] errorMsg;
+
+            ACE_ASSERT(0, "Shader creation failed!", "")
 		}
 
 		return shader;
@@ -365,25 +396,33 @@ namespace ace
 	{
 		Material material(new MaterialImpl());
 
+        
+
         ACE_ASSERT(vertex, "Vertex shader is not initialized or valid.", "");
 		ACE_ASSERT(fragment, "Fragment shader is not initialized or valid.", "");
-
-		if (vertex)
+		
+        if (vertex)
 		{
 			glAttachShader(material->materialID, vertex->shaderID);
 		}
-
+        
 		if (fragment)
 		{
 			glAttachShader(material->materialID, fragment->shaderID);
 		}
 
+        CheckGL();
+        
 		for (UInt32 i = 0; i < (UInt32)VertexAttributes::COUNT; ++i)
 		{
 			glBindAttribLocation(material->materialID, i, vertexAttributeNames[i]);
 		}
 
+        CheckGL();
+
 		glLinkProgram(material->materialID);
+
+        CheckGL();
 	
 		if (vertex)
 		{
@@ -411,6 +450,7 @@ namespace ace
 
 			// TODO: Set default error material.
 		}		
+
 		return material;
 	}
 
@@ -531,6 +571,8 @@ namespace ace
 		{
 			glDrawElements(GL_TRIANGLES, indicies, GL_UNSIGNED_INT, indexTable == nullptr ? 0 : indexTable);
 		}
+
+        CheckGL();
 	}
 
 	void GraphicsDevice::Draw(const Buffer& buffer, UInt32 elements, UInt32 indicies, const UInt32* indexTable)

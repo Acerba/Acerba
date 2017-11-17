@@ -35,7 +35,7 @@ namespace ace
             material.Uniform("Rotation", math::RotateZ2(angle));
             material.Uniform("Model", model);
             GraphicsDevice::SetMaterial(material);
-            GraphicsDevice::SetTexture(diffuse, "Diffuse", 0);
+            GraphicsDevice::SetTexture(diffuse, "Sample", 0);
         }
     };
 
@@ -60,6 +60,7 @@ namespace ace
 		virtual void Init() const final override
 		{
 			Shader vert, frag;
+
 			vert.Create(
 			"#version 100													\n"
 			"attribute vec4 a_position;										\n"
@@ -73,7 +74,7 @@ namespace ace
 			"uniform vec2 Scale;											\n"
 			"uniform mat2 Rotation; // 2D									\n"		
 			"uniform mat4 Model;											\n"
-			"uniform mat4 M[64];											\n"
+			"uniform mat4 M[32];											\n"
 			"uniform mat4 VP;												\n"
 			"																\n"
 			"void main()													\n"
@@ -104,7 +105,7 @@ namespace ace
 			"																\n"
 			"void main()													\n"
 			"{																\n"
-			"	gl_FragColor = texture2D(Diffuse, o_uv) * o_c;				\n"
+			"	gl_FragColor = texture2D( Diffuse, o_uv.st);		    \n"
 			"}																\n"
 			, ShaderType::Fragment);
 

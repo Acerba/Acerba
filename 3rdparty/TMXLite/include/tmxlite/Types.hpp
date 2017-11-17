@@ -32,6 +32,10 @@ source distribution.
 
 namespace tmx
 {
+    typedef char* (*FileCallback)(const char* path);
+    extern FileCallback fileCallback;
+    extern bool editPaths;
+
     /*!
     \brief Two dimensional vector used to store points and positions
     */

@@ -63,6 +63,7 @@ namespace ace
         virtual void Draw() const;
 
 		tmx::Map& GetMap();
+        std::vector<tmx::ObjectGroup*>& GetObjects();
 
         operator bool() const;
     };

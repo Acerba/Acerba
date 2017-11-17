@@ -166,6 +166,11 @@ namespace tmx
 
     static inline std::string resolveFilePath(std::string path, const std::string& workingDir)
     {
+        if (!editPaths)
+        {
+            return workingDir + path;
+        }
+
         static const std::string match("../");
         std::size_t result = path.find(match);
         std::size_t count = 0;

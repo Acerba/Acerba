@@ -39,6 +39,12 @@ source distribution.
 
 using namespace tmx;
 
+namespace tmx
+{
+    FileCallback fileCallback = nullptr;
+    bool editPaths = true;
+}
+
 namespace
 {
     std::string getFilePath(const std::string& path)
@@ -78,13 +84,32 @@ Map::Map()
 }
 
 //public
-bool Map::load(const std::string& path)
+bool Map::load(const std::string& path, const std::string& workingDir)
 {
     reset();
 
     //open the doc
     pugi::xml_document doc;
-    auto result = doc.load_file(path.c_str());
+
+    pugi::xml_parse_result result;
+
+    if (fileCallback == nullptr)
+    {
+        result = doc.load_file(path.c_str());
+    }
+    else
+    {
+        char* buffer = fileCallback(path.c_str());
+
+        if (buffer == nullptr)
+        {
+            return false;
+        }
+
+        result = doc.load_string(buffer);
+        delete[] buffer;
+    }
+
     if (!result)
     {
         Logger::log("Failed opening " + path, Logger::Type::Error);
@@ -92,11 +117,21 @@ bool Map::load(const std::string& path)
         return false;
     }
 
-    m_workingDirectory = getFilePath(path);
-    std::replace(m_workingDirectory.begin(), m_workingDirectory.end(), '\\', '/');
-    if (m_workingDirectory.find_last_of('/') == m_workingDirectory.size() - 1)
+    if (workingDir.size() < 0)
     {
-        m_workingDirectory.pop_back();
+        m_workingDirectory = getFilePath(path);
+        std::replace(m_workingDirectory.begin(), m_workingDirectory.end(), '\\', '/');
+        if (m_workingDirectory.find_last_of('/') == m_workingDirectory.size() - 1)
+        {
+            m_workingDirectory.pop_back();
+        }
+
+        editPaths = true;
+    }
+    else
+    {
+        editPaths = false;
+        m_workingDirectory = workingDir;
     }
 
     //find the map node and bail if it doesn't exist

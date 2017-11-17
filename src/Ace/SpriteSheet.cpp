@@ -3,6 +3,7 @@
 #include <Ace/Json.h>
 #include <Ace/Assert.h>
 
+
 namespace ace
 {
 	inline std::string ParsePath(const char* path)
@@ -30,7 +31,7 @@ namespace ace
 	}
 
 
-    SpriteSheet::SpriteSheet(const Image& image) : image(image)
+    SpriteSheet::SpriteSheet(const Image& image) : image(image), spriteSheet(image)
     {
 
     }
@@ -58,7 +59,8 @@ namespace ace
 			std::string path = ParsePath(jsonName);
 			File imageFile(Path(path + fileName, true));
 			image = Image(imageFile);
-			
+		    spriteSheet.Create(image);
+
 			for (UInt32 i = 0u; i < spritecount; ++i)
 			{
 				ACE_ASSERT(root["sprites"][i].HasMember("name"), "Sprites does not have a member: name", jsonName);
@@ -80,7 +82,7 @@ namespace ace
 		}
 		else
 		{
-			//TODO: Error jos json menee m�nk��n
+
 		}
 	}
 

@@ -3,7 +3,7 @@
 namespace ace
 {
 
-	Json::Json()
+	Json::Json() : document()
 	{
 		
 	}

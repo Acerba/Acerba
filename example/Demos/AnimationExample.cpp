@@ -1,4 +1,9 @@
-//Animation Demo
+// Animation Demo
+// Animation Naming Example:
+// - Run0, Run1, Run2, Run3, etc. -> Run
+// - Walk00, Walk01, Walk02 etc -> Walk
+// http://gamedevutils.com
+
 #include <Ace/Ace.h>
 
 int main(int, char**) 

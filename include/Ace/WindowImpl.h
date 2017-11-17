@@ -42,10 +42,10 @@ namespace ace
 			{
 				SetGLStatus(true);
 			}
-
-			if (!gl3wIsSupported(3, 0))
+            
+			if (!gl3wIsSupported(2, 0))
 			{
-
+            
 			}
 
 			#endif

@@ -20,4 +20,3 @@ LOCAL_CFLAGS += -fpermissive
 LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -latomic
 
 include $(BUILD_SHARED_LIBRARY)
-

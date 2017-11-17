@@ -3,6 +3,7 @@
 #include <Ace/IntTypes.h>
 #include <Ace/Rect.h>
 #include <Ace/Image.h>
+#include <Ace/Texture.h>
 
 #include <Ace/Path.h>
 
@@ -54,6 +55,7 @@ namespace ace
 			@brief Spritesheet image
 		*/
 		Image image;
+        Texture spriteSheet;
 
 		/**
 			@return Amount of sprites
