@@ -310,7 +310,10 @@ namespace ace
             ),
             math::s_identity2
         ),
-        m_extents(a.x, b.y)
+        m_extents(
+            a.x - ((a.x + b.x + c.x + d.x) * 0.25f),
+            b.y - ((a.y + b.y + x.y + d.y) * 0.25f)
+        )
     {
         m_impl.SetOwnder(this);
     }
