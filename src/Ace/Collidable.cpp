@@ -302,6 +302,19 @@ namespace ace
         m_impl.SetOwner(this);
     }
     
+    Rectangle::Rectangle(const Vector2& a, const Vector2& b, const Vector2& c, const Vector2& d) :
+        Collidable(
+            Vector2(
+                (a.x + b.x + c.x + d.x) * 0.25f,
+                (a.y + b.y + x.y + d.y) * 0.25f
+            ),
+            math::s_identity2
+        ),
+        m_extents(a.x, b.y)
+    {
+        m_impl.SetOwnder(this);
+    }
+    
     std::vector<Vector2> Rectangle::GetVertices() const
     {
         const Matrix2& rot = GetRotation();
