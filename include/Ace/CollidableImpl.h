@@ -56,6 +56,7 @@ namespace ace
         }
         inline AABB& GetAABB()
         {
+            m_hasChanged = true;
             return m_aabb;
         }
 
@@ -91,6 +92,7 @@ namespace ace
         }
         inline Vector2& GetLocalPosition()
         {
+            m_hasChanged = true;
             return m_position;
         }
 
@@ -113,7 +115,12 @@ namespace ace
         }
         inline Matrix2& GetRotation()
         {
+            m_hasChanged = true;
             return m_rotation;
+        }
+
+        inline bool HasChanged() const {
+            return m_hasChanged;
         }
 
         /**
@@ -140,6 +147,11 @@ namespace ace
         {
             m_collisions.clear();
         }
+
+        inline void SetHasChanged(const bool value)
+        {
+            m_hasChanged = value;
+        }
         
         /**
             @brief Set the owner of this.
@@ -156,6 +168,7 @@ namespace ace
         Matrix2 m_rotation;
         Vector2 m_position;
         Collidable* m_owner;
+        bool m_hasChanged;
         
     };
     

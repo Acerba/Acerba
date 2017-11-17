@@ -12,7 +12,7 @@ namespace ace
     using Vector2 = CollidableImpl::Vector2;
 
     CollidableImpl::CollidableImpl(const Vector2& position, const Matrix2& rotation) :
-        m_collisions(), m_aabb(), m_rotation(rotation), m_position(position), m_owner(nullptr)
+        m_collisions(), m_aabb(), m_rotation(rotation), m_position(position), m_owner(nullptr), m_hasChanged(true)
     {
         
     }
@@ -24,6 +24,7 @@ namespace ace
         m_rotation = other.m_rotation;
         m_position = other.m_position;
         m_owner = other.m_owner;
+        m_hasChanged = true;
         return *this;
     }
 

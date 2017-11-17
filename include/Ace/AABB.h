@@ -24,6 +24,11 @@ namespace ace
             const Vector2& max = DefaultMax()
         );
 
+        friend bool operator==(const AABB& lhs, const AABB& rhs)
+        {
+            return lhs.min == rhs.min && lhs.max == rhs.max;
+        }
+
         /**
             @brief Retrieve the center point of the AABB.
             @return Vector2

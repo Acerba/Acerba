@@ -245,6 +245,10 @@ namespace ace
     
     void BVHImpl::Node::Update(const AABB& myNewAABB, IndexContainer& myIds, const UInt8 depth)
     {
+        if (m_aabb == myNewAABB && m_ids.size() == myIds.size())
+        {
+            return;
+        }
         const UInt32 size = myIds.size();
         m_aabb = myNewAABB;
         m_ids = myIds;

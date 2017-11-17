@@ -107,6 +107,8 @@ namespace ace
         */
         virtual std::vector<Vector2> GetVertices() const = 0;
 
+        bool HasChanged() const;
+
         /**
             @brief Check if the collidable has a marked collision with the other collidable.
             Does not actually check for collision, only if a collision has been marked previously.
@@ -180,6 +182,8 @@ namespace ace
             @param[in] deg Degrees to rotate.
         */
         virtual void Rotate(float deg) = 0;
+
+        void SetHasChanged(const bool value);
 
         /**
             @brief Set collision mask for this collidable. Collidables which have atleast partly same mask can collide with each other.

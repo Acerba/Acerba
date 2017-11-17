@@ -9,7 +9,7 @@
 
 namespace ace
 {
-
+    
     using Matrix2 = Collidable::Matrix2;
     using Vector2 = Collidable::Vector2;
     
@@ -35,7 +35,7 @@ namespace ace
         const float v = (d00 * d12 - d01 * d02) * id;
         return (u >= 0.f) && (v >= 0.f) && ((u + v) < 1.f);
     }
-
+    
     std::vector<Vector2> GetNormalsImpl(const std::vector<Vector2>& vertices)
     {
         const UInt8 size = static_cast<UInt8>(vertices.size());
@@ -50,12 +50,12 @@ namespace ace
         }
         return normals;
     }
-
+    
     std::vector<Vector2> GetNormals(const Collidable& c)
     {
         return GetNormalsImpl(c.GetVertices());
     }
-
+    
     std::vector<Vector2> GetNormals(const std::vector<Vector2>& vertices)
     {
         return GetNormalsImpl(vertices);
@@ -64,12 +64,12 @@ namespace ace
     bool IsOverlapping(const Vector2& a, const Vector2& b)
     {
         return
-            math::IsBetween(a.x, b.x, b.y) ||
-            math::IsBetween(a.y, b.x, b.y) ||
-            math::IsBetween(b.x, a.x, a.y) ||
-            math::IsBetween(b.y, a.x, a.y);
+        math::IsBetween(a.x, b.x, b.y) ||
+        math::IsBetween(a.y, b.x, b.y) ||
+        math::IsBetween(b.x, a.x, a.y) ||
+        math::IsBetween(b.y, a.x, a.y);
     }
-
+    
     Vector2 ProjectAxis(const Vector2& axis, const std::vector<Vector2>& vertices)
     {
         float min = math::Dot(axis, vertices[0]);
@@ -82,7 +82,7 @@ namespace ace
         }
         return Vector2(min, max);
     }
-
+    
     bool IsCollidingCircle(const Circle& c, const std::vector<Vector2>& otherVertices)
     {
         const float radiusSquared = c.GetRadius() * c.GetRadius();
@@ -126,50 +126,47 @@ namespace ace
         }
         return (nearestVertexIndex == 0u) ? (nearestIsInside || lastIsInside) : nearestIsInside;
     }
-
-
-
-
+    
+    
+    
+    
     Collidable::Collidable(const Vector2& position, const Matrix2& rotation) :
-        m_impl(BVH::AddCollidable(position, rotation)), m_id(UUID<void>::GetID()), m_mask(Mask::A)
+    m_impl(BVH::AddCollidable(position, rotation)), m_id(UUID<void>::GetID()), m_mask(Mask::A)
     {
         // Don't call SetOwner here. Derived class not yet created.
     }
-
+    
     Collidable& Collidable::operator=(const Collidable& other)
     {
         m_mask = other.m_mask;
         m_impl = other.m_impl;
         return *this;
     }
-
+    
     Collidable::~Collidable()
     {
         // Disabled for copy-assigment
         // TODO: make m_impl shared_ptr?
         // m_impl.Destroy();
     }
-
-    // Vector2 Collidable::GetGlobalPosition() const
-    // {
-    //     return m_rotation * m_position;
-    // }
-
+    
+    // Vector2 Collidable::GetGlobalPosition() const { return m_rotation * m_position; }
+    
     const AABB& Collidable::GetAABB() const
     {
         return m_impl.GetAABB();
     }
-
+    
     UInt32 Collidable::GetCollisionCount() const
     {
         return m_impl.GetCollisionCount();
     }
-
+    
     const std::vector<CollidableImpl*>& Collidable::GetCollisions() const
     {
         return m_impl.GetCollisions();
     }
-
+    
     const Vector2& Collidable::GetLocalPosition() const
     {
         return m_impl.GetLocalPosition();
@@ -178,7 +175,7 @@ namespace ace
     {
         return m_impl.GetLocalPosition();
     }
-
+    
     const Matrix2& Collidable::GetRotation() const
     {
         return m_impl.GetRotation();
@@ -187,19 +184,24 @@ namespace ace
     {
         return m_impl.GetRotation();
     }
-
+    
+    bool Collidable::HasChanged() const
+    {
+        return m_impl.HasChanged();
+    }
+    
     bool Collidable::HasCollision(const Collidable& other) const
     {
         return m_impl.HasCollision(other.GetID());
     }
-
+    
     bool Collidable::IsColliding(const Collidable& a, const Collidable& b)
     {
         if (!a.HasMask(b))
         {
             return false;
         }
-
+        
         const std::vector<Vector2> verticesA(a.GetVertices());
         const std::vector<Vector2> verticesB(b.GetVertices());
         const std::vector<Vector2> normalsA(GetNormals(verticesA));
@@ -225,56 +227,61 @@ namespace ace
         }
         return true; // No non-overlaps found, must be colliding
     }
-
+    
     void Collidable::Reserve(const UInt32 size)
     {
         BVH::Reserve(size);
     }
-
+    
     void Collidable::ResetCollisions()
     {
         m_impl.ResetCollisions();
     }
-
+    
+    void Collidable::SetHasChanged(const bool value)
+    {
+        m_impl.SetHasChanged(value);
+    }
+    
     void Collidable::SetMask(const UInt8 mask)
     {
         m_mask = mask;
     }
-
+    
     void Collidable::UpdateCollisions()
     {
         UpdateAABB();
         BVH::UpdateCollisions(*this);
     }
-
-
-
-
-
+    
+    
+    
+    
+    
     Circle::Circle(const float radius, const Vector2& position, const Matrix2& rotation) :
-        Collidable(position, rotation), m_radius(math::Abs(radius))
+    Collidable(position, rotation), m_radius(math::Abs(radius))
     {
         if (math::IsNearEpsilon(radius))
-            Logger::Log(Logger::Priority::Warning, "Collidable: Circle: Radius near epsilon: %f", radius);
+        Logger::Log(Logger::Priority::Warning, "Collidable: Circle: Radius near epsilon: %f", radius);
         
         m_impl.SetOwner(this);
     }
-
+    
     std::vector<Vector2> Circle::GetVertices() const
     {
         return { };
     }
-
+    
     bool Circle::IsColliding(const Vector2& point) const
     {
         return (point - GetLocalPosition()).lengthSquared() <= (m_radius * m_radius);
     }
-
+    
     void Circle::Rotate(float)
     {
         return;
     }
-
+    
     void Circle::UpdateAABB(const bool)
     {
         AABB& aabb = m_impl.GetAABB();
@@ -284,13 +291,13 @@ namespace ace
         aabb.max.x = pos.x + m_radius;
         aabb.max.y = pos.y + m_radius;
     }
-
-
-
-
-
+    
+    
+    
+    
+    
     Rectangle::Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation) :
-        Collidable(position, rotation), m_extents(extents)
+    Collidable(position, rotation), m_extents(extents)
     {
         m_impl.SetOwner(this);
     }
@@ -306,7 +313,7 @@ namespace ace
             math::ToVektor(rot * (pos + Vector2{-m_extents.x,  m_extents.y}))
         };
     }
-
+    
     bool Rectangle::IsColliding(const Vector2& point) const
     {
         const Matrix2& rot = GetRotation();
@@ -325,15 +332,15 @@ namespace ace
             expos
         );
     }
-
+    
     void Rectangle::Rotate(float deg)
     {
         m_extents = math::ToVektor(math::RotateZ2(deg) * m_extents);
         GetRotation() = math::s_identity2;
-
+        
         UpdateAABB(false);
     }
-
+    
     void Rectangle::UpdateAABB(const bool accountRotation)
     {
         AABB& aabb = m_impl.GetAABB();
@@ -351,13 +358,13 @@ namespace ace
             aabb.Merge(m_impl.GetLocalPosition() + m_extents);
         }
     }
-
-
-
-
-
+    
+    
+    
+    
+    
     Triangle::Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation) :
-        Collidable(position, rotation), m_extents{ extents[0], extents[1], extents[2] }
+    Collidable(position, rotation), m_extents{ extents[0], extents[1], extents[2] }
     {
         m_impl.SetOwner(this);
     }
@@ -372,7 +379,7 @@ namespace ace
             pos + math::ToVektor(rot * m_extents[2])
         };
     }
-
+    
     bool Triangle::IsColliding(const Vector2& point) const
     {
         const Matrix2& rot = GetRotation();
@@ -384,18 +391,18 @@ namespace ace
             math::ToVektor(rot * (pos + m_extents[2]))
         );
     }
-
+    
     void Triangle::Rotate(float deg)
     {
         const Matrix2 rot(math::RotateZ2(deg));
         for (auto& itr : m_extents)
-            itr = math::ToVektor(rot * itr);
-
+        itr = math::ToVektor(rot * itr);
+        
         GetRotation() = math::s_identity2;
-
+        
         UpdateAABB(false);
     }
-
+    
     void Triangle::UpdateAABB(const bool accountRotation)
     {
         AABB& aabb = m_impl.GetAABB();
