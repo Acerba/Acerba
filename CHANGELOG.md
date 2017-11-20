@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 20.11.2017
+### Added
+- struct CollisionData
+    - Includes pointer to the other Collidable
+    - Includes the closest normal of the owner
+        - Center-to-center -vector if owner is a circle
+- GetNormals() for Collidable
+
+### Changed
+- Collidable::GetCollisions() now returns a vector of CollisionData
+
+
+
 ## 11.11.2017
 ### Added
 - arm64-v8a support 

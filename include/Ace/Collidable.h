@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Ace/CollisionData.h>
 #include <Ace/IntTypes.h>
 #include <Ace/Matrix2.h>
 #include <Ace/Vector2.h>
@@ -62,10 +63,10 @@ namespace ace
         UInt32 GetCollisionCount() const;
 
         /**
-            @brief Retrieve pointers to the objects that are colliding with this one.
-            @return vector of pointers
+            @brief Retrieve CollisionData from each collision happening with this Collidable.
+            @return vector of CollisionData
         */
-        const std::vector<CollidableImpl*>& GetCollisions() const;
+        const std::vector<CollisionData>& GetCollisions() const;
 
         /**
             @brief Retrieve the id of the collidable.
@@ -93,6 +94,11 @@ namespace ace
         {
             return m_mask;
         }
+
+        /**
+            @brief Retrieve all normals of this Collidable. Empty if this is a Circle.
+        */
+        std::vector<Vector2> GetNormals() const;
 
         /**
             @brief Retrieve the current rotation of the collidable.

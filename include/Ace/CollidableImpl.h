@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Ace/AABB.h>
+#include <Ace/CollisionData.h>
 #include <Ace/IntTypes.h>
 #include <Ace/Matrix2.h>
 #include <Ace/Vector2.h>
@@ -33,11 +34,11 @@ namespace ace
             @brief Adds a collision to this collidableimpl with other. Does not add the collision to other.
             @param[in] other CollidableImpl.
         */
-        void AddCollision(CollidableImpl* other)
+        void AddCollision(CollidableImpl* other, const Vector2& normal)
         {
             if (other)
             {
-                m_collisions.emplace_back(other);
+                m_collisions.emplace_back(other->m_owner, normal);
             }
         }
 
@@ -71,7 +72,7 @@ namespace ace
         /**
             @brief Retrieve the objects which this collides with.
         */
-        const std::vector<CollidableImpl*>& GetCollisions() const
+        const std::vector<CollisionData>& GetCollisions() const
         {
             return m_collisions;
         }
@@ -163,7 +164,7 @@ namespace ace
         
     private:
         
-        std::vector<CollidableImpl*> m_collisions;
+        std::vector<CollisionData> m_collisions;
         AABB m_aabb;
         Matrix2 m_rotation;
         Vector2 m_position;
