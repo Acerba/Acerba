@@ -77,6 +77,14 @@ namespace ace
                 ACE_ASSERT(0, "Tilemap failed load map", "");
                 isMapLoaded = false;
             }
+            else
+            {
+                col = map.getTileCount().x;
+                row = map.getTileCount().y;
+
+                mapWidth = map.getTileSize().x;
+                mapHeight = map.getTileSize().y;
+            }
         }
 
         Texture GetTileset()
@@ -180,31 +188,49 @@ namespace ace
             }
         }
 
-        void CreateLayers(float scal, const Vector3& piv, ReadTilemap callback, void* arg)
+        Vector2 GetOffset(const Vector2& offset)
+        {
+            float w = mapWidth / static_cast<float>(mapHeight);
+            float h = mapHeight / static_cast<float>(mapWidth);
+
+            if (w > h)
+            {
+                h = 1.0f;
+            }
+
+            Vector2 result = Vector2(col * offset.x, row * offset.y);
+
+            if (map.getOrientation() == tmx::Orientation::Isometric)
+            {
+                return Isometric(result);
+            }
+
+            return result;
+        }
+
+        Vector3 GetOffset(const Vector3& offset)
+        {
+            Vector2 getOffset = GetOffset(Vector2(offset.x, offset.y));
+            return Vector3(getOffset.x, getOffset.y, offset.z);
+        }
+
+        void CreateLayers(const Vector3& offset, ReadTilemap callback, void* arg)
         {
             if (!isMapLoaded)
             {
                 return;
             }
 
-			scale = scal;
-			pivot = piv;
-
-			col = map.getTileCount().x;
-			row = map.getTileCount().y;
-
-            tmx::Vector2u tileSize = map.getTileSize();
-			mapWidth = tileSize.x;
-			mapHeight = tileSize.y;
-
             SpriteBeginCallback begin = nullptr;
             SpriteEndCallback end = nullptr;
-
+            
             GetSpriteCallback(map.getOrientation(), begin, end);
 
             // float offsetX = tileSize.x / tilesetSize.x, offsetY = tileSize.y / tilesetSize.y;
 
             tmx::Layer* layerImpl;
+
+            Vector3 mapOffset = GetOffset(offset);
 
             const UInt32 layerCount = map.getLayers().size();
             for (UInt32 i = 0; i < layerCount; ++i)
@@ -233,7 +259,7 @@ namespace ace
                             }
 
                             Vector2 pos(static_cast<float>(x), static_cast<float>(y));
-                            Vector2 size(static_cast<float>(tileSize.x), static_cast<float>(tileSize.y));
+                            Vector2 size(static_cast<float>(mapWidth), static_cast<float>(mapHeight));
 
                             // Begin
                             Sprite sprite = begin(pos, size);
@@ -244,7 +270,7 @@ namespace ace
 
                             sprite.SetID(tile.ID);
                             sprite.Texcoord(sheet.GetSprite(tile.ID)->texcoord);
-                            sprite.Scale(Vector2(tilesetSize.x, tilesetSize.y) / math::Min(tileSize.x, tileSize.y));
+                            sprite.Scale(Vector2(tilesetSize.x, tilesetSize.y) / math::Min(mapWidth, mapHeight));
 
                             sprite.Move(Vector3(pos.x, row - pos.y, i * pivot.z));
 
@@ -253,8 +279,9 @@ namespace ace
                             Vector2 point(pivot.x, pivot.y);
                             end(sprite, point);
                             sprite.Move(Vector3(col * -point.x, row * -point.y, 0.f));
-
                             sprite.Scale(Vector2(scale, scale));
+
+                            sprite.Move(mapOffset);
 
                             if (callback != nullptr)
                             {
@@ -290,10 +317,11 @@ namespace ace
         }
     };
 
-    Tilemap::Tilemap(const Path& map, float scale, const Vector3& pivot, ReadTilemap callback, void* arg) : Drawable(), m_tiledImpl(new TiledImpl(map))
+    Tilemap::Tilemap(const Path& map, float scale, const Vector3& pivot) : Drawable(), m_tiledImpl(new TiledImpl(map))
     {
         tileset = m_tiledImpl->GetTileset();
-        m_tiledImpl->CreateLayers(scale, pivot, callback, arg);
+        m_tiledImpl->pivot = pivot;
+        m_tiledImpl->scale = scale;
     }
 
     Tilemap::~Tilemap()
@@ -334,24 +362,24 @@ namespace ace
         }
 
         // Debug Draw
-        #if ACE_DEBUG
-        Sprite sprite;
-        sprite.Scale(Vector2(0.01f, 0.01f));
-        StandardMaterial mat;
-        mat->color = Color32(1.0f);
-        GraphicsDevice::SetMaterial(mat);
-
-        for (UInt32 i = 0; i < m_tiledImpl->collision.size(); ++i)
-        {
-            const auto vertices(m_tiledImpl->collision[i]->GetVertices());
-            const UInt32 size = vertices.size();
-            for (UInt32 j = 0; j < size; ++j)
-            {
-                mat->position = vertices[j];
-                GraphicsDevice::Draw(sprite);
-            }
-        }
-        #endif
+        //#if ACE_DEBUG
+        //Sprite sprite;
+        //sprite.Scale(Vector2(0.01f, 0.01f));
+        //StandardMaterial mat;
+        //mat->color = Color32(1.0f);
+        //GraphicsDevice::SetMaterial(mat);
+        //
+        //for (UInt32 i = 0; i < m_tiledImpl->collision.size(); ++i)
+        //{
+        //    const auto vertices(m_tiledImpl->collision[i]->GetVertices());
+        //    const UInt32 size = vertices.size();
+        //    for (UInt32 j = 0; j < size; ++j)
+        //    {
+        //        mat->position = vertices[j];
+        //        GraphicsDevice::Draw(sprite);
+        //    }
+        //}
+        //#endif
     }
 
     void Tilemap::TileLayer::Draw() const
@@ -388,9 +416,6 @@ namespace ace
 		iso.x /= min;
 		iso.y /= min;
 
-		//iso.x = math::Round(iso.x);
-		//iso.y = math::Round(iso.y);
-
 		iso = TiledImpl::Isometric(iso);
 		iso.y = m_tiledImpl->row - iso.y;
 
@@ -401,13 +426,20 @@ namespace ace
 		return iso * m_tiledImpl->scale;
 	}
 
-	bool Tilemap::CreateCollisions(UInt32 layer)
+    void Tilemap::CreateTiles(const Vector2& offset, float depth, ReadTilemap callback, void* arg)
+    {
+        m_tiledImpl->CreateLayers(Vector3(offset.x, offset.y, depth), callback, arg);
+    }
+
+	bool Tilemap::CreateCollisions(UInt32 layer, const Vector2& offset)
 	{
 		if (m_tiledImpl->objects.size() > layer)
 		{
 			tmx::ObjectGroup* objectLayer = m_tiledImpl->objects[layer];
 
 			Vector2 pos;
+
+            Vector2 mapOffset = m_tiledImpl->GetOffset(offset);
 
 			for (UInt32 i = 0; i < objectLayer->getObjects().size(); ++i)
 			{
@@ -422,40 +454,62 @@ namespace ace
                     if (points.size() == 3)
                     {
                         m_tiledImpl->collision.emplace_back(std::make_unique<Triangle>(
-                            GetPosition(pos, Vector2(points[0].x, points[0].y)),
-                            GetPosition(pos, Vector2(points[1].x, points[1].y)),
-                            GetPosition(pos, Vector2(points[2].x, points[2].y))
+                            GetPosition(pos, Vector2(points[0].x, points[0].y)) + mapOffset,
+                            GetPosition(pos, Vector2(points[1].x, points[1].y)) + mapOffset,
+                            GetPosition(pos, Vector2(points[2].x, points[2].y)) + mapOffset
                         ));
                     }
 
 					else if (points.size() == 4)
 					{
                         m_tiledImpl->collision.emplace_back(std::make_unique<Rectangle>(
-                            GetPosition(pos, Vector2(points[0].x, points[0].y)),
-                            GetPosition(pos, Vector2(points[1].x, points[1].y)),
-                            GetPosition(pos, Vector2(points[2].x, points[2].y)),
-                            GetPosition(pos, Vector2(points[3].x, points[3].y))
+                            GetPosition(pos, Vector2(points[0].x, points[0].y)) + mapOffset,
+                            GetPosition(pos, Vector2(points[1].x, points[1].y)) + mapOffset,
+                            GetPosition(pos, Vector2(points[2].x, points[2].y)) + mapOffset,
+                            GetPosition(pos, Vector2(points[3].x, points[3].y)) + mapOffset
                         ));
 
 					}
 				}
 			}
 
+            return true;
 		}
 
 		return false;
 	}
 	
-	bool Tilemap::CreateCollisions(std::string layer)
+	bool Tilemap::CreateCollisions(std::string layer, const Vector2& offset)
 	{
 		for (UInt32 i = 0; i < m_tiledImpl->objects.size(); ++i)
 		{
 			if (m_tiledImpl->objects[i]->getName() == layer)
 			{
-				return CreateCollisions(layer);
+				return CreateCollisions(layer, offset);
 			}
 		}
 
 		return false;
 	}
+
+
+    UInt32 Tilemap::GetRows() const
+    {
+        return m_tiledImpl->row;
+    }
+
+    UInt32 Tilemap::GetCols() const
+    {
+        return m_tiledImpl->col;
+    }
+
+    UInt32 Tilemap::GetWidth() const
+    {
+        return m_tiledImpl->mapWidth;
+    }
+
+    UInt32 Tilemap::GeHeight() const
+    {
+        return m_tiledImpl->mapHeight;
+    }
 }

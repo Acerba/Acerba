@@ -1,9 +1,11 @@
 # CHANGELOG
 
-## 17.11.2017
-## 20.11.2017
+
+## 24.11.2017
 ### Added
-- Tiled collision support 
+- Tiled collision support
+- Tilemap CreateTiles method
+- Tilemap CreateCollisions method
 
 ### Changed
   - Improved collision performance
@@ -19,6 +21,7 @@
 
 ### Changed
 - Collidable::GetCollisions() now returns a vector of CollisionData
+- Tilemap doesn't create tiles automatically anymore 
 
 ### Fixed
   - Color uniform for StandardMaterials and UIMaterials

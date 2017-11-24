@@ -6,72 +6,82 @@
 
 void TileCallback(ace::Sprite& sprite, ace::UInt32 ID, ace::UInt32 layer, void* data)
 {
-	ace::Vector3 center = sprite.GetCenter();
-	printf("%i %i: (%.1f %.1f %.1f)\n", layer, ID, center.x, center.y, center.z);
+    ace::Vector3 center = sprite.GetCenter();
+    printf("%i %i: (%.1f %.1f %.1f)\n", layer, ID, center.x, center.y, center.z);
 
-	// tileCount
-	++(*static_cast<ace::UInt32*>(data));
+    // tileCount
+    ++(*static_cast<ace::UInt32*>(data));
 
 }
 
 int main(int, char**)
 {
-	// Initialize Acerba
-	ace::Init();
+    // Initialize Acerba
+    ace::Init();
 
-	// Create window
-	ace::Window window("Tilemap_demo", 1024u, 768u);
+    // Create window
+    ace::Window window("Tilemap_demo", 1024u, 768u);
 
-	ace::UInt32 tileCount = 0;
+    ace::UInt32 tileCount = 0;
 
-	// REQUIRES: map.tmx file!
-	// Loads tilemap
-	ace::Tilemap tilemap("Assets/map.tmx", 1.0f, ace::Vector3(0.5f, 0.5f, 0.0f));
+    // REQUIRES: map.tmx file!
+    // Loads tilemap
+    ace::Tilemap tilemap("Assets/map.tmx", 1.0f, ace::Vector3(0.5f, 0.5f, 0.0f));
 
-	// Loads tilemap with callback
-	//ace::Tilemap tilemap("Assets/map.tmx", 1.0f, ace::Vector3(0.5, 0.5, 0), TileCallback, &tileCount);
+    // Creates tilemap
+    tilemap.CreateTiles();
 
-	// Create collisions for tilemap, using ObjectLayer.
-	// Supports Triangles and Rectangles.
-	//tilemap.CreateCollisions(0);
+    // Loads tilemap with callback
+    //tilemap.CreateTiles(ace::Vector2(0.0f, 0.0f), 0.0f, TileCallback, &tileCount);
 
-	// Create a material
-	ace::StandardMaterial tilemapMaterial;
+    // Create collisions for tilemap, using ObjectLayer.
+    // Supports Triangles and Rectangles.
+    //tilemap.CreateCollisions(0);
 
-	// Sets tilemap texture
-	tilemapMaterial->diffuse = tilemap.tileset;
+    // Create another tile map 
+    // Normalized offset
+    ace::Vector2 offset(1.0f, 0.0f); 
+    // Creates same tilemap to other position, (offset, depth) 
+    tilemap.CreateTiles(offset, -1.0f);
+    tilemap.CreateCollisions(0, offset);
+    
+    // Create a material
+    ace::StandardMaterial tilemapMaterial;
 
-	// Sets tilemap material
-	ace::GraphicsDevice::SetMaterial(tilemapMaterial);
+    // Sets tilemap texture
+    tilemapMaterial->diffuse = tilemap.tileset;
 
-	ace::Camera camera;
-	camera.Ortho(10, 10, 0, 10);
+    // Sets tilemap material
+    ace::GraphicsDevice::SetMaterial(tilemapMaterial);
 
-	// Entity based Tilemap rendering:
-	//ace::Scene world;
-	//ace::Entity tilemapEntity;	
-	//tilemapEntity.AddComponent<ace::Material>(mat);
-	//tilemapEntity.AddComponent<ace::Drawable*>(new ace::Tilemap(map)); // Requires: ace::Drawable*
-	//world.GetRoot().AddChild(tilemapEntity);
+    ace::Camera camera;
+    camera.Ortho(10, 10, 0, 10);
 
-	// While window is open
-	while (window) {
+    // Entity based Tilemap rendering:
+    //ace::Scene world;
+    //ace::Entity tilemapEntity;	
+    //tilemapEntity.AddComponent<ace::Material>(mat);
+    //tilemapEntity.AddComponent<ace::Drawable*>(new ace::Tilemap(map)); // Requires: ace::Drawable*
+    //world.GetRoot().AddChild(tilemapEntity);
 
-		// Clear window
-		window.Clear();
+    // While window is open
+    while (window) {
 
-		// Update Acerba systems
-		ace::Update();
+        // Clear window
+        window.Clear();
 
-		// Draws tilemap
-		ace::GraphicsDevice::Draw(tilemap);
+        // Update Acerba systems
+        ace::Update();
 
-		// Refresh screen
-		window.Present();
-	}
+        // Draws tilemap
+        ace::GraphicsDevice::Draw(tilemap);
 
-	// Shutdown Acerba
-	ace::Quit();
+        // Refresh screen
+        window.Present();
+    }
 
-	return 0;
+    // Shutdown Acerba
+    ace::Quit();
+
+    return 0;
 }

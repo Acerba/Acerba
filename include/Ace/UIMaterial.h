@@ -70,6 +70,7 @@ namespace ace
 			"void main()													\n"
 			"{																\n"
 			"	gl_FragColor = texture2D( Diffuse, o_uv.st) * o_c * Color;	\n"
+            "   if (gl_FragColor.a <= 0.0) discard;                         \n"
 			"}																\n"
 			, ShaderType::Fragment);
 

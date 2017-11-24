@@ -51,21 +51,42 @@ namespace ace
 
         Texture tileset;
 
-        Tilemap(const Path& map, float scale = 1.0f, const Vector3& pivot = Vector3(0.5f, 0.5f, 0.f), ReadTilemap callback = nullptr, void* arg = nullptr);
+        Tilemap(const Path& map, float scale = 1.0f, const Vector3& pivot = Vector3(0.5f, 0.5f, 0.f));
         ~Tilemap();
 
         UInt32 LayersCount() const;
         TileLayer* GetLayer(UInt32 i);
 
-		bool CreateCollisions(UInt32 layer);
-		bool CreateCollisions(std::string layer);
+		bool CreateCollisions(UInt32 layer, const Vector2& offset = Vector2(0.0f, 0.0f));
+		bool CreateCollisions(std::string layer, const Vector2& offset = Vector2(0.0f, 0.0f));
+        void CreateTiles(const Vector2& offset = Vector2(0.0f, 0.0f), float depth = 0.0f, ReadTilemap callback = nullptr, void* arg = nullptr);
+
+        void Move(const Vector2& offset);
+
+        /**
+            @brief Get Map Rows
+        */
+        UInt32 GetRows() const;
+
+        /**
+            @brief Get Map Columns
+        */
+        UInt32 GetCols() const;
+
+        /**
+            @brief Get Map Width
+        */
+        UInt32 GetWidth() const;
+
+        /**
+            @brief Get Map Height
+        */
+        UInt32 GeHeight() const;
 
         SpriteSheet& GetSpriteSheet();
         const SpriteSheet& GetSpriteSheet() const;
 
         virtual void Draw() const;
-
-        void Move(const Vector2& offset);
 
 		tmx::Map& GetMap();
         std::vector<tmx::ObjectGroup*>& GetObjects();
