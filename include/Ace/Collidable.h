@@ -198,7 +198,7 @@ namespace ace
          */
         void SetMask(const UInt8 mask);
 
-        virtual void UpdateAABB(const bool accountRotation = true) = 0;
+        virtual void UpdateAABB() = 0;
 
         /**
             @brief Update collisions regarding this Collidable. Make sure you have called BVH::Update() beforehand.
@@ -234,7 +234,7 @@ namespace ace
         
         void Rotate(float deg) final override;
 
-        void UpdateAABB(const bool accountRotation = true) final override;
+        void UpdateAABB() final override;
 
     private:
 
@@ -252,22 +252,18 @@ namespace ace
 
         Rectangle(const Vector2& a, const Vector2& b, const Vector2& c, const Vector2& d);
 
-        inline const Vector2& GetExtents() const
-        {
-            return m_extents;
-        }
-
         std::vector<Vector2> GetVertices() const final override;
 
         bool IsColliding(const Vector2& point) const override;
 
         void Rotate(float deg) final override;
 
-        void UpdateAABB(const bool accountRotation = true) final override;
+        void UpdateAABB() final override;
 
     private:
 
-        Vector2 m_extents;
+        // Global points, don't care about center
+        Vector2 m_points[4u];
 
     }; // Rectangle
 
@@ -279,10 +275,7 @@ namespace ace
 
         Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation = math::s_identity2);
 
-        inline const Vector2(&GetExtents() const)[3u]
-        {
-            return m_extents;
-        }
+        Triangle(const Vector2& a, const Vector2& b, const Vector2& c);
 
         std::vector<Vector2> GetVertices() const final override;
 
@@ -290,11 +283,12 @@ namespace ace
 
         void Rotate(float deg) final override;
 
-        void UpdateAABB(const bool accountRotation = true) final override;
+        void UpdateAABB() final override;
 
     private:
 
-        Vector2 m_extents[3u];
+        // Global points, don't care about center
+        Vector2 m_points[3u];
 
     }; // Triangle
 

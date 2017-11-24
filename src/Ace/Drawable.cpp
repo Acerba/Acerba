@@ -15,6 +15,8 @@
 
 #include <Ace/StandardMaterial.h>
 
+#include <Ace/Debugger.h>
+
 namespace ace
 {
     char* TMXLiteFileCallback(const char* path)
@@ -343,9 +345,12 @@ namespace ace
 
         for (UInt32 i = 0; i < m_tiledImpl->collision.size(); ++i)
         {
-            for (UInt32 j = 0; j < m_tiledImpl->collision[i]->GetVertices().size(); ++j)
+            const auto vertices(m_tiledImpl->collision[i]->GetVertices());
+            const UInt32 size = vertices.size();
+            for (UInt32 j = 0; j < size; ++j)
             {
-                mat->position = m_tiledImpl->collision[i]->GetVertices()[j];
+                LogDebug(vertices[j], "tilemap vertex");
+                mat->position = vertices[j];
                 GraphicsDevice::Draw(sprite);
             }
         }
@@ -415,29 +420,24 @@ namespace ace
 					pos.y = objectLayer->getObjects()[i].getPosition().y;
 
                     const tmx::Object& obj = objectLayer->getObjects()[i];
+                    const auto& points = obj.getPoints();
 
-                    if (obj.getPoints().size() == 3)
+                    if (points.size() == 3)
                     {
-                        Vector2 triangle1[3] =
-                        {
-                            GetPosition(pos, Vector2(obj.getPoints()[0].x, obj.getPoints()[0].y)) - pos,
-                            GetPosition(pos, Vector2(obj.getPoints()[1].x, obj.getPoints()[1].y)) - pos,
-                            GetPosition(pos, Vector2(obj.getPoints()[2].x, obj.getPoints()[2].y)) - pos,
-                        };
-
-                        m_tiledImpl->collision.push_back(std::make_unique<Triangle>(
-                            triangle1,
-                            pos
+                        m_tiledImpl->collision.emplace_back(std::make_unique<Triangle>(
+                            GetPosition(pos, Vector2(points[0].x, points[0].y)),
+                            GetPosition(pos, Vector2(points[1].x, points[1].y)),
+                            GetPosition(pos, Vector2(points[2].x, points[2].y))
                         ));
                     }
 
-					if (obj.getPoints().size() == 4)
-					{                        
-                        m_tiledImpl->collision.push_back(std::make_unique<Rectangle>(
-                            GetPosition(pos, Vector2(obj.getPoints()[0].x, obj.getPoints()[0].y)),
-                            GetPosition(pos, Vector2(obj.getPoints()[1].x, obj.getPoints()[1].y)),
-                            GetPosition(pos, Vector2(obj.getPoints()[2].x, obj.getPoints()[2].y)),
-                            GetPosition(pos, Vector2(obj.getPoints()[3].x, obj.getPoints()[3].y))
+					else if (points.size() == 4)
+					{
+                        m_tiledImpl->collision.emplace_back(std::make_unique<Rectangle>(
+                            GetPosition(pos, Vector2(points[0].x, points[0].y)),
+                            GetPosition(pos, Vector2(points[1].x, points[1].y)),
+                            GetPosition(pos, Vector2(points[2].x, points[2].y)),
+                            GetPosition(pos, Vector2(points[3].x, points[3].y))
                         ));
 
 					}
