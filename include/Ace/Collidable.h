@@ -77,11 +77,11 @@ namespace ace
             return m_id;
         }
 
-        // Vector2 GetGlobalPosition() const;
-
         /**
             @brief Retrieve the local position of the collidable.
             @return Local position.
+            @deprecated
+            @see GetCenter
         */
         const Vector2& GetLocalPosition() const;
         Vector2& GetLocalPosition();
@@ -103,15 +103,19 @@ namespace ace
         /**
             @brief Retrieve the current rotation of the collidable.
             @return Rotation.
-         */
+        */
         const Matrix2& GetRotation() const;
         Matrix2& GetRotation();
-
 
         /**
             @return Global vertices of the collidable.
         */
         virtual std::vector<Vector2> GetVertices() const = 0;
+
+        /**
+            @return Vertices in relation to the center of the collidable.
+        */
+        virtual std::vector<Vector2> GetVerticesLocal() const = 0;
 
         bool HasChanged() const;
 
@@ -221,6 +225,12 @@ namespace ace
         using Matrix2 = Collidable::Matrix2;
         using Vector2 = Collidable::Vector2;
         
+        /**
+            @brief Ctor
+            @param[in] radius Radius of the circle.
+            @param[in] position Position to consider as the center of the Collidable. (global coordinates)
+            @param[in] rotation Rotation of the Collidable. Defaults to Identity.
+        */
         Circle(const float radius, const Vector2& position, const Matrix2& rotation = math::s_identity2);
 
         inline float GetRadius() const
@@ -229,6 +239,7 @@ namespace ace
         }
 
         std::vector<Vector2> GetVertices() const final override;
+        std::vector<Vector2> GetVerticesLocal() const final override;
 
         bool IsColliding(const Vector2& point) const override;
         
@@ -248,11 +259,26 @@ namespace ace
         using Matrix2 = Collidable::Matrix2;
         using Vector2 = Collidable::Vector2;
 
+        /**
+            @brief Ctor
+            @param[in] extents Extents of the X- and Y-axes around center. (local coordinates)
+            @param[in] position Position to consider as the center of the Collidable. (global coordinates)
+            @param[in] rotation Rotation of the Collidable. Defaults to Identity.
+        */
         Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation = math::s_identity2);
 
+        /**
+            @brief Ctor
+            @param[in] a Point (global coordinates)
+            @param[in] b Point (global coordinates)
+            @param[in] c Point (global coordinates)
+            @param[in] d Point (global coordinates)
+        */
         Rectangle(const Vector2& a, const Vector2& b, const Vector2& c, const Vector2& d);
 
         std::vector<Vector2> GetVertices() const final override;
+
+        std::vector<Vector2> GetVerticesLocal() const final override;
 
         bool IsColliding(const Vector2& point) const override;
 
@@ -262,7 +288,7 @@ namespace ace
 
     private:
 
-        // Global points, don't care about center
+        // Local points around center
         Vector2 m_points[4u];
 
     }; // Rectangle
@@ -273,11 +299,25 @@ namespace ace
         using Matrix2 = Collidable::Matrix2;
         using Vector2 = Collidable::Vector2;
 
+        /**
+            @brief Ctor
+            @param[in] extents Extents of the X- and Y-axes around center. (local coordinates)
+            @param[in] position Position to consider as the center of the Collidable. (global coordinates)
+            @param[in] rotation Rotation of the Collidable. Defaults to Identity.
+        */
         Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation = math::s_identity2);
 
+        /**
+            @brief Ctor
+            @param[in] a Point (global coordinates)
+            @param[in] b Point (global coordinates)
+            @param[in] c Point (global coordinates)
+        */
         Triangle(const Vector2& a, const Vector2& b, const Vector2& c);
 
         std::vector<Vector2> GetVertices() const final override;
+
+        std::vector<Vector2> GetVerticesLocal() const final override;
 
         bool IsColliding(const Vector2& point) const override;
 
@@ -287,7 +327,7 @@ namespace ace
 
     private:
 
-        // Global points, don't care about center
+        // Local points around center
         Vector2 m_points[3u];
 
     }; // Triangle
