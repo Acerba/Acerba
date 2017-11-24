@@ -47,6 +47,12 @@ namespace ace
 		void SetSprite(const SpriteSheet::SpriteData* sprite);
 		void SetSprite(const SpriteSheet::SpriteData* sprite, float scale, float base = 1000.0f);
 
+        /**
+        @Brief Move sprite from current location to new location
+        @param[in] pos New position in Vector2
+        */
+        void Move(const Vector2& pos);
+
 		/**
 		@Brief Move sprite from current location to new location
 		@param[in] pos New position in Vector3

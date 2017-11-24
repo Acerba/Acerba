@@ -13,11 +13,15 @@
     - Includes the closest normal of the owner
         - Center-to-center -vector if owner is a circle
 - GetNormals() for Collidable
+- Triangle collision support for Tilemap
+- Move method for Tilemap
+- Vector2 Move method for Sprite
 
 ### Changed
 - Collidable::GetCollisions() now returns a vector of CollisionData
 
-
+### Fixed
+  - Color uniform for StandardMaterials and UIMaterials
 
 ## 11.11.2017
 ### Added

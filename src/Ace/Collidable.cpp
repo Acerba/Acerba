@@ -7,6 +7,8 @@
 
 #include <limits> // std::numeric_limits::max()
 
+#include <Ace/Debugger.h>
+
 namespace ace
 {
     
@@ -147,7 +149,7 @@ namespace ace
     {
         return m_impl.GetAABB();
     }
-    
+
     UInt32 Collidable::GetCollisionCount() const
     {
         return m_impl.GetCollisionCount();
@@ -180,7 +182,7 @@ namespace ace
     {
         return m_impl.GetRotation();
     }
-    
+
     bool Collidable::HasChanged() const
     {
         return m_impl.HasChanged();
@@ -267,6 +269,11 @@ namespace ace
     {
         return { };
     }
+
+    std::vector<Vector2> Circle::GetVerticesLocal() const
+    {
+        return { };
+    }
     
     bool Circle::IsColliding(const Vector2& point) const
     {
@@ -278,14 +285,12 @@ namespace ace
         return;
     }
     
-    void Circle::UpdateAABB(const bool)
+    void Circle::UpdateAABB()
     {
         AABB& aabb = m_impl.GetAABB();
         const Vector2& pos = GetLocalPosition();
-        aabb.min.x = pos.x - m_radius;
-        aabb.min.y = pos.y - m_radius;
-        aabb.max.x = pos.x + m_radius;
-        aabb.max.y = pos.y + m_radius;
+        aabb.Merge(Vector2(pos.x + m_radius, pos.y + m_radius));
+        aabb.Merge(Vector2(pos.x - m_radius, pos.y - m_radius));
     }
     
     
@@ -293,81 +298,83 @@ namespace ace
     
     
     Rectangle::Rectangle(const Vector2& extents, const Vector2& position, const Matrix2& rotation) :
-    Collidable(position, rotation), m_extents(extents)
+    Collidable(position, rotation),
+    m_points{
+        {  extents.x,  extents.y },
+        {  extents.x, -extents.y },
+        { -extents.x, -extents.y },
+        { -extents.x,  extents.y }
+    }
     {
         m_impl.SetOwner(this);
     }
-    
+
     Rectangle::Rectangle(const Vector2& a, const Vector2& b, const Vector2& c, const Vector2& d) :
-        Collidable(
-            Vector2(
-                (a.x + b.x + c.x + d.x) * 0.25f,
-                (a.y + b.y + c.y + d.y) * 0.25f
-            ),
-            math::s_identity2
-        ),
-        m_extents(
-            a.x - ((a.x + b.x + c.x + d.x) * 0.25f),
-            b.y - ((a.y + b.y + c.y + d.y) * 0.25f)
-        )
+        Collidable((a + b + c + d) * 0.25f, math::s_identity2),
+        m_points{
+            a - ((a + b + c + d) * 0.25f),
+            b - ((a + b + c + d) * 0.25f),
+            c - ((a + b + c + d) * 0.25f),
+            d - ((a + b + c + d) * 0.25f)
+        }
     {
         m_impl.SetOwner(this);
     }
     
     std::vector<Vector2> Rectangle::GetVertices() const
     {
-        const Matrix2& rot = GetRotation();
-        const Vector2& pos = GetLocalPosition();
+        const Vector2& center = GetLocalPosition();
         return {
-            math::ToVektor(rot * (pos + Vector2{-m_extents.x, -m_extents.y})),
-            math::ToVektor(rot * (pos + Vector2{ m_extents.x, -m_extents.y})),
-            math::ToVektor(rot * (pos + m_extents)),
-            math::ToVektor(rot * (pos + Vector2{-m_extents.x,  m_extents.y}))
+            center + m_points[0],
+            center + m_points[1],
+            center + m_points[2],
+            center + m_points[3]
+        };
+    }
+
+    std::vector<Vector2> Rectangle::GetVerticesLocal() const
+    {
+        return {
+            m_points[0],
+            m_points[1],
+            m_points[2],
+            m_points[3]
         };
     }
     
     bool Rectangle::IsColliding(const Vector2& point) const
     {
-        const Matrix2& rot = GetRotation();
-        const Vector2& pos = GetLocalPosition();
-        const Vector2 expos = math::ToVektor(rot * (pos + m_extents));
-        const Vector2 exneg = math::ToVektor(rot * (pos + math::Invert(m_extents)));
         return IsInTriangle(
             point,
-            expos,
-            math::ToVektor(rot * (pos + Vector2(-m_extents.x, m_extents.y))),
-            exneg
+            m_points[0],
+            m_points[1],
+            m_points[3]
         ) || IsInTriangle(
             point,
-            exneg,
-            math::ToVektor(rot * (pos + Vector2(m_extents.x, -m_extents.y))),
-            expos
+            m_points[0],
+            m_points[2],
+            m_points[3]
         );
     }
     
     void Rectangle::Rotate(float deg)
     {
-        m_extents = math::ToVektor(math::RotateZ2(deg) * m_extents);
+        const Matrix2 rot(math::RotateZ2(deg));
+        for (Vector2& p : m_points)
+        {
+            p = math::ToVektor(rot * p);
+        }
         GetRotation() = math::s_identity2;
-        
-        UpdateAABB(false);
+        UpdateAABB();
     }
     
-    void Rectangle::UpdateAABB(const bool accountRotation)
+    void Rectangle::UpdateAABB()
     {
         AABB& aabb = m_impl.GetAABB();
         aabb.Reset();
-        if (accountRotation)
+        for (const auto& p : m_points)
         {
-            for (const auto& vertex : GetVertices())
-            {
-                aabb.Merge(vertex);
-            }
-        }
-        else
-        {
-            aabb.Merge(m_impl.GetLocalPosition() + math::Invert(m_extents));
-            aabb.Merge(m_impl.GetLocalPosition() + m_extents);
+            aabb.Merge(p);
         }
     }
     
@@ -376,62 +383,76 @@ namespace ace
     
     
     Triangle::Triangle(const Vector2 (&extents)[3u], const Vector2& position, const Matrix2& rotation) :
-    Collidable(position, rotation), m_extents{ extents[0], extents[1], extents[2] }
+    Collidable(position, rotation),
+    m_points{
+        extents[0],
+        extents[1],
+        extents[2]
+    }
+    {
+        m_impl.SetOwner(this);
+    }
+
+    Triangle::Triangle(const Vector2& a, const Vector2& b, const Vector2& c) :
+    Collidable((a + b + c) * 0.3333334f, math::s_identity2),
+    m_points{
+        a - ((a + b + c) * 0.3333334f),
+        b - ((a + b + c) * 0.3333334f),
+        c - ((a + b + c) * 0.3333334f)
+    }
     {
         m_impl.SetOwner(this);
     }
     
     std::vector<Vector2> Triangle::GetVertices() const
     {
-        const Matrix2& rot = GetRotation();
-        const Vector2& pos = GetLocalPosition();
+        const Vector2& center = GetLocalPosition();
         return {
-            pos + math::ToVektor(rot * m_extents[0]),
-            pos + math::ToVektor(rot * m_extents[1]),
-            pos + math::ToVektor(rot * m_extents[2])
+            center + m_points[0],
+            center + m_points[1],
+            center + m_points[2]
+        };
+    }
+
+    std::vector<Vector2> Triangle::GetVerticesLocal() const
+    {
+        return {
+            m_points[0],
+            m_points[1],
+            m_points[2]
         };
     }
     
+    
     bool Triangle::IsColliding(const Vector2& point) const
     {
-        const Matrix2& rot = GetRotation();
-        const Vector2& pos = GetLocalPosition();
+        const Vector2& center = GetLocalPosition();
         return IsInTriangle(
             point,
-            math::ToVektor(rot * (pos + m_extents[0])),
-            math::ToVektor(rot * (pos + m_extents[1])),
-            math::ToVektor(rot * (pos + m_extents[2]))
+            center + m_points[0],
+            center + m_points[1],
+            center + m_points[2]
         );
     }
     
     void Triangle::Rotate(float deg)
     {
         const Matrix2 rot(math::RotateZ2(deg));
-        for (auto& itr : m_extents)
-        itr = math::ToVektor(rot * itr);
-        
+        for (Vector2& p : m_points)
+        {
+            p = math::ToVektor(rot * p);
+        }
         GetRotation() = math::s_identity2;
-        
-        UpdateAABB(false);
+        UpdateAABB();
     }
     
-    void Triangle::UpdateAABB(const bool accountRotation)
+    void Triangle::UpdateAABB()
     {
         AABB& aabb = m_impl.GetAABB();
         aabb.Reset();
-        if (accountRotation)
+        for (const auto& p : m_points)
         {
-            for (const auto& vertex : GetVertices())
-            {
-                aabb.Merge(vertex);
-            }
-        }
-        else
-        {
-            const Vector2& pos = GetLocalPosition();
-            aabb.Merge(pos + m_extents[0]);
-            aabb.Merge(pos + m_extents[1]);
-            aabb.Merge(pos + m_extents[2]);
+            aabb.Merge(p);
         }
     }
     

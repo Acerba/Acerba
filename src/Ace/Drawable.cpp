@@ -13,6 +13,8 @@
 #include <cstdio>
 #include <memory>
 
+#include <Ace/StandardMaterial.h>
+
 namespace ace
 {
     char* TMXLiteFileCallback(const char* path)
@@ -47,7 +49,7 @@ namespace ace
         std::vector<TileLayer> layers;
         std::vector<tmx::ObjectGroup*> objects;
 
-		std::vector< std::unique_ptr<Rectangle> > collision;
+		std::vector< std::unique_ptr<Collidable> > collision;
 
         TiledImpl(const Path path) : isMapLoaded(true)
         {
@@ -269,6 +271,23 @@ namespace ace
                 }
             }
         }
+
+        void Move(const Vector2& offset)
+        {
+            for (UInt32 i = 0; i < layers.size(); ++i)
+            {
+                for (UInt32 j = 0; j < layers[i].tiles.size(); ++j)
+                {
+                    layers[i].tiles[j].Move(offset);
+                }
+            }
+
+            for (UInt32 i = 0; i < collision.size(); ++i)
+            {
+                Vector2& pos = collision[i]->GetLocalPosition();
+                pos += offset;
+            }
+        }
     };
 
     Tilemap::Tilemap(const Path& map, float scale, const Vector3& pivot, ReadTilemap callback, void* arg) : Drawable(), m_tiledImpl(new TiledImpl(map))
@@ -302,26 +321,42 @@ namespace ace
         return m_tiledImpl->sheet;
     }
 
+    void Tilemap::Move(const Vector2& offset)
+    {
+        m_tiledImpl->Move(offset);
+    }
+
     void Tilemap::Draw() const
     {
         for (UInt32 i = 0; i < LayersCount(); ++i)
         {
             GraphicsDevice::Draw(m_tiledImpl->layers[i]);
         }
+
+        // Debug Draw
+        #if ACE_DEBUG
+        Sprite sprite;
+        sprite.Scale(Vector2(0.01f, 0.01f));
+        StandardMaterial mat;
+        mat->color = Color32(1.0f);
+        GraphicsDevice::SetMaterial(mat);
+
+        for (UInt32 i = 0; i < m_tiledImpl->collision.size(); ++i)
+        {
+            const auto vertices(m_tiledImpl->collision[i]->GetVertices());
+            const UInt32 size = vertices.size();
+            for (UInt32 j = 0; j < size; ++j)
+            {
+                mat->position = vertices[j];
+                GraphicsDevice::Draw(sprite);
+            }
+        }
+        #endif
     }
 
     void Tilemap::TileLayer::Draw() const
-    {
-		//while(1)
-		//	Logger::LogError("Tilemap drawing... %i", tiles.size());
-		
+    {	
 		GraphicsDevice::Draw(tiles.data(), tiles.size(), indexBuffer);
-
-        //for (UInt32 i = 0; i < tiles.size(); ++i)
-        //{
-        //    // TODO: Draw all sprites. (single draw call)
-        //    GraphicsDevice::Draw(tiles[i]);
-        //}
     }
 
     tmx::Map& Tilemap::GetMap()
@@ -381,15 +416,27 @@ namespace ace
 					pos.x = objectLayer->getObjects()[i].getPosition().x;
 					pos.y = objectLayer->getObjects()[i].getPosition().y;
 
-					if (objectLayer->getObjects()[i].getPoints().size() == 4)
+                    const tmx::Object& obj = objectLayer->getObjects()[i];
+                    const auto& points = obj.getPoints();
+
+                    if (points.size() == 3)
+                    {
+                        m_tiledImpl->collision.emplace_back(std::make_unique<Triangle>(
+                            GetPosition(pos, Vector2(points[0].x, points[0].y)),
+                            GetPosition(pos, Vector2(points[1].x, points[1].y)),
+                            GetPosition(pos, Vector2(points[2].x, points[2].y))
+                        ));
+                    }
+
+					else if (points.size() == 4)
 					{
-						const tmx::Object& obj = objectLayer->getObjects()[i];
-						m_tiledImpl->collision.push_back(std::make_unique<Rectangle>(
-							GetPosition(pos, Vector2(obj.getPoints()[0].x, obj.getPoints()[0].y)),
-							GetPosition(pos, Vector2(obj.getPoints()[1].x, obj.getPoints()[1].y)),
-							GetPosition(pos, Vector2(obj.getPoints()[2].x, obj.getPoints()[2].y)),
-							GetPosition(pos, Vector2(obj.getPoints()[3].x, obj.getPoints()[3].y))
-						));
+                        m_tiledImpl->collision.emplace_back(std::make_unique<Rectangle>(
+                            GetPosition(pos, Vector2(points[0].x, points[0].y)),
+                            GetPosition(pos, Vector2(points[1].x, points[1].y)),
+                            GetPosition(pos, Vector2(points[2].x, points[2].y)),
+                            GetPosition(pos, Vector2(points[3].x, points[3].y))
+                        ));
+
 					}
 				}
 			}

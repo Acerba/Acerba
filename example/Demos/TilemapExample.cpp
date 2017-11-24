@@ -31,6 +31,10 @@ int main(int, char**)
 	// Loads tilemap with callback
 	//ace::Tilemap tilemap("Assets/map.tmx", 1.0f, ace::Vector3(0.5, 0.5, 0), TileCallback, &tileCount);
 
+	// Create collisions for tilemap, using ObjectLayer.
+	// Supports Triangles and Rectangles.
+	//tilemap.CreateCollisions(0);
+
 	// Create a material
 	ace::StandardMaterial tilemapMaterial;
 
