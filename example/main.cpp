@@ -3,6 +3,8 @@
 #include <Ace/ParticleSystem.h>
 #include <iostream>
 
+#include <Ace/GLMaterialImpl.h> // TODO: remove
+
 int main(int, char**)
 {
     ace::Init();
@@ -22,17 +24,21 @@ int main(int, char**)
 
 	ace::Sprite sprite1;
 	ace::Sprite sprite2;
-
-	//ace::SpriteSheet spriteSheet1("sheet/Kebab.png");
+	ace::Sprite sprite3;
 
 	ace::math::Vector3 particlePosition( 0.0f,0.0f,0.0f );
 	ace::math::Vector3 particleVelocity( 0.05f,0.0f,0.0f );
 	ace::math::Vector3 particleVelocity2(-0.05f, 0.0f, 0.0f);
+	ace::math::Vector3 particleVelocity3(0.0f, -0.05f, 0.0f);
 	float spudroLifeTime = 5.0f;
 	float testLifeTime = 10.0f;
+	float ebinLifeTime = 10.0f;
 
 	ace::Particle spudroParticle(sprite1, spudroLifeTime, particlePosition, particleVelocity);
 	ace::Particle testParticle(sprite2, testLifeTime, particlePosition, particleVelocity2);
+
+	ace::Particle spudroparticle2(sprite3, ebinLifeTime, particlePosition, particleVelocity3);
+
 	
 	
 	ace::math::Vector3 particleSystemPosition(0.0f, 0.0f, 0.0f);
@@ -41,12 +47,11 @@ int main(int, char**)
 	ace::ParticleSystem spudroParticleSystem(spudroParticle, particleSystemPosition, partSysActive);
 	ace::ParticleSystem testParticleSystem(testParticle, particleSystemPosition2, partSysActive);
 
-	spudroParticleSystem.m_standardMaterial->diffuse = SpudroTexture;
-	testParticleSystem.m_standardMaterial->diffuse = TestImageTexture;
+	spudroParticleSystem.AddParticle(spudroparticle2);
 
-
-	//ace::math::Vector3 Upperposition( 0.0f,0.75f );
-	//ace::math::Vector3 Lowerposition( 0.0f, -0.75f );
+	// TODO: set without impl
+	static_cast<ace::StandardMaterial&>(spudroParticleSystem.GetMaterial())->diffuse = SpudroTexture;
+	static_cast<ace::StandardMaterial&>(testParticleSystem.GetMaterial())->diffuse = TestImageTexture;
 
 	while (Window)
 	{
@@ -60,11 +65,15 @@ int main(int, char**)
 			Window.Close();
 		}
 
+		if (ace::Keyboard::GetKey("Space"))
+		{
+			spudroParticle.Reset();
+			std::cout << "Ebin";
+		}
+
 		Window.Clear({ 0x0008400FFU });
 		spudroParticleSystem.Update();
 		testParticleSystem.Update();
-
-		std::cout << spudroParticleSystem.m_particle.particles.data()->position.x << std::endl;
 
 		theScene.Update();
 		theScene.Draw(theCamera);

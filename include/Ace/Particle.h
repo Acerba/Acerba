@@ -9,21 +9,28 @@ namespace ace
 {
 	class Particle final
 	{
-	public:
-
 		struct ParticleData final
 		{
 			Vector3 position;
 			Vector3 velocity;
 			UInt32 ID;
             float lifeTime;
+			bool isAlive = true;
             
-            ParticleData(const Vector3& position, const Vector3& velocity, const float lifeTime);
+            ParticleData(
+				const Vector3& position,
+				const Vector3& velocity,
+				const UInt32 id,
+				const float lifeTime
+			);
             
 			friend bool operator<(const ParticleData& lhs, const ParticleData& rhs)
 			{
 				return lhs.lifeTime < rhs.lifeTime;
 			}
+
+			mutable Vector3 originalPosition;
+			mutable float originalLifeTime;
 		};
 
 		struct SpriteData final
@@ -31,8 +38,11 @@ namespace ace
 			Sprite sprite;
             const UInt32 ID;
             
-            SpriteData();
+            SpriteData(const Sprite& sprite, const UInt32 id);
+
 		};
+
+	public:
 
 		Particle();
 
@@ -56,17 +66,24 @@ namespace ace
 		~Particle();
 
 		void Draw();
+		void Reset();
 		void Update();
 
-		std::vector<ParticleData> particles;
-		std::vector<Sprite> sprites;
+		inline bool IsAlive() const 
+		{
+			return m_isAlive;
+		};
 
-		IndexBuffer indexBuffer;
+	private:
+		std::vector<ParticleData> m_particles;
+		std::vector<SpriteData> m_sprites;
 
-		//Private?
+		IndexBuffer m_indexBuffer;
+
+
 		SpriteSheet m_sheet;
+		bool m_isAlive;
 
-		
 	};
 
 

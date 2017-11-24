@@ -6,13 +6,13 @@ namespace ace
 	ParticleSystem::ParticleSystem(
 		const Particle& particle, 
 		const Vector3& position, 
-		const bool isActiv = false
+		const bool isActive
 	) :
-		m_particle(particle),
+		m_particle(),
 		m_position(position),
-		isActive(isActiv)
+		m_isActive(isActive)
 	{
-
+		m_particles.emplace_back(particle);
 	}
 
 	ParticleSystem::~ParticleSystem()
@@ -22,7 +22,7 @@ namespace ace
 
 	void ParticleSystem::Update()
 	{
-		if (isActive)
+		if (m_isActive)
 		{
 			GraphicsDevice::SetMaterial(m_standardMaterial);
 			Draw();
@@ -36,14 +36,29 @@ namespace ace
 
 	void ParticleSystem::ToggleActive()
 	{
-		isActive = !isActive;
+		m_isActive = !m_isActive;
+	}
+
+	bool ParticleSystem::GetIsActive()
+	{
+		return m_isActive;
 	}
 
 	void ParticleSystem::Draw()
 	{
+		for (UInt32 i = 0u; i < m_particles.size(); ++i)
+		{
+			if (m_particles[i].IsAlive())
+			{
+				m_particles[i].Update();
+				m_particles[i].Draw();
+			}
+		}
+	}
 
-		m_particle.Draw();
-
+	void ParticleSystem::AddParticle(const Particle& newParticle)
+	{
+		m_particles.emplace_back(newParticle);
 	}
 }
 
