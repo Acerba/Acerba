@@ -158,6 +158,14 @@ int main(int, char**)
         {
             // Change the player colour
             player.sprite.Colorize(ace::Color32(0.2f, 0.f, 0.f, 1.f));
+
+            for (const auto& itr : player.collidable->GetCollisions())
+            {
+                ace::Logger::LogInfo(
+                    "Player collides with: (Collidable ID): %d, collision normal: x: %f, y: %f",
+                    itr.other->GetID(), itr.normal.x, itr.normal.y
+                );
+            }
         }
         else
         {

@@ -2,6 +2,7 @@
 #include <Ace/Collidable.h>
 #include <Ace/CollidableImpl.h>
 #include <Ace/Log.h>
+#include <Ace/Math.h>
 
 #include <algorithm> // std::find_if, std::remove_copy_if
 #include <memory> // std::unique_ptr
@@ -33,6 +34,23 @@ namespace ace
             }
         }
         return result;
+    }
+
+    Vector2 GetClosestNormal(const Collidable& c, const Vector2& centers)
+    {
+        Vector2 normal(centers);
+        float smallestAngle = math::PI;
+        float newAngle = 0.f;
+        for (const Vector2& n : c.GetNormals())
+        {
+            newAngle = math::Abs(math::GetAngleBetween(centers, n));
+            if (newAngle < smallestAngle)
+            {
+                smallestAngle = newAngle;
+                normal = n;
+            }
+        }
+        return normal;
     }
     
     class BVHImpl final
@@ -124,8 +142,20 @@ namespace ace
                                 CollidableImpl* other = collidables.Find(id);
                                 if (other && Collidable::IsColliding(collidable.GetOwner(), other->GetOwner()) && !collidable.HasCollision(id))
                                 {
-                                    collidable.AddCollision(other);
-                                    other->AddCollision(&collidable);
+                                    collidable.AddCollision(
+                                        other,
+                                        GetClosestNormal(
+                                            *collidable,
+                                            other->GetLocalPosition() - collidable.GetLocalPosition()
+                                        )
+                                    );
+                                    other->AddCollision(
+                                        &collidable,
+                                        GetClosestNormal(
+                                            **other,
+                                            collidable.GetLocalPosition() - other->GetLocalPosition()
+                                        )
+                                    );
                                 }
                             }
                         }

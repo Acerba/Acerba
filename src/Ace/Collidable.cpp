@@ -50,16 +50,7 @@ namespace ace
         }
         return normals;
     }
-    
-    std::vector<Vector2> GetNormals(const Collidable& c)
-    {
-        return GetNormalsImpl(c.GetVertices());
-    }
-    
-    std::vector<Vector2> GetNormals(const std::vector<Vector2>& vertices)
-    {
-        return GetNormalsImpl(vertices);
-    }
+
     
     bool IsOverlapping(const Vector2& a, const Vector2& b)
     {
@@ -162,7 +153,7 @@ namespace ace
         return m_impl.GetCollisionCount();
     }
     
-    const std::vector<CollidableImpl*>& Collidable::GetCollisions() const
+    const std::vector<CollisionData>& Collidable::GetCollisions() const
     {
         return m_impl.GetCollisions();
     }
@@ -174,6 +165,11 @@ namespace ace
     Vector2& Collidable::GetLocalPosition()
     {
         return m_impl.GetLocalPosition();
+    }
+
+    std::vector<Vector2> Collidable::GetNormals() const
+    {
+        return GetNormalsImpl(GetVertices());
     }
     
     const Matrix2& Collidable::GetRotation() const
@@ -204,8 +200,8 @@ namespace ace
         
         const std::vector<Vector2> verticesA(a.GetVertices());
         const std::vector<Vector2> verticesB(b.GetVertices());
-        const std::vector<Vector2> normalsA(GetNormals(verticesA));
-        const std::vector<Vector2> normalsB(GetNormals(verticesB));
+        const std::vector<Vector2> normalsA(GetNormalsImpl(verticesA));
+        const std::vector<Vector2> normalsB(GetNormalsImpl(verticesB));
         
         if (normalsA.empty() && normalsB.empty()) // Both are circles
         {

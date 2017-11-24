@@ -49,8 +49,8 @@ namespace ace
     {
         return m_collisions.end() != std::find_if(
             m_collisions.begin(), m_collisions.end(),
-            [id](const CollidableImpl* const ptr) -> bool
-            { return ptr->GetID() == id; }
+            [id](const CollisionData& data) -> bool
+            { return data.other && data.other->GetID() == id; }
         );
     }
 
