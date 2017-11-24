@@ -90,6 +90,15 @@ namespace ace
 		}
 	}
 
+    void Sprite::Move(const Vector2& pos)
+    {
+        for (auto& i : vertexData)
+        {
+            i.position.x += pos.x;
+            i.position.y += pos.y;
+        }
+    }
+
 	void Sprite::Move(const Vector3& pos)
 	{
 		for (auto& i : vertexData)

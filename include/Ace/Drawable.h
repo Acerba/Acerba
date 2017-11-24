@@ -65,6 +65,8 @@ namespace ace
 
         virtual void Draw() const;
 
+        void Move(const Vector2& offset);
+
 		tmx::Map& GetMap();
         std::vector<tmx::ObjectGroup*>& GetObjects();
 

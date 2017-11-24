@@ -105,7 +105,7 @@ namespace ace
 			"																\n"
 			"void main()													\n"
 			"{																\n"
-			"	gl_FragColor = texture2D( Diffuse, o_uv.st) * o_c;		    \n"
+			"	gl_FragColor = texture2D( Diffuse, o_uv.st) * o_c * Color;  \n"
 			"}																\n"
 			, ShaderType::Fragment);
 
