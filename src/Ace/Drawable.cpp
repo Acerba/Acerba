@@ -15,8 +15,6 @@
 
 #include <Ace/StandardMaterial.h>
 
-#include <Ace/Debugger.h>
-
 namespace ace
 {
     char* TMXLiteFileCallback(const char* path)
@@ -336,7 +334,7 @@ namespace ace
         }
 
         // Debug Draw
-        #if 1
+        #if ACE_DEBUG
         Sprite sprite;
         sprite.Scale(Vector2(0.01f, 0.01f));
         StandardMaterial mat;
@@ -349,7 +347,6 @@ namespace ace
             const UInt32 size = vertices.size();
             for (UInt32 j = 0; j < size; ++j)
             {
-                LogDebug(vertices[j], "tilemap vertex");
                 mat->position = vertices[j];
                 GraphicsDevice::Draw(sprite);
             }
