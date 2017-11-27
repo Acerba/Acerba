@@ -44,6 +44,11 @@ int main(int, char**)
     // Creates same tilemap to other position, (offset, depth) 
     tilemap.CreateTiles(offset, -1.0f);
     tilemap.CreateCollisions(0, offset);
+	
+	// Tilemap Append
+	ace::Tilemap appendMap("Assets/map2.tmx", 1.0f, ace::Vector3(0.5f, 0.5f, 0.0f));
+	appendMap.CreateTiles();
+	tilemap.Append(appendMap, offset, -1.0f);
     
     // Create a material
     ace::StandardMaterial tilemapMaterial;

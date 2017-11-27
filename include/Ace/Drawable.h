@@ -40,6 +40,7 @@ namespace ace
 			IndexBuffer indexBuffer;
 
             virtual void Draw() const;
+          
         };
 
     private:
@@ -51,6 +52,7 @@ namespace ace
 
         Texture tileset;
 
+        Tilemap();
         Tilemap(const Path& map, float scale = 1.0f, const Vector3& pivot = Vector3(0.5f, 0.5f, 0.f));
         ~Tilemap();
 
@@ -60,6 +62,8 @@ namespace ace
 		bool CreateCollisions(UInt32 layer, const Vector2& offset = Vector2(0.0f, 0.0f));
 		bool CreateCollisions(std::string layer, const Vector2& offset = Vector2(0.0f, 0.0f));
         void CreateTiles(const Vector2& offset = Vector2(0.0f, 0.0f), float depth = 0.0f, ReadTilemap callback = nullptr, void* arg = nullptr);
+
+        void Append(const Tilemap& map, const Vector2& offset = Vector2(0.0f, 0.0f), float depth = 0.0f);
 
         void Move(const Vector2& offset);
 

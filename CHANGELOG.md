@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 27.11.2017
+### Added
+  - Tilemap Append method
 
 ## 24.11.2017
 ### Added

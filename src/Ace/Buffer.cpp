@@ -7,6 +7,12 @@ namespace ace
 
 	}
 
+    void Buffer::operator=(const Buffer& buffer)
+    {
+        size = buffer.size;
+        m_impl = buffer.m_impl;
+    }
+
 	VertexBuffer::VertexBuffer(BufferImpl* impl) : Buffer(impl, BufferType::Vertex)
 	{
 

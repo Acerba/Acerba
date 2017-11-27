@@ -49,7 +49,12 @@ namespace ace
         std::vector<TileLayer> layers;
         std::vector<tmx::ObjectGroup*> objects;
 
-		std::vector< std::unique_ptr<Collidable> > collision;
+		std::vector< std::shared_ptr<Collidable> > collision;
+
+        TiledImpl() : isMapLoaded(false)
+        {
+
+        }
 
         TiledImpl(const Path path) : isMapLoaded(true)
         {
@@ -89,7 +94,6 @@ namespace ace
 
         Texture GetTileset()
         {
-
             if (isMapLoaded && map.getTilesets().size() > 0)
             {
                 std::string p = map.getTilesets()[0].getImagePath();
@@ -317,6 +321,14 @@ namespace ace
         }
     };
 
+
+    // Tilemap //
+
+    Tilemap::Tilemap() : Drawable(), m_tiledImpl(new TiledImpl())
+    {
+
+    }
+
     Tilemap::Tilemap(const Path& map, float scale, const Vector3& pivot) : Drawable(), m_tiledImpl(new TiledImpl(map))
     {
         tileset = m_tiledImpl->GetTileset();
@@ -453,7 +465,7 @@ namespace ace
 
                     if (points.size() == 3)
                     {
-                        m_tiledImpl->collision.emplace_back(std::make_unique<Triangle>(
+                        m_tiledImpl->collision.emplace_back(std::make_shared<Triangle>(
                             GetPosition(pos, Vector2(points[0].x, points[0].y)) + mapOffset,
                             GetPosition(pos, Vector2(points[1].x, points[1].y)) + mapOffset,
                             GetPosition(pos, Vector2(points[2].x, points[2].y)) + mapOffset
@@ -462,7 +474,7 @@ namespace ace
 
 					else if (points.size() == 4)
 					{
-                        m_tiledImpl->collision.emplace_back(std::make_unique<Rectangle>(
+                        m_tiledImpl->collision.emplace_back(std::make_shared<Rectangle>(
                             GetPosition(pos, Vector2(points[0].x, points[0].y)) + mapOffset,
                             GetPosition(pos, Vector2(points[1].x, points[1].y)) + mapOffset,
                             GetPosition(pos, Vector2(points[2].x, points[2].y)) + mapOffset,
@@ -492,6 +504,51 @@ namespace ace
 		return false;
 	}
 
+
+    void Tilemap::Append(const Tilemap& map, const Vector2& offset, float depth)
+    {
+        Vector2 mapOffset = map.m_tiledImpl->GetOffset(offset);
+        Vector3 tielOffset(mapOffset.x, mapOffset.y, depth);
+
+        UInt32 layersCount = m_tiledImpl->layers.size();
+        UInt32 collisionsCount = m_tiledImpl->collision.size();
+
+        m_tiledImpl->layers.insert(m_tiledImpl->layers.end(), map.m_tiledImpl->layers.begin(), map.m_tiledImpl->layers.end());
+        m_tiledImpl->collision.insert(m_tiledImpl->collision.end(), map.m_tiledImpl->collision.begin(), map.m_tiledImpl->collision.end());
+
+        if (offset.x != 0 || offset.y != 0)
+        {
+            for (UInt32 layer = layersCount; layer < m_tiledImpl->layers.size(); ++layer)
+            {
+                for (UInt32 i = 0; i < m_tiledImpl->layers[layer].tiles.size(); ++i)
+                {
+                    m_tiledImpl->layers[layer].tiles[i].Move(tielOffset);
+                }
+            }
+
+            for (UInt32 collision = collisionsCount; collision < m_tiledImpl->collision.size(); ++collision)
+            {
+                m_tiledImpl->collision[collision]->GetLocalPosition() += mapOffset;
+            }
+        }
+
+        if (!m_tiledImpl->isMapLoaded)
+        {
+            m_tiledImpl->col = map.m_tiledImpl->col;
+            m_tiledImpl->row = map.m_tiledImpl->row;
+            m_tiledImpl->scale = map.m_tiledImpl->scale;
+            
+            m_tiledImpl->pivot = map.m_tiledImpl->pivot;
+            m_tiledImpl->tileHeight = map.m_tiledImpl->tileHeight;
+            m_tiledImpl->tileWidth = map.m_tiledImpl->tileWidth;
+            m_tiledImpl->tilesetSize = map.m_tiledImpl->tilesetSize;
+
+            m_tiledImpl->sheet = map.m_tiledImpl->sheet;
+            m_tiledImpl->isMapLoaded = map.m_tiledImpl->isMapLoaded;
+
+            tileset = map.tileset;
+        }
+    }
 
     UInt32 Tilemap::GetRows() const
     {

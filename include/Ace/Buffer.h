@@ -77,6 +77,8 @@ namespace ace
 
 		Buffer(BufferImpl* impl, BufferType type);
 
+        void operator=(const Buffer& buffer);
+
 	protected:
 		virtual void Init() const;
 	};
