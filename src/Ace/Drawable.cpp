@@ -49,7 +49,7 @@ namespace ace
         std::vector<TileLayer> layers;
         std::vector<tmx::ObjectGroup*> objects;
 
-		std::vector< std::shared_ptr<Collidable> > collision;
+		std::vector< std::unique_ptr<Collidable> > collision;
 
         TiledImpl() : isMapLoaded(false)
         {
@@ -202,7 +202,7 @@ namespace ace
                 h = 1.0f;
             }
 
-            Vector2 result = Vector2(col * offset.x, row * offset.y);
+            Vector2 result = Vector2(col * offset.x, row * offset.y) * scale;
 
             if (map.getOrientation() == tmx::Orientation::Isometric)
             {
@@ -392,7 +392,7 @@ namespace ace
         //    }
         //}
         //#endif
-    }
+    }       
 
     void Tilemap::TileLayer::Draw() const
     {	
@@ -465,7 +465,7 @@ namespace ace
 
                     if (points.size() == 3)
                     {
-                        m_tiledImpl->collision.emplace_back(std::make_shared<Triangle>(
+                        m_tiledImpl->collision.emplace_back(std::make_unique<Triangle>(
                             GetPosition(pos, Vector2(points[0].x, points[0].y)) + mapOffset,
                             GetPosition(pos, Vector2(points[1].x, points[1].y)) + mapOffset,
                             GetPosition(pos, Vector2(points[2].x, points[2].y)) + mapOffset
@@ -474,13 +474,12 @@ namespace ace
 
 					else if (points.size() == 4)
 					{
-                        m_tiledImpl->collision.emplace_back(std::make_shared<Rectangle>(
+                        m_tiledImpl->collision.emplace_back(std::make_unique<Rectangle>(
                             GetPosition(pos, Vector2(points[0].x, points[0].y)) + mapOffset,
                             GetPosition(pos, Vector2(points[1].x, points[1].y)) + mapOffset,
                             GetPosition(pos, Vector2(points[2].x, points[2].y)) + mapOffset,
                             GetPosition(pos, Vector2(points[3].x, points[3].y)) + mapOffset
                         ));
-
 					}
 				}
 			}
@@ -514,7 +513,29 @@ namespace ace
         UInt32 collisionsCount = m_tiledImpl->collision.size();
 
         m_tiledImpl->layers.insert(m_tiledImpl->layers.end(), map.m_tiledImpl->layers.begin(), map.m_tiledImpl->layers.end());
-        m_tiledImpl->collision.insert(m_tiledImpl->collision.end(), map.m_tiledImpl->collision.begin(), map.m_tiledImpl->collision.end());
+
+        for (UInt32 i = 0; i < map.m_tiledImpl->collision.size(); ++i)
+        {
+            std::vector<Vector2>& vertices = map.m_tiledImpl->collision[i]->GetVertices();
+
+            if (vertices.size() == 3)
+            {
+                m_tiledImpl->collision.emplace_back(std::make_unique<Triangle>(
+                    vertices[0] + mapOffset,
+                    vertices[1] + mapOffset,
+                    vertices[2] + mapOffset
+                 ));
+            }
+            else if (vertices.size() == 4)
+            {
+                m_tiledImpl->collision.emplace_back(std::make_unique<Rectangle>(
+                    vertices[0] + mapOffset,
+                    vertices[1] + mapOffset,
+                    vertices[2] + mapOffset,
+                    vertices[3] + mapOffset
+                ));
+            }
+        }
 
         if (offset.x != 0 || offset.y != 0)
         {
@@ -524,11 +545,6 @@ namespace ace
                 {
                     m_tiledImpl->layers[layer].tiles[i].Move(tielOffset);
                 }
-            }
-
-            for (UInt32 collision = collisionsCount; collision < m_tiledImpl->collision.size(); ++collision)
-            {
-                m_tiledImpl->collision[collision]->GetLocalPosition() += mapOffset;
             }
         }
 
