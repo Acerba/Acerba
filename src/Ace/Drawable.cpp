@@ -516,7 +516,7 @@ namespace ace
 
         for (UInt32 i = 0; i < map.m_tiledImpl->collision.size(); ++i)
         {
-            std::vector<Vector2>& vertices = map.m_tiledImpl->collision[i]->GetVertices();
+            std::vector<Vector2> vertices = map.m_tiledImpl->collision[i]->GetVertices();
 
             if (vertices.size() == 3)
             {
