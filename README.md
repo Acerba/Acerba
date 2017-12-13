@@ -1,4 +1,6 @@
-# How to (WIP)
+# How to
+
+**For projects check:** [Acerba Template](https://github.com/Acerba/Acerba-Template)
 
 1. Download [CMake](https://cmake.org/download/)
 2. Run CMake-Gui
